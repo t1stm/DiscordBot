@@ -43,12 +43,7 @@ namespace Bat_Tosho
         public static ActivityType IdleActivity = ActivityType.Playing;
         public static DiscordActivity DiscordActivity = new(IdleStatus, IdleActivity);
 
-        public static readonly DiscordClient Discord = new(new DiscordConfiguration
-        {
-            Token = DiscordAuthToken,
-            TokenType = TokenType.Bot,
-            MinimumLogLevel = LogLevel.Information
-        });
+        public static DiscordClient Discord;
 
         private static void InitCustomStatuses()
         {
@@ -62,7 +57,7 @@ namespace Bat_Tosho
                 {"With Your Mom's Pussy", ActivityType.Playing},
                 {"On dank.gq", ActivityType.Streaming},
                 {"Best Bot Awards 2021", ActivityType.Competing},
-                {"Memes on http://dank.gq/Memes", ActivityType.Watching},
+                {"Memes on https://dank.gq/Memes", ActivityType.Watching},
                 {"Dead by Daylight", ActivityType.Playing},
                 {"League of Legends", ActivityType.Playing},
                 {"Minecraft", ActivityType.Playing},
@@ -78,6 +73,12 @@ namespace Bat_Tosho
         public static async Task MainAsync(bool release = false)
         {
             await Debug.Write($"Bat Tosho Veche E Velik. Bot Tokens are: Release: \"{BotRelease}\", Beta: \"{BotBeta}\", Using: \"{release switch{false => nameof(BotBeta), true => nameof(BotRelease)}}\"");
+            Discord = new DiscordClient(new DiscordConfiguration
+            {
+                Token = DiscordAuthToken,
+                TokenType = TokenType.Bot,
+                MinimumLogLevel = LogLevel.Information
+            }); //I moved the initialization to here because a new bu_g had appeared while I was making some changes to the way the bot was working. Le EPICO
             InitCustomStatuses();
             DiscordAuthToken = release switch {true => BotRelease, false => BotBeta};
             var commands = Discord.UseCommandsNext(new CommandsNextConfiguration
@@ -141,7 +142,7 @@ namespace Bat_Tosho
                  $" {DiscordActivity.Name} {DiscordActivity.StreamUrl}");
 
                 await Discord.UpdateStatusAsync(
-                    DiscordActivity); // 02 Aug 2021 Why was this run synchronously I don't even know.;
+                    DiscordActivity); // 02 Aug 2021 Why was this run synchronously I don't even know. :|
             }
             catch (Exception e)
             {

@@ -6,6 +6,8 @@ namespace BatToshoRESTApp
 {
     public static class Program
     {
+        //EEEEE HABIBI GAZARI KAK STE
+        //ETO VI LINKA ZA DISCORD TESTING SERVERA: https://discord.gg/fZ74marh7R
         public static void Main(string[] args)
         {
             bool release = false;
