@@ -73,6 +73,7 @@ namespace Bat_Tosho
         public static async Task MainAsync(bool release = false)
         {
             await Debug.Write($"Bat Tosho Veche E Velik. Bot Tokens are: Release: \"{BotRelease}\", Beta: \"{BotBeta}\", Using: \"{release switch{false => nameof(BotBeta), true => nameof(BotRelease)}}\"");
+            DiscordAuthToken = release switch {true => BotRelease, false => BotBeta};
             Discord = new DiscordClient(new DiscordConfiguration
             {
                 Token = DiscordAuthToken,
@@ -80,7 +81,6 @@ namespace Bat_Tosho
                 MinimumLogLevel = LogLevel.Information
             }); //I moved the initialization to here because a new bu_g had appeared while I was making some changes to the way the bot was working. Le EPICO
             InitCustomStatuses();
-            DiscordAuthToken = release switch {true => BotRelease, false => BotBeta};
             var commands = Discord.UseCommandsNext(new CommandsNextConfiguration
             {
                 // ReSharper disable HeuristicUnreachableCode
