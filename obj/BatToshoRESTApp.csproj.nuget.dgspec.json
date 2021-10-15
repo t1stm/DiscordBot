@@ -41,19 +41,19 @@
           "dependencies": {
             "DSharpPlus": {
               "target": "Package",
-              "version": "[4.2.0-nightly-01013, )"
+              "version": "[4.2.0-nightly-01030, )"
             },
             "DSharpPlus.CommandsNext": {
               "target": "Package",
-              "version": "[4.2.0-nightly-01013, )"
+              "version": "[4.2.0-nightly-01030, )"
             },
             "DSharpPlus.Interactivity": {
               "target": "Package",
-              "version": "[4.2.0-nightly-01013, )"
+              "version": "[4.2.0-nightly-01030, )"
             },
             "DSharpPlus.VoiceNext": {
               "target": "Package",
-              "version": "[4.2.0-nightly-01013, )"
+              "version": "[4.2.0-nightly-01030, )"
             },
             "DSharpPlus.VoiceNext.Natives": {
               "target": "Package",
@@ -111,11 +111,11 @@
             },
             "SpotifyAPI.Web": {
               "target": "Package",
-              "version": "[6.2.1, )"
+              "version": "[6.2.2, )"
             },
             "SpotifyAPI.Web.Auth": {
               "target": "Package",
-              "version": "[6.2.1, )"
+              "version": "[6.2.2, )"
             },
             "YouTubeApiSharp": {
               "target": "Package",
@@ -140,20 +140,6 @@
           ],
           "assetTargetFallback": true,
           "warn": true,
-          "downloadDependencies": [
-            {
-              "name": "Microsoft.AspNetCore.App.Runtime.linux-x64",
-              "version": "[5.0.8, 5.0.8]"
-            },
-            {
-              "name": "Microsoft.NETCore.App.Host.linux-x64",
-              "version": "[5.0.8, 5.0.8]"
-            },
-            {
-              "name": "Microsoft.NETCore.App.Runtime.linux-x64",
-              "version": "[5.0.8, 5.0.8]"
-            }
-          ],
           "frameworkReferences": {
             "Microsoft.AspNetCore.App": {
               "privateAssets": "none"
@@ -163,11 +149,6 @@
             }
           },
           "runtimeIdentifierGraphPath": "/usr/share/dotnet/sdk/5.0.205/RuntimeIdentifierGraph.json"
-        }
-      },
-      "runtimes": {
-        "linux-x64": {
-          "#import": []
         }
       }
     }

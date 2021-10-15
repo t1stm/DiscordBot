@@ -199,7 +199,6 @@ namespace Bat_Tosho.Audio
                 if (Instances[ctx.Guild].WaitingToLeave)
                     return;
                 Instances[ctx.Guild].CurrentVideoInfo().Stopwatch.Reset();
-                Instances[ctx.Guild].CurrentVideoInfo().Skipped = true;
                 Instances[ctx.Guild].CurrentVideoInfo().Paused = false;
                 Instances[ctx.Guild].Song += times - 1;
                 

@@ -111,7 +111,6 @@ namespace BatToshoRESTApp.Controllers
                 return "failed";
             }
             instance.CurrentVideoInfo().Stopwatch.Reset();
-            instance.CurrentVideoInfo().Skipped = true;
             instance.CurrentVideoInfo().Paused = false;
             instance.Song += times2 - 1;
             if (instance.Song < -1)

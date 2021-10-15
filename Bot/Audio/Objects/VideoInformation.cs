@@ -41,13 +41,11 @@ namespace Bat_Tosho.Audio.Objects
         public int LengthMs { get; }
 
         public Stopwatch Stopwatch { get; } = new();
-        public bool Skipped { get; set; }
-
         public bool Paused { get; set; }
 
         public DiscordUser Requester { get; }
         
-        public string ThubmnailUrl { get; set; }
+        public string ThubmnailUrl { get; init; }
         public bool Lock { get; set; }
     }
 }

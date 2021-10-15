@@ -118,7 +118,6 @@ namespace Bat_Tosho.Audio.Platforms.Youtube
 
         private async Task<string> DownloadExplode(string id, bool getHq, bool urgent)
         {
-            bool returnB = true;
             var client = new YoutubeClient(_httpClient);
 
             var streamManifest = await client.Videos.Streams.GetManifestAsync(id);
