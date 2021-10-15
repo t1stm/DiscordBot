@@ -420,7 +420,7 @@ namespace Bat_Tosho.Audio
         }
 
         private static DiscordChannel ReturnStatusbarChannel(CommandContext ctx) =>
-            ctx.Guild.Channels.First(ch => ch.Value.Name is "diskoteka" or "discoteka" or "music").Value ?? ctx.Channel;
+            ctx.Guild.Channels.FirstOrDefault(ch => ch.Value.Name is "diskoteka" or "discoteka" or "music").Value ?? ctx.Channel;
         public static async Task Download(CommandContext ctx, string path)
         {
             var client = new YoutubeClient(HttpClient.WithCookies());
