@@ -24,6 +24,8 @@ namespace Bat_Tosho.Audio.Objects
         public LoopStatus LoopStatus { get; set; } = LoopStatus.None; 
 
         public bool WaitingToLeave { get; set; } = false;
+        
+        public DiscordChannel StatusbarChannel { get; set; }
 
         public VideoInformation CurrentVideoInfo()
         {

@@ -32,8 +32,11 @@ namespace Bat_Tosho.Audio
         public static Dictionary<DiscordUser, bool> AbuseList = new();
         public static bool ExecutedCommand { get; set; }
 
-        public static async Task Play(CommandContext ctx, string path, DiscordMessage message)
+        public static async Task Play(CommandContext ctx, string path)
         {
+            var statusbarChannel = ReturnStatusbarChannel(ctx);
+            DiscordMessage message =
+                await ctx.Client.SendMessageAsync(statusbarChannel, "```Hello! I need to do some things. Please don't queue up any songs until I am done.```");
             //Adding Guild to Dictionary
             if (!PrepareGuild(ctx))
             {
@@ -92,9 +95,11 @@ namespace Bat_Tosho.Audio
                 case false:
                     instance.Playing = true;
                     instance.Statusbar = new Statusbar();
+                    instance.StatusbarChannel = statusbarChannel;
                     instance.StatusbarMessage = message;
                     instance.UpdatingLists = true;
                     instance.VoiceChannel = userVoiceStateChannel;
+                    
                     results = await search.GetResults(path);
                     var statusbarTask = new Task(async () =>
                     {
@@ -414,6 +419,8 @@ namespace Bat_Tosho.Audio
             WebUserInterfaceUsers.Add(passwordString, ctx.User);
         }
 
+        private static DiscordChannel ReturnStatusbarChannel(CommandContext ctx) =>
+            ctx.Guild.Channels.First(ch => ch.Value.Name is "diskoteka" or "discoteka" or "music").Value ?? ctx.Channel;
         public static async Task Download(CommandContext ctx, string path)
         {
             var client = new YoutubeClient(HttpClient.WithCookies());

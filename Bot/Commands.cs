@@ -23,7 +23,7 @@ namespace Bat_Tosho
 
         private static Dictionary<ulong, bool> Abuse { get; set; } = new();
 
-        private static async Task MultipleCommandsChecker(string text, CommandContext ctx, DiscordMessage message)
+        private static async Task MultipleCommandsChecker(string text, CommandContext ctx)
         {
             string[] commands = text[1..].Split("!&&"); // nice
             // Quick explanation: This is a range indexer. It really is useful in cases like these. It can be used in an array too, and technically a string is a char array.
@@ -50,7 +50,7 @@ namespace Bat_Tosho
                         {
                             try
                             {
-                                await Manager.Play(ctx, t[4..], message); //The same thing here.
+                                await Manager.Play(ctx, t[4..]); //The same thing here.
                             }
                             catch (Exception e)
                             {
@@ -80,9 +80,7 @@ namespace Bat_Tosho
                     true => Translate.BulgarianTraditionalToQwerty(path),
                     false => path
                 };
-                var message = await Respond.FormattedMessage(ctx,
-                    "Hello! I need to do some things. Please don't queue up any songs until I am done."); // Is this message even seen anymore?
-                await MultipleCommandsChecker($"=play {text}", ctx, message);
+                await MultipleCommandsChecker($"=play {text}", ctx);
             }
             catch (Exception e) // Ahh yes the try, catch spam initiates. Gotta not crash the bot when the spaghetti code acts up. Note: it still crashes.
             {

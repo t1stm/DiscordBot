@@ -20,7 +20,6 @@ namespace Bat_Tosho.Messages
         public long Current, Max;
         public StatusbarStatus Status = StatusbarStatus.Null;
         private Stopwatch WaitingStopwatch { get; }= new();
-        
         public bool UpdatePlacement { get; set; }
         private static string SongName => "";
         public static string Message => "";
@@ -129,7 +128,7 @@ namespace Bat_Tosho.Messages
                 try
                 {
                     instance.StatusbarMessage =
-                        await ctx.Channel.SendMessageAsync(statusbar);
+                        await ctx.Client.SendMessageAsync(instance.StatusbarChannel, statusbar);
                 }
                 catch (Exception e)
                 {
