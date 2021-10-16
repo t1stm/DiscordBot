@@ -126,7 +126,7 @@ namespace Bat_Tosho.Audio.Platforms.Youtube
                 true => streamManifest.GetMuxedStreams().GetWithHighestVideoQuality(),
                 false => streamManifest.GetAudioOnlyStreams().GetWithHighestBitrate()
             };
-            string address = streamInfo.Url;
+            var address = streamInfo.Url;
             var filepath = $"{Program.MainDirectory}dll/audio/{id}.{streamInfo.Container}";
             var dllTask = new Task(async () =>
             {
@@ -145,15 +145,13 @@ namespace Bat_Tosho.Audio.Platforms.Youtube
             {
                 var timer = new Stopwatch();
                 timer.Start();
-                while (timer.Elapsed.Seconds <= 5)
-                {
-                    await Task.Delay(500);
-                }
+                while (timer.Elapsed.Seconds <= 5) await Task.Delay(500);
             }
             else
             {
                 while (dllTask.Status == TaskStatus.Running || address != filepath) await Task.Delay(500);
             }
+
             return address;
         }
 

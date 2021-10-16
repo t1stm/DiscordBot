@@ -63,12 +63,14 @@ namespace Bat_Tosho.Audio
                     instance.CurrentVideoInfo().Stopwatch.Reset();
                     continue;
                 }
-                while (instance.Song +1 ==  instance.VideoInfos.Count && stopwatch.Elapsed.Minutes < 15)
+
+                while (instance.Song + 1 == instance.VideoInfos.Count && stopwatch.Elapsed.Minutes < 15)
                 {
                     await Task.Delay(1000);
                     instance.Statusbar.Status = StatusbarStatus.Waiting;
                     instance.WaitingToLeave = true;
                 }
+
                 instance.Statusbar.Status = StatusbarStatus.Playing;
                 instance.WaitingToLeave = false;
                 stopwatch.Reset();
@@ -102,7 +104,8 @@ namespace Bat_Tosho.Audio
                 if (info.Type is VideoSearchTypes.Downloaded or VideoSearchTypes.HttpFileStream) return;
                 var down = new Download();
                 if (info.Type != VideoSearchTypes.NotDownloaded)
-                    throw new InvalidProgramException("Video doesn't have the NotDownloaded Tag after multiple checks.");
+                    throw new InvalidProgramException(
+                        "Video doesn't have the NotDownloaded Tag after multiple checks.");
                 await Debug.Write($"Video ID is: {info.YoutubeIdOrPathToFile}", false);
                 info.Location = await down.GetFilepath(info.YoutubeIdOrPathToFile, false, urgent);
                 info.Type = VideoSearchTypes.Downloaded;
@@ -118,11 +121,11 @@ namespace Bat_Tosho.Audio
             if (instance.ActiveDownloadTasks >= 1) return;
             instance.ActiveDownloadTasks++;
             for (var i = 0; i < instance.VideoInfos.Count; i++)
-            {
                 try
                 {
                     var info = instance.VideoInfos[i];
-                    if (info.Lock || info.Type is VideoSearchTypes.Downloaded or VideoSearchTypes.HttpFileStream) continue;
+                    if (info.Lock || info.Type is VideoSearchTypes.Downloaded or VideoSearchTypes.HttpFileStream)
+                        continue;
                     info.Lock = true;
                     await Debug.Write($"VideoInfos.Count = {instance.VideoInfos.Count}", false);
                     await CheckIfUpdatedSpotify(instance, i);
@@ -133,7 +136,6 @@ namespace Bat_Tosho.Audio
                 {
                     await Debug.Write($"Threw in for loop in Download Remaining: {e}");
                 }
-            }
 
             instance.ActiveDownloadTasks--;
         }

@@ -3,8 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
+using Bat_Tosho.Audio;
 using Bat_Tosho.Audio.Objects;
+using Bat_Tosho.Audio.Platforms.Youtube;
 using Bat_Tosho.Enums;
+using Bat_Tosho.Methods;
 using BatToshoRESTApp.Components;
 using DSharpPlus.Entities;
 using DSharpPlus.VoiceNext;
@@ -19,11 +22,10 @@ namespace BatToshoRESTApp.Controllers
         // GET
         public async Task<string> Search(string searchTerm)
         {
-            var client = new YoutubeClient(Bat_Tosho.Methods.HttpClient.WithCookies());
+            var client = new YoutubeClient(HttpClient.WithCookies());
             var video = await client.Search.GetVideosAsync(searchTerm).CollectAsync(25);
             var list = new ListSearch(new List<SearchResultTemplate>());
             foreach (var result in video)
-            {
                 list.Array.Add(new SearchResultTemplate
                 {
                     Title = result.Title,
@@ -33,23 +35,22 @@ namespace BatToshoRESTApp.Controllers
                     ThumbnailUrl = result.Thumbnails[0].Url,
                     VideoId = result.Id
                 });
-            }
-            string jsonRes = JsonSerializer.Serialize(list);
+            var jsonRes = JsonSerializer.Serialize(list);
             return jsonRes;
         }
 
         public async Task<string> AddToQueue(string guildId, string clientSecret, string videoId)
         {
             if (string.IsNullOrEmpty(clientSecret)) return "notAuthenticated";
-            if (!Bat_Tosho.Audio.Manager.WebUserInterfaceUsers.ContainsKey(clientSecret)) return "notAuthenticated";
-            var user = Bat_Tosho.Audio.Manager.WebUserInterfaceUsers[clientSecret];
+            if (!Manager.WebUserInterfaceUsers.ContainsKey(clientSecret)) return "notAuthenticated";
+            var user = Manager.WebUserInterfaceUsers[clientSecret];
             Instance instance;
             DiscordGuild guild;
-            if (Bat_Tosho.Audio.Manager.Instances.Keys.Count < 1)
+            if (Manager.Instances.Keys.Count < 1)
                 return "failed";
             try
             {
-                guild = Bat_Tosho.Audio.Manager.Instances.Keys.FirstOrDefault(key => key.Id == Convert.ToUInt64(guildId));
+                guild = Manager.Instances.Keys.FirstOrDefault(key => key.Id == Convert.ToUInt64(guildId));
             }
             catch (Exception)
             {
@@ -60,13 +61,14 @@ namespace BatToshoRESTApp.Controllers
                 return "failed";
             try
             {
-                instance = Bat_Tosho.Audio.Manager.Instances[guild];
+                instance = Manager.Instances[guild];
             }
             catch (Exception)
             {
                 return "failed";
             }
-            var vi = await Bat_Tosho.Audio.Platforms.Youtube.Video.Get(videoId, VideoSearchTypes.YoutubeVideoId,
+
+            var vi = await Video.Get(videoId, VideoSearchTypes.YoutubeVideoId,
                 PartOf.YoutubeSearch, user);
             instance.VideoInfos.Add(vi.First());
 
@@ -76,15 +78,15 @@ namespace BatToshoRESTApp.Controllers
         public async Task<string> Skip(string guildId, string clientSecret, string times)
         {
             if (string.IsNullOrEmpty(clientSecret)) return "notAuthenticated";
-            if (!Bat_Tosho.Audio.Manager.WebUserInterfaceUsers.ContainsKey(clientSecret)) return "notAuthenticated";
+            if (!Manager.WebUserInterfaceUsers.ContainsKey(clientSecret)) return "notAuthenticated";
             int times2;
             Instance instance;
             DiscordGuild guild;
-            if (Bat_Tosho.Audio.Manager.Instances.Keys.Count < 1)
+            if (Manager.Instances.Keys.Count < 1)
                 return "failed";
             try
             {
-                guild = Bat_Tosho.Audio.Manager.Instances.Keys.FirstOrDefault(key => key.Id == Convert.ToUInt64(guildId));
+                guild = Manager.Instances.Keys.FirstOrDefault(key => key.Id == Convert.ToUInt64(guildId));
             }
             catch (Exception)
             {
@@ -95,7 +97,7 @@ namespace BatToshoRESTApp.Controllers
                 return "failed";
             try
             {
-                instance = Bat_Tosho.Audio.Manager.Instances[guild];
+                instance = Manager.Instances[guild];
             }
             catch (Exception)
             {
@@ -110,6 +112,7 @@ namespace BatToshoRESTApp.Controllers
             {
                 return "failed";
             }
+
             instance.CurrentVideoInfo().Stopwatch.Reset();
             instance.CurrentVideoInfo().Paused = false;
             instance.Song += times2 - 1;
@@ -118,21 +121,21 @@ namespace BatToshoRESTApp.Controllers
             if (instance.Song > instance.VideoInfos.Count - 1)
                 instance.Song = instance.VideoInfos.Count - 1;
             await instance.Ffmpeg.Kill();
-            
+
             return "success";
         }
 
         public string CurrentSong(string guildId, string clientSecret)
         {
             if (string.IsNullOrEmpty(clientSecret)) return "notAuthenticated";
-            if (!Bat_Tosho.Audio.Manager.WebUserInterfaceUsers.ContainsKey(clientSecret)) return "notAuthenticated";
+            if (!Manager.WebUserInterfaceUsers.ContainsKey(clientSecret)) return "notAuthenticated";
             Instance instance;
             DiscordGuild guild;
-            if (Bat_Tosho.Audio.Manager.Instances.Keys.Count < 1)
+            if (Manager.Instances.Keys.Count < 1)
                 return "failed";
             try
             {
-                guild = Bat_Tosho.Audio.Manager.Instances.Keys.FirstOrDefault(key => key.Id == Convert.ToUInt64(guildId));
+                guild = Manager.Instances.Keys.FirstOrDefault(key => key.Id == Convert.ToUInt64(guildId));
             }
             catch (Exception)
             {
@@ -143,7 +146,7 @@ namespace BatToshoRESTApp.Controllers
                 return "failed";
             try
             {
-                instance = Bat_Tosho.Audio.Manager.Instances[guild];
+                instance = Manager.Instances[guild];
             }
             catch (Exception)
             {
@@ -169,14 +172,14 @@ namespace BatToshoRESTApp.Controllers
         public string GetList(string guildId, string clientSecret)
         {
             if (string.IsNullOrEmpty(clientSecret)) return "notAuthenticated";
-            if (!Bat_Tosho.Audio.Manager.WebUserInterfaceUsers.ContainsKey(clientSecret)) return "notAuthenticated";
+            if (!Manager.WebUserInterfaceUsers.ContainsKey(clientSecret)) return "notAuthenticated";
             Instance instance;
             DiscordGuild guild;
-            if (Bat_Tosho.Audio.Manager.Instances.Keys.Count < 1)
+            if (Manager.Instances.Keys.Count < 1)
                 return "failed";
             try
             {
-                guild = Bat_Tosho.Audio.Manager.Instances.Keys.FirstOrDefault(key => key.Id == Convert.ToUInt64(guildId));
+                guild = Manager.Instances.Keys.FirstOrDefault(key => key.Id == Convert.ToUInt64(guildId));
             }
             catch (Exception)
             {
@@ -187,7 +190,7 @@ namespace BatToshoRESTApp.Controllers
                 return "failed";
             try
             {
-                instance = Bat_Tosho.Audio.Manager.Instances[guild];
+                instance = Manager.Instances[guild];
             }
             catch (Exception)
             {
@@ -211,28 +214,29 @@ namespace BatToshoRESTApp.Controllers
 
             return JsonSerializer.Serialize(list);
         }
-        
+
         public string ChangeVolume(string guildId, string clientSecret, string percent)
         {
             if (string.IsNullOrEmpty(clientSecret)) return "notAuthenticated";
-            if (!Bat_Tosho.Audio.Manager.WebUserInterfaceUsers.ContainsKey(clientSecret)) return "notAuthenticated";
+            if (!Manager.WebUserInterfaceUsers.ContainsKey(clientSecret)) return "notAuthenticated";
             Instance instance;
             DiscordGuild guild;
-            if (Bat_Tosho.Audio.Manager.Instances.Keys.Count < 1)
+            if (Manager.Instances.Keys.Count < 1)
                 return "failed";
             try
             {
-                guild = Bat_Tosho.Audio.Manager.Instances.Keys.FirstOrDefault(key => key.Id == Convert.ToUInt64(guildId));
+                guild = Manager.Instances.Keys.FirstOrDefault(key => key.Id == Convert.ToUInt64(guildId));
             }
             catch (Exception)
             {
                 return "failed";
             }
+
             if (guild == null)
                 return "failed";
             try
             {
-                instance = Bat_Tosho.Audio.Manager.Instances[guild];
+                instance = Manager.Instances[guild];
             }
             catch (Exception)
             {
@@ -256,29 +260,31 @@ namespace BatToshoRESTApp.Controllers
         public string Shuffle(string guildId, string clientSecret)
         {
             if (string.IsNullOrEmpty(clientSecret)) return "notAuthenticated";
-            if (!Bat_Tosho.Audio.Manager.WebUserInterfaceUsers.ContainsKey(clientSecret)) return "notAuthenticated";
+            if (!Manager.WebUserInterfaceUsers.ContainsKey(clientSecret)) return "notAuthenticated";
             Instance instance;
             DiscordGuild guild;
-            if (Bat_Tosho.Audio.Manager.Instances.Keys.Count < 1)
+            if (Manager.Instances.Keys.Count < 1)
                 return "failed";
             try
             {
-                guild = Bat_Tosho.Audio.Manager.Instances.Keys.FirstOrDefault(key => key.Id == Convert.ToUInt64(guildId));
+                guild = Manager.Instances.Keys.FirstOrDefault(key => key.Id == Convert.ToUInt64(guildId));
             }
             catch (Exception)
             {
                 return "failed";
             }
+
             if (guild == null)
                 return "failed";
             try
             {
-                instance = Bat_Tosho.Audio.Manager.Instances[guild];
+                instance = Manager.Instances[guild];
             }
             catch (Exception)
             {
                 return "failed";
             }
+
             try
             {
                 Bat_Tosho.Program.Rng = new Random();
@@ -296,27 +302,28 @@ namespace BatToshoRESTApp.Controllers
             }
         }
 
-        public async Task<string> PlayPause (string guildId, string clientSecret)
+        public async Task<string> PlayPause(string guildId, string clientSecret)
         {
             if (string.IsNullOrEmpty(clientSecret)) return "notAuthenticated";
-            if (!Bat_Tosho.Audio.Manager.WebUserInterfaceUsers.ContainsKey(clientSecret)) return "notAuthenticated";
+            if (!Manager.WebUserInterfaceUsers.ContainsKey(clientSecret)) return "notAuthenticated";
             Instance instance;
             DiscordGuild guild;
-            if (Bat_Tosho.Audio.Manager.Instances.Keys.Count < 1)
+            if (Manager.Instances.Keys.Count < 1)
                 return "failed";
             try
             {
-                guild = Bat_Tosho.Audio.Manager.Instances.Keys.FirstOrDefault(key => key.Id == Convert.ToUInt64(guildId));
+                guild = Manager.Instances.Keys.FirstOrDefault(key => key.Id == Convert.ToUInt64(guildId));
             }
             catch (Exception)
             {
                 return "failed";
             }
+
             if (guild == null)
                 return "failed";
             try
             {
-                instance = Bat_Tosho.Audio.Manager.Instances[guild];
+                instance = Manager.Instances[guild];
             }
             catch (Exception)
             {
@@ -328,7 +335,7 @@ namespace BatToshoRESTApp.Controllers
 
             switch (instance.CurrentVideoInfo().Paused)
             {
-                case false: 
+                case false:
                     instance.CurrentVideoInfo().Paused = true;
                     instance.CurrentVideoInfo().Stopwatch.Stop();
                     instance.Song -= 1;
@@ -338,36 +345,38 @@ namespace BatToshoRESTApp.Controllers
                     instance.CurrentVideoInfo().Paused = false;
                     break;
             }
-            
+
             return "success";
         }
 
         public async Task<string> LeaveFromChannel(string guildId, string clientSecret)
         {
             if (string.IsNullOrEmpty(clientSecret)) return "notAuthenticated";
-            if (!Bat_Tosho.Audio.Manager.WebUserInterfaceUsers.ContainsKey(clientSecret)) return "notAuthenticated";
+            if (!Manager.WebUserInterfaceUsers.ContainsKey(clientSecret)) return "notAuthenticated";
             Instance instance;
             DiscordGuild guild;
-            if (Bat_Tosho.Audio.Manager.Instances.Keys.Count < 1)
+            if (Manager.Instances.Keys.Count < 1)
                 return "failed";
             try
             {
-                guild = Bat_Tosho.Audio.Manager.Instances.Keys.FirstOrDefault(key => key.Id == Convert.ToUInt64(guildId));
+                guild = Manager.Instances.Keys.FirstOrDefault(key => key.Id == Convert.ToUInt64(guildId));
             }
             catch (Exception)
             {
                 return "failed";
             }
+
             if (guild == null)
                 return "failed";
             try
             {
-                instance = Bat_Tosho.Audio.Manager.Instances[guild];
+                instance = Manager.Instances[guild];
             }
             catch (Exception)
             {
                 return "failed";
             }
+
             try
             {
                 await instance.Statusbar.Stop(instance, "Stopped from the web interface.");
@@ -375,7 +384,7 @@ namespace BatToshoRESTApp.Controllers
                 var vnc = vnext.GetConnection(guild);
                 vnc.Disconnect();
                 instance.VideoInfos.Clear();
-                Bat_Tosho.Audio.Manager.Instances.Remove(guild);
+                Manager.Instances.Remove(guild);
                 return "success";
             }
             catch (Exception)
@@ -387,25 +396,26 @@ namespace BatToshoRESTApp.Controllers
         public string MoveSong(string guildId, string clientSecret, int from, int to)
         {
             if (string.IsNullOrEmpty(clientSecret)) return "notAuthenticated";
-            if (!Bat_Tosho.Audio.Manager.WebUserInterfaceUsers.ContainsKey(clientSecret)) return "notAuthenticated";
+            if (!Manager.WebUserInterfaceUsers.ContainsKey(clientSecret)) return "notAuthenticated";
             if (from is 0 || to is 0) return "failed";
             Instance instance;
             DiscordGuild guild;
-            if (Bat_Tosho.Audio.Manager.Instances.Keys.Count < 1)
+            if (Manager.Instances.Keys.Count < 1)
                 return "failed";
             try
             {
-                guild = Bat_Tosho.Audio.Manager.Instances.Keys.FirstOrDefault(key => key.Id == Convert.ToUInt64(guildId));
+                guild = Manager.Instances.Keys.FirstOrDefault(key => key.Id == Convert.ToUInt64(guildId));
             }
             catch (Exception)
             {
                 return "failed";
             }
+
             if (guild == null)
                 return "failed";
             try
             {
-                instance = Bat_Tosho.Audio.Manager.Instances[guild];
+                instance = Manager.Instances[guild];
             }
             catch (Exception)
             {

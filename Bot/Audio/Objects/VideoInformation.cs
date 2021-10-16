@@ -44,7 +44,7 @@ namespace Bat_Tosho.Audio.Objects
         public bool Paused { get; set; }
 
         public DiscordUser Requester { get; }
-        
+
         public string ThubmnailUrl { get; init; }
         public bool Lock { get; set; }
     }

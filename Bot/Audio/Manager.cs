@@ -35,8 +35,9 @@ namespace Bat_Tosho.Audio
         public static async Task Play(CommandContext ctx, string path)
         {
             var statusbarChannel = ReturnStatusbarChannel(ctx);
-            DiscordMessage message =
-                await ctx.Client.SendMessageAsync(statusbarChannel, "```Hello! I need to do some things. Please don't queue up any songs until I am done.```");
+            var message =
+                await ctx.Client.SendMessageAsync(statusbarChannel,
+                    "```Hello! I need to do some things. Please don't queue up any songs until I am done.```");
             //Adding Guild to Dictionary
             if (!PrepareGuild(ctx))
             {
@@ -99,7 +100,7 @@ namespace Bat_Tosho.Audio
                     instance.StatusbarMessage = message;
                     instance.UpdatingLists = true;
                     instance.VoiceChannel = userVoiceStateChannel;
-                    
+
                     results = await search.GetResults(path);
                     var statusbarTask = new Task(async () =>
                     {
@@ -206,7 +207,7 @@ namespace Bat_Tosho.Audio
                 Instances[ctx.Guild].CurrentVideoInfo().Stopwatch.Reset();
                 Instances[ctx.Guild].CurrentVideoInfo().Paused = false;
                 Instances[ctx.Guild].Song += times - 1;
-                
+
                 if (Instances[ctx.Guild].Song < -1)
                     Instances[ctx.Guild].Song = -1;
                 if (Instances[ctx.Guild].Song > Instances[ctx.Guild].VideoInfos.Count - 1)
@@ -246,13 +247,15 @@ namespace Bat_Tosho.Audio
         {
             var instance = Instances[ctx.Guild];
 
-            instance.LoopStatus = instance.LoopStatus switch {LoopStatus.None => LoopStatus.LoopPlaylist, LoopStatus.LoopPlaylist => LoopStatus.LoopOne,
+            instance.LoopStatus = instance.LoopStatus switch
+            {
+                LoopStatus.None => LoopStatus.LoopPlaylist, LoopStatus.LoopPlaylist => LoopStatus.LoopOne,
                 LoopStatus.LoopOne => LoopStatus.None, _ => LoopStatus.None
             };
             await Respond.FormattedMessage(ctx, "Loop status is now: " +
-            $"{instance.LoopStatus switch {LoopStatus.None => "None", LoopStatus.LoopPlaylist => "Looping whole playlist", LoopStatus.LoopOne => "Looping one song.", _ => throw new NotSupportedException()}}");
+                                                $"{instance.LoopStatus switch {LoopStatus.None => "None", LoopStatus.LoopPlaylist => "Looping whole playlist", LoopStatus.LoopOne => "Looping one song.", _ => throw new NotSupportedException()}}");
         }
-        
+
         private static bool PrepareGuild(CommandContext ctx)
         {
             try
@@ -275,7 +278,7 @@ namespace Bat_Tosho.Audio
                 if (index >= 1 && index < Instances[ctx.Guild].VideoInfos.Count)
                 {
                     await Respond.FormattedMessage(ctx,
-                        $"Removing song: ({index+1}) {Instances[ctx.Guild].VideoInfos[index].Name} - {Instances[ctx.Guild].VideoInfos[index].Author}.");
+                        $"Removing song: ({index + 1}) {Instances[ctx.Guild].VideoInfos[index].Name} - {Instances[ctx.Guild].VideoInfos[index].Author}.");
                     Instances[ctx.Guild].VideoInfos.RemoveAt(index);
                 }
             }
@@ -294,7 +297,7 @@ namespace Bat_Tosho.Audio
             Instances[ctx.Guild].VideoInfos.Remove(videoInfo);
             Instances[ctx.Guild].VideoInfos.Insert(newIndex - 1, videoInfo);
         }
-        
+
         public static void Clear(DiscordGuild guild)
         {
             var ins = Instances[guild];
@@ -303,6 +306,7 @@ namespace Bat_Tosho.Audio
             ins.VideoInfos.Add(currentVi);
             ins.Song = 0;
         }
+
         public static async Task Clear(CommandContext ctx)
         {
             var guild = ctx.Guild;
@@ -313,7 +317,7 @@ namespace Bat_Tosho.Audio
             ins.Song = 0;
             await Respond.FormattedMessage(ctx, "Sucessfully cleared the playlist.");
         }
-        
+
         public static async Task SetVolume(CommandContext ctx, double volume)
         {
             var voiceState = ctx.Member.VoiceState?.Channel;
@@ -373,9 +377,11 @@ namespace Bat_Tosho.Audio
             var search = new Search(ctx);
             var results = await search.GetResults(path);
             instance.VideoInfos.InsertRange(instance.Song + 1, results);
-            
-            await Respond.FormattedMessage(ctx, $"Added: {results.Count switch {1 => $"{results[0].Name} - {results[0].Author}", >2 => path, _ => $"{path}, but there may be errors idk."}}");
+
+            await Respond.FormattedMessage(ctx,
+                $"Added: {results.Count switch {1 => $"{results[0].Name} - {results[0].Author}", >2 => path, _ => $"{path}, but there may be errors idk."}}");
         }
+
         public static async Task Ungag(CommandContext ctx, DiscordUser user)
         {
             await Debug.Write("Ungag command started.");
@@ -385,9 +391,10 @@ namespace Bat_Tosho.Audio
                 AbuseList[user] = false;
                 return;
             }
+
             AbuseList.Add(user, true);
 
-            bool running = true;
+            var running = true;
             while (running)
             {
                 await Debug.Write($"Abuse List Count: {AbuseList.Count}");
@@ -407,20 +414,27 @@ namespace Bat_Tosho.Audio
             var dm = await ctx.Member.CreateDmChannelAsync();
             if (WebUserInterfaceUsers.ContainsValue(ctx.User))
             {
-                string code = WebUserInterfaceUsers.First(we => we.Value == ctx.User).Key;
-                await ctx.Client.SendMessageAsync(dm, $"```You have already generated a Web Ui Code. Your Web UI Code is: {code}\n```https://dank.gq/BatTosho?guildId={ctx.Guild.Id}&clientSecret={code}");
+                var code = WebUserInterfaceUsers.First(we => we.Value == ctx.User).Key;
+                await ctx.Client.SendMessageAsync(dm,
+                    $"```You have already generated a Web Ui Code. Your Web UI Code is: {code}\n```https://dank.gq/BatTosho?guildId={ctx.Guild.Id}&clientSecret={code}");
                 return;
             }
+
             const string chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_-.";
             var random = new Random(Program.Rng.Next(int.MaxValue));
-            string passwordString = new string(Enumerable.Repeat(chars, 32)
+            var passwordString = new string(Enumerable.Repeat(chars, 32)
                 .Select(s => s[random.Next(s.Length)]).ToArray());
-            await ctx.Client.SendMessageAsync(dm, $"```Your Web UI Code is: {passwordString}\n```https://dank.gq/BatTosho?guildId={ctx.Guild.Id}&clientSecret={passwordString}");
+            await ctx.Client.SendMessageAsync(dm,
+                $"```Your Web UI Code is: {passwordString}\n```https://dank.gq/BatTosho?guildId={ctx.Guild.Id}&clientSecret={passwordString}");
             WebUserInterfaceUsers.Add(passwordString, ctx.User);
         }
 
-        private static DiscordChannel ReturnStatusbarChannel(CommandContext ctx) =>
-            ctx.Guild.Channels.FirstOrDefault(ch => ch.Value.Name is "diskoteka" or "discoteka" or "music").Value ?? ctx.Channel;
+        private static DiscordChannel ReturnStatusbarChannel(CommandContext ctx)
+        {
+            return ctx.Guild.Channels.FirstOrDefault(ch => ch.Value.Name is "diskoteka" or "discoteka" or "music")
+                .Value ?? ctx.Channel;
+        }
+
         public static async Task Download(CommandContext ctx, string path)
         {
             var client = new YoutubeClient(HttpClient.WithCookies());
@@ -523,6 +537,5 @@ namespace Bat_Tosho.Audio
         private record HappiApiMusicResponse(bool success, int length, HappiApiResponseMusic[] result);
 
         private record HappiApiLyricsResponse(bool success, int length, HappiApiResponseLyrics result);
-        
     }
 }

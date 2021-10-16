@@ -79,23 +79,25 @@ namespace Bat_Tosho.Messages
                 }).ToString();
         }
 
-        public static string MorseToEnglish(string text) => text.Count(t => t == '.') switch
+        public static string MorseToEnglish(string text)
         {
-            >3 => text.Count(t => t == '-') 
-                switch {>3 => text.Count(t => t == '/') switch{ >0 => MteConverter(text), _ => text}, _ => text},
-            _ => text
-        };
+            return text.Count(t => t == '.') switch
+            {
+                >3 => text.Count(t => t == '-')
+                    switch {>3 => text.Count(t => t == '/') switch {>0 => MteConverter(text), _ => text}, _ => text},
+                _ => text
+            };
+        }
 
         private static string MteConverter(string text)
         {
             var words = text.Split("/");
-            string returnString = "";
+            var returnString = "";
             foreach (var word in words)
             {
                 var chars = word.Split(" ");
                 foreach (var chr in chars)
                 {
-                    
                 }
             }
 

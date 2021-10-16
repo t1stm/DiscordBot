@@ -10,7 +10,7 @@ namespace BatToshoRESTApp.Components
         public long MaxDurationMs { get; set; }
         public string ThumbnailUrl { get; set; }
         public string VideoId { get; set; }
-        
+
         public int Index { get; set; }
         public int VolumePercent { get; set; }
     }

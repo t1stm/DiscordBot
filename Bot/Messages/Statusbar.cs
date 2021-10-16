@@ -19,7 +19,7 @@ namespace Bat_Tosho.Messages
         private bool _stopped;
         public long Current, Max;
         public StatusbarStatus Status = StatusbarStatus.Null;
-        private Stopwatch WaitingStopwatch { get; }= new();
+        private Stopwatch WaitingStopwatch { get; } = new();
         public bool UpdatePlacement { get; set; }
         private static string SongName => "";
         public static string Message => "";
@@ -54,15 +54,18 @@ namespace Bat_Tosho.Messages
                                 WaitingStopwatch.Start();
                             try
                             {
-                                await instance.StatusbarMessage.ModifyAsync(ReturnGenericStatus("Waiting", "For 15 minutes and then leaving", WaitingStopwatch.ElapsedMilliseconds, 900000, true));
+                                await instance.StatusbarMessage.ModifyAsync(ReturnGenericStatus("Waiting",
+                                    "For 15 minutes and then leaving", WaitingStopwatch.ElapsedMilliseconds, 900000,
+                                    true));
                                 await StatusbarButtons(instance, ctx);
                             }
                             catch (Exception e)
                             {
                                 await Debug.Write($"Waiting Statusbar Generation Failed: {e}");
                             }
+
                             break;
-                        
+
                         default:
                             throw new ArgumentOutOfRangeException();
                     }
@@ -134,6 +137,7 @@ namespace Bat_Tosho.Messages
                 {
                     await Debug.Write($"Generating Statusbar: Generating new message failed: {e}");
                 }
+
                 UpdatePlacement = false;
             }
             else
@@ -290,9 +294,9 @@ namespace Bat_Tosho.Messages
                    $"{next switch {null => "", _ => $"\n \nNext: ({currentindex + 2}) {next.Name} - {next.Author}"}}```";
         }
 
-        private static string ReturnGenericStatus(string status, string message, long current, long max = -1, bool timer = false)
+        private static string ReturnGenericStatus(string status, string message, long current, long max = -1,
+            bool timer = false)
         {
-            
             var increment = max / 32f;
             var display = current / increment;
             var remaining = 0f;
@@ -305,11 +309,11 @@ namespace Bat_Tosho.Messages
 
             for (float i = 0; i < max / increment - remaining; i++) progress += EmptyBlock;
 
-            if (!timer) 
+            if (!timer)
                 return $"```{status}:\n" +
-                               $"{message}\n" +
-                               $"{progress} ({current}{max switch {<0 => "", _ => $" - {max}"}})```";
-            
+                       $"{message}\n" +
+                       $"{progress} ({current}{max switch {<0 => "", _ => $" - {max}"}})```";
+
             return $"```{status}:\n" +
                    $"{message}\n" +
                    $"{progress} ({TimeSpan.FromMilliseconds(current):mm\\:ss} - {TimeSpan.FromMilliseconds(max):mm\\:ss})```";

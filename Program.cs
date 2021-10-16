@@ -10,8 +10,8 @@ namespace BatToshoRESTApp
         //ETO VI LINKA ZA DISCORD TESTING SERVERA: https://discord.gg/fZ74marh7R
         public static void Main(string[] args)
         {
-            bool release = false;
-            if (args.Length>0)
+            var release = false;
+            if (args.Length > 0)
                 if (args[0] == "release")
                     release = true;
             var botTask = new Task(async () => { await Bat_Tosho.Program.MainAsync(release); });
@@ -22,10 +22,7 @@ namespace BatToshoRESTApp
         private static IHostBuilder CreateHostBuilder(string[] args)
         {
             return Host.CreateDefaultBuilder(args)
-                .ConfigureWebHostDefaults(webBuilder =>
-                {
-                    webBuilder.UseStartup<Startup>();
-                });
+                .ConfigureWebHostDefaults(webBuilder => { webBuilder.UseStartup<Startup>(); });
         }
     }
 }

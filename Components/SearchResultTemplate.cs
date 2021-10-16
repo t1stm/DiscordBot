@@ -7,7 +7,7 @@ namespace BatToshoRESTApp.Components
         public string AuthorUrl { get; set; }
         public string Duration { get; set; }
         public string ThumbnailUrl { get; set; }
-        
+
         public string VideoId { get; set; }
     }
 }

@@ -18,18 +18,11 @@ namespace Bat_Tosho
     {
         /* The Bot Prefixes are dynamically changed with an inline switch when the authentication token is changed. Look at line 85. */
         public const string
-            MainDirectory = "/home/kris/BatToshoBeta/"; 
+            MainDirectory = "/home/kris/BatToshoBeta/";
         /* I should really change it to the location of the executable but fuck it. Individual Builds for the win. */
 
         private const string BotRelease = "NzMxMjQ5MjMwNjEzNzA4OTMz.XwjS6g.4ciJLulvPl212VFvelwL9d9wBkw",
             BotBeta = "NjcxMDg3NjM4NjM1MDg1ODUy.Xi31EQ.v-QjHqPT6BAQhans6bveYhNC9CU";
-
-        /*Discord Authentications Tokens.
-         *  Main account (Bat Tosho) "NzMxMjQ5MjMwNjEzNzA4OTMz.XwjS6g.4ciJLulvPl212VFvelwL9d9wBkw"
-         *  Beta testing account (Bat Kiril): "NjcxMDg3NjM4NjM1MDg1ODUy.Xi31EQ.v-QjHqPT6BAQhans6bveYhNC9CU"
-         */
-
-        private static string DiscordAuthToken { get; set; } = BotBeta;
 
         public static readonly char[] BotPrefixes =
         {
@@ -44,6 +37,13 @@ namespace Bat_Tosho
         public static DiscordActivity DiscordActivity = new(IdleStatus, IdleActivity);
 
         public static DiscordClient Discord;
+
+        /*Discord Authentications Tokens.
+         *  Main account (Bat Tosho) "NzMxMjQ5MjMwNjEzNzA4OTMz.XwjS6g.4ciJLulvPl212VFvelwL9d9wBkw"
+         *  Beta testing account (Bat Kiril): "NjcxMDg3NjM4NjM1MDg1ODUy.Xi31EQ.v-QjHqPT6BAQhans6bveYhNC9CU"
+         */
+
+        private static string DiscordAuthToken { get; set; } = BotBeta;
 
         private static void InitCustomStatuses()
         {
@@ -72,7 +72,8 @@ namespace Bat_Tosho
 
         public static async Task MainAsync(bool release = false)
         {
-            await Debug.Write($"Bat Tosho Veche E Velik. Bot Tokens are: Release: \"{BotRelease}\", Beta: \"{BotBeta}\", Using: \"{release switch{false => nameof(BotBeta), true => nameof(BotRelease)}}\"");
+            await Debug.Write(
+                $"Bat Tosho Veche E Velik. Bot Tokens are: Release: \"{BotRelease}\", Beta: \"{BotBeta}\", Using: \"{release switch {false => nameof(BotBeta), true => nameof(BotRelease)}}\"");
             DiscordAuthToken = release switch {true => BotRelease, false => BotBeta};
             Discord = new DiscordClient(new DiscordConfiguration
             {

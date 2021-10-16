@@ -16,9 +16,11 @@ namespace Bat_Tosho.Audio.Platforms.Youtube
             var client = new YoutubeClient();
             var playlist = await client.Playlists.GetVideosAsync(path);
             return playlist.Where(v => v.Duration != null).Select(video => new VideoInformation(video.Id,
-                VideoSearchTypes.NotDownloaded, PartOf.YoutubePlaylist, video.Title,
-                video.Author.Title,
-                (int) video.Duration.GetValueOrDefault().TotalMilliseconds, user, null, video.Thumbnails.First().Url)).ToList();
+                    VideoSearchTypes.NotDownloaded, PartOf.YoutubePlaylist, video.Title,
+                    video.Author.Title,
+                    (int) video.Duration.GetValueOrDefault().TotalMilliseconds, user, null,
+                    video.Thumbnails.First().Url))
+                .ToList();
         }
     }
 }

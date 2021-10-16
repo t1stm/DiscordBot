@@ -21,16 +21,18 @@ namespace Bat_Tosho.Audio.Objects
         public VoiceTransmitSink TransmitSink { get; set; } = null;
         public Player Player { get; set; }
 
-        public LoopStatus LoopStatus { get; set; } = LoopStatus.None; 
+        public LoopStatus LoopStatus { get; set; } = LoopStatus.None;
 
         public bool WaitingToLeave { get; set; } = false;
-        
+
         public DiscordChannel StatusbarChannel { get; set; }
 
         public VideoInformation CurrentVideoInfo()
         {
-            return Song < 0 ? new VideoInformation("", VideoSearchTypes.Downloaded, PartOf.None, "Placeholder Videoinformation.", 
-                "Something wrong has happened with the bot and this is a measure not to crash it.") : VideoInfos.ElementAt(Song);
+            return Song < 0
+                ? new VideoInformation("", VideoSearchTypes.Downloaded, PartOf.None, "Placeholder Videoinformation.",
+                    "Something wrong has happened with the bot and this is a measure not to crash it.")
+                : VideoInfos.ElementAt(Song);
         }
     }
 }

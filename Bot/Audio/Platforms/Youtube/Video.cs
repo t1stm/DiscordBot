@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Bat_Tosho.Audio.Objects;
@@ -29,11 +28,12 @@ namespace Bat_Tosho.Audio.Platforms.Youtube
                     var result = (YoutubeVideo) results.Results.First();
 
                     if (result == null) return null;
-                    
+
                     return new List<VideoInformation>
                     {
                         new(result.Id, VideoSearchTypes.NotDownloaded, partOf, result.Title, result.Author,
-                            (int) new Return().StringToTimeSpan(result.Duration).TotalMilliseconds, user, null, result.ThumbnailUrl)
+                            (int) new Return().StringToTimeSpan(result.Duration).TotalMilliseconds, user, null, result
+                                .ThumbnailUrl)
                     };
                 case VideoSearchTypes.YoutubeVideoId:
                     path = path.Split("?v=").Last().Split("&").First();
@@ -42,10 +42,13 @@ namespace Bat_Tosho.Audio.Platforms.Youtube
                     return new List<VideoInformation>
                     {
                         new(video.Id, VideoSearchTypes.NotDownloaded, partOf, video.Title, video.Author.Title,
-                            video.Duration.HasValue switch{false => -1, true => (int) video.Duration.Value.TotalMilliseconds}, user, null, video.Thumbnails.First().Url)
+                            video.Duration.HasValue switch
+                            {
+                                false => -1, true => (int) video.Duration.Value.TotalMilliseconds
+                            }, user, null, video.Thumbnails.First().Url)
                     };
-                    
             }
+
             return null;
         }
     }

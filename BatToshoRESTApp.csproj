@@ -10,20 +10,20 @@
       <PackageReference Include="DSharpPlus.Interactivity" Version="4.2.0-nightly-01030" />
       <PackageReference Include="DSharpPlus.VoiceNext" Version="4.2.0-nightly-01030" />
       <PackageReference Include="DSharpPlus.VoiceNext.Natives" Version="1.0.0" />
-      <PackageReference Include="Magick.NET-Q16-AnyCPU" Version="8.3.2" />
-      <PackageReference Include="Microsoft.AspNetCore.Authentication.Certificate" Version="5.0.10" />
+      <PackageReference Include="Magick.NET-Q16-AnyCPU" Version="8.3.3" />
+      <PackageReference Include="Microsoft.AspNetCore.Authentication.Certificate" Version="5.0.11" />
       <PackageReference Include="Microsoft.AspNetCore.Cors" Version="2.2.0" />
       <PackageReference Include="Microsoft.AspNetCore.Hosting.Server.Abstractions" Version="2.2.0" />
-      <PackageReference Include="Microsoft.EntityFrameworkCore" Version="5.0.10" />
-      <PackageReference Include="Microsoft.EntityFrameworkCore.Abstractions" Version="5.0.10" />
-      <PackageReference Include="Microsoft.EntityFrameworkCore.Analyzers" Version="5.0.10" />
-      <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="5.0.10">
+      <PackageReference Include="Microsoft.EntityFrameworkCore" Version="5.0.11" />
+      <PackageReference Include="Microsoft.EntityFrameworkCore.Abstractions" Version="5.0.11" />
+      <PackageReference Include="Microsoft.EntityFrameworkCore.Analyzers" Version="5.0.11" />
+      <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="5.0.11">
         <PrivateAssets>all</PrivateAssets>
         <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       </PackageReference>
-      <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="5.0.10" />
-      <PackageReference Include="Microsoft.EntityFrameworkCore.SQLite" Version="5.0.10" />
-      <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="5.0.10" />
+      <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="5.0.11" />
+      <PackageReference Include="Microsoft.EntityFrameworkCore.SQLite" Version="5.0.11" />
+      <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="5.0.11" />
       <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="5.0.2" />
       <PackageReference Include="SpotifyAPI.Web" Version="6.2.2" />
       <PackageReference Include="SpotifyAPI.Web.Auth" Version="6.2.2" />
