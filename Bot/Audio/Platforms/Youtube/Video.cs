@@ -32,7 +32,7 @@ namespace Bat_Tosho.Audio.Platforms.Youtube
                     return new List<VideoInformation>
                     {
                         new(result.Id, VideoSearchTypes.NotDownloaded, partOf, result.Title, result.Author,
-                            (int) new Return().StringToTimeSpan(result.Duration).TotalMilliseconds, user, null, result
+                            (int) Return.StringToTimeSpan(result.Duration).TotalMilliseconds, user, null, result
                                 .ThumbnailUrl)
                     };
                 case VideoSearchTypes.YoutubeVideoId:
@@ -45,11 +45,11 @@ namespace Bat_Tosho.Audio.Platforms.Youtube
                             video.Duration.HasValue switch
                             {
                                 false => -1, true => (int) video.Duration.Value.TotalMilliseconds
-                            }, user, null, video.Thumbnails.First().Url)
+                            }, user, null, video.Thumbnails[0].Url)
                     };
+                default:
+                    return null;
             }
-
-            return null;
         }
     }
 }

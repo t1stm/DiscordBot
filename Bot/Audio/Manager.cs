@@ -80,7 +80,8 @@ namespace Bat_Tosho.Audio
                             "```Couldn't find this video. Please try with searching with a more accurate search term or the target video id.```");
                         return;
                     }
-
+                    if (results.Any(vi => vi.YoutubeIdOrPathToFile is "OjNpRbNdR7E" or "3IcMXj-x7Io" or "Wy9ErjEMYa8"))
+                        await GloryToTheCCP(ctx);
                     instance.VideoInfos.AddRange(results);
                     if (results.Count == 1)
                         await message.ModifyAsync($"```Added: {results[0].Name} - {results[0].Author}```");

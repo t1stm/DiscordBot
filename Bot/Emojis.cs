@@ -10,8 +10,6 @@ namespace Bat_Tosho
         public static readonly DiscordEmoji
             PlayEmoji = DiscordEmoji.FromGuildEmote(Program.Discord, 830157542491422790);
 
-        public static readonly DiscordEmoji OkHand = DiscordEmoji.FromName(Program.Discord, ":ok_hand:");
-
         public static bool CheckIfEmoji(string file)
         {
             EmojiToBeUsed = file.Trim() switch

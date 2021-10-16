@@ -5,10 +5,11 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <PackageReference Include="DSharpPlus" Version="4.2.0-nightly-01030" />
-      <PackageReference Include="DSharpPlus.CommandsNext" Version="4.2.0-nightly-01030" />
-      <PackageReference Include="DSharpPlus.Interactivity" Version="4.2.0-nightly-01030" />
-      <PackageReference Include="DSharpPlus.VoiceNext" Version="4.2.0-nightly-01030" />
+      <PackageReference Include="DSharpPlus" Version="4.1.0" />
+      <PackageReference Include="DSharpPlus.CommandsNext" Version="4.1.0" />
+      <PackageReference Include="DSharpPlus.Interactivity" Version="4.1.0" />
+      <PackageReference Include="DSharpPlus.Rest" Version="4.1.0" />
+      <PackageReference Include="DSharpPlus.VoiceNext" Version="4.1.0" />
       <PackageReference Include="DSharpPlus.VoiceNext.Natives" Version="1.0.0" />
       <PackageReference Include="Magick.NET-Q16-AnyCPU" Version="8.3.3" />
       <PackageReference Include="Microsoft.AspNetCore.Authentication.Certificate" Version="5.0.11" />
@@ -34,6 +35,13 @@
 
     <ItemGroup>
       <_ContentIncludedByDefault Remove="Pages\Bot\Index.cshtml" />
+      <_ContentIncludedByDefault Remove="Pages\Error.cshtml" />
+      <_ContentIncludedByDefault Remove="Pages\Index.cshtml" />
+      <_ContentIncludedByDefault Remove="Pages\Privacy.cshtml" />
+      <_ContentIncludedByDefault Remove="Pages\Shared\_Layout.cshtml" />
+      <_ContentIncludedByDefault Remove="Pages\Shared\_ValidationScriptsPartial.cshtml" />
+      <_ContentIncludedByDefault Remove="Pages\_ViewImports.cshtml" />
+      <_ContentIncludedByDefault Remove="Pages\_ViewStart.cshtml" />
     </ItemGroup>
 
     <ItemGroup>
@@ -41,10 +49,6 @@
       <None Include="wwwroot\images\context.png" />
       <None Include="wwwroot\images\dog.png" />
       <None Include="wwwroot\images\playerImage.png" />
-    </ItemGroup>
-
-    <ItemGroup>
-      <Folder Include="Pages\Models" />
     </ItemGroup>
 
     <ItemGroup>

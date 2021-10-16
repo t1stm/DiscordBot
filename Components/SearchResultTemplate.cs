@@ -2,12 +2,12 @@ namespace BatToshoRESTApp.Components
 {
     public class SearchResultTemplate
     {
-        public string Title { get; set; }
-        public string AuthorName { get; set; }
-        public string AuthorUrl { get; set; }
-        public string Duration { get; set; }
-        public string ThumbnailUrl { get; set; }
+        public string Title { get; init; }
+        public string AuthorName { get; init; }
+        public string AuthorUrl { get; init; }
+        public string Duration { get; init; }
+        public string ThumbnailUrl { get; init; }
 
-        public string VideoId { get; set; }
+        public string VideoId { get; init; }
     }
 }

@@ -3,9 +3,9 @@ using AngleSharp.Text;
 
 namespace Bat_Tosho.Methods
 {
-    public class Return
+    public static class Return
     {
-        public TimeSpan StringToTimeSpan(string text)
+        public static TimeSpan StringToTimeSpan(string text)
         {
             int days = 0, hours = 0, minutes = 0, seconds = 0, milliseconds = 0;
             var time = text.Split(":");

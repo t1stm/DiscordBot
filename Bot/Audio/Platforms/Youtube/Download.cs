@@ -17,25 +17,10 @@ namespace Bat_Tosho.Audio.Platforms.Youtube
     {
         private const long ChunkSize = 10_485_760;
         private long _fileSize;
-        private HttpClient _httpClient = new();
+        private readonly HttpClient _httpClient = Methods.HttpClient.WithCookies();
 
         public async Task<string> GetFilepath(string videoId, bool getHq = false, bool urgent = false)
         {
-            var cookieContainer = new CookieContainer();
-            cookieContainer.Add(new Cookie("YSC", "DIZwBK2Vq_Y", "/", "youtube.com"));
-            cookieContainer.Add(new Cookie("PREF", "tz=Europe.Sofia&f6=40000000&f5=30000", "/", "youtube.com"));
-            cookieContainer.Add(new Cookie("SID",
-                "BAhafqVRsKH-MfZVxpId1F0OFhNWiyOQ8aJHeKAijXNOo6xt2HmJcKWMUz8bXsU-he0nSA.", "/", "youtube.com"));
-            cookieContainer.Add(new Cookie("HSID", "AQNF3MrUdlQQYqkhe", "/", "youtube.com"));
-            cookieContainer.Add(new Cookie("SSID", "At2TdZpxStA_TqDlb", "/", "youtube.com"));
-            cookieContainer.Add(new Cookie("APISID", "rxRRogLSHeUVz_AH/AAy2fW_5UxKsQ3sPC", "/", "youtube.com"));
-            cookieContainer.Add(new Cookie("SAPISID", "1PbHcnU0SapJVRP-/AeTEUU6djJJF0r6ov", "/", "youtube.com"));
-            cookieContainer.Add(new Cookie("LOGIN_INFO",
-                "AFmmF2swRQIgUh5saMBAsjE76LhWPhlyo0tVSwBLqcjAzN2HMYO-mP8CIQDhma5f9NCYMKsdBjryvMnoTWoXrqyB2XpgheQ_seh-hQ:QUQ3MjNmd014RXdQeUF0eHIySlpBeWZUM21UYjJuVEZPelRmdEt3R05CX1ZPbUk2RjVYZ3dPZXB3bU9MZkxfV3ZzVEh0QkFPN09GVDR1N0dra2JJcktiQ0hibElZdEszUXdGdlZPQlNZNFB1YXo5bjdteG1IdGJUS1k1eWpRWFhXSFdUQWNPaVZJRXhFSllOWU9sV3YtenBNWWhncWJDbkpNTTExTktreDRBejR3NXdSSHJ3cmNNMEFWd290Y3h3VU1FUkpmOHExT3BuaDIyUy11VXV0bnZXdkVSS2FkakIwZw==",
-                "/", "youtube.com"));
-            cookieContainer.Add(new Cookie("VISITOR_INFO1_LIVE", "qAx2vo_yQS8", "/", "youtube.com"));
-            var handler = new HttpClientHandler {CookieContainer = cookieContainer};
-            _httpClient = new HttpClient(handler);
             if (File.Exists($"{Program.MainDirectory}dll/audio/{videoId}.mp4") && !getHq)
                 return $"{Program.MainDirectory}dll/audio/{videoId}.mp4";
             if (File.Exists($"{Program.MainDirectory}dll/audio/{videoId}.webm") && !getHq)
@@ -187,12 +172,10 @@ namespace Bat_Tosho.Audio.Platforms.Youtube
                 request.Headers.Range = new RangeHeaderValue(from, to);
                 using (request)
                 {
-                    // Download Stream
                     var response = await _httpClient.SendAsync(request, HttpCompletionOption.ResponseHeadersRead);
                     if (response.IsSuccessStatusCode)
                         response.EnsureSuccessStatusCode();
                     var stream = await response.Content.ReadAsStreamAsync();
-                    //File Steam
                     var buffer = new byte[81920];
                     int bytesCopied;
                     do

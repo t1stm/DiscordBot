@@ -84,8 +84,9 @@ namespace Bat_Tosho
                 };
                 await MultipleCommandsChecker($"=play {text}", ctx);
             }
-            catch (Exception
-                e) // Ahh yes the try, catch spam initiates. Gotta not crash the bot when the spaghetti code acts up. Note: it still crashes.
+            catch (Exception e) 
+                // Ahh yes the try, catch spam initiates. Gotta not crash the bot when the spaghetti code acts up.
+                // Update: it still crashes...
             {
                 await Debug.Write($"Play command threw error: {e}");
             }

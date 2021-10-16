@@ -47,7 +47,7 @@ namespace Bat_Tosho
 
         private static void InitCustomStatuses()
         {
-            /* If for some reason someone is reading this source code and is at the same time at my machine feel free to add more statuses. I won't be mad if you tell me first. */
+            /* If for some reason someone is reading this source code, feel free to add more statuses. */
             _customStatuses = new Dictionary<string, ActivityType>
             {
                 {"World of Tanks", ActivityType.Playing},
@@ -100,11 +100,7 @@ namespace Bat_Tosho
                 PollBehaviour = PollBehaviour.KeepEmojis,
                 Timeout = TimeSpan.FromSeconds(60)
             });
-            Discord.UseVoiceNext(new VoiceNextConfiguration
-            {
-                PacketQueueSize = 120,
-                AudioFormat = new AudioFormat(48000)
-            });
+            Discord.UseVoiceNext();
             commands.RegisterCommands<Commands>();
             await Discord.ConnectAsync(DiscordActivity);
             await WaitStatus(new CancellationToken());

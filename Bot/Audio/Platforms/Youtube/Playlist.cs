@@ -19,7 +19,7 @@ namespace Bat_Tosho.Audio.Platforms.Youtube
                     VideoSearchTypes.NotDownloaded, PartOf.YoutubePlaylist, video.Title,
                     video.Author.Title,
                     (int) video.Duration.GetValueOrDefault().TotalMilliseconds, user, null,
-                    video.Thumbnails.First().Url))
+                    video.Thumbnails[0].Url))
                 .ToList();
         }
     }

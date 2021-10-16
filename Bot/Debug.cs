@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace Bat_Tosho
 {
-    public class Debug
+    public static class Debug
     {
         public static async Task Write(string text, bool save = true)
         {

@@ -2,16 +2,16 @@ namespace BatToshoRESTApp.Components
 {
     public class GenericVideo
     {
-        public string Title { get; set; }
-        public string Author { get; set; }
-        public string CurrentDuration { get; set; }
-        public long CurrentDurationMs { get; set; }
-        public string MaxDuration { get; set; }
-        public long MaxDurationMs { get; set; }
-        public string ThumbnailUrl { get; set; }
-        public string VideoId { get; set; }
+        public string Title { get; init; }
+        public string Author { get; init; }
+        public string CurrentDuration { get; init; }
+        public long CurrentDurationMs { get; init; }
+        public string MaxDuration { get; init; }
+        public long MaxDurationMs { get; init; }
+        public string ThumbnailUrl { get; init; }
+        public string VideoId { get; init; }
 
-        public int Index { get; set; }
-        public int VolumePercent { get; set; }
+        public int Index { get; init; }
+        public int VolumePercent { get; init; }
     }
 }
