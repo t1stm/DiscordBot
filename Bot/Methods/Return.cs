@@ -1,49 +1,31 @@
 using System;
-using AngleSharp.Text;
+using System.Linq;
 
 namespace Bat_Tosho.Methods
 {
     public static class Return
     {
-        public static TimeSpan StringToTimeSpan(string text)
+        public static TimeSpan StringToTimeSpan(string text) //This is the most beautiful peace of code I've ever created.
         {
-            int days = 0, hours = 0, minutes = 0, seconds = 0, milliseconds = 0;
-            var time = text.Split(":");
-            var arrSize = time.Length - 1;
-            switch (arrSize)
+            long milliseconds = 0;
+            bool ms = text.Contains(".");
+            text = ms ? text.Replace(".", ":") : text;
+            string[] time = text.Split(":").Reverse().ToArray();
+            for (int i = ms ? 0 : 1; i < time.Length; i++)
             {
-                case 0:
-                    switch (time[arrSize].Contains("."))
-                    {
-                        case true:
-                            var secMillisec = time[arrSize].Split(".");
-                            seconds = secMillisec[0].ToInteger(0);
-                            milliseconds = secMillisec[1].ToInteger(0);
-                            break;
-                        case false:
-                            seconds = time[arrSize].Replace(":", "").ToInteger(0);
-                            break;
-                    }
-
-                    break;
-                case 1:
-                    seconds = time[arrSize].Replace(":", "").ToInteger(0);
-                    minutes = time[arrSize - 1].Replace(":", "").ToInteger(0);
-                    break;
-                case 2:
-                    seconds = time[arrSize].Replace(":", "").ToInteger(0);
-                    minutes = time[arrSize - 1].Replace(":", "").ToInteger(0);
-                    hours = time[arrSize - 2].Replace(":", "").ToInteger(0);
-                    break;
+                long q = long.Parse(time[i-(ms ? 0 : -1)]);
+                milliseconds += i switch
+                {
+                    0 => q,
+                    1 => q*1000,
+                    2 => q*60000,
+                    3 => q*3600000,
+                    4 => q*86400000,
+                    5 => q*604800000,
+                    _ => throw new ArgumentOutOfRangeException()
+                };
             }
-
-            while (hours >= 24)
-            {
-                days++;
-                hours -= 24;
-            }
-
-            return new TimeSpan(days, hours, minutes, seconds, milliseconds);
+            return TimeSpan.FromMilliseconds(milliseconds);
         }
     }
 }

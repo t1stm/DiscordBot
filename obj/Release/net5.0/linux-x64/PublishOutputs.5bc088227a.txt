@@ -359,6 +359,7 @@
 /home/kris/RiderProjects/BatTosho/bin/Release/net5.0/linux-x64/publish/DSharpPlus.dll
 /home/kris/RiderProjects/BatTosho/bin/Release/net5.0/linux-x64/publish/DSharpPlus.CommandsNext.dll
 /home/kris/RiderProjects/BatTosho/bin/Release/net5.0/linux-x64/publish/DSharpPlus.Interactivity.dll
+/home/kris/RiderProjects/BatTosho/bin/Release/net5.0/linux-x64/publish/DSharpPlus.Rest.dll
 /home/kris/RiderProjects/BatTosho/bin/Release/net5.0/linux-x64/publish/DSharpPlus.VoiceNext.dll
 /home/kris/RiderProjects/BatTosho/bin/Release/net5.0/linux-x64/publish/EmbedIO.dll
 /home/kris/RiderProjects/BatTosho/bin/Release/net5.0/linux-x64/publish/Emzi0767.Common.dll
@@ -472,6 +473,4 @@
 /home/kris/RiderProjects/BatTosho/bin/Release/net5.0/linux-x64/publish/zh-Hant/Microsoft.CodeAnalysis.Workspaces.resources.dll
 /home/kris/RiderProjects/BatTosho/bin/Release/net5.0/linux-x64/publish/Magick.Native-Q16-x64.dll.so
 /home/kris/RiderProjects/BatTosho/bin/Release/net5.0/linux-x64/publish/libe_sqlite3.so
-/home/kris/RiderProjects/BatTosho/bin/Release/net5.0/linux-x64/publish/BatToshoRESTApp.Views.dll
-/home/kris/RiderProjects/BatTosho/bin/Release/net5.0/linux-x64/publish/BatToshoRESTApp.Views.pdb
 /home/kris/RiderProjects/BatTosho/bin/Release/net5.0/linux-x64/publish/BatToshoRESTApp.deps.json
