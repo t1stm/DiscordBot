@@ -33,7 +33,7 @@ namespace Bat_Tosho
             foreach (var t in commands)
             {
                 string s;
-                s = (t[0] == '=') switch {true => t[1..], false => t};
+                s = (t[0] is '=' or '-' or ';') switch {true => t[1..], false => t};
                 switch (s.Trim().Split(" ").First().Trim())
                 {
                     case "shuffle":

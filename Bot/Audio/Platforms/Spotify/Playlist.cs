@@ -21,7 +21,7 @@ namespace Bat_Tosho.Audio.Platforms.Spotify
             var tempTracks = await Spotify.Playlists.GetItems(id, new PlaylistGetItemsRequest {Offset = 0});
             var playlistTracks = new List<PlaylistTrack<IPlayableItem>>();
             var offset = 0;
-            while (tempTracks.Items.Count != 0)
+            while (tempTracks.Items != null && tempTracks.Items.Count != 0)
             {
                 await Debug.Write(
                     $"Offset is: {tempTracks.Offset}, Count is: {tempTracks.Items.Count}, Total is: {tempTracks.Total}");

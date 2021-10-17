@@ -88,7 +88,7 @@ namespace Bat_Tosho
                     DiscordEmoji.FromName(Program.Discord, ":regional_indicator_a:"),
                     DiscordEmoji.FromGuildEmote(Program.Discord, 833337593299075102)
                 },
-                _ => EmojiToBeUsed
+                _ => new List<DiscordEmoji>()
             };
             return EmojiToBeUsed.Count >= 1;
         }

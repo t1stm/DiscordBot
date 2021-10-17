@@ -27,5 +27,10 @@ namespace Bat_Tosho.Methods
             }
             return TimeSpan.FromMilliseconds(milliseconds);
         }
+
+        public static string RandomString(int length, bool includeBadSymbols = false) => new (Enumerable
+            .Repeat(
+                $"abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789{includeBadSymbols switch {true => "_-.", false => ""}}",
+                length).Select(s => s[new Random(Program.Rng.Next(int.MaxValue)).Next(s.Length)]).ToArray());
     }
 }

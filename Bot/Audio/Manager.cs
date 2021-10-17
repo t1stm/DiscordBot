@@ -420,11 +420,7 @@ namespace Bat_Tosho.Audio
                     $"```You have already generated a Web Ui Code. Your Web UI Code is: {code}\n```https://dank.gq/BatTosho?guildId={ctx.Guild.Id}&clientSecret={code}");
                 return;
             }
-
-            const string chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_-.";
-            var random = new Random(Program.Rng.Next(int.MaxValue));
-            var passwordString = new string(Enumerable.Repeat(chars, 32)
-                .Select(s => s[random.Next(s.Length)]).ToArray());
+            string passwordString = Return.RandomString(32, true);
             await ctx.Client.SendMessageAsync(dm,
                 $"```Your Web UI Code is: {passwordString}\n```https://dank.gq/BatTosho?guildId={ctx.Guild.Id}&clientSecret={passwordString}");
             WebUserInterfaceUsers.Add(passwordString, ctx.User);

@@ -8,7 +8,6 @@
 /home/kris/RiderProjects/BatTosho/bin/Debug/net5.0/ref/BatToshoRESTApp.dll
 /home/kris/RiderProjects/BatTosho/bin/Debug/net5.0/BatToshoRESTApp.pdb
 /home/kris/RiderProjects/BatTosho/bin/Debug/net5.0/BatToshoRESTApp.Views.dll
-/home/kris/RiderProjects/BatTosho/bin/Debug/net5.0/BatToshoRESTApp.Views.pdb
 /home/kris/RiderProjects/BatTosho/bin/Debug/net5.0/AngleSharp.dll
 /home/kris/RiderProjects/BatTosho/bin/Debug/net5.0/ConcurrentCollections.dll
 /home/kris/RiderProjects/BatTosho/bin/Debug/net5.0/DSharpPlus.dll

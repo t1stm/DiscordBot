@@ -88,7 +88,8 @@ namespace Bat_Tosho
                 // ReSharper disable HeuristicUnreachableCode
                 StringPrefixes = new[]
                 {
-                    $"{DiscordAuthToken switch {BotBeta => BotPrefixes[1], BotRelease => BotPrefixes[0], _ => BotPrefixes[0]}}"
+                    $"{DiscordAuthToken switch {BotBeta => BotPrefixes[1], BotRelease => BotPrefixes[0], _ => BotPrefixes[0]}}",
+                    "-"
                 },
                 EnableDefaultHelp = true,
                 EnableMentionPrefix = true,

@@ -9,34 +9,11 @@ namespace Bat_Tosho.Methods
 {
     public class ImageMagick
     {
-        private async Task<string> GenerateComposite(string image1, int x1, int y1, DiscordUser user1, int res,
-            string image2 = null, int? x2 = null, int? y2 = null, DiscordUser user2 = null,
-            string path = "", string baseImage = "cursed_touch2.jpg")
+        private async Task<string> GenerateComposite(string image1, int x1, int y1, int res,
+            string image2 = null, int? x2 = null, int? y2 = null,
+            string path = "", string baseImage = "cursed_touch.jpg")
         {
-            string fileName;
-            if (user1 != null && user2 != null)
-            {
-                fileName = $"{path}{user1.Username}-{user2.Username}.png";
-                fileName = fileName.Replace(" ", "_");
-                if (File.Exists($"/srv/http/Bat_Tosho_Content/{fileName}"))
-                    return $"http://dank.gq/Bat_Tosho_Content/{fileName}";
-            }
-            else if (user2 == null && image2 == null && user1 is not null)
-            {
-                fileName = $"{path}{user1.Username}.png";
-                fileName = fileName.Replace(" ", "_");
-                if (File.Exists($"/srv/http/Bat_Tosho_Content/{fileName}"))
-                    return $"http://dank.gq/Bat_Tosho_Content/{fileName}";
-            }
-            else
-            {
-                // ReSharper disable once RedundantAssignment
-                fileName = "BuggedFileName.png";
-                throw new WebException(
-                    "Didn't receive Discord Users on GenerateComposite method. This shouldn't happen, but I made" +
-                    " the method contain null so that the bot doesn't completely crash if an error occurs. I hope " +
-                    "I don't see this message anywhere else.");
-            }
+            string fileName = $"{path}{Return.RandomString(16)}.png";
 
             using (var client = new WebClient())
             {
@@ -44,9 +21,6 @@ namespace Bat_Tosho.Methods
                 if (image2 != null)
                     await client.DownloadFileTaskAsync(image2, "/srv/http/Bat_Tosho_Content/image2.png");
             }
-
-            await Debug.Write($"Image 1 is: {image1}");
-            await Debug.Write($"Image 2 is: {image2}");
             string url;
 
             using (var image = new MagickImage($"/srv/http/Bat_Tosho_Content/{baseImage}"))
@@ -63,7 +37,6 @@ namespace Bat_Tosho.Methods
                     }
 
                     url = $"http://dank.gq/Bat_Tosho_Content/{fileName}";
-                    await Debug.Write($"Link is: {url}");
                     File.Delete($"/srv/http/Bat_Tosho_Content/{fileName}");
                     await image.WriteAsync($"/srv/http/Bat_Tosho_Content/{fileName}");
                 }
@@ -77,10 +50,8 @@ namespace Bat_Tosho.Methods
             await Debug.Write($"Generating image of type: {imageTypes}");
             return imageTypes switch
             {
-                ImageTypes.Dick => await GenerateComposite(du2.AvatarUrl, 220, 53, du2, 200, du1.AvatarUrl, 420,
-                    33, du1),
-                ImageTypes.Monke => await GenerateComposite(du1.AvatarUrl, 435, 60, du1, 512, null, null, null,
-                    null, "Monke/", "monke.jpg"),
+                ImageTypes.Dick => await GenerateComposite(du1.AvatarUrl, 128, 0, 128, du2.AvatarUrl, 420, 26),
+                ImageTypes.Monke => await GenerateComposite(du1.AvatarUrl, 435, 60, 512, null, null, null, "Monke/", "monke.jpg"),
                 _ => null
             };
         }

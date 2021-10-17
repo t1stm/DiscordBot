@@ -7,7 +7,6 @@ namespace Bat_Tosho.Enums
         YoutubePlaylist,
         HttpFileStream,
         Downloaded,
-        Downloading,
         SpotifyListenAlong,
         NotDownloaded
     }

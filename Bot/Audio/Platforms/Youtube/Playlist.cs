@@ -13,8 +13,7 @@ namespace Bat_Tosho.Audio.Platforms.Youtube
     {
         public static async Task<List<VideoInformation>> Get(string path, DiscordUser user)
         {
-            var client = new YoutubeClient();
-            var playlist = await client.Playlists.GetVideosAsync(path);
+            var playlist = await new YoutubeClient().Playlists.GetVideosAsync(path);
             return playlist.Where(v => v.Duration != null).Select(video => new VideoInformation(video.Id,
                     VideoSearchTypes.NotDownloaded, PartOf.YoutubePlaylist, video.Title,
                     video.Author.Title,

@@ -14,8 +14,8 @@ namespace Bat_Tosho.Audio.Platforms.Discord
         public static async Task<VideoInformation> Download(DiscordAttachment attachment, DiscordUser user,
             ulong serverId)
         {
-            string name = "", author = "";
-            var length = 0;
+            string name, author;
+            int length;
             var url = attachment.Url;
             var filepath = $"{Program.MainDirectory}/dll/DiscordAttachments/{serverId}/{attachment.FileName}";
 
