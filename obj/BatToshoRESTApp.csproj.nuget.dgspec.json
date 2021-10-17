@@ -41,23 +41,27 @@
           "dependencies": {
             "DSharpPlus": {
               "target": "Package",
-              "version": "[4.1.0, )"
+              "version": "[4.2.0-nightly-01030, )"
             },
             "DSharpPlus.CommandsNext": {
               "target": "Package",
-              "version": "[4.1.0, )"
+              "version": "[4.2.0-nightly-01030, )"
             },
             "DSharpPlus.Interactivity": {
               "target": "Package",
-              "version": "[4.1.0, )"
+              "version": "[4.2.0-nightly-01030, )"
             },
             "DSharpPlus.Rest": {
               "target": "Package",
-              "version": "[4.1.0, )"
+              "version": "[4.2.0-nightly-01030, )"
+            },
+            "DSharpPlus.SlashCommands": {
+              "target": "Package",
+              "version": "[4.2.0-nightly-01030, )"
             },
             "DSharpPlus.VoiceNext": {
               "target": "Package",
-              "version": "[4.1.0, )"
+              "version": "[4.2.0-nightly-01030, )"
             },
             "DSharpPlus.VoiceNext.Natives": {
               "target": "Package",

@@ -103,8 +103,8 @@ namespace Bat_Tosho
             });
             Discord.UseVoiceNext();
             commands.RegisterCommands<Commands>();
-            await Discord.ConnectAsync(DiscordActivity);
             await WaitStatus(new CancellationToken());
+            await Discord.ConnectAsync(DiscordActivity);
 
             await Task.Delay(-1); // The bot won't just open for one second and stop afterwards because of this line.
             // If this line is missing I will probably forget about it and remember after 30 minutes.
