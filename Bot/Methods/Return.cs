@@ -5,7 +5,7 @@ namespace Bat_Tosho.Methods
 {
     public static class Return
     {
-        public static TimeSpan StringToTimeSpan(string text) //This is the most beautiful peace of code I've ever created.
+        public static TimeSpan StringToTimeSpan(string text) //This is the most beautiful peace of code I've ever created to this date.
         {
             long milliseconds = 0;
             bool ms = text.Contains(".");
