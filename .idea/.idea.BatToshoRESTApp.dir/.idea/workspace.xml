@@ -7,15 +7,52 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="7a9b8107-2bcf-4377-b48b-ea9c3518aaf9" name="Default Changelist" comment="">
+    <list default="true" id="7a9b8107-2bcf-4377-b48b-ea9c3518aaf9" name="Default Changelist" comment="Removing Debug Writing">
+      <change afterPath="$PROJECT_DIR$/bin/Debug/net5.0/DSharpPlus.SlashCommands.dll" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/bin/Release/net5.0/linux-x64/DSharpPlus.SlashCommands.dll" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/bin/Release/net5.0/linux-x64/publish/DSharpPlus.SlashCommands.dll" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/.idea.BatToshoRESTApp.dir/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.BatToshoRESTApp.dir/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/BatToshoRESTApp.csproj" beforeDir="false" afterPath="$PROJECT_DIR$/BatToshoRESTApp.csproj" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/obj/BatToshoRESTApp.csproj.nuget.dgspec.json" beforeDir="false" afterPath="$PROJECT_DIR$/obj/BatToshoRESTApp.csproj.nuget.dgspec.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/obj/Debug/net5.0/BatToshoRESTApp.assets.cache" beforeDir="false" afterPath="$PROJECT_DIR$/obj/Debug/net5.0/BatToshoRESTApp.assets.cache" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Bot/Commands.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Bot/Commands.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Bot/Debug.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Bot/Debug.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Bot/Methods/Return.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Bot/Methods/Return.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Bot/Program.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Bot/Program.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Program.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Program.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bin/Debug/net5.0/BatToshoRESTApp.deps.json" beforeDir="false" afterPath="$PROJECT_DIR$/bin/Debug/net5.0/BatToshoRESTApp.deps.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bin/Debug/net5.0/BatToshoRESTApp.dll" beforeDir="false" afterPath="$PROJECT_DIR$/bin/Debug/net5.0/BatToshoRESTApp.dll" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bin/Debug/net5.0/BatToshoRESTApp.pdb" beforeDir="false" afterPath="$PROJECT_DIR$/bin/Debug/net5.0/BatToshoRESTApp.pdb" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bin/Debug/net5.0/DSharpPlus.CommandsNext.dll" beforeDir="false" afterPath="$PROJECT_DIR$/bin/Debug/net5.0/DSharpPlus.CommandsNext.dll" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bin/Debug/net5.0/DSharpPlus.Interactivity.dll" beforeDir="false" afterPath="$PROJECT_DIR$/bin/Debug/net5.0/DSharpPlus.Interactivity.dll" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bin/Debug/net5.0/DSharpPlus.Rest.dll" beforeDir="false" afterPath="$PROJECT_DIR$/bin/Debug/net5.0/DSharpPlus.Rest.dll" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bin/Debug/net5.0/DSharpPlus.VoiceNext.dll" beforeDir="false" afterPath="$PROJECT_DIR$/bin/Debug/net5.0/DSharpPlus.VoiceNext.dll" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bin/Debug/net5.0/DSharpPlus.dll" beforeDir="false" afterPath="$PROJECT_DIR$/bin/Debug/net5.0/DSharpPlus.dll" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bin/Debug/net5.0/ref/BatToshoRESTApp.dll" beforeDir="false" afterPath="$PROJECT_DIR$/bin/Debug/net5.0/ref/BatToshoRESTApp.dll" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bin/Release/net5.0/linux-x64/BatToshoRESTApp.Views.pdb" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/bin/Release/net5.0/linux-x64/BatToshoRESTApp.deps.json" beforeDir="false" afterPath="$PROJECT_DIR$/bin/Release/net5.0/linux-x64/BatToshoRESTApp.deps.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bin/Release/net5.0/linux-x64/BatToshoRESTApp.dll" beforeDir="false" afterPath="$PROJECT_DIR$/bin/Release/net5.0/linux-x64/BatToshoRESTApp.dll" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bin/Release/net5.0/linux-x64/BatToshoRESTApp.pdb" beforeDir="false" afterPath="$PROJECT_DIR$/bin/Release/net5.0/linux-x64/BatToshoRESTApp.pdb" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bin/Release/net5.0/linux-x64/DSharpPlus.CommandsNext.dll" beforeDir="false" afterPath="$PROJECT_DIR$/bin/Release/net5.0/linux-x64/DSharpPlus.CommandsNext.dll" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bin/Release/net5.0/linux-x64/DSharpPlus.Interactivity.dll" beforeDir="false" afterPath="$PROJECT_DIR$/bin/Release/net5.0/linux-x64/DSharpPlus.Interactivity.dll" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bin/Release/net5.0/linux-x64/DSharpPlus.VoiceNext.dll" beforeDir="false" afterPath="$PROJECT_DIR$/bin/Release/net5.0/linux-x64/DSharpPlus.VoiceNext.dll" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bin/Release/net5.0/linux-x64/DSharpPlus.dll" beforeDir="false" afterPath="$PROJECT_DIR$/bin/Release/net5.0/linux-x64/DSharpPlus.dll" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bin/Release/net5.0/linux-x64/publish/BatToshoRESTApp.deps.json" beforeDir="false" afterPath="$PROJECT_DIR$/bin/Release/net5.0/linux-x64/publish/BatToshoRESTApp.deps.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bin/Release/net5.0/linux-x64/publish/BatToshoRESTApp.dll" beforeDir="false" afterPath="$PROJECT_DIR$/bin/Release/net5.0/linux-x64/publish/BatToshoRESTApp.dll" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bin/Release/net5.0/linux-x64/publish/BatToshoRESTApp.pdb" beforeDir="false" afterPath="$PROJECT_DIR$/bin/Release/net5.0/linux-x64/publish/BatToshoRESTApp.pdb" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bin/Release/net5.0/linux-x64/ref/BatToshoRESTApp.dll" beforeDir="false" afterPath="$PROJECT_DIR$/bin/Release/net5.0/linux-x64/ref/BatToshoRESTApp.dll" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/obj/Debug/net5.0/BatToshoRESTApp.csproj.CoreCompileInputs.cache" beforeDir="false" afterPath="$PROJECT_DIR$/obj/Debug/net5.0/BatToshoRESTApp.csproj.CoreCompileInputs.cache" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/obj/Debug/net5.0/BatToshoRESTApp.csproj.FileListAbsolute.txt" beforeDir="false" afterPath="$PROJECT_DIR$/obj/Debug/net5.0/BatToshoRESTApp.csproj.FileListAbsolute.txt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/obj/Debug/net5.0/BatToshoRESTApp.csprojAssemblyReference.cache" beforeDir="false" afterPath="$PROJECT_DIR$/obj/Debug/net5.0/BatToshoRESTApp.csprojAssemblyReference.cache" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/obj/project.assets.json" beforeDir="false" afterPath="$PROJECT_DIR$/obj/project.assets.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/obj/project.nuget.cache" beforeDir="false" afterPath="$PROJECT_DIR$/obj/project.nuget.cache" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/obj/project.packagespec.json" beforeDir="false" afterPath="$PROJECT_DIR$/obj/project.packagespec.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/obj/Debug/net5.0/BatToshoRESTApp.dll" beforeDir="false" afterPath="$PROJECT_DIR$/obj/Debug/net5.0/BatToshoRESTApp.dll" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/obj/Debug/net5.0/BatToshoRESTApp.pdb" beforeDir="false" afterPath="$PROJECT_DIR$/obj/Debug/net5.0/BatToshoRESTApp.pdb" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/obj/Debug/net5.0/ref/BatToshoRESTApp.dll" beforeDir="false" afterPath="$PROJECT_DIR$/obj/Debug/net5.0/ref/BatToshoRESTApp.dll" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/obj/Release/net5.0/linux-x64/BatToshoRESTApp.assets.cache" beforeDir="false" afterPath="$PROJECT_DIR$/obj/Release/net5.0/linux-x64/BatToshoRESTApp.assets.cache" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/obj/Release/net5.0/linux-x64/BatToshoRESTApp.csproj.CoreCompileInputs.cache" beforeDir="false" afterPath="$PROJECT_DIR$/obj/Release/net5.0/linux-x64/BatToshoRESTApp.csproj.CoreCompileInputs.cache" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/obj/Release/net5.0/linux-x64/BatToshoRESTApp.csproj.FileListAbsolute.txt" beforeDir="false" afterPath="$PROJECT_DIR$/obj/Release/net5.0/linux-x64/BatToshoRESTApp.csproj.FileListAbsolute.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/obj/Release/net5.0/linux-x64/BatToshoRESTApp.csprojAssemblyReference.cache" beforeDir="false" afterPath="$PROJECT_DIR$/obj/Release/net5.0/linux-x64/BatToshoRESTApp.csprojAssemblyReference.cache" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/obj/Release/net5.0/linux-x64/BatToshoRESTApp.deps.json" beforeDir="false" afterPath="$PROJECT_DIR$/obj/Release/net5.0/linux-x64/BatToshoRESTApp.deps.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/obj/Release/net5.0/linux-x64/BatToshoRESTApp.dll" beforeDir="false" afterPath="$PROJECT_DIR$/obj/Release/net5.0/linux-x64/BatToshoRESTApp.dll" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/obj/Release/net5.0/linux-x64/BatToshoRESTApp.pdb" beforeDir="false" afterPath="$PROJECT_DIR$/obj/Release/net5.0/linux-x64/BatToshoRESTApp.pdb" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/obj/Release/net5.0/linux-x64/PublishOutputs.5bc088227a.txt" beforeDir="false" afterPath="$PROJECT_DIR$/obj/Release/net5.0/linux-x64/PublishOutputs.5bc088227a.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/obj/Release/net5.0/linux-x64/ref/BatToshoRESTApp.dll" beforeDir="false" afterPath="$PROJECT_DIR$/obj/Release/net5.0/linux-x64/ref/BatToshoRESTApp.dll" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/obj/rider.project.restore.info" beforeDir="false" afterPath="$PROJECT_DIR$/obj/rider.project.restore.info" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -31,28 +68,28 @@
   </component>
   <component name="IdeDocumentHistory">
     <changedPaths>
-      <option value="$PROJECT_DIR$/Program.cs" />
       <option value="$PROJECT_DIR$/obj/BatToshoRESTApp.csproj.nuget.g.props" />
       <option value="$PROJECT_DIR$/Bot/Audio/Objects/SpotifyTrack.cs" />
       <option value="$PROJECT_DIR$/Bot/Audio/Objects/Instance.cs" />
       <option value="$PROJECT_DIR$/Bot/Messages/Statusbar.cs" />
       <option value="$PROJECT_DIR$/Components/GenericVideo.cs" />
       <option value="$PROJECT_DIR$/Components/SearchResultTemplate.cs" />
-      <option value="$PROJECT_DIR$/Bot/Debug.cs" />
       <option value="$PROJECT_DIR$/Bot/Audio/Platforms/Youtube/Video.cs" />
       <option value="$PROJECT_DIR$/Bot/Audio/Platforms/Youtube/Download.cs" />
       <option value="$PROJECT_DIR$/Bot/Audio/Manager.cs" />
-      <option value="$PROJECT_DIR$/Bot/Methods/Return.cs" />
       <option value="$PROJECT_DIR$/Startup.cs" />
       <option value="$PROJECT_DIR$/Bot/Emojis.cs" />
       <option value="$PROJECT_DIR$/Bot/Methods/ImageMagick.cs" />
-      <option value="$PROJECT_DIR$/Bot/Program.cs" />
       <option value="$PROJECT_DIR$/Bot/Enums/VideoSearchTypes.cs" />
       <option value="$PROJECT_DIR$/Bot/Audio/Platforms/Discord/Attachment.cs" />
       <option value="$PROJECT_DIR$/Bot/Audio/Platforms/Spotify/Playlist.cs" />
       <option value="$PROJECT_DIR$/Bot/Audio/Platforms/Youtube/Playlist.cs" />
-      <option value="$PROJECT_DIR$/Bot/Commands.cs" />
       <option value="$PROJECT_DIR$/Bot/CommandsSlash.cs" />
+      <option value="$PROJECT_DIR$/Bot/Commands.cs" />
+      <option value="$PROJECT_DIR$/Program.cs" />
+      <option value="$PROJECT_DIR$/Bot/Debug.cs" />
+      <option value="$PROJECT_DIR$/Bot/Program.cs" />
+      <option value="$PROJECT_DIR$/Bot/Methods/Return.cs" />
     </changedPaths>
   </component>
   <component name="ProjectId" id="1zHyNpOFsvMsmTOx0jxwruJidi4" />
@@ -132,7 +169,7 @@
       <workItem from="1634424079552" duration="26000" />
       <workItem from="1634477116640" duration="486000" />
       <workItem from="1634482236849" duration="6098000" />
-      <workItem from="1634493352118" duration="1252000" />
+      <workItem from="1634493352118" duration="3709000" />
     </task>
     <task id="LOCAL-00001" summary="Bobur Vecher Momcheta I Momicheta">
       <created>1633820044215</created>
@@ -197,7 +234,14 @@
       <option name="project" value="LOCAL" />
       <updated>1634487767248</updated>
     </task>
-    <option name="localTasksCounter" value="10" />
+    <task id="LOCAL-00010" summary="Removing Debug Writing">
+      <created>1634494791559</created>
+      <option name="number" value="00010" />
+      <option name="presentableId" value="LOCAL-00010" />
+      <option name="project" value="LOCAL" />
+      <updated>1634494791559</updated>
+    </task>
+    <option name="localTasksCounter" value="11" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -230,6 +274,7 @@
     <MESSAGE value="Changing Bloat to The Most Optimised Class in existence©." />
     <MESSAGE value="Small Update" />
     <MESSAGE value="Quality Of Life Improvements. HABIBI TURBO GAZARI OMEGA FIXES" />
-    <option name="LAST_COMMIT_MESSAGE" value="Quality Of Life Improvements. HABIBI TURBO GAZARI OMEGA FIXES" />
+    <MESSAGE value="Removing Debug Writing" />
+    <option name="LAST_COMMIT_MESSAGE" value="Removing Debug Writing" />
   </component>
 </project>

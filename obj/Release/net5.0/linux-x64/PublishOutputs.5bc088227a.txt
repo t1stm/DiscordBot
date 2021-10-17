@@ -360,6 +360,7 @@
 /home/kris/RiderProjects/BatTosho/bin/Release/net5.0/linux-x64/publish/DSharpPlus.CommandsNext.dll
 /home/kris/RiderProjects/BatTosho/bin/Release/net5.0/linux-x64/publish/DSharpPlus.Interactivity.dll
 /home/kris/RiderProjects/BatTosho/bin/Release/net5.0/linux-x64/publish/DSharpPlus.Rest.dll
+/home/kris/RiderProjects/BatTosho/bin/Release/net5.0/linux-x64/publish/DSharpPlus.SlashCommands.dll
 /home/kris/RiderProjects/BatTosho/bin/Release/net5.0/linux-x64/publish/DSharpPlus.VoiceNext.dll
 /home/kris/RiderProjects/BatTosho/bin/Release/net5.0/linux-x64/publish/EmbedIO.dll
 /home/kris/RiderProjects/BatTosho/bin/Release/net5.0/linux-x64/publish/Emzi0767.Common.dll

@@ -11,7 +11,7 @@ namespace Bat_Tosho
         {
             var date = $"{DateTime.Now.ToShortDateString()} {DateTime.Now.ToLongTimeString()}";
             var transformed = $"{date}: {text}";
-            //Console.WriteLine(transformed);
+            Console.WriteLine(transformed);
             switch (save)
             {
                 case true:
@@ -26,7 +26,7 @@ namespace Bat_Tosho
         {
             var date = $"{DateTime.Now.ToShortDateString()} {DateTime.Now.ToLongTimeString()}";
             var transformed = $"{date}: {debugMessage} - {text}";
-            //Console.WriteLine(transformed);
+            Console.WriteLine(transformed);
             switch (save)
             {
                 case true:

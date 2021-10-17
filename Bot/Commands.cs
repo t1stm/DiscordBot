@@ -25,7 +25,7 @@ namespace Bat_Tosho
 
         private static Dictionary<ulong, bool> Abuse { get; } = new();
 
-        private static async Task MultipleCommandsChecker(string text, CommandContext ctx)
+        private async Task MultipleCommandsChecker(string text, CommandContext ctx)
         {
             var commands = text[1..].Split("!&&"); // nice
             // Quick explanation: This is a range indexer. It really is useful in cases like these. It can be used in an array too, and technically a string is a char array.

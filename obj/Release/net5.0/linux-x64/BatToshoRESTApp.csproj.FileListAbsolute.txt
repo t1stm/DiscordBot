@@ -8,7 +8,6 @@
 /home/kris/RiderProjects/BatTosho/bin/Release/net5.0/linux-x64/ref/BatToshoRESTApp.dll
 /home/kris/RiderProjects/BatTosho/bin/Release/net5.0/linux-x64/BatToshoRESTApp.pdb
 /home/kris/RiderProjects/BatTosho/bin/Release/net5.0/linux-x64/BatToshoRESTApp.Views.dll
-/home/kris/RiderProjects/BatTosho/bin/Release/net5.0/linux-x64/BatToshoRESTApp.Views.pdb
 /home/kris/RiderProjects/BatTosho/bin/Release/net5.0/linux-x64/AngleSharp.dll
 /home/kris/RiderProjects/BatTosho/bin/Release/net5.0/linux-x64/ConcurrentCollections.dll
 /home/kris/RiderProjects/BatTosho/bin/Release/net5.0/linux-x64/DSharpPlus.dll
@@ -455,3 +454,4 @@
 /home/kris/RiderProjects/BatTosho/obj/Release/net5.0/linux-x64/BatToshoRESTApp.pdb
 /home/kris/RiderProjects/BatTosho/obj/Release/net5.0/linux-x64/BatToshoRESTApp.genruntimeconfig.cache
 /home/kris/RiderProjects/BatTosho/bin/Release/net5.0/linux-x64/DSharpPlus.Rest.dll
+/home/kris/RiderProjects/BatTosho/bin/Release/net5.0/linux-x64/DSharpPlus.SlashCommands.dll

@@ -179,3 +179,4 @@
 /home/kris/RiderProjects/BatTosho/obj/Debug/net5.0/BatToshoRESTApp.pdb
 /home/kris/RiderProjects/BatTosho/obj/Debug/net5.0/BatToshoRESTApp.genruntimeconfig.cache
 /home/kris/RiderProjects/BatTosho/bin/Debug/net5.0/DSharpPlus.Rest.dll
+/home/kris/RiderProjects/BatTosho/bin/Debug/net5.0/DSharpPlus.SlashCommands.dll

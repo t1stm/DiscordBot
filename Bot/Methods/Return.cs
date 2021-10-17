@@ -13,7 +13,7 @@ namespace Bat_Tosho.Methods
             string[] time = text.Split(":").Reverse().ToArray();
             for (int i = ms ? 0 : 1; i < time.Length; i++)
             {
-                long q = long.Parse(time[i-(ms ? 0 : -1)]);
+                long q = long.Parse(time[i-(ms ? 0 : 1)]);
                 milliseconds += i switch
                 {
                     0 => q,
