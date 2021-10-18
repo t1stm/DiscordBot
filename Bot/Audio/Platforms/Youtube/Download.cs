@@ -126,11 +126,11 @@ namespace Bat_Tosho.Audio.Platforms.Youtube
                 }
             });
             dllTask.Start();
-            if (!urgent)
+            if (urgent)
             {
                 var timer = new Stopwatch();
                 timer.Start();
-                while (timer.Elapsed.Seconds <= 5) await Task.Delay(500);
+                while (timer.Elapsed.Seconds <= 4) await Task.Delay(500);
             }
             else
             {

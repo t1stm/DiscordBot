@@ -8,19 +8,37 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="7a9b8107-2bcf-4377-b48b-ea9c3518aaf9" name="Default Changelist" comment="">
+      <change afterPath="$PROJECT_DIR$/Bot/Audio/Platforms/Local/JsonManager.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Bot/Audio/Platforms/MariaDB/Functions.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/bin/Debug/net5.0/BouncyCastle.Crypto.dll" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/bin/Debug/net5.0/Google.Protobuf.dll" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/bin/Debug/net5.0/K4os.Compression.LZ4.Streams.dll" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/bin/Debug/net5.0/K4os.Compression.LZ4.dll" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/bin/Debug/net5.0/K4os.Hash.xxHash.dll" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/bin/Debug/net5.0/MySql.Data.dll" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/bin/Debug/net5.0/Ubiety.Dns.Core.dll" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/bin/Debug/net5.0/Zstandard.Net.dll" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/.idea.BatToshoRESTApp.dir/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.BatToshoRESTApp.dir/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Bot/Methods/Return.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Bot/Methods/Return.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/BatToshoRESTApp.csproj" beforeDir="false" afterPath="$PROJECT_DIR$/BatToshoRESTApp.csproj" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Bot/Audio/Objects/VideoInformation.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Bot/Audio/Objects/VideoInformation.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Bot/Audio/Platforms/Youtube/Download.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Bot/Audio/Platforms/Youtube/Download.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Bot/Audio/Platforms/Youtube/Video.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Bot/Audio/Platforms/Youtube/Video.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Controllers/BatTosho.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Controllers/BatTosho.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bin/Debug/net5.0/BatToshoRESTApp.deps.json" beforeDir="false" afterPath="$PROJECT_DIR$/bin/Debug/net5.0/BatToshoRESTApp.deps.json" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/bin/Debug/net5.0/BatToshoRESTApp.dll" beforeDir="false" afterPath="$PROJECT_DIR$/bin/Debug/net5.0/BatToshoRESTApp.dll" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/bin/Debug/net5.0/BatToshoRESTApp.pdb" beforeDir="false" afterPath="$PROJECT_DIR$/bin/Debug/net5.0/BatToshoRESTApp.pdb" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/bin/Release/net5.0/linux-x64/BatToshoRESTApp.dll" beforeDir="false" afterPath="$PROJECT_DIR$/bin/Release/net5.0/linux-x64/BatToshoRESTApp.dll" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/bin/Release/net5.0/linux-x64/BatToshoRESTApp.pdb" beforeDir="false" afterPath="$PROJECT_DIR$/bin/Release/net5.0/linux-x64/BatToshoRESTApp.pdb" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/bin/Release/net5.0/linux-x64/publish/BatToshoRESTApp.dll" beforeDir="false" afterPath="$PROJECT_DIR$/bin/Release/net5.0/linux-x64/publish/BatToshoRESTApp.dll" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/bin/Release/net5.0/linux-x64/publish/BatToshoRESTApp.pdb" beforeDir="false" afterPath="$PROJECT_DIR$/bin/Release/net5.0/linux-x64/publish/BatToshoRESTApp.pdb" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bin/Debug/net5.0/ref/BatToshoRESTApp.dll" beforeDir="false" afterPath="$PROJECT_DIR$/bin/Debug/net5.0/ref/BatToshoRESTApp.dll" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/obj/BatToshoRESTApp.csproj.nuget.dgspec.json" beforeDir="false" afterPath="$PROJECT_DIR$/obj/BatToshoRESTApp.csproj.nuget.dgspec.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/obj/Debug/net5.0/BatToshoRESTApp.assets.cache" beforeDir="false" afterPath="$PROJECT_DIR$/obj/Debug/net5.0/BatToshoRESTApp.assets.cache" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/obj/Debug/net5.0/BatToshoRESTApp.csproj.CoreCompileInputs.cache" beforeDir="false" afterPath="$PROJECT_DIR$/obj/Debug/net5.0/BatToshoRESTApp.csproj.CoreCompileInputs.cache" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/obj/Debug/net5.0/BatToshoRESTApp.csproj.FileListAbsolute.txt" beforeDir="false" afterPath="$PROJECT_DIR$/obj/Debug/net5.0/BatToshoRESTApp.csproj.FileListAbsolute.txt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/obj/Debug/net5.0/BatToshoRESTApp.csprojAssemblyReference.cache" beforeDir="false" afterPath="$PROJECT_DIR$/obj/Debug/net5.0/BatToshoRESTApp.csprojAssemblyReference.cache" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/obj/Debug/net5.0/BatToshoRESTApp.dll" beforeDir="false" afterPath="$PROJECT_DIR$/obj/Debug/net5.0/BatToshoRESTApp.dll" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/obj/Debug/net5.0/BatToshoRESTApp.pdb" beforeDir="false" afterPath="$PROJECT_DIR$/obj/Debug/net5.0/BatToshoRESTApp.pdb" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/obj/Release/net5.0/linux-x64/BatToshoRESTApp.dll" beforeDir="false" afterPath="$PROJECT_DIR$/obj/Release/net5.0/linux-x64/BatToshoRESTApp.dll" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/obj/Release/net5.0/linux-x64/BatToshoRESTApp.pdb" beforeDir="false" afterPath="$PROJECT_DIR$/obj/Release/net5.0/linux-x64/BatToshoRESTApp.pdb" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/obj/Debug/net5.0/ref/BatToshoRESTApp.dll" beforeDir="false" afterPath="$PROJECT_DIR$/obj/Debug/net5.0/ref/BatToshoRESTApp.dll" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/obj/project.assets.json" beforeDir="false" afterPath="$PROJECT_DIR$/obj/project.assets.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/obj/project.nuget.cache" beforeDir="false" afterPath="$PROJECT_DIR$/obj/project.nuget.cache" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/obj/project.packagespec.json" beforeDir="false" afterPath="$PROJECT_DIR$/obj/project.packagespec.json" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/obj/rider.project.restore.info" beforeDir="false" afterPath="$PROJECT_DIR$/obj/rider.project.restore.info" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -31,8 +49,17 @@
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
+  <component name="GitSEFilterConfiguration">
+    <file-type-list>
+      <filtered-out-file-type name="LOCAL_BRANCH" />
+      <filtered-out-file-type name="REMOTE_BRANCH" />
+      <filtered-out-file-type name="TAG" />
+      <filtered-out-file-type name="COMMIT_BY_MESSAGE" />
+    </file-type-list>
+  </component>
   <component name="HighlightingSettingsPerFile">
     <setting file="file://$PROJECT_DIR$/obj/Release/net5.0/linux-x64/.NETCoreApp,Version=v5.0.AssemblyAttributes.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Bot/Program.cs" root0="FORCE_HIGHLIGHTING" />
   </component>
   <component name="IdeDocumentHistory">
     <changedPaths>
@@ -42,8 +69,6 @@
       <option value="$PROJECT_DIR$/Bot/Messages/Statusbar.cs" />
       <option value="$PROJECT_DIR$/Components/GenericVideo.cs" />
       <option value="$PROJECT_DIR$/Components/SearchResultTemplate.cs" />
-      <option value="$PROJECT_DIR$/Bot/Audio/Platforms/Youtube/Video.cs" />
-      <option value="$PROJECT_DIR$/Bot/Audio/Platforms/Youtube/Download.cs" />
       <option value="$PROJECT_DIR$/Bot/Audio/Manager.cs" />
       <option value="$PROJECT_DIR$/Startup.cs" />
       <option value="$PROJECT_DIR$/Bot/Emojis.cs" />
@@ -58,6 +83,11 @@
       <option value="$PROJECT_DIR$/Bot/Debug.cs" />
       <option value="$PROJECT_DIR$/Bot/Program.cs" />
       <option value="$PROJECT_DIR$/Bot/Methods/Return.cs" />
+      <option value="$PROJECT_DIR$/Bot/Audio/Platforms/Youtube/Download.cs" />
+      <option value="$PROJECT_DIR$/Bot/Audio/Objects/VideoInformation.cs" />
+      <option value="$PROJECT_DIR$/Bot/Audio/Platforms/Youtube/Video.cs" />
+      <option value="$PROJECT_DIR$/Bot/Audio/Platforms/Local/JsonManager.cs" />
+      <option value="$PROJECT_DIR$/Bot/Audio/Platforms/MariaDB/Functions.cs" />
     </changedPaths>
   </component>
   <component name="ProjectId" id="1zHyNpOFsvMsmTOx0jxwruJidi4" />
@@ -141,6 +171,8 @@
       <workItem from="1634497461406" duration="348000" />
       <workItem from="1634497925929" duration="525000" />
       <workItem from="1634569131998" duration="1037000" />
+      <workItem from="1634575099640" duration="1157000" />
+      <workItem from="1634576312069" duration="9081000" />
     </task>
     <task id="LOCAL-00001" summary="Bobur Vecher Momcheta I Momicheta">
       <created>1633820044215</created>
@@ -219,7 +251,14 @@
       <option name="project" value="LOCAL" />
       <updated>1634497296269</updated>
     </task>
-    <option name="localTasksCounter" value="12" />
+    <task id="LOCAL-00012" summary="yes">
+      <created>1634575191135</created>
+      <option name="number" value="00012" />
+      <option name="presentableId" value="LOCAL-00012" />
+      <option name="project" value="LOCAL" />
+      <updated>1634575191135</updated>
+    </task>
+    <option name="localTasksCounter" value="13" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -254,6 +293,7 @@
     <MESSAGE value="Quality Of Life Improvements. HABIBI TURBO GAZARI OMEGA FIXES" />
     <MESSAGE value="Removing Debug Writing" />
     <MESSAGE value="Quick Bug Fixes" />
-    <option name="LAST_COMMIT_MESSAGE" value="Quick Bug Fixes" />
+    <MESSAGE value="yes" />
+    <option name="LAST_COMMIT_MESSAGE" value="yes" />
   </component>
 </project>

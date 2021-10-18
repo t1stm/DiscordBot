@@ -13,12 +13,12 @@ namespace Bat_Tosho.Audio.Objects
 
         public VideoInformation(string youtubeIdOrPathToFile, VideoSearchTypes type, PartOf partOf, string name = null,
             string author = null,
-            int lengthMs = 0, DiscordUser requester = null, DiscordUser controller = null, string thubmnailUrl = null)
+            int lengthMs = 0, DiscordUser requester = null, DiscordUser controller = null, string thumbnailUrl = null)
         {
             YoutubeIdOrPathToFile = youtubeIdOrPathToFile;
             Type = type;
             PartOf = partOf;
-            ThubmnailUrl = thubmnailUrl;
+            ThumbnailUrl = thumbnailUrl;
             Name = name;
             Author = author;
             LengthMs = lengthMs;
@@ -45,7 +45,7 @@ namespace Bat_Tosho.Audio.Objects
 
         public DiscordUser Requester { get; }
 
-        public string ThubmnailUrl { get; init; }
+        public string ThumbnailUrl { get; init; }
         public bool Lock { get; set; }
     }
 }

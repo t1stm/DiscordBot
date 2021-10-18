@@ -162,7 +162,7 @@ namespace BatToshoRESTApp.Controllers
                 CurrentDuration = song.Stopwatch.Elapsed.ToString("hh\\:mm\\:ss"),
                 MaxDurationMs = (long) song.Length.TotalMilliseconds,
                 MaxDuration = song.Length.ToString("hh\\:mm\\:ss"),
-                ThumbnailUrl = song.ThubmnailUrl switch {null => "noImage.png", _ => song.ThubmnailUrl},
+                ThumbnailUrl = song.ThumbnailUrl switch {null => "noImage.png", _ => song.ThumbnailUrl},
                 VideoId = song.YoutubeIdOrPathToFile,
                 VolumePercent = (int) (instance.TransmitSink.VolumeModifier * 100)
             };
@@ -201,7 +201,7 @@ namespace BatToshoRESTApp.Controllers
                 {
                     Author = vi.Author,
                     Title = vi.Name,
-                    ThumbnailUrl = vi.ThubmnailUrl,
+                    ThumbnailUrl = vi.ThumbnailUrl,
                     MaxDuration = vi.Length.ToString("hh\\:mm\\:ss"),
                     VideoId = vi.PartOf switch
                     {
