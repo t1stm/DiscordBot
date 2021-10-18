@@ -11,7 +11,7 @@ namespace Bat_Tosho.Methods
             bool ms = text.Contains(".");
             text = ms ? text.Replace(".", ":") : text;
             string[] time = text.Split(":").Reverse().ToArray();
-            for (int i = ms ? 0 : 1; i < time.Length; i++)
+            for (int i = ms ? 0 : 1; i < time.Length + (ms ? 0 : 1); i++)
             {
                 long q = long.Parse(time[i-(ms ? 0 : 1)]);
                 milliseconds += i switch
