@@ -13,6 +13,7 @@ namespace Bat_Tosho.Audio.Platforms.Local
         private static readonly string Filename = $"{Program.MainDirectory}FuckYoutube.json";
         public static async Task<string> Read(string search)
         {
+            search = search.ToLower();
             JsonFile ??= await File.ReadAllTextAsync(Filename);
             if (string.IsNullOrEmpty(JsonFile))
             {
@@ -33,6 +34,7 @@ namespace Bat_Tosho.Audio.Platforms.Local
 
         public static async Task Write(string search, string videoId)
         {
+            search = search.ToLower();
             JsonFile ??= await File.ReadAllTextAsync(Filename);
             var json = JsonSerializer.Deserialize<List<SearchMatches>>(JsonFile);
             json?.Add(new SearchMatches

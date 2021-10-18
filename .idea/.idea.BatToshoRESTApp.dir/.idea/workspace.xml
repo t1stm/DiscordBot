@@ -8,37 +8,41 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="7a9b8107-2bcf-4377-b48b-ea9c3518aaf9" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/Bot/Audio/Platforms/Local/JsonManager.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Bot/Audio/Platforms/MariaDB/Functions.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net5.0/BouncyCastle.Crypto.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net5.0/Google.Protobuf.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net5.0/K4os.Compression.LZ4.Streams.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net5.0/K4os.Compression.LZ4.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net5.0/K4os.Hash.xxHash.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net5.0/MySql.Data.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net5.0/Ubiety.Dns.Core.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net5.0/Zstandard.Net.dll" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/bin/Release/net5.0/linux-x64/BouncyCastle.Crypto.dll" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/bin/Release/net5.0/linux-x64/Google.Protobuf.dll" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/bin/Release/net5.0/linux-x64/K4os.Compression.LZ4.Streams.dll" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/bin/Release/net5.0/linux-x64/K4os.Compression.LZ4.dll" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/bin/Release/net5.0/linux-x64/K4os.Hash.xxHash.dll" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/bin/Release/net5.0/linux-x64/MySql.Data.dll" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/bin/Release/net5.0/linux-x64/Ubiety.Dns.Core.dll" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/bin/Release/net5.0/linux-x64/Zstandard.Net.dll" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/bin/Release/net5.0/linux-x64/publish/BouncyCastle.Crypto.dll" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/bin/Release/net5.0/linux-x64/publish/Google.Protobuf.dll" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/bin/Release/net5.0/linux-x64/publish/K4os.Compression.LZ4.Streams.dll" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/bin/Release/net5.0/linux-x64/publish/K4os.Compression.LZ4.dll" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/bin/Release/net5.0/linux-x64/publish/K4os.Hash.xxHash.dll" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/bin/Release/net5.0/linux-x64/publish/MySql.Data.dll" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/bin/Release/net5.0/linux-x64/publish/Ubiety.Dns.Core.dll" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/bin/Release/net5.0/linux-x64/publish/Zstandard.Net.dll" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/.idea.BatToshoRESTApp.dir/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.BatToshoRESTApp.dir/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/BatToshoRESTApp.csproj" beforeDir="false" afterPath="$PROJECT_DIR$/BatToshoRESTApp.csproj" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Bot/Audio/Objects/VideoInformation.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Bot/Audio/Objects/VideoInformation.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Bot/Audio/Platforms/Youtube/Download.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Bot/Audio/Platforms/Youtube/Download.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Bot/Audio/Platforms/Youtube/Video.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Bot/Audio/Platforms/Youtube/Video.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Controllers/BatTosho.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Controllers/BatTosho.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/bin/Debug/net5.0/BatToshoRESTApp.deps.json" beforeDir="false" afterPath="$PROJECT_DIR$/bin/Debug/net5.0/BatToshoRESTApp.deps.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/bin/Debug/net5.0/BatToshoRESTApp.dll" beforeDir="false" afterPath="$PROJECT_DIR$/bin/Debug/net5.0/BatToshoRESTApp.dll" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/bin/Debug/net5.0/BatToshoRESTApp.pdb" beforeDir="false" afterPath="$PROJECT_DIR$/bin/Debug/net5.0/BatToshoRESTApp.pdb" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/bin/Debug/net5.0/ref/BatToshoRESTApp.dll" beforeDir="false" afterPath="$PROJECT_DIR$/bin/Debug/net5.0/ref/BatToshoRESTApp.dll" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/obj/BatToshoRESTApp.csproj.nuget.dgspec.json" beforeDir="false" afterPath="$PROJECT_DIR$/obj/BatToshoRESTApp.csproj.nuget.dgspec.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/obj/Debug/net5.0/BatToshoRESTApp.assets.cache" beforeDir="false" afterPath="$PROJECT_DIR$/obj/Debug/net5.0/BatToshoRESTApp.assets.cache" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/obj/Debug/net5.0/BatToshoRESTApp.csproj.CoreCompileInputs.cache" beforeDir="false" afterPath="$PROJECT_DIR$/obj/Debug/net5.0/BatToshoRESTApp.csproj.CoreCompileInputs.cache" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/obj/Debug/net5.0/BatToshoRESTApp.csproj.FileListAbsolute.txt" beforeDir="false" afterPath="$PROJECT_DIR$/obj/Debug/net5.0/BatToshoRESTApp.csproj.FileListAbsolute.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Bot/Audio/Platforms/Local/JsonManager.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Bot/Audio/Platforms/Local/JsonManager.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bin/Release/net5.0/linux-x64/BatToshoRESTApp.deps.json" beforeDir="false" afterPath="$PROJECT_DIR$/bin/Release/net5.0/linux-x64/BatToshoRESTApp.deps.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bin/Release/net5.0/linux-x64/BatToshoRESTApp.dll" beforeDir="false" afterPath="$PROJECT_DIR$/bin/Release/net5.0/linux-x64/BatToshoRESTApp.dll" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bin/Release/net5.0/linux-x64/BatToshoRESTApp.pdb" beforeDir="false" afterPath="$PROJECT_DIR$/bin/Release/net5.0/linux-x64/BatToshoRESTApp.pdb" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bin/Release/net5.0/linux-x64/publish/BatToshoRESTApp.deps.json" beforeDir="false" afterPath="$PROJECT_DIR$/bin/Release/net5.0/linux-x64/publish/BatToshoRESTApp.deps.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bin/Release/net5.0/linux-x64/publish/BatToshoRESTApp.dll" beforeDir="false" afterPath="$PROJECT_DIR$/bin/Release/net5.0/linux-x64/publish/BatToshoRESTApp.dll" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bin/Release/net5.0/linux-x64/publish/BatToshoRESTApp.pdb" beforeDir="false" afterPath="$PROJECT_DIR$/bin/Release/net5.0/linux-x64/publish/BatToshoRESTApp.pdb" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bin/Release/net5.0/linux-x64/ref/BatToshoRESTApp.dll" beforeDir="false" afterPath="$PROJECT_DIR$/bin/Release/net5.0/linux-x64/ref/BatToshoRESTApp.dll" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/obj/Debug/net5.0/BatToshoRESTApp.csprojAssemblyReference.cache" beforeDir="false" afterPath="$PROJECT_DIR$/obj/Debug/net5.0/BatToshoRESTApp.csprojAssemblyReference.cache" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/obj/Debug/net5.0/BatToshoRESTApp.dll" beforeDir="false" afterPath="$PROJECT_DIR$/obj/Debug/net5.0/BatToshoRESTApp.dll" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/obj/Debug/net5.0/BatToshoRESTApp.pdb" beforeDir="false" afterPath="$PROJECT_DIR$/obj/Debug/net5.0/BatToshoRESTApp.pdb" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/obj/Debug/net5.0/ref/BatToshoRESTApp.dll" beforeDir="false" afterPath="$PROJECT_DIR$/obj/Debug/net5.0/ref/BatToshoRESTApp.dll" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/obj/project.assets.json" beforeDir="false" afterPath="$PROJECT_DIR$/obj/project.assets.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/obj/project.nuget.cache" beforeDir="false" afterPath="$PROJECT_DIR$/obj/project.nuget.cache" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/obj/project.packagespec.json" beforeDir="false" afterPath="$PROJECT_DIR$/obj/project.packagespec.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/obj/Release/net5.0/linux-x64/BatToshoRESTApp.assets.cache" beforeDir="false" afterPath="$PROJECT_DIR$/obj/Release/net5.0/linux-x64/BatToshoRESTApp.assets.cache" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/obj/Release/net5.0/linux-x64/BatToshoRESTApp.csproj.CoreCompileInputs.cache" beforeDir="false" afterPath="$PROJECT_DIR$/obj/Release/net5.0/linux-x64/BatToshoRESTApp.csproj.CoreCompileInputs.cache" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/obj/Release/net5.0/linux-x64/BatToshoRESTApp.csproj.FileListAbsolute.txt" beforeDir="false" afterPath="$PROJECT_DIR$/obj/Release/net5.0/linux-x64/BatToshoRESTApp.csproj.FileListAbsolute.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/obj/Release/net5.0/linux-x64/BatToshoRESTApp.csprojAssemblyReference.cache" beforeDir="false" afterPath="$PROJECT_DIR$/obj/Release/net5.0/linux-x64/BatToshoRESTApp.csprojAssemblyReference.cache" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/obj/Release/net5.0/linux-x64/BatToshoRESTApp.deps.json" beforeDir="false" afterPath="$PROJECT_DIR$/obj/Release/net5.0/linux-x64/BatToshoRESTApp.deps.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/obj/Release/net5.0/linux-x64/BatToshoRESTApp.dll" beforeDir="false" afterPath="$PROJECT_DIR$/obj/Release/net5.0/linux-x64/BatToshoRESTApp.dll" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/obj/Release/net5.0/linux-x64/BatToshoRESTApp.pdb" beforeDir="false" afterPath="$PROJECT_DIR$/obj/Release/net5.0/linux-x64/BatToshoRESTApp.pdb" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/obj/Release/net5.0/linux-x64/PublishOutputs.5bc088227a.txt" beforeDir="false" afterPath="$PROJECT_DIR$/obj/Release/net5.0/linux-x64/PublishOutputs.5bc088227a.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/obj/Release/net5.0/linux-x64/ref/BatToshoRESTApp.dll" beforeDir="false" afterPath="$PROJECT_DIR$/obj/Release/net5.0/linux-x64/ref/BatToshoRESTApp.dll" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/obj/rider.project.restore.info" beforeDir="false" afterPath="$PROJECT_DIR$/obj/rider.project.restore.info" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -86,8 +90,8 @@
       <option value="$PROJECT_DIR$/Bot/Audio/Platforms/Youtube/Download.cs" />
       <option value="$PROJECT_DIR$/Bot/Audio/Objects/VideoInformation.cs" />
       <option value="$PROJECT_DIR$/Bot/Audio/Platforms/Youtube/Video.cs" />
-      <option value="$PROJECT_DIR$/Bot/Audio/Platforms/Local/JsonManager.cs" />
       <option value="$PROJECT_DIR$/Bot/Audio/Platforms/MariaDB/Functions.cs" />
+      <option value="$PROJECT_DIR$/Bot/Audio/Platforms/Local/JsonManager.cs" />
     </changedPaths>
   </component>
   <component name="ProjectId" id="1zHyNpOFsvMsmTOx0jxwruJidi4" />
@@ -172,7 +176,8 @@
       <workItem from="1634497925929" duration="525000" />
       <workItem from="1634569131998" duration="1037000" />
       <workItem from="1634575099640" duration="1157000" />
-      <workItem from="1634576312069" duration="9081000" />
+      <workItem from="1634576312069" duration="9208000" />
+      <workItem from="1634587619702" duration="560000" />
     </task>
     <task id="LOCAL-00001" summary="Bobur Vecher Momcheta I Momicheta">
       <created>1633820044215</created>
@@ -258,7 +263,14 @@
       <option name="project" value="LOCAL" />
       <updated>1634575191135</updated>
     </task>
-    <option name="localTasksCounter" value="13" />
+    <task id="LOCAL-00013" summary="Implementing offloading load to local servers instead of using Youtube multiple times.">
+      <created>1634587379488</created>
+      <option name="number" value="00013" />
+      <option name="presentableId" value="LOCAL-00013" />
+      <option name="project" value="LOCAL" />
+      <updated>1634587379488</updated>
+    </task>
+    <option name="localTasksCounter" value="14" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -294,6 +306,7 @@
     <MESSAGE value="Removing Debug Writing" />
     <MESSAGE value="Quick Bug Fixes" />
     <MESSAGE value="yes" />
-    <option name="LAST_COMMIT_MESSAGE" value="yes" />
+    <MESSAGE value="Implementing offloading load to local servers instead of using Youtube multiple times." />
+    <option name="LAST_COMMIT_MESSAGE" value="Implementing offloading load to local servers instead of using Youtube multiple times." />
   </component>
 </project>

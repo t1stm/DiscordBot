@@ -455,3 +455,11 @@
 /home/kris/RiderProjects/BatTosho/obj/Release/net5.0/linux-x64/BatToshoRESTApp.genruntimeconfig.cache
 /home/kris/RiderProjects/BatTosho/bin/Release/net5.0/linux-x64/DSharpPlus.Rest.dll
 /home/kris/RiderProjects/BatTosho/bin/Release/net5.0/linux-x64/DSharpPlus.SlashCommands.dll
+/home/kris/RiderProjects/BatTosho/bin/Release/net5.0/linux-x64/BouncyCastle.Crypto.dll
+/home/kris/RiderProjects/BatTosho/bin/Release/net5.0/linux-x64/Google.Protobuf.dll
+/home/kris/RiderProjects/BatTosho/bin/Release/net5.0/linux-x64/K4os.Compression.LZ4.dll
+/home/kris/RiderProjects/BatTosho/bin/Release/net5.0/linux-x64/K4os.Compression.LZ4.Streams.dll
+/home/kris/RiderProjects/BatTosho/bin/Release/net5.0/linux-x64/K4os.Hash.xxHash.dll
+/home/kris/RiderProjects/BatTosho/bin/Release/net5.0/linux-x64/MySql.Data.dll
+/home/kris/RiderProjects/BatTosho/bin/Release/net5.0/linux-x64/Ubiety.Dns.Core.dll
+/home/kris/RiderProjects/BatTosho/bin/Release/net5.0/linux-x64/Zstandard.Net.dll

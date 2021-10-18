@@ -355,6 +355,7 @@
 /home/kris/RiderProjects/BatTosho/bin/Release/net5.0/linux-x64/publish/System.Security.Permissions.dll
 /home/kris/RiderProjects/BatTosho/bin/Release/net5.0/linux-x64/publish/System.Windows.Extensions.dll
 /home/kris/RiderProjects/BatTosho/bin/Release/net5.0/linux-x64/publish/AngleSharp.dll
+/home/kris/RiderProjects/BatTosho/bin/Release/net5.0/linux-x64/publish/BouncyCastle.Crypto.dll
 /home/kris/RiderProjects/BatTosho/bin/Release/net5.0/linux-x64/publish/ConcurrentCollections.dll
 /home/kris/RiderProjects/BatTosho/bin/Release/net5.0/linux-x64/publish/DSharpPlus.dll
 /home/kris/RiderProjects/BatTosho/bin/Release/net5.0/linux-x64/publish/DSharpPlus.CommandsNext.dll
@@ -364,8 +365,12 @@
 /home/kris/RiderProjects/BatTosho/bin/Release/net5.0/linux-x64/publish/DSharpPlus.VoiceNext.dll
 /home/kris/RiderProjects/BatTosho/bin/Release/net5.0/linux-x64/publish/EmbedIO.dll
 /home/kris/RiderProjects/BatTosho/bin/Release/net5.0/linux-x64/publish/Emzi0767.Common.dll
+/home/kris/RiderProjects/BatTosho/bin/Release/net5.0/linux-x64/publish/Google.Protobuf.dll
 /home/kris/RiderProjects/BatTosho/bin/Release/net5.0/linux-x64/publish/HtmlAgilityPack.dll
 /home/kris/RiderProjects/BatTosho/bin/Release/net5.0/linux-x64/publish/Humanizer.dll
+/home/kris/RiderProjects/BatTosho/bin/Release/net5.0/linux-x64/publish/K4os.Compression.LZ4.dll
+/home/kris/RiderProjects/BatTosho/bin/Release/net5.0/linux-x64/publish/K4os.Compression.LZ4.Streams.dll
+/home/kris/RiderProjects/BatTosho/bin/Release/net5.0/linux-x64/publish/K4os.Hash.xxHash.dll
 /home/kris/RiderProjects/BatTosho/bin/Release/net5.0/linux-x64/publish/Magick.NET-Q16-AnyCPU.dll
 /home/kris/RiderProjects/BatTosho/bin/Release/net5.0/linux-x64/publish/Magick.NET.Core.dll
 /home/kris/RiderProjects/BatTosho/bin/Release/net5.0/linux-x64/publish/Microsoft.AspNetCore.Authentication.Certificate.dll
@@ -399,6 +404,9 @@
 /home/kris/RiderProjects/BatTosho/bin/Release/net5.0/linux-x64/publish/Microsoft.VisualStudio.Web.CodeGeneration.Templating.dll
 /home/kris/RiderProjects/BatTosho/bin/Release/net5.0/linux-x64/publish/Microsoft.VisualStudio.Web.CodeGeneration.Utils.dll
 /home/kris/RiderProjects/BatTosho/bin/Release/net5.0/linux-x64/publish/Microsoft.VisualStudio.Web.CodeGenerators.Mvc.dll
+/home/kris/RiderProjects/BatTosho/bin/Release/net5.0/linux-x64/publish/MySql.Data.dll
+/home/kris/RiderProjects/BatTosho/bin/Release/net5.0/linux-x64/publish/Ubiety.Dns.Core.dll
+/home/kris/RiderProjects/BatTosho/bin/Release/net5.0/linux-x64/publish/Zstandard.Net.dll
 /home/kris/RiderProjects/BatTosho/bin/Release/net5.0/linux-x64/publish/Newtonsoft.Json.dll
 /home/kris/RiderProjects/BatTosho/bin/Release/net5.0/linux-x64/publish/SpotifyAPI.Web.dll
 /home/kris/RiderProjects/BatTosho/bin/Release/net5.0/linux-x64/publish/SpotifyAPI.Web.Auth.dll
