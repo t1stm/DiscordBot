@@ -86,7 +86,7 @@ namespace Bat_Tosho.Audio
                 var info = instance.VideoInfos[index];
                 if (info.PartOf != PartOf.SpotifyPlaylist || info.Type != VideoSearchTypes.SearchTerm) return;
                 var search = new SearchResult(info.Requester);
-                var result = await search.Get($"{info.Name} - {info.Author} - Topic", info.Type, info.PartOf);
+                var result = await search.Get($"{info.Name} - {info.Author} - Topic", info.Type, info.PartOf, info.LengthMs);
                 instance.VideoInfos[index] = result.First();
             }
             catch (Exception e)

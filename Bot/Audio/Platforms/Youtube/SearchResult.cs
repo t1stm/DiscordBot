@@ -16,7 +16,7 @@ namespace Bat_Tosho.Audio.Platforms.Youtube
 
         private DiscordUser User { get; }
 
-        public async Task<List<VideoInformation>> Get(string path, VideoSearchTypes type, PartOf partOf)
+        public async Task<List<VideoInformation>> Get(string path, VideoSearchTypes type, PartOf partOf, int lengthMs = 0)
         {
             if (string.IsNullOrEmpty(path)) return new List<VideoInformation>();
             try
@@ -24,7 +24,7 @@ namespace Bat_Tosho.Audio.Platforms.Youtube
                 return type switch
                 {
                     VideoSearchTypes.SearchTerm or VideoSearchTypes.YoutubeVideoId => await Video.Get(path,
-                        type, partOf, User),
+                        type, partOf, User, lengthMs),
                     VideoSearchTypes.YoutubePlaylist => await Playlist.Get(path, User),
                     _ => throw new ArgumentOutOfRangeException(nameof(type), type, null)
                 };

@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -16,7 +17,7 @@ namespace Bat_Tosho.Audio.Platforms.Youtube
     public static class Video
     {
         public static async Task<List<VideoInformation>> Get(string path, VideoSearchTypes type, PartOf partOf,
-            DiscordUser user)
+            DiscordUser user, int lengthMs = 0)
         {
             MariaDB.Functions.VideoInformation mariaDbResults;
             switch (type)
@@ -42,7 +43,14 @@ namespace Bat_Tosho.Audio.Platforms.Youtube
                             };
                     }
                     var results = await youtube.SearchAsync(HttpClient.WithCookies(), path, 5);
-                    var result = (YoutubeVideo) results.Results.First();
+                    List<IResponseResult> res = results.Results.ToList();
+                    if (lengthMs != 0)
+                    {
+                        res = results.Results.OrderBy(r =>
+                            Math.Abs(Return.StringToTimeSpan(((YoutubeVideo) r).Duration).TotalMilliseconds) -
+                            TimeSpan.FromMilliseconds(lengthMs).TotalMilliseconds).ToList();
+                    }
+                    var result = (YoutubeVideo) res.First();
                     if (result == null) return null;
                     if (!readSuccess)
                         await Local.JsonManager.Write(path, result.Id);

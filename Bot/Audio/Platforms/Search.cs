@@ -26,7 +26,7 @@ namespace Bat_Tosho.Audio.Platforms
         private DiscordUser User { get; }
         private CommandContext Context { get; }
 
-        public async Task<List<VideoInformation>> GetResults(string path, PartOf partOf = PartOf.None)
+        public async Task<List<VideoInformation>> GetResults(string path, PartOf partOf = PartOf.None, int lengthMs = 0)
         {
             path = path.Trim();
             if (Context.Message.MentionedUsers.Count >= 1)
@@ -94,7 +94,7 @@ namespace Bat_Tosho.Audio.Platforms
 
                         var result = new VideoInformation(searchTerm, VideoSearchTypes.SearchTerm,
                             PartOf.SpotifyPlaylist,
-                            spotifyTrack.TrackName, spotifyTrack.ArtistsCombined, 0, User);
+                            spotifyTrack.TrackName, spotifyTrack.ArtistsCombined, spotifyTrack.LengthMs, User);
                         list.Add(result);
                     }
 
@@ -103,7 +103,7 @@ namespace Bat_Tosho.Audio.Platforms
 
                 if (!path.Contains("/track")) return await DefaultReturn(path, partOf);
                 var track = await Track.Get(path);
-                return await search.Get(track.SearchTerm, VideoSearchTypes.SearchTerm, PartOf.SpotifyTrack);
+                return await search.Get(track.SearchTerm, VideoSearchTypes.SearchTerm, PartOf.SpotifyTrack, lengthMs);
             }
 
             if (path.StartsWith("file:///"))

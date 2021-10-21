@@ -18,7 +18,7 @@ namespace Bat_Tosho.Audio.Platforms.Spotify
             var id = url.Split("track/")[1].Split("?si")[0];
             await Debug.Write($"Spotify Playlist Id is: \"{id}\".");
             var track = await Spotify.Tracks.Get(id);
-            return new SpotifyTrack(track.Name, track.Artists);
+            return new SpotifyTrack(track.Name, track.Artists, track.DurationMs);
         }
     }
 }

@@ -25,64 +25,21 @@ namespace Bat_Tosho
 
         private static Dictionary<ulong, bool> Abuse { get; } = new();
 
-        private async Task MultipleCommandsChecker(string text, CommandContext ctx)
-        {
-            var commands = text[1..].Split("!&&"); // nice
-            // Quick explanation: This is a range indexer. It really is useful in cases like these. It can be used in an array too, and technically a string is a char array.
-            // It is used like this: [startIndex..EndIndex]. Both the start and end indexes can be omitted.
-            foreach (var t in commands)
-            {
-                string s;
-                s = (t[0] is '=' or '-' or ';') switch {true => t[1..], false => t};
-                switch (s.Trim().Split(" ").First().Trim())
-                {
-                    case "shuffle":
-                        await Debug.Write($"t: \"{t.Trim()}\"");
-                        await Manager.Shuffle(ctx);
-                        break;
-                    case "skip" or "next":
-                        await Debug.Write($"t: \"{t.Trim()}\"");
-                        await Manager.Skip(ctx);
-                        break;
-                    case "previous" or "back":
-                        await Manager.Skip(ctx, -1);
-                        break;
-                    case "play":
-                        var playTask = new Task(async () =>
-                        {
-                            try
-                            {
-                                await Manager.Play(ctx, t[4..]); //The same thing here.
-                            }
-                            catch (Exception e)
-                            {
-                                await Debug.Write($"Play Command Failed. {e}");
-                            }
-                        });
-                        playTask.Start();
-                        while (!Manager.ExecutedCommand) await Task.Delay(333);
-
-                        Manager.ExecutedCommand = false;
-                        break;
-                }
-
-                await Task.Delay(333);
-            }
-        }
+        //Update 19 October 2021: Removed the multiple command checker because to be honest no one used it.
 
         [Command("play")]
         [Aliases("p", "п", "плаъ", "udri", "удри", "playfile")]
         [Description("The play command. Simple right?")]
-        private async Task PlayCommand(CommandContext ctx, [RemainingText] string path)
+        public async Task PlayCommand(CommandContext ctx, [RemainingText] string path)
         {
             try
             {
-                var text = ctx.Message.Content.ToLower().StartsWith($"{Program.BotPrefixes}п") switch
+                var text = ctx.Message.Content.ToLower().StartsWith($"{Program.BotPrefixes.First()}п") switch
                 {
                     true => Translate.BulgarianTraditionalToQwerty(path),
                     false => path
                 };
-                await MultipleCommandsChecker($"=play {text}", ctx);
+                await Manager.Play(ctx, text);
             }
             catch (Exception e) 
                 // Ahh yes the try, catch spam initiates. Gotta not crash the bot when the spaghetti code acts up.

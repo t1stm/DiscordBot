@@ -79,7 +79,7 @@ namespace Bat_Tosho
             {
                 Token = DiscordAuthToken,
                 TokenType = TokenType.Bot,
-                MinimumLogLevel = LogLevel.Information
+                MinimumLogLevel = LogLevel.Trace
             }); // 10.10.2021 I moved the initialization to here because a new bu_g had appeared while I was making some changes to the way the bot was working. Le EPICO
             //AZ SUM AUTIST, NE MI SE KOMENTIRA
             InitCustomStatuses();

@@ -8,10 +8,12 @@ namespace Bat_Tosho.Audio.Objects
         public readonly string ArtistsCombined = "";
         public readonly string SearchTerm;
         public readonly string TrackName;
+        public readonly int LengthMs;
 
-        public SpotifyTrack(string trackName, IEnumerable<SimpleArtist> artists)
+        public SpotifyTrack(string trackName, IEnumerable<SimpleArtist> artists, int lengthMs)
         {
             TrackName = trackName;
+            LengthMs = lengthMs;
             foreach (var artist in artists) ArtistsCombined += $"{artist.Name}, ";
 
             ArtistsCombined = ArtistsCombined.Remove(ArtistsCombined.Length - 2);

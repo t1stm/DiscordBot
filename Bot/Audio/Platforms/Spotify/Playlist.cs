@@ -35,10 +35,10 @@ namespace Bat_Tosho.Audio.Platforms.Spotify
                 switch (item.Track)
                 {
                     case FullTrack track:
-                        list.Add(new SpotifyTrack(track.Name, track.Artists));
+                        list.Add(new SpotifyTrack(track.Name, track.Artists, track.DurationMs));
                         break;
                     case FullEpisode episode:
-                        list.Add(new SpotifyTrack(episode.Name, null));
+                        list.Add(new SpotifyTrack(episode.Name, null, 0));
                         break;
                 }
 
