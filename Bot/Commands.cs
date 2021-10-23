@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using Bat_Tosho.Audio;
 using Bat_Tosho.Enums;
 using Bat_Tosho.Messages;
+using Bat_Tosho.Methods;
 using DSharpPlus;
 using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Attributes;
@@ -296,6 +297,7 @@ namespace Bat_Tosho
 
         [Command("lyrics")]
         [Aliases("лърицс")]
+        [Description("\"Never gonna give you up. Never gonna let you down. Never gonna turn around and desert you.\"")]
         public async Task LyricsTask(CommandContext ctx, [RemainingText] string text)
         {
             try
@@ -335,6 +337,37 @@ namespace Bat_Tosho
             }
         }
 
+        [Command("settings")]
+        public async Task Settings(CommandContext ctx, [RemainingText] string parameters)
+        {
+            var par = parameters.Split(" ");
+            string settingName = par[0];
+            string value = par.Last();
+            try
+            {
+                var settings = new ServerSettings(ctx.Guild);
+                switch (settingName)
+                {
+                    case nameof(settings.GenerateStatusbarButtons):
+                        settings.Modify(ctx.Guild, bool.Parse(value), null);
+                        await Respond.FormattedMessage(ctx, $"Updated GenerateStatusbarButtons to {value}.");
+                        break;
+                    case nameof(settings.UpdateMessagePosition):
+                        settings.Modify(ctx.Guild, null, bool.Parse(value));
+                        await Respond.FormattedMessage(ctx, $"Updated UpdateMessagePosition to {value}.");
+                        break;
+                    default:
+                        await Respond.FormattedMessage(ctx, "No Such Setting Exists.");
+                        break;
+                }
+            }
+            catch (Exception e)
+            {
+                await Debug.Write($"Settings Command Failed. {e}");
+                throw;
+            }
+        }
+        
         [Command("UpdateDefaultStatus")]
         public async Task UpdateStatusCommand(CommandContext ctx, string activity, string activityName,
             string url = null)

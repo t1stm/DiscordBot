@@ -1097,6 +1097,24 @@
           "lib/netstandard2.0/Microsoft.Net.Http.Headers.dll": {}
         }
       },
+      "Microsoft.NETCore.DotNetAppHost/5.0.11": {
+        "type": "package"
+      },
+      "Microsoft.NETCore.DotNetHostPolicy/5.0.11": {
+        "type": "package",
+        "dependencies": {
+          "Microsoft.NETCore.DotNetHostResolver": "5.0.11"
+        }
+      },
+      "Microsoft.NETCore.DotNetHostResolver/5.0.11": {
+        "type": "package",
+        "dependencies": {
+          "Microsoft.NETCore.DotNetAppHost": "5.0.11"
+        }
+      },
+      "Microsoft.NETCore.Jit/2.0.8": {
+        "type": "package"
+      },
       "Microsoft.NETCore.Platforms/5.0.4": {
         "type": "package",
         "compile": {
@@ -1104,6 +1122,15 @@
         },
         "runtime": {
           "lib/netstandard1.0/_._": {}
+        }
+      },
+      "Microsoft.NETCore.Runtime.CoreCLR/2.0.8": {
+        "type": "package",
+        "dependencies": {
+          "Microsoft.NETCore.Jit": "2.0.8"
+        },
+        "compile": {
+          "ref/netstandard1.0/_._": {}
         }
       },
       "Microsoft.NETCore.Targets/5.0.0": {
@@ -4489,6 +4516,66 @@
         "microsoft.net.http.headers.nuspec"
       ]
     },
+    "Microsoft.NETCore.DotNetAppHost/5.0.11": {
+      "sha512": "VqYMjObhGGJNLe7Xdh0ozg3Uzle6vljjQguy5lgncL9r0MNNzAfuMBKqO3a9C5LDzcQ/1bFPi4QIAp7AP/YtMA==",
+      "type": "package",
+      "path": "microsoft.netcore.dotnetapphost/5.0.11",
+      "files": [
+        ".nupkg.metadata",
+        ".signature.p7s",
+        "Icon.png",
+        "LICENSE.TXT",
+        "THIRD-PARTY-NOTICES.TXT",
+        "microsoft.netcore.dotnetapphost.5.0.11.nupkg.sha512",
+        "microsoft.netcore.dotnetapphost.nuspec",
+        "runtime.json"
+      ]
+    },
+    "Microsoft.NETCore.DotNetHostPolicy/5.0.11": {
+      "sha512": "TCZYJmI/SHSGpMqpotkU2bVAp3X1DtdxiqMuxtEchhqvVWl/WIMqaP2sCA2NTa4u5GUoZp9XC2IdBF5bnFH/kg==",
+      "type": "package",
+      "path": "microsoft.netcore.dotnethostpolicy/5.0.11",
+      "files": [
+        ".nupkg.metadata",
+        ".signature.p7s",
+        "Icon.png",
+        "LICENSE.TXT",
+        "THIRD-PARTY-NOTICES.TXT",
+        "microsoft.netcore.dotnethostpolicy.5.0.11.nupkg.sha512",
+        "microsoft.netcore.dotnethostpolicy.nuspec",
+        "runtime.json"
+      ]
+    },
+    "Microsoft.NETCore.DotNetHostResolver/5.0.11": {
+      "sha512": "eMKhXyHv+JtG/p6uvBNCJvMucOglSAe0l9KYji9WQnWfxoB3uzpuOd6F/sb87M+oZJyr7SE8TPhf14yLiKKfcg==",
+      "type": "package",
+      "path": "microsoft.netcore.dotnethostresolver/5.0.11",
+      "files": [
+        ".nupkg.metadata",
+        ".signature.p7s",
+        "Icon.png",
+        "LICENSE.TXT",
+        "THIRD-PARTY-NOTICES.TXT",
+        "microsoft.netcore.dotnethostresolver.5.0.11.nupkg.sha512",
+        "microsoft.netcore.dotnethostresolver.nuspec",
+        "runtime.json"
+      ]
+    },
+    "Microsoft.NETCore.Jit/2.0.8": {
+      "sha512": "webbzOhpGlR6qnCeb4m2OWHixBK0IgoyISVIhPVlLH8bY9yZtjnK4XQKkEkh/a9l5K26ddus7l+QpNh3EtnyYQ==",
+      "type": "package",
+      "path": "microsoft.netcore.jit/2.0.8",
+      "files": [
+        ".nupkg.metadata",
+        ".signature.p7s",
+        "LICENSE.TXT",
+        "THIRD-PARTY-NOTICES.TXT",
+        "microsoft.netcore.jit.2.0.8.nupkg.sha512",
+        "microsoft.netcore.jit.nuspec",
+        "runtime.json",
+        "version.txt"
+      ]
+    },
     "Microsoft.NETCore.Platforms/5.0.4": {
       "sha512": "S/AHu+d3Fk/yoWHIXNAs8N030bCf22GlXoMqLC/zK24i+VfhG0kWYtFeEv6s07b05qchNEGabwOcq49zzR8MPA==",
       "type": "package",
@@ -4504,6 +4591,22 @@
         "microsoft.netcore.platforms.nuspec",
         "runtime.json",
         "useSharedDesignerContext.txt",
+        "version.txt"
+      ]
+    },
+    "Microsoft.NETCore.Runtime.CoreCLR/2.0.8": {
+      "sha512": "F0t5KmilC9zaZY3JZYMfWSo+r+5PeZCXLP8uFToHTKL5kL2pTu4YPyxgweYfzTh4tb7OfZL32xnKdkzbWBP0aw==",
+      "type": "package",
+      "path": "microsoft.netcore.runtime.coreclr/2.0.8",
+      "files": [
+        ".nupkg.metadata",
+        ".signature.p7s",
+        "LICENSE.TXT",
+        "THIRD-PARTY-NOTICES.TXT",
+        "microsoft.netcore.runtime.coreclr.2.0.8.nupkg.sha512",
+        "microsoft.netcore.runtime.coreclr.nuspec",
+        "ref/netstandard1.0/_._",
+        "runtime.json",
         "version.txt"
       ]
     },
@@ -9086,7 +9189,9 @@
       "Microsoft.IdentityModel.Protocols >= 6.13.1",
       "Microsoft.IdentityModel.Protocols.OpenIdConnect >= 6.13.1",
       "Microsoft.IdentityModel.Tokens >= 6.13.1",
+      "Microsoft.NETCore.DotNetHostPolicy >= 5.0.11",
       "Microsoft.NETCore.Platforms >= 5.0.4",
+      "Microsoft.NETCore.Runtime.CoreCLR >= 2.0.8",
       "Microsoft.NETCore.Targets >= 5.0.0",
       "Microsoft.Net.Http.Headers >= 2.2.8",
       "Microsoft.VisualStudio.Web.CodeGeneration >= 5.0.2",
@@ -9510,9 +9615,17 @@
             "target": "Package",
             "version": "[6.13.1, )"
           },
+          "Microsoft.NETCore.DotNetHostPolicy": {
+            "target": "Package",
+            "version": "[5.0.11, )"
+          },
           "Microsoft.NETCore.Platforms": {
             "target": "Package",
             "version": "[5.0.4, )"
+          },
+          "Microsoft.NETCore.Runtime.CoreCLR": {
+            "target": "Package",
+            "version": "[2.0.8, )"
           },
           "Microsoft.NETCore.Targets": {
             "target": "Package",

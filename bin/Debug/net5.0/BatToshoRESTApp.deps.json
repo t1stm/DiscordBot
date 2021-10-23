@@ -98,7 +98,9 @@
           "Microsoft.IdentityModel.Protocols": "6.13.1",
           "Microsoft.IdentityModel.Protocols.OpenIdConnect": "6.13.1",
           "Microsoft.IdentityModel.Tokens": "6.13.1",
+          "Microsoft.NETCore.DotNetHostPolicy": "5.0.11",
           "Microsoft.NETCore.Platforms": "5.0.4",
+          "Microsoft.NETCore.Runtime.CoreCLR": "2.0.8",
           "Microsoft.NETCore.Targets": "5.0.0",
           "Microsoft.Net.Http.Headers": "2.2.8",
           "Microsoft.VisualStudio.Web.CodeGeneration": "5.0.2",
@@ -1556,7 +1558,24 @@
           "System.Buffers": "4.5.1"
         }
       },
+      "Microsoft.NETCore.DotNetAppHost/5.0.11": {},
+      "Microsoft.NETCore.DotNetHostPolicy/5.0.11": {
+        "dependencies": {
+          "Microsoft.NETCore.DotNetHostResolver": "5.0.11"
+        }
+      },
+      "Microsoft.NETCore.DotNetHostResolver/5.0.11": {
+        "dependencies": {
+          "Microsoft.NETCore.DotNetAppHost": "5.0.11"
+        }
+      },
+      "Microsoft.NETCore.Jit/2.0.8": {},
       "Microsoft.NETCore.Platforms/5.0.4": {},
+      "Microsoft.NETCore.Runtime.CoreCLR/2.0.8": {
+        "dependencies": {
+          "Microsoft.NETCore.Jit": "2.0.8"
+        }
+      },
       "Microsoft.NETCore.Targets/5.0.0": {},
       "Microsoft.VisualStudio.Web.CodeGeneration/5.0.2": {
         "dependencies": {
@@ -4956,12 +4975,47 @@
       "path": "microsoft.net.http.headers/2.2.8",
       "hashPath": "microsoft.net.http.headers.2.2.8.nupkg.sha512"
     },
+    "Microsoft.NETCore.DotNetAppHost/5.0.11": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-VqYMjObhGGJNLe7Xdh0ozg3Uzle6vljjQguy5lgncL9r0MNNzAfuMBKqO3a9C5LDzcQ/1bFPi4QIAp7AP/YtMA==",
+      "path": "microsoft.netcore.dotnetapphost/5.0.11",
+      "hashPath": "microsoft.netcore.dotnetapphost.5.0.11.nupkg.sha512"
+    },
+    "Microsoft.NETCore.DotNetHostPolicy/5.0.11": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-TCZYJmI/SHSGpMqpotkU2bVAp3X1DtdxiqMuxtEchhqvVWl/WIMqaP2sCA2NTa4u5GUoZp9XC2IdBF5bnFH/kg==",
+      "path": "microsoft.netcore.dotnethostpolicy/5.0.11",
+      "hashPath": "microsoft.netcore.dotnethostpolicy.5.0.11.nupkg.sha512"
+    },
+    "Microsoft.NETCore.DotNetHostResolver/5.0.11": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-eMKhXyHv+JtG/p6uvBNCJvMucOglSAe0l9KYji9WQnWfxoB3uzpuOd6F/sb87M+oZJyr7SE8TPhf14yLiKKfcg==",
+      "path": "microsoft.netcore.dotnethostresolver/5.0.11",
+      "hashPath": "microsoft.netcore.dotnethostresolver.5.0.11.nupkg.sha512"
+    },
+    "Microsoft.NETCore.Jit/2.0.8": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-webbzOhpGlR6qnCeb4m2OWHixBK0IgoyISVIhPVlLH8bY9yZtjnK4XQKkEkh/a9l5K26ddus7l+QpNh3EtnyYQ==",
+      "path": "microsoft.netcore.jit/2.0.8",
+      "hashPath": "microsoft.netcore.jit.2.0.8.nupkg.sha512"
+    },
     "Microsoft.NETCore.Platforms/5.0.4": {
       "type": "package",
       "serviceable": true,
       "sha512": "sha512-S/AHu+d3Fk/yoWHIXNAs8N030bCf22GlXoMqLC/zK24i+VfhG0kWYtFeEv6s07b05qchNEGabwOcq49zzR8MPA==",
       "path": "microsoft.netcore.platforms/5.0.4",
       "hashPath": "microsoft.netcore.platforms.5.0.4.nupkg.sha512"
+    },
+    "Microsoft.NETCore.Runtime.CoreCLR/2.0.8": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-F0t5KmilC9zaZY3JZYMfWSo+r+5PeZCXLP8uFToHTKL5kL2pTu4YPyxgweYfzTh4tb7OfZL32xnKdkzbWBP0aw==",
+      "path": "microsoft.netcore.runtime.coreclr/2.0.8",
+      "hashPath": "microsoft.netcore.runtime.coreclr.2.0.8.nupkg.sha512"
     },
     "Microsoft.NETCore.Targets/5.0.0": {
       "type": "package",

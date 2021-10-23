@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Bat_Tosho.Methods;
 using DSharpPlus;
 using DSharpPlus.CommandsNext;
 using DSharpPlus.Entities;
@@ -79,7 +80,7 @@ namespace Bat_Tosho
             {
                 Token = DiscordAuthToken,
                 TokenType = TokenType.Bot,
-                MinimumLogLevel = LogLevel.Trace
+                MinimumLogLevel = LogLevel.Debug,
             }); // 10.10.2021 I moved the initialization to here because a new bu_g had appeared while I was making some changes to the way the bot was working. Le EPICO
             //AZ SUM AUTIST, NE MI SE KOMENTIRA
             InitCustomStatuses();
@@ -102,6 +103,10 @@ namespace Bat_Tosho
                 Timeout = TimeSpan.FromSeconds(60)
             });
             Discord.UseVoiceNext();
+            Discord.GuildUpdated += async (sender, args) =>
+            {
+                var serverSettings = new ServerSettings(args.GuildAfter);
+            };
             commands.RegisterCommands<Commands>();
             //await WaitStatus(new CancellationToken());
             await Discord.ConnectAsync(DiscordActivity);

@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "dgSpecHash": "S514fre13bRXIXfZfeeIiGd0Bc9uKWqPAY5YgnyIG6Xz0uaQlZ8kO3lFAl2Nspx9v/JLFtXsU6LkJdQ23YPdhw==",
+  "dgSpecHash": "GXhU877bHEXuxijyOJRe2lSaXEt1ClCx83hQOxnBL/pIGxMU7k2SbGVbBJ6i7m3DPto4G2xUp/pEB8oZMe7mhA==",
   "success": true,
   "projectFilePath": "/home/kris/RiderProjects/BatTosho/BatToshoRESTApp.csproj",
   "expectedPackageFiles": [
@@ -74,7 +74,12 @@
     "/home/kris/.nuget/packages/microsoft.identitymodel.protocols.openidconnect/6.13.1/microsoft.identitymodel.protocols.openidconnect.6.13.1.nupkg.sha512",
     "/home/kris/.nuget/packages/microsoft.identitymodel.tokens/6.13.1/microsoft.identitymodel.tokens.6.13.1.nupkg.sha512",
     "/home/kris/.nuget/packages/microsoft.net.http.headers/2.2.8/microsoft.net.http.headers.2.2.8.nupkg.sha512",
+    "/home/kris/.nuget/packages/microsoft.netcore.dotnetapphost/5.0.11/microsoft.netcore.dotnetapphost.5.0.11.nupkg.sha512",
+    "/home/kris/.nuget/packages/microsoft.netcore.dotnethostpolicy/5.0.11/microsoft.netcore.dotnethostpolicy.5.0.11.nupkg.sha512",
+    "/home/kris/.nuget/packages/microsoft.netcore.dotnethostresolver/5.0.11/microsoft.netcore.dotnethostresolver.5.0.11.nupkg.sha512",
+    "/home/kris/.nuget/packages/microsoft.netcore.jit/2.0.8/microsoft.netcore.jit.2.0.8.nupkg.sha512",
     "/home/kris/.nuget/packages/microsoft.netcore.platforms/5.0.4/microsoft.netcore.platforms.5.0.4.nupkg.sha512",
+    "/home/kris/.nuget/packages/microsoft.netcore.runtime.coreclr/2.0.8/microsoft.netcore.runtime.coreclr.2.0.8.nupkg.sha512",
     "/home/kris/.nuget/packages/microsoft.netcore.targets/5.0.0/microsoft.netcore.targets.5.0.0.nupkg.sha512",
     "/home/kris/.nuget/packages/microsoft.visualstudio.web.codegeneration/5.0.2/microsoft.visualstudio.web.codegeneration.5.0.2.nupkg.sha512",
     "/home/kris/.nuget/packages/microsoft.visualstudio.web.codegeneration.contracts/5.0.2/microsoft.visualstudio.web.codegeneration.contracts.5.0.2.nupkg.sha512",

@@ -303,9 +303,17 @@
               "target": "Package",
               "version": "[6.13.1, )"
             },
+            "Microsoft.NETCore.DotNetHostPolicy": {
+              "target": "Package",
+              "version": "[5.0.11, )"
+            },
             "Microsoft.NETCore.Platforms": {
               "target": "Package",
               "version": "[5.0.4, )"
+            },
+            "Microsoft.NETCore.Runtime.CoreCLR": {
+              "target": "Package",
+              "version": "[2.0.8, )"
             },
             "Microsoft.NETCore.Targets": {
               "target": "Package",

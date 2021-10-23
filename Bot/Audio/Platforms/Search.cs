@@ -28,7 +28,6 @@ namespace Bat_Tosho.Audio.Platforms
 
         public async Task<List<VideoInformation>> GetResults(string path, PartOf partOf = PartOf.None, int lengthMs = 0)
         {
-            path = path.Trim();
             if (Context.Message.MentionedUsers.Count >= 1)
                 return new List<VideoInformation>
                 {
@@ -48,7 +47,9 @@ namespace Bat_Tosho.Audio.Platforms
 
                 return vi;
             }
-
+            if (string.IsNullOrEmpty(path))
+                return null;
+            path = path.Trim();
             //Shameless plugs.
             if (path.ToLower().StartsWith("zhik tak") || path.ToLower().StartsWith("жик так"))
                 path = "https://www.youtube.com/watch?v=gm_aFB_7kmc";

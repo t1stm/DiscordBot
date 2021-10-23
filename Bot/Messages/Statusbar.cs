@@ -57,7 +57,7 @@ namespace Bat_Tosho.Messages
                                 await instance.StatusbarMessage.ModifyAsync(ReturnGenericStatus("Waiting",
                                     "For 15 minutes and then leaving", WaitingStopwatch.ElapsedMilliseconds, 900000,
                                     true));
-                                await StatusbarButtons(instance, ctx);
+                                if (instance.ServerSettings.GenerateStatusbarButtons)  await StatusbarButtons(instance, ctx);
                             }
                             catch (Exception e)
                             {
@@ -70,13 +70,22 @@ namespace Bat_Tosho.Messages
                             throw new ArgumentOutOfRangeException();
                     }
 
-                await Task.Delay(1600);
+                await Task.Delay(5000);
             }
         }
 
         private async Task UpdatePlaying(CommandContext ctx, Instance instance)
         {
-            var messagesAfter = await ctx.Channel.GetMessagesAfterAsync(instance.StatusbarMessage.Id);
+            //FIX 23.10.2021 RETARDED PERSON CODE PROBLEMS
+            IReadOnlyList<DiscordMessage> messagesAfter = Array.Empty<DiscordMessage>();
+            try
+            {
+                messagesAfter = await ctx.Channel.GetMessagesAfterAsync(instance.StatusbarMessage.Id);
+            }
+            catch (Exception e)
+            {
+                await Debug.Write($"Getting Messages After Failed: {e}");
+            }
             var showNext = true;
             VideoInformation nextSong = null;
             switch (instance.VideoInfos.Count)
@@ -152,8 +161,7 @@ namespace Bat_Tosho.Messages
                     UpdatePlacement = true;
                 }
             }
-
-            await StatusbarButtons(instance, ctx);
+            if (instance.ServerSettings.GenerateStatusbarButtons) await StatusbarButtons(instance, ctx);
         }
 
         private static async Task StatusbarButtons(Instance instance, CommandContext ctx)

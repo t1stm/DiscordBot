@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Bat_Tosho.Enums;
 using Bat_Tosho.Messages;
+using Bat_Tosho.Methods;
 using DSharpPlus.Entities;
 using DSharpPlus.VoiceNext;
 
@@ -18,12 +19,14 @@ namespace Bat_Tosho.Audio.Objects
         public Statusbar Statusbar { get; set; }
         public bool UpdatingLists { get; set; }
         public int ActiveDownloadTasks { get; set; }
-        public VoiceTransmitSink TransmitSink { get; set; } = null;
+        public VoiceTransmitSink TransmitSink { get; set; }
         public Player Player { get; set; }
 
         public LoopStatus LoopStatus { get; set; } = LoopStatus.None;
 
-        public bool WaitingToLeave { get; set; } = false;
+        public bool WaitingToLeave { get; set; }
+        
+        public ServerSettings ServerSettings { get; set; }
 
         public DiscordChannel StatusbarChannel { get; set; }
 

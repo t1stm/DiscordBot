@@ -30,7 +30,6 @@ namespace Bat_Tosho.Audio
         public static readonly Dictionary<string, DiscordUser> WebUserInterfaceUsers = new();
 
         public static Dictionary<DiscordUser, bool> AbuseList = new();
-        public static bool ExecutedCommand { get; set; }
 
         public static async Task Play(CommandContext ctx, string path)
         {
@@ -47,6 +46,7 @@ namespace Bat_Tosho.Audio
             }
 
             var instance = Instances[ctx.Guild];
+            instance.ServerSettings = new ServerSettings(false, false);
             //Checking Caller VoiceState
             var userVoiceStateChannel = ctx.Member.VoiceState?.Channel;
             if (userVoiceStateChannel == null)

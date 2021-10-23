@@ -15,7 +15,7 @@ namespace BatToshoRESTApp
             if (args.Length > 0)
                 if (args[0] == "release")
                     release = true;
-            var botTask = new Task(async () => { await Bat_Tosho.Program.MainAsync(release); });
+            var botTask = new Task(async () => { await Bat_Tosho.Program.MainAsync(true); });
             botTask.Start();
             CreateHostBuilder(args).Build().Run();
         }

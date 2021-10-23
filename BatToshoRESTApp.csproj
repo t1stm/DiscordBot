@@ -77,7 +77,9 @@
       <PackageReference Include="Microsoft.IdentityModel.Protocols.OpenIdConnect" Version="6.13.1" />
       <PackageReference Include="Microsoft.IdentityModel.Tokens" Version="6.13.1" />
       <PackageReference Include="Microsoft.Net.Http.Headers" Version="2.2.8" />
+      <PackageReference Include="Microsoft.NETCore.DotNetHostPolicy" Version="5.0.11" />
       <PackageReference Include="Microsoft.NETCore.Platforms" Version="5.0.4" />
+      <PackageReference Include="Microsoft.NETCore.Runtime.CoreCLR" Version="2.0.8" />
       <PackageReference Include="Microsoft.NETCore.Targets" Version="5.0.0" />
       <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration" Version="5.0.2" />
       <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Contracts" Version="5.0.2" />
