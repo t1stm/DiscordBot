@@ -1,8 +1,8 @@
 using System.Threading.Tasks;
-using Bat_Tosho.Audio.Objects;
+using BatToshoRESTApp.Audio.Objects;
 using SpotifyAPI.Web;
 
-namespace Bat_Tosho.Audio.Platforms.Spotify
+namespace BatToshoRESTApp.Audio.Platforms.Spotify
 {
     public static class Track
     {
@@ -16,9 +16,14 @@ namespace Bat_Tosho.Audio.Platforms.Spotify
         public static async Task<SpotifyTrack> Get(string url)
         {
             var id = url.Split("track/")[1].Split("?si")[0];
-            await Debug.Write($"Spotify Playlist Id is: \"{id}\".");
             var track = await Spotify.Tracks.Get(id);
-            return new SpotifyTrack(track.Name, track.Artists, track.DurationMs);
+            return new SpotifyTrack
+            {
+                Title = track.Name,
+                Author = Methods.ArtistsNameCombine(track.Artists),
+                Length = (ulong) track.DurationMs,
+                TrackId = track.Id
+            };
         }
     }
 }

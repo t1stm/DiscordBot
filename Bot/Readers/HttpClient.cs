@@ -1,7 +1,7 @@
 using System.Net;
 using System.Net.Http;
 
-namespace Bat_Tosho.Methods
+namespace BatToshoRESTApp.Readers
 {
     public static class HttpClient
     {

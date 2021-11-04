@@ -1,98 +1,105 @@
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Bat_Tosho.Audio.Objects;
-using Bat_Tosho.Audio.Platforms.MariaDB;
-using Bat_Tosho.Enums;
-using Bat_Tosho.Methods;
-using DSharpPlus.Entities;
+using BatToshoRESTApp.Audio.Objects;
+using BatToshoRESTApp.Methods;
+using BatToshoRESTApp.Readers;
+using BatToshoRESTApp.Readers.MariaDB;
+using BatToshoRESTApp.Tools;
 using YoutubeExplode;
 using YoutubeSearchApi.Net;
 using YoutubeSearchApi.Net.Backends;
 using YoutubeSearchApi.Net.Objects;
 
-namespace Bat_Tosho.Audio.Platforms.Youtube
+namespace BatToshoRESTApp.Audio.Platforms.Youtube
 {
-    public static class Video
+    public class Video
     {
-        public static async Task<List<VideoInformation>> Get(string path, VideoSearchTypes type, PartOf partOf,
-            DiscordUser user, int lengthMs = 0)
+        public async Task<YoutubeVideoInformation> Search(string term, bool urgent = false,
+            ulong length = 0)
         {
-            MariaDB.Functions.VideoInformation mariaDbResults;
-            switch (type)
+            YoutubeVideoInformation info;
+            var foundInJson = false;
+            var jsonId = GetIdFromJson(term);
+            if (jsonId != null && !string.IsNullOrEmpty(jsonId.SearchTerm) && !string.IsNullOrEmpty(jsonId.VideoId))
             {
-                case VideoSearchTypes.SearchTerm:
-                    var youtube = new DefaultSearchClient(new YoutubeSearchBackend());
-                    while (path[0] == '-')
-                        path = path[1..];
-                    await Debug.Write($"path is: {path}", false);
-                    bool readSuccess = false;
-                    var element = await Local.JsonManager.Read(path);
-                    if (element != null)
-                    {
-                        readSuccess = true;
-                        mariaDbResults = await Functions.Select(element);
-                        if (!string.IsNullOrEmpty(mariaDbResults.VideoId) && !string.IsNullOrEmpty(mariaDbResults.Title) &&
-                            !string.IsNullOrEmpty(mariaDbResults.Author))
-                            return new List<VideoInformation>
-                            {
-                                new (mariaDbResults.VideoId, VideoSearchTypes.NotDownloaded, partOf,
-                                    mariaDbResults.Title, mariaDbResults.Author, mariaDbResults.LengthMs, user, null,
-                                    mariaDbResults.Thumbnail)
-                            };
-                    }
-                    var results = await youtube.SearchAsync(HttpClient.WithCookies(), path, 5);
-                    List<IResponseResult> res = results.Results.ToList();
-                    if (lengthMs != 0)
-                    {
-                        res = results.Results.OrderBy(r =>
-                            Math.Abs(Return.StringToTimeSpan(((YoutubeVideo) r).Duration).TotalMilliseconds) -
-                            TimeSpan.FromMilliseconds(lengthMs).TotalMilliseconds).ToList();
-                    }
-                    var result = (YoutubeVideo) res.First();
-                    if (result == null) return null;
-                    if (!readSuccess)
-                        await Local.JsonManager.Write(path, result.Id);
-                    await Functions.Insert(new Functions.VideoInformation
-                    {
-                        Author = result.Author,
-                        LengthMs = (int) Return.StringToTimeSpan(result.Duration).TotalMilliseconds,
-                        Thumbnail = result.ThumbnailUrl,
-                        Title = result.Title,
-                        VideoId = result.Id
-                    });
-                    await Debug.Write("Using Youtube Search. Ew.", false);
-                    return new List<VideoInformation>
-                    {
-                        new(result.Id, VideoSearchTypes.NotDownloaded, partOf, result.Title, result.Author,
-                            (int) Return.StringToTimeSpan(result.Duration).TotalMilliseconds, user, null, result
-                                .ThumbnailUrl)
-                    };
-                case VideoSearchTypes.YoutubeVideoId:
-                    mariaDbResults = await Functions.Select(path);
-                    if (!string.IsNullOrEmpty(mariaDbResults.VideoId) && !string.IsNullOrEmpty(mariaDbResults.Title) &&
-                        !string.IsNullOrEmpty(mariaDbResults.Author))
-                        return new List<VideoInformation>
-                        {
-                            new (mariaDbResults.VideoId, VideoSearchTypes.NotDownloaded, partOf,
-                                mariaDbResults.Title, mariaDbResults.Author, mariaDbResults.LengthMs, user, null,
-                                mariaDbResults.Thumbnail)
-                        };
-                    path = path.Split("?v=").Last().Split("&").First();
-                    var client = new YoutubeClient();
-                    var video = await client.Videos.GetAsync(path);
-                    return new List<VideoInformation>
-                    {
-                        new(video.Id, VideoSearchTypes.NotDownloaded, partOf, video.Title, video.Author.Title,
-                            video.Duration.HasValue switch
-                            {
-                                false => -1, true => (int) video.Duration.Value.TotalMilliseconds
-                            }, user, null, video.Thumbnails[0].Url)
-                    };
-                default:
-                    return null;
+                foundInJson = true;
+                info = await GetCachedVideoFromId(jsonId.VideoId);
+                if (info is not null) return info;
             }
+
+            var client = new DefaultSearchClient(new YoutubeSearchBackend());
+            var response = await client.SearchAsync(HttpClient.WithCookies(), term, 10);
+            var res = response.Results.ToList();
+            if (length != 0)
+                res = res.OrderBy(r =>
+                        Math.Abs(StringToTimeSpan.Generate(((YoutubeVideo) r).Duration).TotalMilliseconds - length))
+                    .ToList();
+
+            await Debug.WriteAsync($"Search term is: {term}");
+            await Debug.WriteAsync($"Search Milliseconds are: {length}");
+            var result = (YoutubeVideo) res.First();
+            if (result == null) return null;
+            await Debug.WriteAsync(
+                $"Result Milliseconds are: {StringToTimeSpan.Generate(result.Duration).TotalMilliseconds}");
+            info = new YoutubeVideoInformation
+            {
+                Title = result.Title,
+                Author = result.Author,
+                Length = (ulong) StringToTimeSpan.Generate(result.Duration).TotalMilliseconds,
+                YoutubeId = result.Id,
+                SearchTerm = term,
+                ThumbnailUrl = result.ThumbnailUrl
+            };
+            if (!foundInJson) new SearchJsonReader().AddVideo(term, result.Id);
+            await new ExistingVideoInfoGetter().Add(info);
+            var task = new Task(async () =>
+            {
+                if (!foundInJson) new SearchJsonReader().AddVideo(term, result.Id);
+                await new ExistingVideoInfoGetter().Add(info);
+            });
+            task.Start();
+            if (urgent) await info.Download();
+            return info;
+        }
+
+        public async Task<YoutubeVideoInformation> SearchById(string id, bool urgent = false)
+        {
+            var info = await GetCachedVideoFromId(id);
+            if (info is not null && !urgent) return info;
+            var client = new YoutubeClient();
+            var video = await client.Videos.GetAsync(id);
+            if (video is not {Duration: { }}) return null;
+            var vid = new YoutubeVideoInformation
+            {
+                Title = video.Title,
+                Author = video.Author.Title,
+                Length = (ulong) video.Duration?.TotalMilliseconds,
+                YoutubeId = id,
+                ThumbnailUrl = video.Thumbnails[0].Url,
+                IsId = true
+            };
+            if (urgent) await vid.Download();
+            return vid;
+        }
+
+        private PreviousSearchResult GetIdFromJson(string term)
+        {
+            return new SearchJsonReader().GetVideo(term);
+        }
+
+        private async Task<YoutubeVideoInformation> GetCachedVideoFromId(string id)
+        {
+            return await new ExistingVideoInfoGetter().Read(id);
+        }
+
+        public async Task<YoutubeVideoInformation> Search(SpotifyTrack track, bool urgent = false)
+        {
+            await Debug.WriteAsync($"Track: {track.GetName()}, Length: {track.GetLength()}");
+            var result = await Search($"{track.Title} - {track.Author} - Topic", urgent, track.Length);
+            result.OriginTrack = track;
+            if (urgent) await result.Download();
+            return result;
         }
     }
 }

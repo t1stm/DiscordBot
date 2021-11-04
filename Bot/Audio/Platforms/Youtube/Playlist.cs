@@ -1,25 +1,35 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Bat_Tosho.Audio.Objects;
-using Bat_Tosho.Enums;
-using DSharpPlus.Entities;
+using BatToshoRESTApp.Audio.Objects;
 using YoutubeExplode;
 using YoutubeExplode.Common;
 
-namespace Bat_Tosho.Audio.Platforms.Youtube
+namespace BatToshoRESTApp.Audio.Platforms.Youtube
 {
-    public static class Playlist
+    public class Playlist
     {
-        public static async Task<List<VideoInformation>> Get(string path, DiscordUser user)
+        public async Task<List<YoutubeVideoInformation>> Get(string url)
         {
-            var playlist = await new YoutubeClient().Playlists.GetVideosAsync(path);
-            return playlist.Where(v => v.Duration != null).Select(video => new VideoInformation(video.Id,
-                    VideoSearchTypes.NotDownloaded, PartOf.YoutubePlaylist, video.Title,
-                    video.Author.Title,
-                    (int) video.Duration.GetValueOrDefault().TotalMilliseconds, user, null,
-                    video.Thumbnails[0].Url))
-                .ToList();
+            var playlist = await new YoutubeClient().Playlists.GetVideosAsync(FixPlaylistUrl(url));
+            return playlist.Where(vi => vi.Duration != null).Select(video =>
+            {
+                if (video.Duration?.TotalMilliseconds != null)
+                    return new YoutubeVideoInformation
+                    {
+                        Title = video.Title,
+                        Author = video.Author.Title,
+                        Length = (ulong) video.Duration?.TotalMilliseconds,
+                        ThumbnailUrl = video.Thumbnails[0].Url,
+                        YoutubeId = video.Id
+                    };
+                return null;
+            }).ToList();
+        }
+
+        private static string FixPlaylistUrl(string url)
+        {
+            return url.Split("playlist?list=").Last().Split("&")[0];
         }
     }
 }

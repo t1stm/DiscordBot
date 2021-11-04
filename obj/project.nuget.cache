@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "GXhU877bHEXuxijyOJRe2lSaXEt1ClCx83hQOxnBL/pIGxMU7k2SbGVbBJ6i7m3DPto4G2xUp/pEB8oZMe7mhA==",
+  "dgSpecHash": "hACxegW/lj3PbkoacSC01dX3AJs9T/I2sO3+V74rtwV5mRF77Qm+kmtdV2suzE5Zf83vmHqks23roXfTBYkv3g==",
   "success": true,
-  "projectFilePath": "/home/kris/RiderProjects/BatTosho/BatToshoRESTApp.csproj",
+  "projectFilePath": "/home/kris/RiderProjects/BatTosho2/BatToshoRESTApp.csproj",
   "expectedPackageFiles": [
     "/home/kris/.nuget/packages/anglesharp/0.16.1/anglesharp.0.16.1.nupkg.sha512",
     "/home/kris/.nuget/packages/azure.core/1.20.0/azure.core.1.20.0.nupkg.sha512",

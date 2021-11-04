@@ -1,7 +1,6 @@
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 
 namespace BatToshoRESTApp
 {
@@ -11,11 +10,11 @@ namespace BatToshoRESTApp
         //ETO VI LINKA ZA DISCORD TESTING SERVERA: https://discord.gg/fZ74marh7R
         public static void Main(string[] args)
         {
-            var release = false;
+            var runType = Bot.RunType.Beta;
             if (args.Length > 0)
                 if (args[0] == "release")
-                    release = true;
-            var botTask = new Task(async () => { await Bat_Tosho.Program.MainAsync(true); });
+                    runType = Bot.RunType.Release;
+            var botTask = new Task(async () => { await Bot.Initialize(runType); });
             botTask.Start();
             CreateHostBuilder(args).Build().Run();
         }
@@ -23,10 +22,7 @@ namespace BatToshoRESTApp
         private static IHostBuilder CreateHostBuilder(string[] args)
         {
             return Host.CreateDefaultBuilder(args)
-                .ConfigureWebHostDefaults(webBuilder =>
-                {
-                    webBuilder.UseStartup<Startup>();
-                });
+                .ConfigureWebHostDefaults(webBuilder => { webBuilder.UseStartup<Startup>(); });
         }
     }
 }

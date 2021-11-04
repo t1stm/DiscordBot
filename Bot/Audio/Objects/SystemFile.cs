@@ -3,12 +3,13 @@ using DSharpPlus.Entities;
 
 namespace BatToshoRESTApp.Audio.Objects
 {
-    public class SpotifyTrack : IPlayableItem
+    public class SystemFile : IPlayableItem
     {
-        public string Title { get; init; }
-        public string Author { get; init; }
-        public string TrackId { get; init; }
-        public ulong Length { get; init; }
+        public bool IsDiscordAttachment { get; init; } = true;
+        public string Location { get; set; }
+        public string Title { get; set; }
+        public string Author { get; set; }
+        public ulong Length { get; set; }
 
         public DiscordMember Requester { get; set; }
 
@@ -24,15 +25,14 @@ namespace BatToshoRESTApp.Audio.Objects
 
         public string GetLocation()
         {
-            return null;
+            return Location;
         }
 
         public Task Download()
         {
             return Task.CompletedTask;
         }
-
-        public void SetRequester(DiscordMember user) => Requester = user;
+        public void SetRequester(DiscordMember member) => Requester = member;
         public DiscordMember GetRequester() => Requester;
     }
 }

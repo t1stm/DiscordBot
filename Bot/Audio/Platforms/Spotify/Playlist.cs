@@ -1,9 +1,10 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Bat_Tosho.Audio.Objects;
+using BatToshoRESTApp.Audio.Objects;
 using SpotifyAPI.Web;
+using IPlayableItem = SpotifyAPI.Web.IPlayableItem;
 
-namespace Bat_Tosho.Audio.Platforms.Spotify
+namespace BatToshoRESTApp.Audio.Platforms.Spotify
 {
     public static class Playlist
     {
@@ -14,17 +15,13 @@ namespace Bat_Tosho.Audio.Platforms.Spotify
 
         private static readonly SpotifyClient Spotify = new(SpotifyConfig);
 
-        public static async Task<List<SpotifyTrack>> Get(string url)
+        public static async Task<List<SpotifyTrack>> Get(string id)
         {
-            var id = url.Split("playlist/")[1].Split("?si")[0];
-            await Debug.Write($"Spotify Playlist Id is: \"{id}\".");
             var tempTracks = await Spotify.Playlists.GetItems(id, new PlaylistGetItemsRequest {Offset = 0});
             var playlistTracks = new List<PlaylistTrack<IPlayableItem>>();
             var offset = 0;
             while (tempTracks.Items != null && tempTracks.Items.Count != 0)
             {
-                await Debug.Write(
-                    $"Offset is: {tempTracks.Offset}, Count is: {tempTracks.Items.Count}, Total is: {tempTracks.Total}");
                 playlistTracks.AddRange(tempTracks.Items);
                 offset += 100;
                 tempTracks = await Spotify.Playlists.GetItems(id, new PlaylistGetItemsRequest {Offset = offset});
@@ -35,10 +32,13 @@ namespace Bat_Tosho.Audio.Platforms.Spotify
                 switch (item.Track)
                 {
                     case FullTrack track:
-                        list.Add(new SpotifyTrack(track.Name, track.Artists, track.DurationMs));
-                        break;
-                    case FullEpisode episode:
-                        list.Add(new SpotifyTrack(episode.Name, null, 0));
+                        list.Add(new SpotifyTrack
+                        {
+                            Title = track.Name,
+                            Author = Methods.ArtistsNameCombine(track.Artists),
+                            Length = (ulong) track.DurationMs,
+                            TrackId = track.Id
+                        });
                         break;
                 }
 

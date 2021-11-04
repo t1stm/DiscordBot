@@ -1,143 +1,147 @@
-using System;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
-using Bat_Tosho.Audio.Objects;
-using Bat_Tosho.Audio.Platforms.Youtube;
-using Bat_Tosho.Enums;
-using DSharpPlus.CommandsNext;
+using System.Timers;
+using BatToshoRESTApp.Audio.Objects;
+using BatToshoRESTApp.Audio.Platforms;
+using BatToshoRESTApp.Enums;
+using DSharpPlus;
+using DSharpPlus.Entities;
 using DSharpPlus.VoiceNext;
+using Debug = BatToshoRESTApp.Methods.Debug;
 
-namespace Bat_Tosho.Audio
+namespace BatToshoRESTApp.Audio
 {
     public class Player
     {
-        public async Task PlayerInstance(CommandContext ctx, VoiceTransmitSink transmit)
+        private readonly Timer _timer = new()
         {
-            var instance = Manager.Instances[ctx.Guild];
-            for (instance.Song = 0; instance.Song < instance.VideoInfos.Count; instance.Song++)
+            Interval = 1000
+        };
+
+        public FfMpeg FfMpeg = new();
+        private ElapsedEventHandler Handler;
+        public bool WaitingToLeave { get; set; }
+        public bool Started { get; set; } = false;
+        public DiscordChannel VoiceChannel { get; set; }
+        public bool Paused { get; set; }
+        public bool Normalize { get; set; } = true;
+        public Queue Queue { get; } = new();
+        public Statusbar Statusbar { get; set; } = new();
+        public DiscordChannel Channel { get; set; }
+        public DiscordClient CurrentClient { get; set; }
+        public DiscordGuild CurrentGuild { get; set; }
+        public VoiceTransmitSink Sink { get; set; }
+        public VoiceNextConnection Connection { get; set; }
+        public Loop LoopStatus { get; set; } = Loop.None;
+        private bool BreakNow { get; set; }
+        public IPlayableItem CurrentItem { get; set; }
+        public Stopwatch Stopwatch { get; } = new();
+        public Stopwatch WaitingStopwatch { get; } = new();
+
+        public async Task Play(int current = 0)
+        {
+            Statusbar.Client = CurrentClient;
+            Statusbar.Guild = CurrentGuild;
+            Statusbar.Player = this;
+            Statusbar.Channel = Channel;
+            var statusbar = new Task(async () =>
             {
-                if (instance.Song < 0) instance.Song = 0;
-                while (instance.CurrentVideoInfo().Paused) await Task.Delay(100);
-                await CheckIfUpdatedSpotify(instance);
-                await DownloadIfNotDownloaded(instance, -255, true);
-                var downloadTask = new Task(async () => { await DownloadRemaining(instance); });
-                downloadTask.Start();
-                instance.CurrentVideoInfo().Stopwatch.Start();
-                instance.Ffmpeg = new Ffmpeg(instance.CurrentVideoInfo().Location,
-                    instance.CurrentVideoInfo().Stopwatch.Elapsed.ToString(@"hh\:mm\:ss\.fff"));
-                await instance.Ffmpeg.ConvertAudioToPcm().CopyToAsync(transmit);
-                await transmit.FlushAsync();
-
-                await instance.Ffmpeg.Kill(true, false);
-
-                try
+                await Statusbar.Start();
+            });
+            statusbar.Start();
+            Handler = async (_, _) => { await Queue.DownloadAll(); };
+            _timer.Elapsed += Handler;
+            _timer.Start();
+            for (Queue.Current = current; Queue.Current < Queue.Count; Queue.Current++)
+            {
+                CurrentItem = Queue.GetCurrent();
+                switch (CurrentItem)
                 {
-                    if (!instance.CurrentVideoInfo().Paused)
-                        instance.CurrentVideoInfo().Stopwatch
-                            .Reset();
-                }
-                catch (Exception e)
-                {
-                    await Debug.Write($"Failed to reset Stopwatch. {e}");
-                }
-
-                var stopwatch = new Stopwatch();
-                stopwatch.Start();
-                if (instance.Song == instance.VideoInfos.Count - 1 && instance.LoopStatus == LoopStatus.LoopPlaylist)
-                {
-                    instance.Song = -1;
-                    instance.Statusbar.Status = StatusbarStatus.Playing;
-                    instance.WaitingToLeave = false;
-                    stopwatch.Reset();
-                    instance.CurrentVideoInfo().Stopwatch.Reset();
-                    continue;
+                    case SystemFile fi:
+                        await PlayTrack(fi.Location, Stopwatch.Elapsed.ToString(@"c"));
+                        break;
+                    case SpotifyTrack tr:
+                        var list = await new Search().Get(tr);
+                        var track = list.First();
+                        await track.Download();
+                        await PlayTrack(track.Location, Stopwatch.Elapsed.ToString(@"c"));
+                        break;
+                    case YoutubeVideoInformation vi:
+                        await vi.Download();
+                        await PlayTrack(vi.Location, Stopwatch.Elapsed.ToString(@"c"));
+                        break;
                 }
 
-                if (instance.LoopStatus == LoopStatus.LoopOne)
+                if (BreakNow)
                 {
-                    instance.Song -= 1;
-                    instance.Statusbar.Status = StatusbarStatus.Playing;
-                    instance.WaitingToLeave = false;
-                    stopwatch.Reset();
-                    instance.CurrentVideoInfo().Stopwatch.Reset();
-                    continue;
+                    BreakNow = false;
+                    Stopwatch.Stop();
+                    break;
                 }
 
-                while (instance.Song + 1 == instance.VideoInfos.Count && stopwatch.Elapsed.Minutes < 15)
+                Stopwatch.Reset();
+                if (LoopStatus == Loop.One) Queue.Current--;
+                if (Queue.Current + 1 == Queue.Count && LoopStatus == Loop.WholeQueue) Queue.Current = -1;
+                if (Queue.Current + 1 != Queue.Count) continue;
+                WaitingToLeave = true;
+                WaitingStopwatch.Start();
+                while (WaitingToLeave)
                 {
-                    await Task.Delay(1000);
-                    instance.Statusbar.Status = StatusbarStatus.Waiting;
-                    instance.WaitingToLeave = true;
+                    await Task.Delay(166);
+                    if (Queue.Current + 1 >= Queue.Count && !(WaitingStopwatch.Elapsed.TotalMinutes >= 15)) continue;
+                    WaitingToLeave = false;
+                    WaitingStopwatch.Reset();
                 }
-
-                instance.Statusbar.Status = StatusbarStatus.Playing;
-                instance.WaitingToLeave = false;
-                stopwatch.Reset();
-                instance.CurrentVideoInfo().Stopwatch.Reset();
             }
+
+            _timer.Stop();
+            _timer.Elapsed -= Handler;
         }
 
-        private static async Task CheckIfUpdatedSpotify(Instance instance, int index = -255)
+        private async Task PlayTrack(string location, string startingTime)
         {
-            try
-            {
-                if (index == -255) index = instance.Song;
-                var info = instance.VideoInfos[index];
-                if (info.PartOf != PartOf.SpotifyPlaylist || info.Type != VideoSearchTypes.SearchTerm) return;
-                var search = new SearchResult(info.Requester);
-                var result = await search.Get($"{info.Name} - {info.Author} - Topic", info.Type, info.PartOf, info.LengthMs);
-                instance.VideoInfos[index] = result.First();
-            }
-            catch (Exception e)
-            {
-                await Debug.Write($"CheckIfUpdateSpotify failed: {e}");
-            }
+            await Debug.WriteAsync($"Location is: {location}");
+            Stopwatch.Start();
+            await FfMpeg.ConvertAudioToPcm(location, startingTime, Normalize).CopyToAsync(Sink);
+            await Sink.FlushAsync();
+            await FfMpeg.Kill(false, false);
         }
 
-        private static async Task DownloadIfNotDownloaded(Instance instance, int index = -255, bool urgent = false)
+        public async Task UpdateChannel(DiscordChannel channel)
         {
-            try
-            {
-                if (index == -255) index = instance.Song;
-                var info = instance.VideoInfos[index];
-                if (info.Type is VideoSearchTypes.Downloaded or VideoSearchTypes.HttpFileStream) return;
-                var down = new Download();
-                if (info.Type != VideoSearchTypes.NotDownloaded)
-                    throw new InvalidProgramException(
-                        "Video doesn't have the NotDownloaded Tag after multiple checks.");
-                await Debug.Write($"Video ID is: {info.YoutubeIdOrPathToFile}", false);
-                info.Location = await down.GetFilepath(info.YoutubeIdOrPathToFile, false, urgent);
-                info.Type = VideoSearchTypes.Downloaded;
-            }
-            catch (Exception e)
-            {
-                await Debug.Write($"DownloadIfNotDownloaded failed: {e}");
-            }
+            CurrentClient.GetVoiceNext().GetConnection(CurrentGuild).Disconnect();
+            Connection = await CurrentClient.GetVoiceNext().ConnectAsync(channel);
+            Sink = Connection.GetTransmitSink();
+            await Skip(0);
         }
 
-        public async Task DownloadRemaining(Instance instance)
+        public Loop ToggleLoop() => LoopStatus = LoopStatus switch
         {
-            if (instance.ActiveDownloadTasks >= 1) return;
-            instance.ActiveDownloadTasks++;
-            for (var i = 0; i < instance.VideoInfos.Count; i++)
-                try
-                {
-                    var info = instance.VideoInfos[i];
-                    if (info.Lock || info.Type is VideoSearchTypes.Downloaded or VideoSearchTypes.HttpFileStream)
-                        continue;
-                    info.Lock = true;
-                    await Debug.Write($"VideoInfos.Count = {instance.VideoInfos.Count}", false);
-                    await CheckIfUpdatedSpotify(instance, i);
-                    await DownloadIfNotDownloaded(instance, i);
-                    info.Type = VideoSearchTypes.Downloaded;
-                }
-                catch (Exception e)
-                {
-                    await Debug.Write($"Threw in for loop in Download Remaining: {e}");
-                }
+            Loop.None => Loop.WholeQueue, Loop.WholeQueue => Loop.One, Loop.One => Loop.None,
+            _ => Loop.None
+        };
 
-            instance.ActiveDownloadTasks--;
+        public async Task Skip(int times = 1)
+        {
+            Queue.Current += times - 1;
+            await FfMpeg.Kill();
+        }
+
+        public void Disconnect()
+        {
+            Connection.Disconnect();
+            _timer.Stop();
+            var task = new Task(async () =>
+            {
+                await Statusbar.UpdateMessageAndStop("Bye!");
+            });
+            task.Start();
+        }
+
+        public void Shuffle()
+        {
+            Queue.Shuffle();
         }
     }
 }
