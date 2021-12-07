@@ -69,7 +69,7 @@
           "lib/netstandard2.0/ConcurrentCollections.dll": {}
         }
       },
-      "DSharpPlus/4.1.0": {
+      "DSharpPlus/4.2.0-nightly-01043": {
         "type": "package",
         "dependencies": {
           "Emzi0767.Common": "2.6.2",
@@ -79,7 +79,8 @@
           "System.Net.Http": "4.3.4",
           "System.Net.WebSockets": "4.3.0",
           "System.Net.WebSockets.Client": "4.3.2",
-          "System.Runtime.InteropServices.RuntimeInformation": "4.3.0"
+          "System.Runtime.InteropServices.RuntimeInformation": "4.3.0",
+          "System.Threading.Channels": "5.0.0"
         },
         "compile": {
           "lib/netstandard2.0/DSharpPlus.dll": {}
@@ -88,10 +89,10 @@
           "lib/netstandard2.0/DSharpPlus.dll": {}
         }
       },
-      "DSharpPlus.CommandsNext/4.1.0": {
+      "DSharpPlus.CommandsNext/4.2.0-nightly-01043": {
         "type": "package",
         "dependencies": {
-          "DSharpPlus": "4.1.0",
+          "DSharpPlus": "4.2.0-nightly-01043",
           "Microsoft.Extensions.DependencyInjection": "5.0.1"
         },
         "compile": {
@@ -101,11 +102,11 @@
           "lib/netstandard2.0/DSharpPlus.CommandsNext.dll": {}
         }
       },
-      "DSharpPlus.Interactivity/4.1.0": {
+      "DSharpPlus.Interactivity/4.2.0-nightly-01043": {
         "type": "package",
         "dependencies": {
           "ConcurrentHashSet": "1.1.0",
-          "DSharpPlus": "4.1.0"
+          "DSharpPlus": "4.2.0-nightly-01043"
         },
         "compile": {
           "lib/netstandard2.0/DSharpPlus.Interactivity.dll": {}
@@ -114,10 +115,10 @@
           "lib/netstandard2.0/DSharpPlus.Interactivity.dll": {}
         }
       },
-      "DSharpPlus.Rest/4.1.0": {
+      "DSharpPlus.Rest/4.2.0-nightly-01043": {
         "type": "package",
         "dependencies": {
-          "DSharpPlus": "4.1.0"
+          "DSharpPlus": "4.2.0-nightly-01043"
         },
         "compile": {
           "lib/netstandard2.0/DSharpPlus.Rest.dll": {}
@@ -126,10 +127,23 @@
           "lib/netstandard2.0/DSharpPlus.Rest.dll": {}
         }
       },
-      "DSharpPlus.VoiceNext/4.1.0": {
+      "DSharpPlus.SlashCommands/4.2.0-nightly-01043": {
         "type": "package",
         "dependencies": {
-          "DSharpPlus": "4.1.0",
+          "DSharpPlus": "4.2.0-nightly-01043",
+          "Microsoft.Extensions.DependencyInjection": "5.0.1"
+        },
+        "compile": {
+          "lib/netstandard2.0/DSharpPlus.SlashCommands.dll": {}
+        },
+        "runtime": {
+          "lib/netstandard2.0/DSharpPlus.SlashCommands.dll": {}
+        }
+      },
+      "DSharpPlus.VoiceNext/4.2.0-nightly-01043": {
+        "type": "package",
+        "dependencies": {
+          "DSharpPlus": "4.2.0-nightly-01043",
           "DSharpPlus.VoiceNext.Natives": "1.0.0",
           "System.Threading.Channels": "5.0.0"
         },
@@ -424,6 +438,19 @@
         },
         "runtime": {
           "lib/netstandard2.0/Microsoft.AspNetCore.Razor.Runtime.dll": {}
+        }
+      },
+      "Microsoft.AspNetCore.WebUtilities/2.0.2": {
+        "type": "package",
+        "dependencies": {
+          "Microsoft.Net.Http.Headers": "2.0.2",
+          "System.Text.Encodings.Web": "4.4.0"
+        },
+        "compile": {
+          "lib/netstandard2.0/Microsoft.AspNetCore.WebUtilities.dll": {}
+        },
+        "runtime": {
+          "lib/netstandard2.0/Microsoft.AspNetCore.WebUtilities.dll": {}
         }
       },
       "Microsoft.Bcl.AsyncInterfaces/5.0.0": {
@@ -1338,6 +1365,22 @@
           "lib/netstandard2.0/Newtonsoft.Json.dll": {}
         }
       },
+      "PuppeteerSharp/6.0.0": {
+        "type": "package",
+        "dependencies": {
+          "Microsoft.AspNetCore.WebUtilities": "2.0.2",
+          "Microsoft.Bcl.AsyncInterfaces": "1.1.0",
+          "Microsoft.Extensions.Logging": "2.0.2",
+          "Newtonsoft.Json": "10.0.3",
+          "SharpZipLib": "1.3.1"
+        },
+        "compile": {
+          "lib/netstandard2.0/PuppeteerSharp.dll": {}
+        },
+        "runtime": {
+          "lib/netstandard2.0/PuppeteerSharp.dll": {}
+        }
+      },
       "runtime.debian.8-x64.runtime.native.System.Security.Cryptography.OpenSsl/4.3.3": {
         "type": "package",
         "runtimeTargets": {
@@ -1557,6 +1600,33 @@
             "assetType": "native",
             "rid": "ubuntu.18.04-x64"
           }
+        }
+      },
+      "Selenium.WebDriver/4.0.1": {
+        "type": "package",
+        "dependencies": {
+          "Newtonsoft.Json": "12.0.3"
+        },
+        "compile": {
+          "lib/net5.0/WebDriver.dll": {}
+        },
+        "runtime": {
+          "lib/net5.0/WebDriver.dll": {}
+        }
+      },
+      "Selenium.WebDriver.ChromeDriver/97.0.4692.2000-beta": {
+        "type": "package",
+        "build": {
+          "build/Selenium.WebDriver.ChromeDriver.targets": {}
+        }
+      },
+      "SharpZipLib/1.3.1": {
+        "type": "package",
+        "compile": {
+          "lib/netstandard2.0/ICSharpCode.SharpZipLib.dll": {}
+        },
+        "runtime": {
+          "lib/netstandard2.0/ICSharpCode.SharpZipLib.dll": {}
         }
       },
       "SpotifyAPI.Web/6.2.2": {
@@ -3041,71 +3111,79 @@
         "lib/netstandard2.0/ConcurrentCollections.xml"
       ]
     },
-    "DSharpPlus/4.1.0": {
-      "sha512": "s1QTvwMvbTTmIviOaVOyFRH2NAwW9IXMnCzevLrEFV6XFJ3ZnYrF2B03K6iA2U9uChUTZVOSNkhRNcPqqZHzCA==",
+    "DSharpPlus/4.2.0-nightly-01043": {
+      "sha512": "+S5h4d0nlBaDJ/0dcTqjSDpkniow1icoU5tFp7B1pRo1pxPFBPvsRqw40yFoc4dIkkESWb3tg6Rs5Er67ENOEg==",
       "type": "package",
-      "path": "dsharpplus/4.1.0",
+      "path": "dsharpplus/4.2.0-nightly-01043",
       "files": [
         ".nupkg.metadata",
-        ".signature.p7s",
-        "dsharpplus.4.1.0.nupkg.sha512",
+        "dsharpplus.4.2.0-nightly-01043.nupkg.sha512",
         "dsharpplus.nuspec",
         "dsharpplus.png",
         "lib/netstandard2.0/DSharpPlus.dll",
         "lib/netstandard2.0/DSharpPlus.xml"
       ]
     },
-    "DSharpPlus.CommandsNext/4.1.0": {
-      "sha512": "4rxtz2pWEsJpPBjtnWEB6q5TmFlKLc7w934CQHS26Ylj85/9k+aYLW7e61TEcsd/+zLjUs7BF82YvlhGKImrZQ==",
+    "DSharpPlus.CommandsNext/4.2.0-nightly-01043": {
+      "sha512": "Ylw1HjdF6XH7aHOLunN3m0lHZtaG1rlm6TC8xKM4zYSQKLqqY9VrxpCLFeWauPOjTas1aMq+DfOKsvHes0KDRQ==",
       "type": "package",
-      "path": "dsharpplus.commandsnext/4.1.0",
+      "path": "dsharpplus.commandsnext/4.2.0-nightly-01043",
       "files": [
         ".nupkg.metadata",
-        ".signature.p7s",
-        "dsharpplus.commandsnext.4.1.0.nupkg.sha512",
+        "dsharpplus.commandsnext.4.2.0-nightly-01043.nupkg.sha512",
         "dsharpplus.commandsnext.nuspec",
         "dsharpplus.png",
         "lib/netstandard2.0/DSharpPlus.CommandsNext.dll",
         "lib/netstandard2.0/DSharpPlus.CommandsNext.xml"
       ]
     },
-    "DSharpPlus.Interactivity/4.1.0": {
-      "sha512": "FTQXMqGoWvGMox+UyybL0Jc/P12xTCIUfMRF0n3974Sa5QiwrqhDdP02lHmUS7k7dQF+vMY/YLjLyYdPB7hpFw==",
+    "DSharpPlus.Interactivity/4.2.0-nightly-01043": {
+      "sha512": "i4bMzbYtHv7qf0kPALrW2SQOkBYx/J8V4tZKTO4QE8eFsOdF/e5GYvqjHMcIEKOby37h4Lzy4446tNdfue8f4w==",
       "type": "package",
-      "path": "dsharpplus.interactivity/4.1.0",
+      "path": "dsharpplus.interactivity/4.2.0-nightly-01043",
       "files": [
         ".nupkg.metadata",
-        ".signature.p7s",
-        "dsharpplus.interactivity.4.1.0.nupkg.sha512",
+        "dsharpplus.interactivity.4.2.0-nightly-01043.nupkg.sha512",
         "dsharpplus.interactivity.nuspec",
         "dsharpplus.png",
         "lib/netstandard2.0/DSharpPlus.Interactivity.dll",
         "lib/netstandard2.0/DSharpPlus.Interactivity.xml"
       ]
     },
-    "DSharpPlus.Rest/4.1.0": {
-      "sha512": "XRbZDkXBfZw8cRSYomyH4B64k2MalSjCf6en55fi75/01KbxTddcXYa/9ThFtu5aZaRW5mFcga5xXHsVHxKiZQ==",
+    "DSharpPlus.Rest/4.2.0-nightly-01043": {
+      "sha512": "59M+ln1CxroRow033S++yfsjvgzrergAa/IsYL63ITjot539onHjCGMMePHbN8KWwYKPT/s+v8wnBC7eG8HoDg==",
       "type": "package",
-      "path": "dsharpplus.rest/4.1.0",
+      "path": "dsharpplus.rest/4.2.0-nightly-01043",
       "files": [
         ".nupkg.metadata",
-        ".signature.p7s",
         "dsharpplus.png",
-        "dsharpplus.rest.4.1.0.nupkg.sha512",
+        "dsharpplus.rest.4.2.0-nightly-01043.nupkg.sha512",
         "dsharpplus.rest.nuspec",
         "lib/netstandard2.0/DSharpPlus.Rest.dll",
         "lib/netstandard2.0/DSharpPlus.Rest.xml"
       ]
     },
-    "DSharpPlus.VoiceNext/4.1.0": {
-      "sha512": "QbuxRaT/1GFoY9pCNraQ2XGLZWFXE8z/FQoXsOpTQqFW4UzC+fVV+2kXVMhuS6zJP+E96MRC2kveIgzwoVXJfA==",
+    "DSharpPlus.SlashCommands/4.2.0-nightly-01043": {
+      "sha512": "daLjquPn/BCJrZlDc51M95LsIG45gKNEhsni7E9o9SXV2WQfZB60AjmZtTVL+lq1Td+fYWPZ/hb6NvJiZ7Q6vQ==",
       "type": "package",
-      "path": "dsharpplus.voicenext/4.1.0",
+      "path": "dsharpplus.slashcommands/4.2.0-nightly-01043",
       "files": [
         ".nupkg.metadata",
-        ".signature.p7s",
         "dsharpplus.png",
-        "dsharpplus.voicenext.4.1.0.nupkg.sha512",
+        "dsharpplus.slashcommands.4.2.0-nightly-01043.nupkg.sha512",
+        "dsharpplus.slashcommands.nuspec",
+        "lib/netstandard2.0/DSharpPlus.SlashCommands.dll",
+        "lib/netstandard2.0/DSharpPlus.SlashCommands.xml"
+      ]
+    },
+    "DSharpPlus.VoiceNext/4.2.0-nightly-01043": {
+      "sha512": "fKVTI7YIwEs1dvEJjtqaznuor6ISDOqZp5bReyY85ZZNaJFakqKGiqFCmgfbRIZMnMgXuKsLePXIwfkrLlgZAA==",
+      "type": "package",
+      "path": "dsharpplus.voicenext/4.2.0-nightly-01043",
+      "files": [
+        ".nupkg.metadata",
+        "dsharpplus.png",
+        "dsharpplus.voicenext.4.2.0-nightly-01043.nupkg.sha512",
         "dsharpplus.voicenext.nuspec",
         "lib/netstandard2.0/DSharpPlus.VoiceNext.dll",
         "lib/netstandard2.0/DSharpPlus.VoiceNext.xml"
@@ -3493,6 +3571,19 @@
         "lib/netstandard2.0/Microsoft.AspNetCore.Razor.Runtime.xml",
         "microsoft.aspnetcore.razor.runtime.2.2.0.nupkg.sha512",
         "microsoft.aspnetcore.razor.runtime.nuspec"
+      ]
+    },
+    "Microsoft.AspNetCore.WebUtilities/2.0.2": {
+      "sha512": "dvn80+p1AIQKOfJ+VrOhVMUktWRvJs7Zb+UapZGBNSyrCzTsYiXbb9C7Mzw+nGj5UevnLNFcWWc7BUlLMD2qpw==",
+      "type": "package",
+      "path": "microsoft.aspnetcore.webutilities/2.0.2",
+      "files": [
+        ".nupkg.metadata",
+        ".signature.p7s",
+        "lib/netstandard2.0/Microsoft.AspNetCore.WebUtilities.dll",
+        "lib/netstandard2.0/Microsoft.AspNetCore.WebUtilities.xml",
+        "microsoft.aspnetcore.webutilities.2.0.2.nupkg.sha512",
+        "microsoft.aspnetcore.webutilities.nuspec"
       ]
     },
     "Microsoft.Bcl.AsyncInterfaces/5.0.0": {
@@ -5203,6 +5294,19 @@
         "packageIcon.png"
       ]
     },
+    "PuppeteerSharp/6.0.0": {
+      "sha512": "wJIQH1qIVqC7iS+RrnfDfK4uQLqrMvWLxbMFXGDrClQGf7LKA4BDpZVPd/0hYtWjYJcsAs9UCn826VUxtD3yxw==",
+      "type": "package",
+      "path": "puppeteersharp/6.0.0",
+      "files": [
+        ".nupkg.metadata",
+        ".signature.p7s",
+        "lib/netstandard2.0/PuppeteerSharp.dll",
+        "lib/netstandard2.0/PuppeteerSharp.xml",
+        "puppeteersharp.6.0.0.nupkg.sha512",
+        "puppeteersharp.nuspec"
+      ]
+    },
     "runtime.debian.8-x64.runtime.native.System.Security.Cryptography.OpenSsl/4.3.3": {
       "sha512": "nX9qygIJEIcbqgLxn2UkTdhntbtAZMy1rFJFpQwmAKfSVmbiOyP2aBsYruqoyXd60mEY1r62GH61eRrDHv9W+g==",
       "type": "package",
@@ -5495,6 +5599,61 @@
         "runtime.ubuntu.18.04-x64.runtime.native.system.security.cryptography.openssl.4.3.3.nupkg.sha512",
         "runtime.ubuntu.18.04-x64.runtime.native.system.security.cryptography.openssl.nuspec",
         "runtimes/ubuntu.18.04-x64/native/System.Security.Cryptography.Native.OpenSsl.so"
+      ]
+    },
+    "Selenium.WebDriver/4.0.1": {
+      "sha512": "givS6L7wz4QupkyaNN7FwEl4trOHg1vfrSYmG0bGB3+QRPsDNcWUsbC70r6nB5JfbhNrKjZDPspAt0MYAB78Ig==",
+      "type": "package",
+      "path": "selenium.webdriver/4.0.1",
+      "files": [
+        ".nupkg.metadata",
+        ".signature.p7s",
+        "images/icon.png",
+        "lib/net45/WebDriver.dll",
+        "lib/net46/WebDriver.dll",
+        "lib/net47/WebDriver.dll",
+        "lib/net48/WebDriver.dll",
+        "lib/net5.0/WebDriver.dll",
+        "lib/netstandard2.0/WebDriver.dll",
+        "lib/netstandard2.1/WebDriver.dll",
+        "selenium.webdriver.4.0.1.nupkg.sha512",
+        "selenium.webdriver.nuspec"
+      ]
+    },
+    "Selenium.WebDriver.ChromeDriver/97.0.4692.2000-beta": {
+      "sha512": "sgumWno1G0iZOQO5rkMLtbpNpap88n/Slgig7F0Ve/+RGL90DjgslsEzbSM1nO/C3bR8pkm5K3g3JDEGUDmSDA==",
+      "type": "package",
+      "path": "selenium.webdriver.chromedriver/97.0.4692.2000-beta",
+      "files": [
+        ".nupkg.metadata",
+        ".signature.p7s",
+        "README.md",
+        "build/DefinePropertiesChromeDriver.targets",
+        "build/Selenium.WebDriver.ChromeDriver.targets",
+        "driver/linux64/chromedriver",
+        "driver/mac64/chromedriver",
+        "driver/win32/chromedriver.exe",
+        "nupkg-icon.png",
+        "selenium.webdriver.chromedriver.97.0.4692.2000-beta.nupkg.sha512",
+        "selenium.webdriver.chromedriver.nuspec"
+      ]
+    },
+    "SharpZipLib/1.3.1": {
+      "sha512": "/iMph6bLdKzDhwM/vkAo4BU8z5QQnyodlkZon3XRMtRmVuWv5Rph1kaDmd9XjrQxjPJPuLquTSrkEoSPq/flVw==",
+      "type": "package",
+      "path": "sharpziplib/1.3.1",
+      "files": [
+        ".nupkg.metadata",
+        ".signature.p7s",
+        "images/sharpziplib-nuget-256x256.png",
+        "lib/net45/ICSharpCode.SharpZipLib.dll",
+        "lib/net45/ICSharpCode.SharpZipLib.pdb",
+        "lib/net45/ICSharpCode.SharpZipLib.xml",
+        "lib/netstandard2.0/ICSharpCode.SharpZipLib.dll",
+        "lib/netstandard2.0/ICSharpCode.SharpZipLib.pdb",
+        "lib/netstandard2.0/ICSharpCode.SharpZipLib.xml",
+        "sharpziplib.1.3.1.nupkg.sha512",
+        "sharpziplib.nuspec"
       ]
     },
     "SpotifyAPI.Web/6.2.2": {
@@ -9129,11 +9288,12 @@
       "Azure.Identity >= 1.5.0",
       "BouncyCastle.NetCore >= 1.8.8",
       "ConcurrentHashSet >= 1.3.0",
-      "DSharpPlus >= 4.1.0",
-      "DSharpPlus.CommandsNext >= 4.1.0",
-      "DSharpPlus.Interactivity >= 4.1.0",
-      "DSharpPlus.Rest >= 4.1.0",
-      "DSharpPlus.VoiceNext >= 4.1.0",
+      "DSharpPlus >= 4.2.0-nightly-01043",
+      "DSharpPlus.CommandsNext >= 4.2.0-nightly-01043",
+      "DSharpPlus.Interactivity >= 4.2.0-nightly-01043",
+      "DSharpPlus.Rest >= 4.2.0-nightly-01043",
+      "DSharpPlus.SlashCommands >= 4.2.0-nightly-01043",
+      "DSharpPlus.VoiceNext >= 4.2.0-nightly-01043",
       "DSharpPlus.VoiceNext.Natives >= 1.0.0",
       "EmbedIO >= 3.4.3",
       "Emzi0767.Common >= 2.6.2",
@@ -9207,6 +9367,9 @@
       "Microsoft.Win32.SystemEvents >= 5.0.0",
       "MySql.Data >= 8.0.27",
       "Newtonsoft.Json >= 13.0.1",
+      "PuppeteerSharp >= 6.0.0",
+      "Selenium.WebDriver >= 4.0.1",
+      "Selenium.WebDriver.ChromeDriver >= 97.0.4692.2000-beta",
       "SpotifyAPI.Web >= 6.2.2",
       "SpotifyAPI.Web.Auth >= 6.2.2",
       "System.Buffers >= 4.5.1",
@@ -9373,23 +9536,27 @@
           },
           "DSharpPlus": {
             "target": "Package",
-            "version": "[4.1.0, )"
+            "version": "[4.2.0-nightly-01043, )"
           },
           "DSharpPlus.CommandsNext": {
             "target": "Package",
-            "version": "[4.1.0, )"
+            "version": "[4.2.0-nightly-01043, )"
           },
           "DSharpPlus.Interactivity": {
             "target": "Package",
-            "version": "[4.1.0, )"
+            "version": "[4.2.0-nightly-01043, )"
           },
           "DSharpPlus.Rest": {
             "target": "Package",
-            "version": "[4.1.0, )"
+            "version": "[4.2.0-nightly-01043, )"
+          },
+          "DSharpPlus.SlashCommands": {
+            "target": "Package",
+            "version": "[4.2.0-nightly-01043, )"
           },
           "DSharpPlus.VoiceNext": {
             "target": "Package",
-            "version": "[4.1.0, )"
+            "version": "[4.2.0-nightly-01043, )"
           },
           "DSharpPlus.VoiceNext.Natives": {
             "target": "Package",
@@ -9686,6 +9853,18 @@
           "Newtonsoft.Json": {
             "target": "Package",
             "version": "[13.0.1, )"
+          },
+          "PuppeteerSharp": {
+            "target": "Package",
+            "version": "[6.0.0, )"
+          },
+          "Selenium.WebDriver": {
+            "target": "Package",
+            "version": "[4.0.1, )"
+          },
+          "Selenium.WebDriver.ChromeDriver": {
+            "target": "Package",
+            "version": "[97.0.4692.2000-beta, )"
           },
           "SpotifyAPI.Web": {
             "target": "Package",

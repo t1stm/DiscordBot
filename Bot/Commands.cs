@@ -7,6 +7,7 @@ using DSharpPlus.CommandsNext.Attributes;
 
 namespace BatToshoRESTApp
 {
+    // ReSharper disable once ClassNeverInstantiated.Global
     public class Commands : BaseCommandModule
     {
         [Command("play")]
@@ -40,7 +41,7 @@ namespace BatToshoRESTApp
         }
 
         [Command("leave")]
-        [Aliases("l", "s", "леаже", "л", "с")]
+        [Aliases("l", "stop", "леаже", "л", "стоп", "с", "s")]
         public async Task LeaveCommand(CommandContext ctx)
         {
             try
@@ -56,15 +57,36 @@ namespace BatToshoRESTApp
 
         [Command("shuffle")]
         [Aliases("rand", "схуффле", "ранд")]
-        public async Task ShuffleCommand(CommandContext ctx)
+        public async Task ShuffleCommand(CommandContext ctx, [RemainingText] string seed)
         {
             try
             {
+                if (int.TryParse(seed, out var seedInt))
+                {
+                    await Debug.WriteAsync("Shuffling using custom seed.");
+                    await Manager.Shuffle(ctx, seedInt);
+                }
+
                 await Manager.Shuffle(ctx);
             }
             catch (Exception e)
             {
                 await Debug.WriteAsync($"Shuffle command threw exception: {e}");
+                throw;
+            }
+        }
+
+        [Command("loop")]
+        [Aliases("лооп")]
+        public async Task Loop(CommandContext ctx)
+        {
+            try
+            {
+                await Manager.Loop(ctx);
+            }
+            catch (Exception e)
+            {
+                await Debug.WriteAsync($"Loop command threw exception: {e}");
                 throw;
             }
         }
@@ -80,6 +102,125 @@ namespace BatToshoRESTApp
             catch (Exception e)
             {
                 await Debug.WriteAsync($"Previous command threw exception: {e}");
+                throw;
+            }
+        }
+
+        [Command("pause")]
+        [Aliases("паусе")]
+        public async Task PauseCommand(CommandContext ctx)
+        {
+            try
+            {
+                await Manager.Pause(ctx);
+            }
+            catch (Exception e)
+            {
+                await Debug.WriteAsync($"Pause command threw exception: {e}");
+                throw;
+            }
+        }
+
+        [Command("playnext")]
+        [Aliases("pn", "плаън", "пн")]
+        public async Task PlayNextCommand(CommandContext ctx, [RemainingText] string search)
+        {
+            try
+            {
+                await Manager.PlayNext(ctx, search);
+            }
+            catch (Exception e)
+            {
+                await Debug.WriteAsync($"Play Next command threw exception: {e}");
+                throw;
+            }
+        }
+
+        [Command("playselect")]
+        [Aliases("ps")]
+        public async Task PlaySelectCommand(CommandContext ctx, [RemainingText] string search)
+        {
+            try
+            {
+                await Manager.PlayCommand(ctx, search, true);
+            }
+            catch (Exception e)
+            {
+                await Debug.WriteAsync($"Play Select command threw exception: {e}");
+                throw;
+            }
+        }
+
+        [Command("remove")]
+        [Aliases("r", "rm", "реможе", "рм", "р")]
+        public async Task RemoveCommand(CommandContext ctx, [RemainingText] string remove)
+        {
+            try
+            {
+                await Manager.Remove(ctx, remove);
+            }
+            catch (Exception e)
+            {
+                await Debug.WriteAsync($"Remove command threw exception: {e}");
+                throw;
+            }
+        }
+
+        [Command("move")]
+        [Aliases("m", "mv", "м", "може", "мж")]
+        public async Task MoveCommand(CommandContext ctx, [RemainingText] string move)
+        {
+            try
+            {
+                await Manager.Move(ctx, move);
+            }
+            catch (Exception e)
+            {
+                await Debug.WriteAsync($"Move command threw exception: {e}");
+                throw;
+            }
+        }
+
+        [Command("getwebui")]
+        [Aliases("гетвебуи", "webui", "вебуи", "wu", "ву")]
+        public async Task WebUiCommand(CommandContext ctx)
+        {
+            try
+            {
+                await Manager.GetWebUi(ctx);
+            }
+            catch (Exception e)
+            {
+                await Debug.WriteAsync($"Get Web Ui command threw exception: {e}");
+                throw;
+            }
+        }
+
+        [Command("getshuffleseed")]
+        public async Task GetShuffleSeedCommand(CommandContext ctx)
+        {
+            try
+            {
+                await Manager.GetSeed(ctx);
+            }
+            catch (Exception e)
+            {
+                await Debug.WriteAsync($"Get Shuffle Seed command threw exception: {e}");
+                throw;
+            }
+        }
+
+        [Command("goto")]
+        [Aliases("гото", "go", "го", "skipto", "скипто")]
+        public async Task GoToCommand(CommandContext ctx, int index)
+        {
+            try
+            {
+                await Manager.GoTo(ctx, index);
+            }
+            catch (Exception e)
+            {
+                await Debug.WriteAsync($"Go To command threw exception: {e}");
                 throw;
             }
         }

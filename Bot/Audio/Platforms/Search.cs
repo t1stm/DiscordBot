@@ -54,6 +54,36 @@ namespace BatToshoRESTApp.Audio.Platforms
                 {
                     await new Video().SearchById(searchTerm.Split("youtu.be/").Last().Split("&")[0])
                 };
+            if (searchTerm.StartsWith("https://www.vbox7.com/"))
+                return new List<IPlayableItem>
+                {
+                    await new Vbox7.Video().GetVideoByUri(searchTerm.Split(".com")[1])
+                };
+            if (searchTerm.StartsWith("http") || searchTerm.StartsWith("https"))
+                return new List<IPlayableItem>
+                {
+                    new OnlineFile
+                    {
+                        Url = searchTerm
+                    }
+                };
+
+            if (searchTerm.StartsWith("file://"))
+                return new List<IPlayableItem>
+                {
+                    new SystemFile
+                    {
+                        Location = searchTerm[7..],
+                        Title = searchTerm,
+                        Author = null,
+                        Length = 0
+                    }
+                };
+            if (searchTerm.StartsWith("vb7:"))
+                return new List<IPlayableItem>
+                {
+                    await new Vbox7.Video().Search(searchTerm[4..])
+                };
             return new List<IPlayableItem>
             {
                 await new Video().Search(searchTerm, length: length)

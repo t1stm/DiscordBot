@@ -30,5 +30,10 @@ namespace BatToshoRESTApp.Audio.Objects
             if (display) await Debug.WriteAsync("Killing FFMpeg");
             FfMpegProcess.Kill();
         }
+
+        public void KillSync()
+        {
+            FfMpegProcess.Kill();
+        }
     }
 }

@@ -2,37 +2,39 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text.Json;
+using System.Threading.Tasks;
 
 namespace BatToshoRESTApp.Readers
 {
     public class SearchJsonReader : IBaseJson
     {
-        public string Read()
+        public async Task<string> Read()
         {
-            return File.ReadAllText($"{Bot.WorkingDirectory}/FuckYoutube.json");
+            return await File.ReadAllTextAsync($"{Bot.WorkingDirectory}/FuckYoutube.json");
         }
 
-        public void Write(string json)
+        public async Task Write(string json)
         {
-            File.WriteAllText($"{Bot.WorkingDirectory}/FuckYoutube.json", json);
+            await File.WriteAllTextAsync($"{Bot.WorkingDirectory}/FuckYoutube.json", json);
         }
 
-        public PreviousSearchResult GetVideo(string term)
+        public async Task<PreviousSearchResult> GetVideo(string term)
         {
-            var json = Read();
+            var json = await Read();
             var t = term.ToLower();
             var search = JsonSerializer.Deserialize<List<PreviousSearchResult>>(json);
-            return search?.FirstOrDefault(si => si.SearchTerm == t);
+            var obj = search?.FirstOrDefault(si => si.SearchTerm == t);
+            return obj;
         }
 
-        public List<PreviousSearchResult> GetAllResults()
+        public async Task<List<PreviousSearchResult>> GetAllResults()
         {
-            return JsonSerializer.Deserialize<List<PreviousSearchResult>>(Read());
+            return JsonSerializer.Deserialize<List<PreviousSearchResult>>(await Read());
         }
 
-        public void AddVideo(string searchTerm, string id)
+        public async Task AddVideo(string searchTerm, string id)
         {
-            var search = GetAllResults();
+            var search = await GetAllResults();
             searchTerm = searchTerm.ToLower();
             if (search == null) return;
             if (search.Any(si => si.SearchTerm == searchTerm || si.VideoId == id)) return;
@@ -43,7 +45,7 @@ namespace BatToshoRESTApp.Readers
             };
             search.Add(f);
             var e = JsonSerializer.Serialize(search);
-            Write(e);
+            await Write(e);
         }
     }
 }

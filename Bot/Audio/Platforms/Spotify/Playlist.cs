@@ -37,7 +37,8 @@ namespace BatToshoRESTApp.Audio.Platforms.Spotify
                             Title = track.Name,
                             Author = Methods.ArtistsNameCombine(track.Artists),
                             Length = (ulong) track.DurationMs,
-                            TrackId = track.Id
+                            TrackId = track.Id,
+                            Album = track.Album.Name
                         });
                         break;
                 }

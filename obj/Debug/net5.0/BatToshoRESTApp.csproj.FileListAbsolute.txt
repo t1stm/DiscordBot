@@ -392,3 +392,7 @@
 /home/kris/RiderProjects/BatTosho2/obj/Debug/net5.0/BatToshoRESTApp.RazorTargetAssemblyInfo.cache
 /home/kris/RiderProjects/BatTosho2/obj/Debug/net5.0/BatToshoRESTApp.csproj.CopyComplete
 /home/kris/RiderProjects/BatTosho2/obj/Debug/net5.0/BatToshoRESTApp.genruntimeconfig.cache
+/home/kris/RiderProjects/BatTosho2/bin/Debug/net5.0/DSharpPlus.SlashCommands.dll
+/home/kris/RiderProjects/BatTosho2/bin/Debug/net5.0/PuppeteerSharp.dll
+/home/kris/RiderProjects/BatTosho2/bin/Debug/net5.0/WebDriver.dll
+/home/kris/RiderProjects/BatTosho2/bin/Debug/net5.0/ICSharpCode.SharpZipLib.dll

@@ -1,3 +1,4 @@
+using System;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
@@ -20,35 +21,35 @@ namespace BatToshoRESTApp.Audio
         };
 
         public FfMpeg FfMpeg = new();
-        private ElapsedEventHandler Handler;
+        private ElapsedEventHandler Handler { get; set; }
         public bool WaitingToLeave { get; set; }
-        public bool Started { get; set; } = false;
+        public bool Started { get; set; }
         public DiscordChannel VoiceChannel { get; set; }
         public bool Paused { get; set; }
         public bool Normalize { get; set; } = true;
         public Queue Queue { get; } = new();
         public Statusbar Statusbar { get; set; } = new();
         public DiscordChannel Channel { get; set; }
-        public DiscordClient CurrentClient { get; set; }
+        public DiscordClient CurrentClient { get; init; }
         public DiscordGuild CurrentGuild { get; set; }
         public VoiceTransmitSink Sink { get; set; }
         public VoiceNextConnection Connection { get; set; }
-        public Loop LoopStatus { get; set; } = Loop.None;
+        public Loop LoopStatus { get; private set; } = Loop.None;
         private bool BreakNow { get; set; }
-        public IPlayableItem CurrentItem { get; set; }
+        public IPlayableItem CurrentItem { get; private set; }
         public Stopwatch Stopwatch { get; } = new();
         public Stopwatch WaitingStopwatch { get; } = new();
+        public int VoiceUsers { get; set; }
+        private bool Die { get; set; }
 
         public async Task Play(int current = 0)
         {
+            if (Die) return;
             Statusbar.Client = CurrentClient;
             Statusbar.Guild = CurrentGuild;
             Statusbar.Player = this;
             Statusbar.Channel = Channel;
-            var statusbar = new Task(async () =>
-            {
-                await Statusbar.Start();
-            });
+            var statusbar = new Task(async () => { await Statusbar.Start(); });
             statusbar.Start();
             Handler = async (_, _) => { await Queue.DownloadAll(); };
             _timer.Elapsed += Handler;
@@ -56,20 +57,28 @@ namespace BatToshoRESTApp.Audio
             for (Queue.Current = current; Queue.Current < Queue.Count; Queue.Current++)
             {
                 CurrentItem = Queue.GetCurrent();
+                Statusbar.ChangeMode(StatusbarMode.Playing);
+                while (Paused)
+                {
+                    await Task.Delay(166);
+                    if (!BreakNow) continue;
+                    BreakNow = false;
+                    break;
+                }
+
                 switch (CurrentItem)
                 {
-                    case SystemFile fi:
-                        await PlayTrack(fi.Location, Stopwatch.Elapsed.ToString(@"c"));
-                        break;
                     case SpotifyTrack tr:
                         var list = await new Search().Get(tr);
                         var track = list.First();
                         await track.Download();
-                        await PlayTrack(track.Location, Stopwatch.Elapsed.ToString(@"c"));
                         break;
                     case YoutubeVideoInformation vi:
                         await vi.Download();
-                        await PlayTrack(vi.Location, Stopwatch.Elapsed.ToString(@"c"));
+                        await PlayTrack(vi.GetLocation(), Stopwatch.Elapsed.ToString(@"c"));
+                        break;
+                    default:
+                        await PlayTrack(CurrentItem.GetLocation(), Stopwatch.Elapsed.ToString(@"c"));
                         break;
                 }
 
@@ -80,7 +89,7 @@ namespace BatToshoRESTApp.Audio
                     break;
                 }
 
-                Stopwatch.Reset();
+                if (!Paused) Stopwatch.Reset();
                 if (LoopStatus == Loop.One) Queue.Current--;
                 if (Queue.Current + 1 == Queue.Count && LoopStatus == Loop.WholeQueue) Queue.Current = -1;
                 if (Queue.Current + 1 != Queue.Count) continue;
@@ -88,6 +97,7 @@ namespace BatToshoRESTApp.Audio
                 WaitingStopwatch.Start();
                 while (WaitingToLeave)
                 {
+                    Statusbar.ChangeMode(StatusbarMode.Waiting);
                     await Task.Delay(166);
                     if (Queue.Current + 1 >= Queue.Count && !(WaitingStopwatch.Elapsed.TotalMinutes >= 15)) continue;
                     WaitingToLeave = false;
@@ -108,6 +118,12 @@ namespace BatToshoRESTApp.Audio
             await FfMpeg.Kill(false, false);
         }
 
+        public void UpdateVolume(float percent)
+        {
+            if (percent is > 200 or < 1) throw new ArgumentOutOfRangeException(nameof(percent));
+            Sink.VolumeModifier = percent / 100;
+        }
+
         public async Task UpdateChannel(DiscordChannel channel)
         {
             CurrentClient.GetVoiceNext().GetConnection(CurrentGuild).Disconnect();
@@ -116,11 +132,14 @@ namespace BatToshoRESTApp.Audio
             await Skip(0);
         }
 
-        public Loop ToggleLoop() => LoopStatus = LoopStatus switch
+        public Loop ToggleLoop()
         {
-            Loop.None => Loop.WholeQueue, Loop.WholeQueue => Loop.One, Loop.One => Loop.None,
-            _ => Loop.None
-        };
+            return LoopStatus = LoopStatus switch
+            {
+                Loop.None => Loop.WholeQueue, Loop.WholeQueue => Loop.One, Loop.One => Loop.None,
+                _ => Loop.None
+            };
+        }
 
         public async Task Skip(int times = 1)
         {
@@ -132,16 +151,31 @@ namespace BatToshoRESTApp.Audio
         {
             Connection.Disconnect();
             _timer.Stop();
-            var task = new Task(async () =>
-            {
-                await Statusbar.UpdateMessageAndStop("Bye!");
-            });
+            var task = new Task(async () => { await Statusbar.UpdateMessageAndStop("Bye! \\(◕ ◡ ◕\\)"); });
             task.Start();
+            FfMpeg.KillSync();
+            Die = true;
         }
 
         public void Shuffle()
         {
             Queue.Shuffle();
+        }
+
+        public void GoToIndex(int index)
+        {
+            if (index >= Queue.Count && index < -1) return;
+            Queue.Current = index - 1;
+            FfMpeg.KillSync();
+        }
+
+        public void Pause()
+        {
+            Paused = !Paused;
+            FfMpeg.KillSync();
+            Stopwatch.Stop();
+            if (!Paused) return;
+            Queue.Current += -1;
         }
     }
 }

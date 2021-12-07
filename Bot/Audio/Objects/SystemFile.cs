@@ -1,3 +1,4 @@
+using System;
 using System.Threading.Tasks;
 using DSharpPlus.Entities;
 
@@ -11,7 +12,27 @@ namespace BatToshoRESTApp.Audio.Objects
         public string Author { get; set; }
         public ulong Length { get; set; }
 
-        public DiscordMember Requester { get; set; }
+        private DiscordMember Requester { get; set; }
+
+        public string GetTitle()
+        {
+            return Title;
+        }
+
+        public string GetAuthor()
+        {
+            return Author;
+        }
+
+        public string GetThumbnailUrl()
+        {
+            return null;
+        }
+
+        public bool GetIfErrored()
+        {
+            return false;
+        }
 
         public string GetName()
         {
@@ -32,7 +53,22 @@ namespace BatToshoRESTApp.Audio.Objects
         {
             return Task.CompletedTask;
         }
-        public void SetRequester(DiscordMember member) => Requester = member;
-        public DiscordMember GetRequester() => Requester;
+
+        public void SetRequester(DiscordMember member)
+        {
+            Requester = member;
+        }
+
+        public DiscordMember GetRequester()
+        {
+            return Requester;
+        }
+
+        public string GetId() => "";
+
+        public string GetTypeOf()
+        {
+            return IsDiscordAttachment ? "Discord Attachment" : "Local File";
+        }
     }
 }

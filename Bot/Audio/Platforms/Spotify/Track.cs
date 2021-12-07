@@ -13,16 +13,17 @@ namespace BatToshoRESTApp.Audio.Platforms.Spotify
 
         private static readonly SpotifyClient Spotify = new(SpotifyConfig);
 
-        public static async Task<SpotifyTrack> Get(string url)
+        public static async Task<SpotifyTrack> Get(string url, bool isId = false)
         {
-            var id = url.Split("track/")[1].Split("?si")[0];
+            var id = isId ? url : url.Split("track/")[1].Split("?si")[0];
             var track = await Spotify.Tracks.Get(id);
             return new SpotifyTrack
             {
                 Title = track.Name,
                 Author = Methods.ArtistsNameCombine(track.Artists),
                 Length = (ulong) track.DurationMs,
-                TrackId = track.Id
+                TrackId = track.Id,
+                Album = track.Album.Name
             };
         }
     }

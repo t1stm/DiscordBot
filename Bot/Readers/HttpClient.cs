@@ -1,27 +1,84 @@
+using System;
+using System.Collections.Generic;
+using System.IO;
 using System.Net;
 using System.Net.Http;
+using System.Threading.Tasks;
+using BatToshoRESTApp.Methods;
+using PuppeteerSharp;
 
 namespace BatToshoRESTApp.Readers
 {
     public static class HttpClient
     {
+        public static readonly string CookieDestination = $"{Bot.WorkingDirectory}/cookies.txt";
+
         public static System.Net.Http.HttpClient WithCookies()
         {
-            var cookieContainer = new CookieContainer();
-            cookieContainer.Add(new Cookie("YSC", "DIZwBK2Vq_Y", "/", "youtube.com"));
-            cookieContainer.Add(new Cookie("PREF", "tz=Europe.Sofia&f6=40000000&f5=30000", "/", "youtube.com"));
-            cookieContainer.Add(new Cookie("SID",
-                "BAhafqVRsKH-MfZVxpId1F0OFhNWiyOQ8aJHeKAijXNOo6xt2HmJcKWMUz8bXsU-he0nSA.", "/", "youtube.com"));
-            cookieContainer.Add(new Cookie("HSID", "AQNF3MrUdlQQYqkhe", "/", "youtube.com"));
-            cookieContainer.Add(new Cookie("SSID", "At2TdZpxStA_TqDlb", "/", "youtube.com"));
-            cookieContainer.Add(new Cookie("APISID", "rxRRogLSHeUVz_AH/AAy2fW_5UxKsQ3sPC", "/", "youtube.com"));
-            cookieContainer.Add(new Cookie("SAPISID", "1PbHcnU0SapJVRP-/AeTEUU6djJJF0r6ov", "/", "youtube.com"));
-            cookieContainer.Add(new Cookie("LOGIN_INFO",
-                "AFmmF2swRQIgUh5saMBAsjE76LhWPhlyo0tVSwBLqcjAzN2HMYO-mP8CIQDhma5f9NCYMKsdBjryvMnoTWoXrqyB2XpgheQ_seh-hQ:QUQ3MjNmd014RXdQeUF0eHIySlpBeWZUM21UYjJuVEZPelRmdEt3R05CX1ZPbUk2RjVYZ3dPZXB3bU9MZkxfV3ZzVEh0QkFPN09GVDR1N0dra2JJcktiQ0hibElZdEszUXdGdlZPQlNZNFB1YXo5bjdteG1IdGJUS1k1eWpRWFhXSFdUQWNPaVZJRXhFSllOWU9sV3YtenBNWWhncWJDbkpNTTExTktreDRBejR3NXdSSHJ3cmNNMEFWd290Y3h3VU1FUkpmOHExT3BuaDIyUy11VXV0bnZXdkVSS2FkakIwZw==",
-                "/", "youtube.com"));
-            cookieContainer.Add(new Cookie("VISITOR_INFO1_LIVE", "qAx2vo_yQS8", "/", "youtube.com"));
-            var handler = new HttpClientHandler {CookieContainer = cookieContainer};
+            var container = new CookieContainer();
+            var file = CookieDestination;
+            Debug.Write($"File is: {file}");
+            var collection = new CookieCollection();
+            var cl = ParseFileAsCookies(file);
+            foreach (var cook in cl) collection.Add(cook);
+            container.Add(collection);
+            var handler = new HttpClientHandler {UseCookies = true, CookieContainer = container};
             return new System.Net.Http.HttpClient(handler);
+        }
+
+        private static IEnumerable<Cookie> ParseFileAsCookies(string yes)
+        {
+            var cookies = new List<Cookie>();
+            var lineCount = 0;
+            foreach (var line in File.ReadAllLines(yes))
+            {
+                if (line.StartsWith("#") || line == "") continue;
+                lineCount++;
+                var parts = line.Split('	');
+                if (parts.Length != 7)
+                    throw new FormatException($"Line {lineCount} has {parts.Length} columns. Expected 7");
+                var domain = parts[0];
+                var path = parts[2];
+                var secure = parts[3] == "TRUE";
+                var expires = DateTimeOffset.FromUnixTimeSeconds(long.Parse(parts[4])).UtcDateTime;
+                var name = parts[5];
+                var value = parts[6];
+                var cookie = new Cookie(name, value, path, domain)
+                {
+                    Secure = secure,
+                    Expires = expires
+                };
+
+                cookies.Add(cookie);
+            }
+
+            return cookies;
+        }
+
+        public static async Task<string> GetSourceCodeAfterLoadingPage(string uri)
+        {
+            await Debug.WriteAsync($"URI is: {uri}");
+            /*var options = new ChromeOptions
+            {
+                BinaryLocation = "/usr/bin/chromium-dev"
+            };
+            options.AddArguments(new List<string> { "headless", "disable-gpu" });
+            var browser = new ChromeDriver(options);
+            browser.Navigate().GoToUrl($"https://vbox7.com{uri}"); // Excellent url usage.
+            return browser.PageSource;*/
+            //24.11.2021, 19:34: Old code that was supposed to work but didn't. Yes that's how the world works. I should probably delete the other api.... Fuck it I am too lazy to open nuget now.
+            //Update 19:36: After some thinking that lasted for at least three whole seconds, I decided to move this method from the Vbox7Video class, here.
+            var options = new LaunchOptions
+            {
+                Headless = true,
+                ExecutablePath = "/usr/bin/chromium-dev"
+            };
+            var browser = await Puppeteer.LaunchAsync(options);
+            var page = await browser.NewPageAsync();
+            await page.GoToAsync(uri);
+            var source = await page.GetContentAsync();
+            await browser.CloseAsync();
+            return source;
         }
     }
 }

@@ -61,23 +61,27 @@
             },
             "DSharpPlus": {
               "target": "Package",
-              "version": "[4.1.0, )"
+              "version": "[4.2.0-nightly-01043, )"
             },
             "DSharpPlus.CommandsNext": {
               "target": "Package",
-              "version": "[4.1.0, )"
+              "version": "[4.2.0-nightly-01043, )"
             },
             "DSharpPlus.Interactivity": {
               "target": "Package",
-              "version": "[4.1.0, )"
+              "version": "[4.2.0-nightly-01043, )"
             },
             "DSharpPlus.Rest": {
               "target": "Package",
-              "version": "[4.1.0, )"
+              "version": "[4.2.0-nightly-01043, )"
+            },
+            "DSharpPlus.SlashCommands": {
+              "target": "Package",
+              "version": "[4.2.0-nightly-01043, )"
             },
             "DSharpPlus.VoiceNext": {
               "target": "Package",
-              "version": "[4.1.0, )"
+              "version": "[4.2.0-nightly-01043, )"
             },
             "DSharpPlus.VoiceNext.Natives": {
               "target": "Package",
@@ -374,6 +378,18 @@
             "Newtonsoft.Json": {
               "target": "Package",
               "version": "[13.0.1, )"
+            },
+            "PuppeteerSharp": {
+              "target": "Package",
+              "version": "[6.0.0, )"
+            },
+            "Selenium.WebDriver": {
+              "target": "Package",
+              "version": "[4.0.1, )"
+            },
+            "Selenium.WebDriver.ChromeDriver": {
+              "target": "Package",
+              "version": "[97.0.4692.2000-beta, )"
             },
             "SpotifyAPI.Web": {
               "target": "Package",

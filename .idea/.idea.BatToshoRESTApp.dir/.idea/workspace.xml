@@ -8,77 +8,59 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="7a9b8107-2bcf-4377-b48b-ea9c3518aaf9" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/Bot/Audio/Objects/FfMpeg.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Bot/Audio/Objects/IPlayableItem.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Bot/Audio/Objects/Queue.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Bot/Audio/Objects/SystemFile.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Bot/Audio/Objects/YoutubeVideoInformation.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Bot/Audio/Platforms/Discord/Attachments.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Bot/Audio/Platforms/Spotify/Methods.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Bot/Audio/Platforms/Youtube/Downloader.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Bot/Bot.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Bot/Enums/Loop.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Bot/Enums/StatusbarMode.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Bot/Readers/HttpClient.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Bot/Readers/JSON/SearchJsonReader.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Bot/Readers/MariaDB/ExistingVideoInfoGetter.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Bot/Readers/Objects/PreviousSearchResult.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Bot/Tools/LevenshteinDistance.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Interfaces/IBaseJson.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Interfaces/IBaseMariaDatabase.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Interfaces/IBaseStatusbar.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Methods/Debug.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Bot/Audio/Objects/OnlineFile.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Bot/Audio/Objects/Vbox7Video.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Bot/Audio/Platforms/Vbox7/Video.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Bot/CommandsSlash.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Controllers/WebSockets.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/bin/Debug/net5.0/DSharpPlus.SlashCommands.dll" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/bin/Debug/net5.0/ICSharpCode.SharpZipLib.dll" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/bin/Debug/net5.0/PuppeteerSharp.dll" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/bin/Debug/net5.0/WebDriver.dll" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/bin/Debug/net5.0/chromedriver" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/.idea.BatToshoRESTApp.dir/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.BatToshoRESTApp.dir/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/BatToshoRESTApp.csproj" beforeDir="false" afterPath="$PROJECT_DIR$/BatToshoRESTApp.csproj" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Bot/Audio/Manager.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Bot/Audio/Manager.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Bot/Audio/Objects/FFMpeg.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Bot/Audio/Objects/Instance.cs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Bot/Audio/Objects/FfMpeg.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Bot/Audio/Objects/FfMpeg.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Bot/Audio/Objects/IPlayableItem.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Interfaces/IPlayableItem.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Bot/Audio/Objects/Queue.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Bot/Audio/Objects/Queue.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Bot/Audio/Objects/SpotifyTrack.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Bot/Audio/Objects/SpotifyTrack.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Bot/Audio/Objects/VideoInformation.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Bot/Audio/Platforms/Discord/Attachment.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Bot/Audio/Platforms/Local/FileInfo.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Bot/Audio/Platforms/Local/Folders.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Bot/Audio/Platforms/Local/JsonManager.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Bot/Audio/Platforms/MariaDB/Functions.cs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Bot/Audio/Objects/SystemFile.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Bot/Audio/Objects/SystemFile.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Bot/Audio/Objects/YoutubeVideoInformation.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Bot/Audio/Objects/YoutubeVideoInformation.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Bot/Audio/Platforms/Search.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Bot/Audio/Platforms/Search.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Bot/Audio/Platforms/Spotify/Playlist.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Bot/Audio/Platforms/Spotify/Playlist.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Bot/Audio/Platforms/Spotify/Track.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Bot/Audio/Platforms/Spotify/Track.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Bot/Audio/Platforms/Youtube/Download.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Bot/Audio/Platforms/Youtube/Playlist.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Bot/Audio/Platforms/Youtube/Playlist.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Bot/Audio/Platforms/Youtube/SearchResult.cs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Bot/Audio/Platforms/Youtube/Downloader.cs" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/Bot/Audio/Platforms/Youtube/Video.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Bot/Audio/Platforms/Youtube/Video.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Bot/Audio/Player.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Bot/Audio/Player.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Bot/Bot.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Bot/Bot.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Bot/Commands.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Bot/Commands.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Bot/Debug.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Bot/Emojis.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Bot/Enums/ImageTypes.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Bot/Enums/LoopStatus.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Bot/Enums/PartOf.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Bot/Enums/StatusbarStatus.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Bot/Enums/VideoSearchTypes.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Bot/Messages/Respond.cs" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/Bot/Messages/Statusbar.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Bot/Messages/Statusbar.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Bot/Messages/Translate.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Bot/Methods/HttpClient.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Bot/Methods/ImageMagick.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Bot/Methods/Return.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Bot/Tools/StringToTimeSpan.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Bot/Methods/ServerSettings.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Bot/Program.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Components/GenericVideo.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Components/ListSearch.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Components/SearchResultTemplate.cs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Bot/Readers/HttpClient.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Bot/Readers/HttpClient.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Bot/Readers/JSON/SearchJsonReader.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Bot/Readers/JSON/SearchJsonReader.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Bot/Readers/MariaDB/ExistingVideoInfoGetter.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Bot/Readers/MariaDB/ExistingVideoInfoGetter.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Bot/Tools/StringToTimeSpan.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Bot/Tools/StringToTimeSpan.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Controllers/BatTosho.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Controllers/BatTosho.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Program.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Program.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Interfaces/IBaseJson.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Interfaces/IBaseJson.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Methods/Debug.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Methods/Debug.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Properties/launchSettings.json" beforeDir="false" afterPath="$PROJECT_DIR$/Properties/launchSettings.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Startup.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Startup.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bin/Debug/net5.0/BatToshoRESTApp.deps.json" beforeDir="false" afterPath="$PROJECT_DIR$/bin/Debug/net5.0/BatToshoRESTApp.deps.json" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/bin/Debug/net5.0/BatToshoRESTApp.dll" beforeDir="false" afterPath="$PROJECT_DIR$/bin/Debug/net5.0/BatToshoRESTApp.dll" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/bin/Debug/net5.0/BatToshoRESTApp.pdb" beforeDir="false" afterPath="$PROJECT_DIR$/bin/Debug/net5.0/BatToshoRESTApp.pdb" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bin/Debug/net5.0/DSharpPlus.CommandsNext.dll" beforeDir="false" afterPath="$PROJECT_DIR$/bin/Debug/net5.0/DSharpPlus.CommandsNext.dll" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bin/Debug/net5.0/DSharpPlus.Interactivity.dll" beforeDir="false" afterPath="$PROJECT_DIR$/bin/Debug/net5.0/DSharpPlus.Interactivity.dll" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bin/Debug/net5.0/DSharpPlus.Rest.dll" beforeDir="false" afterPath="$PROJECT_DIR$/bin/Debug/net5.0/DSharpPlus.Rest.dll" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bin/Debug/net5.0/DSharpPlus.VoiceNext.dll" beforeDir="false" afterPath="$PROJECT_DIR$/bin/Debug/net5.0/DSharpPlus.VoiceNext.dll" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bin/Debug/net5.0/DSharpPlus.dll" beforeDir="false" afterPath="$PROJECT_DIR$/bin/Debug/net5.0/DSharpPlus.dll" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/bin/Debug/net5.0/ref/BatToshoRESTApp.dll" beforeDir="false" afterPath="$PROJECT_DIR$/bin/Debug/net5.0/ref/BatToshoRESTApp.dll" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/obj/BatToshoRESTApp.csproj.nuget.dgspec.json" beforeDir="false" afterPath="$PROJECT_DIR$/obj/BatToshoRESTApp.csproj.nuget.dgspec.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/obj/BatToshoRESTApp.csproj.nuget.g.targets" beforeDir="false" afterPath="$PROJECT_DIR$/obj/BatToshoRESTApp.csproj.nuget.g.targets" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/obj/Debug/net5.0/BatToshoRESTApp.assets.cache" beforeDir="false" afterPath="$PROJECT_DIR$/obj/Debug/net5.0/BatToshoRESTApp.assets.cache" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/obj/Debug/net5.0/BatToshoRESTApp.csproj.CoreCompileInputs.cache" beforeDir="false" afterPath="$PROJECT_DIR$/obj/Debug/net5.0/BatToshoRESTApp.csproj.CoreCompileInputs.cache" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/obj/Debug/net5.0/BatToshoRESTApp.csproj.FileListAbsolute.txt" beforeDir="false" afterPath="$PROJECT_DIR$/obj/Debug/net5.0/BatToshoRESTApp.csproj.FileListAbsolute.txt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/obj/Debug/net5.0/BatToshoRESTApp.csprojAssemblyReference.cache" beforeDir="false" afterPath="$PROJECT_DIR$/obj/Debug/net5.0/BatToshoRESTApp.csprojAssemblyReference.cache" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/obj/Debug/net5.0/BatToshoRESTApp.dll" beforeDir="false" afterPath="$PROJECT_DIR$/obj/Debug/net5.0/BatToshoRESTApp.dll" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/obj/Debug/net5.0/BatToshoRESTApp.genruntimeconfig.cache" beforeDir="false" afterPath="$PROJECT_DIR$/obj/Debug/net5.0/BatToshoRESTApp.genruntimeconfig.cache" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/obj/Debug/net5.0/BatToshoRESTApp.pdb" beforeDir="false" afterPath="$PROJECT_DIR$/obj/Debug/net5.0/BatToshoRESTApp.pdb" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/obj/Debug/net5.0/ref/BatToshoRESTApp.dll" beforeDir="false" afterPath="$PROJECT_DIR$/obj/Debug/net5.0/ref/BatToshoRESTApp.dll" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/obj/project.assets.json" beforeDir="false" afterPath="$PROJECT_DIR$/obj/project.assets.json" afterDir="false" />
@@ -108,62 +90,74 @@
     </file-type-list>
   </component>
   <component name="HighlightingSettingsPerFile">
+    <setting file="file://$PROJECT_DIR$/Bot/Audio/Manager.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Bot/Audio/Objects/SystemFile.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Properties/launchSettings.json" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Controllers/BatTosho.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/37616197-61E3-49CA-B448-59BFBFD92BB7/b5/2840492a/ExceptionDispatchInfo.cs" root0="SKIP_HIGHLIGHTING" />
-    <setting file="file://$PROJECT_DIR$/Bot/Tools/StringToTimeSpan.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/37616197-61E3-49CA-B448-59BFBFD92BB7/58/76f9d73e/List`1.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Bot/Messages/Statusbar.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/obj/Release/net5.0/linux-x64/.NETCoreApp,Version=v5.0.AssemblyAttributes.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/appsettings.json" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Bot/Bot.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Bot/Commands.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Bot/Tools/StringToTimeSpan.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Bot/Audio/Objects/YoutubeVideoInformation.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/B627F089-78BC-4998-B463-995E4FEE6725/d0/23e2e647/CefRenderHandler.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Bot/Audio/Platforms/Youtube/Video.cs" root0="FORCE_HIGHLIGHTING" />
   </component>
   <component name="IdeDocumentHistory">
     <changedPaths>
-      <option value="$PROJECT_DIR$/Bot/Audio/Platforms/Youtube/SearchResult.cs" />
-      <option value="$PROJECT_DIR$/Bot/Program.cs" />
-      <option value="$PROJECT_DIR$/Bot/Methods/ServerSettings.cs" />
-      <option value="$PROJECT_DIR$/Bot/Initialize.cs" />
-      <option value="$PROJECT_DIR$/Program.cs" />
-      <option value="$PROJECT_DIR$/Bot/Audio/Objects/BaseMediaInformation.cs" />
-      <option value="$PROJECT_DIR$/Bot/Readers/PreviousSearchResults.cs" />
-      <option value="$PROJECT_DIR$/Bot/Readers/IBaseJson.cs" />
-      <option value="$PROJECT_DIR$/Bot/Readers/SearchJsonReader.cs" />
-      <option value="$PROJECT_DIR$/Bot/Readers/JsonFile.cs" />
-      <option value="$PROJECT_DIR$/Bot/Readers/MariaDB/IBaseMariaDatabase.cs" />
       <option value="$PROJECT_DIR$/Bot/Readers/MariaDB/VideoInformationGetter.cs" />
       <option value="$PROJECT_DIR$/Bot/Readers/MariaDB/ExistingGetter.cs" />
-      <option value="$PROJECT_DIR$/Controllers/BatTosho.cs" />
-      <option value="$PROJECT_DIR$/Bot/Readers/HttpClient.cs" />
       <option value="$PROJECT_DIR$/Bot/Readers/Interfaces/IBaseJson.cs" />
       <option value="$PROJECT_DIR$/Bot/Readers/Interfaces/IBaseMariaDatabase.cs" />
-      <option value="$PROJECT_DIR$/Methods/Debug.cs" />
       <option value="$PROJECT_DIR$/Bot/Audio/Platforms/Discord/Attachments.cs" />
       <option value="$PROJECT_DIR$/Bot/Audio/Objects/IPlayerInfo.cs" />
       <option value="$PROJECT_DIR$/Bot/Audio/Platforms/Spotify/Methods.cs" />
-      <option value="$PROJECT_DIR$/Bot/Audio/Platforms/Spotify/Track.cs" />
       <option value="$PROJECT_DIR$/Bot/Tools/TimeSpan.cs" />
-      <option value="$PROJECT_DIR$/Bot/Tools/StringToTimeSpan.cs" />
-      <option value="$PROJECT_DIR$/Bot/Audio/Platforms/Youtube/Downloader.cs" />
-      <option value="$PROJECT_DIR$/Bot/Audio/Platforms/Spotify/Playlist.cs" />
       <option value="$PROJECT_DIR$/Bot/Audio/Objects/IPlayabeItem.cs" />
-      <option value="$PROJECT_DIR$/Bot/Audio/Objects/FfMpeg.cs" />
       <option value="$PROJECT_DIR$/Bot/Enums/Loop.cs" />
-      <option value="$PROJECT_DIR$/Properties/launchSettings.json" />
-      <option value="$PROJECT_DIR$/Bot/Readers/MariaDB/ExistingVideoInfoGetter.cs" />
-      <option value="$PROJECT_DIR$/Bot/Audio/Platforms/Search.cs" />
       <option value="$PROJECT_DIR$/Bot/Audio/Platforms/Youtube/Playlist.cs" />
       <option value="$PROJECT_DIR$/Bot/Readers/Objects/PreviousSearchResult.cs" />
-      <option value="$PROJECT_DIR$/Bot/Readers/JSON/SearchJsonReader.cs" />
-      <option value="$PROJECT_DIR$/Bot/Commands.cs" />
       <option value="$PROJECT_DIR$/Bot/Tools/LevenshteinDistance.cs" />
       <option value="$PROJECT_DIR$/Bot/Enums/StatusbarModes.cs" />
       <option value="$PROJECT_DIR$/Bot/Audio/Statusbar.cs" />
       <option value="$PROJECT_DIR$/Interfaces/IBaseStatusbar.cs" />
       <option value="$PROJECT_DIR$/Bot/Audio/Objects/IPlayableItem.cs" />
-      <option value="$PROJECT_DIR$/Bot/Audio/Platforms/Youtube/Video.cs" />
-      <option value="$PROJECT_DIR$/Bot/Messages/Statusbar.cs" />
-      <option value="$PROJECT_DIR$/Bot/Audio/Objects/YoutubeVideoInformation.cs" />
-      <option value="$PROJECT_DIR$/Bot/Audio/Objects/SystemFile.cs" />
-      <option value="$PROJECT_DIR$/Bot/Audio/Objects/SpotifyTrack.cs" />
       <option value="$PROJECT_DIR$/Bot/Audio/Objects/Instance.cs" />
-      <option value="$PROJECT_DIR$/Bot/Audio/Player.cs" />
-      <option value="$PROJECT_DIR$/Bot/Bot.cs" />
+      <option value="$PROJECT_DIR$/Bot/Audio/Objects/FfMpeg.cs" />
+      <option value="$PROJECT_DIR$/Interfaces/IBaseJson.cs" />
+      <option value="$PROJECT_DIR$/Bot/Readers/JSON/SearchJsonReader.cs" />
+      <option value="$PROJECT_DIR$/Bot/Tools/StringToTimeSpan.cs" />
+      <option value="$PROJECT_DIR$/Bot/Audio/ManagerSlash.cs" />
+      <option value="$PROJECT_DIR$/Bot/Audio/CommandsSlash.cs" />
+      <option value="$PROJECT_DIR$/Startup.cs" />
+      <option value="$PROJECT_DIR$/Bot/Readers/Cookies.cs" />
+      <option value="$PROJECT_DIR$/Bot/Audio/Platforms/Search.cs" />
+      <option value="$PROJECT_DIR$/Bot/Audio/Platforms/Youtube/Downloader.cs" />
+      <option value="$PROJECT_DIR$/Methods/Debug.cs" />
+      <option value="$PROJECT_DIR$/Bot/CommandsSlash.cs" />
+      <option value="$PROJECT_DIR$/Interfaces/IPlayableItem.cs" />
+      <option value="$PROJECT_DIR$/Bot/Audio/Objects/Vbox7Video.cs" />
+      <option value="$PROJECT_DIR$/Bot/Audio/Objects/SpotifyTrack.cs" />
+      <option value="$PROJECT_DIR$/Bot/Audio/Objects/OnlineFile.cs" />
+      <option value="$PROJECT_DIR$/Bot/Audio/Platforms/Spotify/Track.cs" />
+      <option value="$PROJECT_DIR$/Bot/Audio/Platforms/Spotify/Playlist.cs" />
+      <option value="$PROJECT_DIR$/Bot/Audio/Platforms/Vbox7/Video.cs" />
+      <option value="$PROJECT_DIR$/Bot/Readers/HttpClient.cs" />
       <option value="$PROJECT_DIR$/Bot/Audio/Objects/Queue.cs" />
+      <option value="$PROJECT_DIR$/Properties/launchSettings.json" />
+      <option value="$PROJECT_DIR$/Bot/Audio/Platforms/Youtube/Video.cs" />
+      <option value="$PROJECT_DIR$/Bot/Readers/MariaDB/ExistingVideoInfoGetter.cs" />
+      <option value="$PROJECT_DIR$/Controllers/WebSockets.cs" />
+      <option value="$PROJECT_DIR$/Bot/Audio/Objects/YoutubeVideoInformation.cs" />
+      <option value="$PROJECT_DIR$/Bot/Messages/Statusbar.cs" />
+      <option value="$PROJECT_DIR$/Bot/Commands.cs" />
+      <option value="$PROJECT_DIR$/Bot/Bot.cs" />
+      <option value="$PROJECT_DIR$/Controllers/BatTosho.cs" />
+      <option value="$PROJECT_DIR$/Bot/Audio/Player.cs" />
+      <option value="$PROJECT_DIR$/Bot/Audio/Objects/SystemFile.cs" />
       <option value="$PROJECT_DIR$/Bot/Audio/Manager.cs" />
     </changedPaths>
   </component>
@@ -281,7 +275,73 @@
       <workItem from="1635860210504" duration="148000" />
       <workItem from="1635863904720" duration="614000" />
       <workItem from="1635884113803" duration="2811000" />
-      <workItem from="1636054754097" duration="10548000" />
+      <workItem from="1636054754097" duration="10710000" />
+      <workItem from="1636094228307" duration="10941000" />
+      <workItem from="1636133376030" duration="4815000" />
+      <workItem from="1636139523263" duration="1837000" />
+      <workItem from="1636141502871" duration="4161000" />
+      <workItem from="1636193718981" duration="4846000" />
+      <workItem from="1636295807202" duration="13000" />
+      <workItem from="1636295879242" duration="208000" />
+      <workItem from="1636296299758" duration="7000" />
+      <workItem from="1636306786092" duration="3194000" />
+      <workItem from="1636321646899" duration="2221000" />
+      <workItem from="1636350341982" duration="8339000" />
+      <workItem from="1636367646318" duration="1804000" />
+      <workItem from="1636388252455" duration="1847000" />
+      <workItem from="1636455784323" duration="3451000" />
+      <workItem from="1636651065901" duration="442000" />
+      <workItem from="1636656074850" duration="550000" />
+      <workItem from="1636661382852" duration="12335000" />
+      <workItem from="1636752258558" duration="7749000" />
+      <workItem from="1636821180522" duration="4250000" />
+      <workItem from="1636917324788" duration="250000" />
+      <workItem from="1636917789254" duration="17000" />
+      <workItem from="1636959339444" duration="7632000" />
+      <workItem from="1637092323399" duration="6211000" />
+      <workItem from="1637252555753" duration="2383000" />
+      <workItem from="1637263901480" duration="92000" />
+      <workItem from="1637270401696" duration="3424000" />
+      <workItem from="1637332032348" duration="3708000" />
+      <workItem from="1637353047793" duration="12637000" />
+      <workItem from="1637409424226" duration="3184000" />
+      <workItem from="1637648596193" duration="9000" />
+      <workItem from="1637648622855" duration="1776000" />
+      <workItem from="1637653816440" duration="1156000" />
+      <workItem from="1637655442447" duration="1198000" />
+      <workItem from="1637658324438" duration="419000" />
+      <workItem from="1637660183274" duration="1592000" />
+      <workItem from="1637677072788" duration="803000" />
+      <workItem from="1637696256003" duration="561000" />
+      <workItem from="1637738944640" duration="4580000" />
+      <workItem from="1637762443257" duration="996000" />
+      <workItem from="1637771976404" duration="9156000" />
+      <workItem from="1637856674836" duration="6835000" />
+      <workItem from="1637950041010" duration="5136000" />
+      <workItem from="1637965289254" duration="1070000" />
+      <workItem from="1637967510476" duration="2462000" />
+      <workItem from="1638025121363" duration="2013000" />
+      <workItem from="1638031247924" duration="3415000" />
+      <workItem from="1638180715335" duration="445000" />
+      <workItem from="1638263726287" duration="7733000" />
+      <workItem from="1638298226500" duration="737000" />
+      <workItem from="1638300718525" duration="4252000" />
+      <workItem from="1638351402972" duration="82000" />
+      <workItem from="1638480508725" duration="1554000" />
+      <workItem from="1638486368124" duration="2267000" />
+      <workItem from="1638520556035" duration="2778000" />
+      <workItem from="1638525163524" duration="334000" />
+      <workItem from="1638532605237" duration="2286000" />
+      <workItem from="1638551618541" duration="66000" />
+      <workItem from="1638551740211" duration="245000" />
+      <workItem from="1638559297768" duration="2796000" />
+      <workItem from="1638563557802" duration="495000" />
+      <workItem from="1638564168288" duration="232000" />
+      <workItem from="1638565491189" duration="1032000" />
+      <workItem from="1638568779025" duration="611000" />
+      <workItem from="1638734400123" duration="431000" />
+      <workItem from="1638868555052" duration="247000" />
+      <workItem from="1638872112245" duration="1120000" />
     </task>
     <task id="LOCAL-00001" summary="Bobur Vecher Momcheta I Momicheta">
       <created>1633820044215</created>
@@ -388,7 +448,14 @@
       <option name="project" value="LOCAL" />
       <updated>1634848372884</updated>
     </task>
-    <option name="localTasksCounter" value="16" />
+    <task id="LOCAL-00016" summary="UDRI MAISTORE, KUDE E DJULEVATA RAKIYA">
+      <created>1636066348031</created>
+      <option name="number" value="00016" />
+      <option name="presentableId" value="LOCAL-00016" />
+      <option name="project" value="LOCAL" />
+      <updated>1636066348031</updated>
+    </task>
+    <option name="localTasksCounter" value="17" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -792,6 +859,7 @@
     <MESSAGE value="Implementing offloading load to local servers instead of using Youtube multiple times." />
     <MESSAGE value="quick fix x2" />
     <MESSAGE value="Added more accurate Spotify Search.&#10;&#10;I am too lazy to debug this so let's hope it works first time. Please" />
-    <option name="LAST_COMMIT_MESSAGE" value="Added more accurate Spotify Search.&#10;&#10;I am too lazy to debug this so let's hope it works first time. Please" />
+    <MESSAGE value="UDRI MAISTORE, KUDE E DJULEVATA RAKIYA" />
+    <option name="LAST_COMMIT_MESSAGE" value="UDRI MAISTORE, KUDE E DJULEVATA RAKIYA" />
   </component>
 </project>

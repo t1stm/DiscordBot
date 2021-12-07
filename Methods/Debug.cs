@@ -13,7 +13,7 @@ namespace BatToshoRESTApp.Methods
             var transformed = $"{date}: {text}";
             Console.WriteLine(transformed);
             if (!save) return;
-            await File.AppendAllTextAsync($"{Bot.WorkingDirectory}BatTosho_latest.log", transformed + "\n",
+            await File.AppendAllTextAsync($"{Bot.WorkingDirectory}/BatTosho_latest.log", transformed + "\n",
                 Encoding.UTF8);
         }
 
@@ -23,7 +23,7 @@ namespace BatToshoRESTApp.Methods
             var transformed = $"{date}: {text}";
             Console.WriteLine(transformed);
             if (!save) return;
-            File.AppendAllText($"{Bot.WorkingDirectory}BatTosho_latest.log", transformed + "\n", Encoding.UTF8);
+            File.AppendAllText($"{Bot.WorkingDirectory}/BatTosho_latest.log", transformed + "\n", Encoding.UTF8);
         }
     }
 }

@@ -1,3 +1,4 @@
+using BatToshoRESTApp.Controllers;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpOverrides;
@@ -23,6 +24,7 @@ namespace BatToshoRESTApp
                         .SetIsOriginAllowed(_ => true)
                         .AllowAnyHeader());
             });
+            services.AddSignalR();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -53,6 +55,7 @@ namespace BatToshoRESTApp
                 endpoints.MapControllerRoute(
                     "default",
                     "{controller=Home}/{action=Index}/{id?}");
+                endpoints.MapHub<WebSockets>("/ws");
             });
         }
     }
