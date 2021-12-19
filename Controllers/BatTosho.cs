@@ -3,6 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
+using DSharpPlus;
+using Microsoft.AspNetCore.Mvc;
+using YoutubeExplode;
+using YoutubeExplode.Common;
+
 using BatToshoRESTApp.Audio;
 using BatToshoRESTApp.Audio.Objects;
 using BatToshoRESTApp.Audio.Platforms.Spotify;
@@ -10,12 +15,9 @@ using BatToshoRESTApp.Audio.Platforms.Youtube;
 using BatToshoRESTApp.Enums;
 using BatToshoRESTApp.Methods;
 using BatToshoRESTApp.Readers;
-using DSharpPlus;
-using Microsoft.AspNetCore.Mvc;
-using YoutubeExplode;
-using YoutubeExplode.Common;
 using Playlist = BatToshoRESTApp.Audio.Platforms.Spotify.Playlist;
 using YtPlaylist = BatToshoRESTApp.Audio.Platforms.Youtube.Playlist;
+
 
 namespace BatToshoRESTApp.Controllers
 {
@@ -319,7 +321,7 @@ namespace BatToshoRESTApp.Controllers
                 Author = qu.GetAuthor(),
                 Index = queue.IndexOf(qu),
                 ThumbnailUrl = qu.GetThumbnailUrl().Split("?")[0] ?? "nothumb.png",
-                Length = TimeSpan.FromMilliseconds(qu.GetLength()).ToString("hh\\:mm\\:ss"),
+                Length = qu.GetLength() == 0 ? "10" : TimeSpan.FromMilliseconds(qu.GetLength()).ToString("hh\\:mm\\:ss"),
                 Url = qu.GetType() == typeof(YoutubeVideoInformation)
                     ? $"https://youtube.com/watch?v={qu.GetId()}"
                     : "no",

@@ -41,7 +41,7 @@ namespace BatToshoRESTApp.Audio.Objects
 
         public ulong GetLength()
         {
-            return Length;
+            return Length == default ? 0 : Length;
         }
 
         public string GetLocation()

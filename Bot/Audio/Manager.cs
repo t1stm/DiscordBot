@@ -97,12 +97,16 @@ namespace BatToshoRESTApp.Audio
                     List<IPlayableItem> items;
                     if (attachments is {Count: > 0})
                     {
-                        items = await new Search().Get(term, attachments);
+                        await Debug.WriteAsync($"Play message contains attachments: {attachments.Count}");
+                        items = await new Search().Get(term, attachments, user.Guild.Id);
+                        var builder =
+                            new DiscordMessageBuilder().WithContent("```Hello! This message will update shortly.```");
+                        player.Channel = player.CurrentClient.Guilds[userVoiceS.Guild.Id].Channels[messageChannel.Id];
+                        player.Statusbar.Message = await builder.SendAsync(player.Channel);
                     }
                     else
                     {
                         if (string.IsNullOrEmpty(term)) return;
-
                         player.Channel = player.CurrentClient.Guilds[userVoiceS.Guild.Id].Channels[messageChannel.Id];
                         if (select && !term.Contains("http"))
                         {
@@ -145,19 +149,19 @@ namespace BatToshoRESTApp.Audio
                 }
                 else
                 {
-                    if (string.IsNullOrEmpty(term))
-                    {
-                        player.Paused = false;
-                        return;
-                    }
-
                     List<IPlayableItem> items;
-                    if (attachments.Count > 0)
+                    if (attachments is {Count: > 0})
                     {
-                        items = await new Search().Get(term, attachments);
+                        await Debug.WriteAsync($"Play message contains attachments: {attachments.Count}");
+                        items = await new Search().Get(term, attachments, user.Guild.Id);
                     }
                     else
                     {
+                        if (string.IsNullOrEmpty(term))
+                        {
+                            player.Paused = false;
+                            return;
+                        }
                         if (select && !term.Contains("http"))
                         {
                             var results = await new Video().SearchAllResults(term);
@@ -191,16 +195,17 @@ namespace BatToshoRESTApp.Audio
                             $"```Added: {items.First().GetName()}```");
                 }
             }
-            catch (Exception)
+            catch (Exception e)
             {
                 try
                 {
                     player.Connection.Disconnect();
                     player.Statusbar.Stop();
+                    await Debug.WriteAsync($"Error in Play: {e}");
                 }
-                catch (Exception)
+                catch (Exception exception)
                 {
-                    await Debug.WriteAsync("Failed to disconnect when caught error");
+                    await Debug.WriteAsync($"Failed to disconnect when caught error: {exception}");
                 }
 
                 Main.Remove(player.VoiceChannel);
@@ -228,7 +233,7 @@ namespace BatToshoRESTApp.Audio
             var userVoiceS = ctx.Member.VoiceState.Channel;
             if (userVoiceS == null)
             {
-                await ctx.Member.SendMessageAsync("```Enter a channel before using the play command.```");
+                await ctx.Member.SendMessageAsync("```Enter a channel before using the leave command.```");
                 return;
             }
 
@@ -309,9 +314,16 @@ namespace BatToshoRESTApp.Audio
                 return;
             }
 
+            if (int.TryParse(term, out int nextSong))
+            {
+                var thing = player.Queue.Items[nextSong - 1];
+                player.Queue.RemoveFromQueue(thing);
+                player.Queue.AddToQueueNext(thing);
+                return;
+            }
             List<IPlayableItem> item;
             if (ctx.Message.Attachments.Count > 0)
-                item = await new Search().Get(term, ctx.Message.Attachments.ToList());
+                item = await new Search().Get(term, ctx.Message.Attachments.ToList(), ctx.Guild.Id);
             else
                 item = await new Search().Get(term);
             item.ForEach(it => it.SetRequester(ctx.Member));
@@ -344,11 +356,11 @@ namespace BatToshoRESTApp.Audio
                     .WithContent($"```You have already generated a Web UI code: {key}```").WithEmbed(new DiscordEmbedBuilder
                     {
                         Title = "Bai Tosho Web Interface",
-                        Url = "https://dank.gq/BaiToshoBeta",
+                        Url = "https://dankest.gq/BaiToshoBeta",
                         Description = "Control the bot using a fancy interface.",
                         Thumbnail = new DiscordEmbedBuilder.EmbedThumbnail
                         {
-                            Url = "https://dank.gq/BaiToshoBeta/tosho.png"
+                            Url = "https://dankest.gq/BaiToshoBeta/tosho.png"
                         }
                     }));
                 return;
@@ -360,11 +372,11 @@ namespace BatToshoRESTApp.Audio
                 .WithContent($"```Your Web UI Code is: {randomString}```").WithEmbed(new DiscordEmbedBuilder
                 {
                     Title = "Bai Tosho Web Interface",
-                    Url = "https://dank.gq/BaiToshoBeta",
+                    Url = "https://dankest.gq/BaiToshoBeta",
                     Description = "Control the bot using a fancy interface.",
                     Thumbnail = new DiscordEmbedBuilder.EmbedThumbnail
                     {
-                        Url = "https://dank.gq/BaiToshoBeta/tosho.png"
+                        Url = "https://dankest.gq/BaiToshoBeta/tosho.png"
                     }
                 }));
         }

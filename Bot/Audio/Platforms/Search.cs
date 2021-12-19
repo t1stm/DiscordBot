@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using BatToshoRESTApp.Audio.Objects;
@@ -69,16 +70,23 @@ namespace BatToshoRESTApp.Audio.Platforms
                 };
 
             if (searchTerm.StartsWith("file://"))
-                return new List<IPlayableItem>
+                if (Directory.Exists(searchTerm[7..]))
                 {
-                    new SystemFile
+                    return Directory.EnumerateFiles(searchTerm[7..]).Select(file => new SystemFile {Location = file, Title = file, Author = null, Length = 0}).Cast<IPlayableItem>().ToList();
+                }
+                else
+                {
+                    return new List<IPlayableItem>
                     {
-                        Location = searchTerm[7..],
-                        Title = searchTerm,
-                        Author = null,
-                        Length = 0
-                    }
-                };
+                        new SystemFile
+                        {
+                            Location = searchTerm[7..],
+                            Title = searchTerm,
+                            Author = null,
+                            Length = 0
+                        }
+                    };
+                }
             if (searchTerm.StartsWith("vb7:"))
                 return new List<IPlayableItem>
                 {
@@ -90,10 +98,10 @@ namespace BatToshoRESTApp.Audio.Platforms
             };
         }
 
-        public async Task<List<IPlayableItem>> Get(string searchTerm, List<DiscordAttachment> attachments)
+        public async Task<List<IPlayableItem>> Get(string searchTerm, List<DiscordAttachment> attachments, ulong guild)
         {
             var list = new List<IPlayableItem>();
-            list.AddRange(await Attachments.GetAttachments(attachments));
+            list.AddRange(await Attachments.GetAttachments(attachments, guild));
             if (string.IsNullOrEmpty(searchTerm) || searchTerm.Length < 3) return list;
             list.AddRange(await Get(searchTerm));
             return list;

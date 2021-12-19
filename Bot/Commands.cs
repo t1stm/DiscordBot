@@ -41,7 +41,7 @@ namespace BatToshoRESTApp
         }
 
         [Command("leave")]
-        [Aliases("l", "stop", "леаже", "л", "стоп", "с", "s")]
+        [Aliases("l", "stop", "леаже", "л", "стоп", "с", "s", "die", "дие")]
         public async Task LeaveCommand(CommandContext ctx)
         {
             try
@@ -221,6 +221,25 @@ namespace BatToshoRESTApp
             catch (Exception e)
             {
                 await Debug.WriteAsync($"Go To command threw exception: {e}");
+                throw;
+            }
+        }
+
+        [Command("getpresence")]
+        public async Task GetPresence(CommandContext ctx)
+        {
+            try
+            {
+                var presence = ctx.Member.Presence;
+                var username = ctx.Member.Username;
+                var act = presence.Activity.Name;
+                var actType = presence.Activity.ActivityType;
+                await Bot.Reply(ctx,
+                    $"{username}'s presence is {presence}, with activity: {act}, with activity type {actType}");
+            }
+            catch (Exception e)
+            {
+                await Debug.WriteAsync($"Get presence command threw exception: {e}");
                 throw;
             }
         }

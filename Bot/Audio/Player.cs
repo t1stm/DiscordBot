@@ -74,8 +74,12 @@ namespace BatToshoRESTApp.Audio
                         await track.Download();
                         break;
                     case YoutubeVideoInformation vi:
-                        await vi.Download();
-                        await PlayTrack(vi.GetLocation(), Stopwatch.Elapsed.ToString(@"c"));
+                        while (Stopwatch.ElapsedMilliseconds < 3000)
+                        {
+                            await vi.Download();
+                            await PlayTrack(vi.GetLocation(), Stopwatch.Elapsed.ToString(@"c"));
+                            await Task.Delay(66);
+                        }
                         break;
                     default:
                         await PlayTrack(CurrentItem.GetLocation(), Stopwatch.Elapsed.ToString(@"c"));
@@ -92,7 +96,7 @@ namespace BatToshoRESTApp.Audio
                 if (!Paused) Stopwatch.Reset();
                 if (LoopStatus == Loop.One) Queue.Current--;
                 if (Queue.Current + 1 == Queue.Count && LoopStatus == Loop.WholeQueue) Queue.Current = -1;
-                if (Queue.Current + 1 != Queue.Count) continue;
+                if (Queue.Current + 1 < Queue.Count) continue;
                 WaitingToLeave = true;
                 WaitingStopwatch.Start();
                 while (WaitingToLeave)
@@ -112,7 +116,7 @@ namespace BatToshoRESTApp.Audio
         private async Task PlayTrack(string location, string startingTime)
         {
             await Debug.WriteAsync($"Location is: {location}");
-            Stopwatch.Start();
+            if (!Stopwatch.IsRunning) Stopwatch.Start();
             await FfMpeg.ConvertAudioToPcm(location, startingTime, Normalize).CopyToAsync(Sink);
             await Sink.FlushAsync();
             await FfMpeg.Kill(false, false);
@@ -172,10 +176,15 @@ namespace BatToshoRESTApp.Audio
         public void Pause()
         {
             Paused = !Paused;
+            if (!Paused) return;
             FfMpeg.KillSync();
             Stopwatch.Stop();
-            if (!Paused) return;
             Queue.Current += -1;
+        }
+
+        ~Player()
+        {
+            Disconnect();
         }
     }
 }

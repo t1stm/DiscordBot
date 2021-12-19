@@ -2071,16 +2071,8 @@
           "System.Threading.Tasks": "4.3.0"
         }
       },
-      "System.Collections.Immutable/5.0.0": {
-        "compile": {
-          "lib/netstandard2.0/System.Collections.Immutable.dll": {}
-        }
-      },
-      "System.ComponentModel.Annotations/5.0.0": {
-        "compile": {
-          "ref/netstandard2.1/System.ComponentModel.Annotations.dll": {}
-        }
-      },
+      "System.Collections.Immutable/5.0.0": {},
+      "System.ComponentModel.Annotations/5.0.0": {},
       "System.Composition/5.0.1": {
         "dependencies": {
           "System.Composition.AttributedModel": "5.0.1",
@@ -2224,11 +2216,7 @@
           "ref/netcoreapp3.0/System.Drawing.Common.dll": {}
         }
       },
-      "System.Formats.Asn1/5.0.0": {
-        "compile": {
-          "lib/netstandard2.0/System.Formats.Asn1.dll": {}
-        }
-      },
+      "System.Formats.Asn1/5.0.0": {},
       "System.Globalization/4.3.0": {
         "dependencies": {
           "Microsoft.NETCore.Platforms": "5.0.4",
@@ -2493,11 +2481,7 @@
           "System.Runtime": "4.3.1"
         }
       },
-      "System.Reflection.Metadata/5.0.0": {
-        "compile": {
-          "lib/netstandard2.0/System.Reflection.Metadata.dll": {}
-        }
-      },
+      "System.Reflection.Metadata/5.0.0": {},
       "System.Reflection.Primitives/4.3.0": {
         "dependencies": {
           "Microsoft.NETCore.Platforms": "5.0.4",
@@ -2542,11 +2526,7 @@
           "ref/netstandard2.0/System.Runtime.Caching.dll": {}
         }
       },
-      "System.Runtime.CompilerServices.Unsafe/5.0.0": {
-        "compile": {
-          "ref/netstandard2.1/System.Runtime.CompilerServices.Unsafe.dll": {}
-        }
-      },
+      "System.Runtime.CompilerServices.Unsafe/5.0.0": {},
       "System.Runtime.Extensions/4.3.1": {
         "dependencies": {
           "Microsoft.NETCore.Platforms": "5.0.4",
@@ -2752,9 +2732,6 @@
       "System.Text.Encoding.CodePages/5.0.0": {
         "dependencies": {
           "Microsoft.NETCore.Platforms": "5.0.4"
-        },
-        "compile": {
-          "lib/netstandard2.0/System.Text.Encoding.CodePages.dll": {}
         }
       },
       "System.Text.Encoding.Extensions/4.3.0": {
@@ -2793,11 +2770,7 @@
           "System.Threading.Tasks": "4.3.0"
         }
       },
-      "System.Threading.Channels/5.0.0": {
-        "compile": {
-          "lib/netcoreapp3.0/System.Threading.Channels.dll": {}
-        }
-      },
+      "System.Threading.Channels/5.0.0": {},
       "System.Threading.Tasks/4.3.0": {
         "dependencies": {
           "Microsoft.NETCore.Platforms": "5.0.4",
