@@ -121,11 +121,11 @@
             },
             "Magick.NET-Q16-AnyCPU": {
               "target": "Package",
-              "version": "[8.4.0, )"
+              "version": "[8.5.0, )"
             },
             "Magick.NET.Core": {
               "target": "Package",
-              "version": "[8.4.0, )"
+              "version": "[8.5.0, )"
             },
             "MessagePack": {
               "target": "Package",
@@ -141,7 +141,7 @@
             },
             "Microsoft.AspNetCore.Authentication.Certificate": {
               "target": "Package",
-              "version": "[6.0.0, )"
+              "version": "[6.0.1, )"
             },
             "Microsoft.AspNetCore.Cors": {
               "target": "Package",
@@ -165,7 +165,7 @@
             },
             "Microsoft.AspNetCore.Http.Features": {
               "target": "Package",
-              "version": "[5.0.12, )"
+              "version": "[5.0.13, )"
             },
             "Microsoft.AspNetCore.Razor": {
               "target": "Package",
@@ -173,7 +173,7 @@
             },
             "Microsoft.AspNetCore.Razor.Language": {
               "target": "Package",
-              "version": "[6.0.0, )"
+              "version": "[6.0.1, )"
             },
             "Microsoft.AspNetCore.Razor.Runtime": {
               "target": "Package",
@@ -221,6 +221,14 @@
               "target": "Package",
               "version": "[4.0.1, )"
             },
+            "Microsoft.CodeAnalysis.CSharp.Features": {
+              "target": "Package",
+              "version": "[4.0.1, )"
+            },
+            "Microsoft.CodeAnalysis.CSharp.Scripting": {
+              "target": "Package",
+              "version": "[4.0.1, )"
+            },
             "Microsoft.CodeAnalysis.CSharp.Workspaces": {
               "target": "Package",
               "version": "[4.0.1, )"
@@ -229,9 +237,13 @@
               "target": "Package",
               "version": "[4.0.1, )"
             },
+            "Microsoft.CodeAnalysis.Features": {
+              "target": "Package",
+              "version": "[4.0.1, )"
+            },
             "Microsoft.CodeAnalysis.Razor": {
               "target": "Package",
-              "version": "[6.0.0, )"
+              "version": "[6.0.1, )"
             },
             "Microsoft.CodeAnalysis.Scripting.Common": {
               "target": "Package",
@@ -271,37 +283,37 @@
             },
             "Microsoft.DotNet.Scaffolding.Shared": {
               "target": "Package",
-              "version": "[6.0.0, )"
+              "version": "[6.0.1, )"
             },
             "Microsoft.EntityFrameworkCore": {
               "target": "Package",
-              "version": "[6.0.0, )"
+              "version": "[6.0.1, )"
             },
             "Microsoft.EntityFrameworkCore.Abstractions": {
               "target": "Package",
-              "version": "[6.0.0, )"
+              "version": "[6.0.1, )"
             },
             "Microsoft.EntityFrameworkCore.Analyzers": {
               "target": "Package",
-              "version": "[6.0.0, )"
+              "version": "[6.0.1, )"
             },
             "Microsoft.EntityFrameworkCore.Design": {
               "include": "Runtime, Build, Native, ContentFiles, Analyzers, BuildTransitive",
               "suppressParent": "All",
               "target": "Package",
-              "version": "[6.0.0, )"
+              "version": "[6.0.1, )"
             },
             "Microsoft.EntityFrameworkCore.Relational": {
               "target": "Package",
-              "version": "[6.0.0, )"
+              "version": "[6.0.1, )"
             },
             "Microsoft.EntityFrameworkCore.SQLite": {
               "target": "Package",
-              "version": "[6.0.0, )"
+              "version": "[6.0.1, )"
             },
             "Microsoft.EntityFrameworkCore.SqlServer": {
               "target": "Package",
-              "version": "[6.0.0, )"
+              "version": "[6.0.1, )"
             },
             "Microsoft.Extensions.Caching.Abstractions": {
               "target": "Package",
@@ -371,13 +383,29 @@
               "target": "Package",
               "version": "[6.15.0, )"
             },
+            "Microsoft.NET.StringTools": {
+              "target": "Package",
+              "version": "[1.0.0, )"
+            },
+            "Microsoft.NETCore.DotNetAppHost": {
+              "target": "Package",
+              "version": "[6.0.1, )"
+            },
             "Microsoft.NETCore.DotNetHostPolicy": {
               "target": "Package",
-              "version": "[6.0.0, )"
+              "version": "[6.0.1, )"
+            },
+            "Microsoft.NETCore.DotNetHostResolver": {
+              "target": "Package",
+              "version": "[6.0.1, )"
+            },
+            "Microsoft.NETCore.Jit": {
+              "target": "Package",
+              "version": "[2.0.8, )"
             },
             "Microsoft.NETCore.Platforms": {
               "target": "Package",
-              "version": "[6.0.0, )"
+              "version": "[6.0.1, )"
             },
             "Microsoft.NETCore.Runtime.CoreCLR": {
               "target": "Package",
@@ -393,7 +421,7 @@
             },
             "Microsoft.VisualStudio.Web.CodeGeneration": {
               "target": "Package",
-              "version": "[6.0.0, )"
+              "version": "[6.0.1, )"
             },
             "Microsoft.VisualStudio.Web.CodeGeneration.Contracts": {
               "target": "Package",
@@ -401,27 +429,27 @@
             },
             "Microsoft.VisualStudio.Web.CodeGeneration.Core": {
               "target": "Package",
-              "version": "[6.0.0, )"
+              "version": "[6.0.1, )"
             },
             "Microsoft.VisualStudio.Web.CodeGeneration.Design": {
               "target": "Package",
-              "version": "[6.0.0, )"
+              "version": "[6.0.1, )"
             },
             "Microsoft.VisualStudio.Web.CodeGeneration.EntityFrameworkCore": {
               "target": "Package",
-              "version": "[6.0.0, )"
+              "version": "[6.0.1, )"
             },
             "Microsoft.VisualStudio.Web.CodeGeneration.Templating": {
               "target": "Package",
-              "version": "[6.0.0, )"
+              "version": "[6.0.1, )"
             },
             "Microsoft.VisualStudio.Web.CodeGeneration.Utils": {
               "target": "Package",
-              "version": "[6.0.0, )"
+              "version": "[6.0.1, )"
             },
             "Microsoft.VisualStudio.Web.CodeGenerators.Mvc": {
               "target": "Package",
-              "version": "[6.0.0, )"
+              "version": "[6.0.1, )"
             },
             "Microsoft.Win32.Primitives": {
               "target": "Package",
@@ -439,13 +467,53 @@
               "target": "Package",
               "version": "[8.0.27, )"
             },
+            "NETStandard.Library": {
+              "target": "Package",
+              "version": "[2.0.3, )"
+            },
             "Newtonsoft.Json": {
               "target": "Package",
               "version": "[13.0.1, )"
             },
-            "PuppeteerSharp": {
+            "NuGet.Common": {
               "target": "Package",
               "version": "[6.0.0, )"
+            },
+            "NuGet.Configuration": {
+              "target": "Package",
+              "version": "[6.0.0, )"
+            },
+            "NuGet.DependencyResolver.Core": {
+              "target": "Package",
+              "version": "[6.0.0, )"
+            },
+            "NuGet.Frameworks": {
+              "target": "Package",
+              "version": "[6.0.0, )"
+            },
+            "NuGet.LibraryModel": {
+              "target": "Package",
+              "version": "[6.0.0, )"
+            },
+            "NuGet.Packaging": {
+              "target": "Package",
+              "version": "[6.0.0, )"
+            },
+            "NuGet.ProjectModel": {
+              "target": "Package",
+              "version": "[6.0.0, )"
+            },
+            "NuGet.Protocol": {
+              "target": "Package",
+              "version": "[6.0.0, )"
+            },
+            "NuGet.Versioning": {
+              "target": "Package",
+              "version": "[6.0.0, )"
+            },
+            "PuppeteerSharp": {
+              "target": "Package",
+              "version": "[6.1.0, )"
             },
             "Selenium.WebDriver": {
               "target": "Package",
@@ -454,6 +522,10 @@
             "Selenium.WebDriver.ChromeDriver": {
               "target": "Package",
               "version": "[97.0.4692.2000-beta, )"
+            },
+            "SharpZipLib": {
+              "target": "Package",
+              "version": "[1.3.3, )"
             },
             "SpotifyAPI.Web": {
               "target": "Package",
@@ -466,6 +538,10 @@
             "System.Buffers": {
               "target": "Package",
               "version": "[4.5.1, )"
+            },
+            "System.CodeDom": {
+              "target": "Package",
+              "version": "[6.0.0, )"
             },
             "System.Collections": {
               "target": "Package",
@@ -519,6 +595,10 @@
               "target": "Package",
               "version": "[6.0.0, )"
             },
+            "System.Diagnostics.Tools": {
+              "target": "Package",
+              "version": "[4.3.0, )"
+            },
             "System.Diagnostics.Tracing": {
               "target": "Package",
               "version": "[4.3.0, )"
@@ -557,7 +637,7 @@
             },
             "System.IO.Pipelines": {
               "target": "Package",
-              "version": "[6.0.0, )"
+              "version": "[6.0.1, )"
             },
             "System.IdentityModel.Tokens.Jwt": {
               "target": "Package",
@@ -627,6 +707,10 @@
               "target": "Package",
               "version": "[4.3.0, )"
             },
+            "System.Resources.Extensions": {
+              "target": "Package",
+              "version": "[6.0.0, )"
+            },
             "System.Resources.ResourceManager": {
               "target": "Package",
               "version": "[4.3.0, )"
@@ -691,6 +775,10 @@
               "target": "Package",
               "version": "[5.0.0, )"
             },
+            "System.Security.Cryptography.Pkcs": {
+              "target": "Package",
+              "version": "[6.0.0, )"
+            },
             "System.Security.Cryptography.Primitives": {
               "target": "Package",
               "version": "[4.3.0, )"
@@ -702,6 +790,10 @@
             "System.Security.Cryptography.X509Certificates": {
               "target": "Package",
               "version": "[4.3.2, )"
+            },
+            "System.Security.Cryptography.Xml": {
+              "target": "Package",
+              "version": "[6.0.0, )"
             },
             "System.Security.Permissions": {
               "target": "Package",
@@ -733,7 +825,11 @@
             },
             "System.Text.Json": {
               "target": "Package",
-              "version": "[6.0.0, )"
+              "version": "[6.0.1, )"
+            },
+            "System.Text.RegularExpressions": {
+              "target": "Package",
+              "version": "[4.3.1, )"
             },
             "System.Threading": {
               "target": "Package",
@@ -746,6 +842,10 @@
             "System.Threading.Tasks": {
               "target": "Package",
               "version": "[4.3.0, )"
+            },
+            "System.Threading.Tasks.Dataflow": {
+              "target": "Package",
+              "version": "[6.0.0, )"
             },
             "System.Threading.Tasks.Extensions": {
               "target": "Package",
@@ -766,6 +866,10 @@
             "System.Windows.Extensions": {
               "target": "Package",
               "version": "[6.0.0, )"
+            },
+            "System.Xml.ReaderWriter": {
+              "target": "Package",
+              "version": "[4.3.1, )"
             },
             "System.Xml.XDocument": {
               "target": "Package",

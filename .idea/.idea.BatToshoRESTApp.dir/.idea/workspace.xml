@@ -8,380 +8,117 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="7a9b8107-2bcf-4377-b48b-ea9c3518aaf9" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/.vscode/launch.json" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.vscode/tasks.json" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net5.0/global.json" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net6.0/AngleSharp.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net6.0/Azure.Core.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net6.0/Azure.Identity.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net6.0/BatToshoRESTApp" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net6.0/BatToshoRESTApp.deps.json" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net6.0/BatToshoRESTApp.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net6.0/BatToshoRESTApp.pdb" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net6.0/BatToshoRESTApp.runtimeconfig.json" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net6.0/BatToshoRESTApp.staticwebassets.runtime.json" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net6.0/BouncyCastle.Crypto.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net6.0/ConcurrentCollections.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net6.0/DSharpPlus.CommandsNext.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net6.0/DSharpPlus.Interactivity.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net6.0/DSharpPlus.Rest.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net6.0/DSharpPlus.SlashCommands.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net6.0/DSharpPlus.VoiceNext.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net6.0/DSharpPlus.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net6.0/EmbedIO.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net6.0/Emzi0767.Common.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net6.0/Google.Protobuf.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net6.0/HtmlAgilityPack.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net6.0/Humanizer.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net6.0/ICSharpCode.SharpZipLib.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net6.0/K4os.Compression.LZ4.Streams.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net6.0/K4os.Compression.LZ4.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net6.0/K4os.Hash.xxHash.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net6.0/Magick.NET-Q16-AnyCPU.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net6.0/Magick.NET.Core.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net6.0/MessagePack.Annotations.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net6.0/MessagePack.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net6.0/Microsoft.AspNetCore.Authentication.Certificate.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net6.0/Microsoft.AspNetCore.Razor.Language.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net6.0/Microsoft.Bcl.AsyncInterfaces.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net6.0/Microsoft.Build.Framework.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net6.0/Microsoft.Build.Tasks.Core.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net6.0/Microsoft.Build.Utilities.Core.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net6.0/Microsoft.Build.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net6.0/Microsoft.CodeAnalysis.AnalyzerUtilities.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net6.0/Microsoft.CodeAnalysis.CSharp.Features.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net6.0/Microsoft.CodeAnalysis.CSharp.Scripting.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net6.0/Microsoft.CodeAnalysis.CSharp.Workspaces.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net6.0/Microsoft.CodeAnalysis.CSharp.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net6.0/Microsoft.CodeAnalysis.Features.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net6.0/Microsoft.CodeAnalysis.Razor.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net6.0/Microsoft.CodeAnalysis.Scripting.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net6.0/Microsoft.CodeAnalysis.VisualBasic.Features.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net6.0/Microsoft.CodeAnalysis.VisualBasic.Workspaces.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net6.0/Microsoft.CodeAnalysis.VisualBasic.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net6.0/Microsoft.CodeAnalysis.Workspaces.MSBuild.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net6.0/Microsoft.CodeAnalysis.Workspaces.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net6.0/Microsoft.CodeAnalysis.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net6.0/Microsoft.Data.SqlClient.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net6.0/Microsoft.Data.Sqlite.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net6.0/Microsoft.DiaSymReader.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net6.0/Microsoft.DotNet.Scaffolding.Shared.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net6.0/Microsoft.EntityFrameworkCore.Abstractions.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net6.0/Microsoft.EntityFrameworkCore.Design.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net6.0/Microsoft.EntityFrameworkCore.Relational.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net6.0/Microsoft.EntityFrameworkCore.SqlServer.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net6.0/Microsoft.EntityFrameworkCore.Sqlite.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net6.0/Microsoft.EntityFrameworkCore.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net6.0/Microsoft.Extensions.DependencyModel.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net6.0/Microsoft.Identity.Client.Extensions.Msal.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net6.0/Microsoft.Identity.Client.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net6.0/Microsoft.IdentityModel.JsonWebTokens.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net6.0/Microsoft.IdentityModel.Logging.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net6.0/Microsoft.IdentityModel.Protocols.OpenIdConnect.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net6.0/Microsoft.IdentityModel.Protocols.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net6.0/Microsoft.IdentityModel.Tokens.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net6.0/Microsoft.NET.StringTools.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net6.0/Microsoft.VisualStudio.Web.CodeGeneration.Contracts.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net6.0/Microsoft.VisualStudio.Web.CodeGeneration.Core.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net6.0/Microsoft.VisualStudio.Web.CodeGeneration.EntityFrameworkCore.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net6.0/Microsoft.VisualStudio.Web.CodeGeneration.Templating.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net6.0/Microsoft.VisualStudio.Web.CodeGeneration.Utils.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net6.0/Microsoft.VisualStudio.Web.CodeGeneration.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net6.0/Microsoft.VisualStudio.Web.CodeGenerators.Mvc.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net6.0/Microsoft.Win32.SystemEvents.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net6.0/MySql.Data.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net6.0/Newtonsoft.Json.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net6.0/NuGet.Common.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net6.0/NuGet.Configuration.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net6.0/NuGet.DependencyResolver.Core.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net6.0/NuGet.Frameworks.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net6.0/NuGet.LibraryModel.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net6.0/NuGet.Packaging.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net6.0/NuGet.ProjectModel.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net6.0/NuGet.Protocol.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net6.0/NuGet.Versioning.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net6.0/PuppeteerSharp.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net6.0/SQLitePCLRaw.batteries_v2.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net6.0/SQLitePCLRaw.core.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net6.0/SQLitePCLRaw.provider.e_sqlite3.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net6.0/SpotifyAPI.Web.Auth.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net6.0/SpotifyAPI.Web.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net6.0/Swan.Lite.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net6.0/System.CodeDom.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net6.0/System.Composition.AttributedModel.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net6.0/System.Composition.Convention.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net6.0/System.Composition.Hosting.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net6.0/System.Composition.Runtime.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net6.0/System.Composition.TypedParts.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net6.0/System.Configuration.ConfigurationManager.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net6.0/System.Drawing.Common.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net6.0/System.IdentityModel.Tokens.Jwt.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net6.0/System.Memory.Data.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net6.0/System.Resources.Extensions.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net6.0/System.Runtime.Caching.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net6.0/System.Security.Cryptography.ProtectedData.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net6.0/System.Security.Permissions.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net6.0/System.Windows.Extensions.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net6.0/Ubiety.Dns.Core.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net6.0/WebDriver.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net6.0/YouTubeApiSharp.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net6.0/YoutubeExplode.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net6.0/YoutubeSearchApi.Net.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net6.0/ZstdNet.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net6.0/appsettings.Development.json" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net6.0/appsettings.json" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net6.0/chromedriver" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net6.0/cs/Microsoft.CodeAnalysis.CSharp.Features.resources.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net6.0/cs/Microsoft.CodeAnalysis.CSharp.Scripting.resources.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net6.0/cs/Microsoft.CodeAnalysis.CSharp.Workspaces.resources.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net6.0/cs/Microsoft.CodeAnalysis.CSharp.resources.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net6.0/cs/Microsoft.CodeAnalysis.Features.resources.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net6.0/cs/Microsoft.CodeAnalysis.Scripting.resources.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net6.0/cs/Microsoft.CodeAnalysis.VisualBasic.Features.resources.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net6.0/cs/Microsoft.CodeAnalysis.VisualBasic.Workspaces.resources.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net6.0/cs/Microsoft.CodeAnalysis.VisualBasic.resources.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net6.0/cs/Microsoft.CodeAnalysis.Workspaces.MSBuild.resources.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net6.0/cs/Microsoft.CodeAnalysis.Workspaces.resources.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net6.0/cs/Microsoft.CodeAnalysis.resources.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net6.0/de/Microsoft.CodeAnalysis.CSharp.Features.resources.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net6.0/de/Microsoft.CodeAnalysis.CSharp.Scripting.resources.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net6.0/de/Microsoft.CodeAnalysis.CSharp.Workspaces.resources.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net6.0/de/Microsoft.CodeAnalysis.CSharp.resources.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net6.0/de/Microsoft.CodeAnalysis.Features.resources.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net6.0/de/Microsoft.CodeAnalysis.Scripting.resources.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net6.0/de/Microsoft.CodeAnalysis.VisualBasic.Features.resources.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net6.0/de/Microsoft.CodeAnalysis.VisualBasic.Workspaces.resources.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net6.0/de/Microsoft.CodeAnalysis.VisualBasic.resources.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net6.0/de/Microsoft.CodeAnalysis.Workspaces.MSBuild.resources.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net6.0/de/Microsoft.CodeAnalysis.Workspaces.resources.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net6.0/de/Microsoft.CodeAnalysis.resources.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net6.0/dotnet-aspnet-codegenerator-design.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net6.0/es/Microsoft.CodeAnalysis.CSharp.Features.resources.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net6.0/es/Microsoft.CodeAnalysis.CSharp.Scripting.resources.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net6.0/es/Microsoft.CodeAnalysis.CSharp.Workspaces.resources.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net6.0/es/Microsoft.CodeAnalysis.CSharp.resources.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net6.0/es/Microsoft.CodeAnalysis.Features.resources.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net6.0/es/Microsoft.CodeAnalysis.Scripting.resources.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net6.0/es/Microsoft.CodeAnalysis.VisualBasic.Features.resources.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net6.0/es/Microsoft.CodeAnalysis.VisualBasic.Workspaces.resources.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net6.0/es/Microsoft.CodeAnalysis.VisualBasic.resources.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net6.0/es/Microsoft.CodeAnalysis.Workspaces.MSBuild.resources.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net6.0/es/Microsoft.CodeAnalysis.Workspaces.resources.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net6.0/es/Microsoft.CodeAnalysis.resources.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net6.0/fr/Microsoft.CodeAnalysis.CSharp.Features.resources.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net6.0/fr/Microsoft.CodeAnalysis.CSharp.Scripting.resources.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net6.0/fr/Microsoft.CodeAnalysis.CSharp.Workspaces.resources.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net6.0/fr/Microsoft.CodeAnalysis.CSharp.resources.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net6.0/fr/Microsoft.CodeAnalysis.Features.resources.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net6.0/fr/Microsoft.CodeAnalysis.Scripting.resources.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net6.0/fr/Microsoft.CodeAnalysis.VisualBasic.Features.resources.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net6.0/fr/Microsoft.CodeAnalysis.VisualBasic.Workspaces.resources.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net6.0/fr/Microsoft.CodeAnalysis.VisualBasic.resources.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net6.0/fr/Microsoft.CodeAnalysis.Workspaces.MSBuild.resources.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net6.0/fr/Microsoft.CodeAnalysis.Workspaces.resources.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net6.0/fr/Microsoft.CodeAnalysis.resources.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net6.0/global.json" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net6.0/it/Microsoft.CodeAnalysis.CSharp.Features.resources.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net6.0/it/Microsoft.CodeAnalysis.CSharp.Scripting.resources.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net6.0/it/Microsoft.CodeAnalysis.CSharp.Workspaces.resources.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net6.0/it/Microsoft.CodeAnalysis.CSharp.resources.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net6.0/it/Microsoft.CodeAnalysis.Features.resources.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net6.0/it/Microsoft.CodeAnalysis.Scripting.resources.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net6.0/it/Microsoft.CodeAnalysis.VisualBasic.Features.resources.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net6.0/it/Microsoft.CodeAnalysis.VisualBasic.Workspaces.resources.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net6.0/it/Microsoft.CodeAnalysis.VisualBasic.resources.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net6.0/it/Microsoft.CodeAnalysis.Workspaces.MSBuild.resources.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net6.0/it/Microsoft.CodeAnalysis.Workspaces.resources.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net6.0/it/Microsoft.CodeAnalysis.resources.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net6.0/ja/Microsoft.CodeAnalysis.CSharp.Features.resources.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net6.0/ja/Microsoft.CodeAnalysis.CSharp.Scripting.resources.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net6.0/ja/Microsoft.CodeAnalysis.CSharp.Workspaces.resources.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net6.0/ja/Microsoft.CodeAnalysis.CSharp.resources.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net6.0/ja/Microsoft.CodeAnalysis.Features.resources.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net6.0/ja/Microsoft.CodeAnalysis.Scripting.resources.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net6.0/ja/Microsoft.CodeAnalysis.VisualBasic.Features.resources.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net6.0/ja/Microsoft.CodeAnalysis.VisualBasic.Workspaces.resources.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net6.0/ja/Microsoft.CodeAnalysis.VisualBasic.resources.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net6.0/ja/Microsoft.CodeAnalysis.Workspaces.MSBuild.resources.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net6.0/ja/Microsoft.CodeAnalysis.Workspaces.resources.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net6.0/ja/Microsoft.CodeAnalysis.resources.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net6.0/ko/Microsoft.CodeAnalysis.CSharp.Features.resources.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net6.0/ko/Microsoft.CodeAnalysis.CSharp.Scripting.resources.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net6.0/ko/Microsoft.CodeAnalysis.CSharp.Workspaces.resources.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net6.0/ko/Microsoft.CodeAnalysis.CSharp.resources.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net6.0/ko/Microsoft.CodeAnalysis.Features.resources.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net6.0/ko/Microsoft.CodeAnalysis.Scripting.resources.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net6.0/ko/Microsoft.CodeAnalysis.VisualBasic.Features.resources.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net6.0/ko/Microsoft.CodeAnalysis.VisualBasic.Workspaces.resources.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net6.0/ko/Microsoft.CodeAnalysis.VisualBasic.resources.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net6.0/ko/Microsoft.CodeAnalysis.Workspaces.MSBuild.resources.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net6.0/ko/Microsoft.CodeAnalysis.Workspaces.resources.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net6.0/ko/Microsoft.CodeAnalysis.resources.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net6.0/pl/Microsoft.CodeAnalysis.CSharp.Features.resources.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net6.0/pl/Microsoft.CodeAnalysis.CSharp.Scripting.resources.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net6.0/pl/Microsoft.CodeAnalysis.CSharp.Workspaces.resources.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net6.0/pl/Microsoft.CodeAnalysis.CSharp.resources.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net6.0/pl/Microsoft.CodeAnalysis.Features.resources.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net6.0/pl/Microsoft.CodeAnalysis.Scripting.resources.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net6.0/pl/Microsoft.CodeAnalysis.VisualBasic.Features.resources.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net6.0/pl/Microsoft.CodeAnalysis.VisualBasic.Workspaces.resources.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net6.0/pl/Microsoft.CodeAnalysis.VisualBasic.resources.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net6.0/pl/Microsoft.CodeAnalysis.Workspaces.MSBuild.resources.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net6.0/pl/Microsoft.CodeAnalysis.Workspaces.resources.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net6.0/pl/Microsoft.CodeAnalysis.resources.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net6.0/pt-BR/Microsoft.CodeAnalysis.CSharp.Features.resources.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net6.0/pt-BR/Microsoft.CodeAnalysis.CSharp.Scripting.resources.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net6.0/pt-BR/Microsoft.CodeAnalysis.CSharp.Workspaces.resources.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net6.0/pt-BR/Microsoft.CodeAnalysis.CSharp.resources.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net6.0/pt-BR/Microsoft.CodeAnalysis.Features.resources.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net6.0/pt-BR/Microsoft.CodeAnalysis.Scripting.resources.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net6.0/pt-BR/Microsoft.CodeAnalysis.VisualBasic.Features.resources.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net6.0/pt-BR/Microsoft.CodeAnalysis.VisualBasic.Workspaces.resources.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net6.0/pt-BR/Microsoft.CodeAnalysis.VisualBasic.resources.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net6.0/pt-BR/Microsoft.CodeAnalysis.Workspaces.MSBuild.resources.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net6.0/pt-BR/Microsoft.CodeAnalysis.Workspaces.resources.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net6.0/pt-BR/Microsoft.CodeAnalysis.resources.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net6.0/ref/BatToshoRESTApp.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net6.0/ru/Microsoft.CodeAnalysis.CSharp.Features.resources.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net6.0/ru/Microsoft.CodeAnalysis.CSharp.Scripting.resources.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net6.0/ru/Microsoft.CodeAnalysis.CSharp.Workspaces.resources.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net6.0/ru/Microsoft.CodeAnalysis.CSharp.resources.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net6.0/ru/Microsoft.CodeAnalysis.Features.resources.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net6.0/ru/Microsoft.CodeAnalysis.Scripting.resources.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net6.0/ru/Microsoft.CodeAnalysis.VisualBasic.Features.resources.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net6.0/ru/Microsoft.CodeAnalysis.VisualBasic.Workspaces.resources.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net6.0/ru/Microsoft.CodeAnalysis.VisualBasic.resources.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net6.0/ru/Microsoft.CodeAnalysis.Workspaces.MSBuild.resources.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net6.0/ru/Microsoft.CodeAnalysis.Workspaces.resources.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net6.0/ru/Microsoft.CodeAnalysis.resources.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net6.0/runtimes/alpine-x64/native/libe_sqlite3.so" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net6.0/runtimes/linux-arm/native/libe_sqlite3.so" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net6.0/runtimes/linux-arm64/native/libe_sqlite3.so" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net6.0/runtimes/linux-armel/native/libe_sqlite3.so" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net6.0/runtimes/linux-mips64/native/libe_sqlite3.so" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net6.0/runtimes/linux-musl-x64/native/Magick.Native-Q16-x64.dll.so" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net6.0/runtimes/linux-musl-x64/native/libe_sqlite3.so" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net6.0/runtimes/linux-s390x/native/libe_sqlite3.so" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net6.0/runtimes/linux-x64/native/Magick.Native-Q16-x64.dll.so" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net6.0/runtimes/linux-x64/native/libe_sqlite3.so" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net6.0/runtimes/linux-x86/native/libe_sqlite3.so" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net6.0/runtimes/osx-arm64/native/libe_sqlite3.dylib" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net6.0/runtimes/osx-x64/native/Magick.Native-Q16-x64.dll.dylib" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net6.0/runtimes/osx-x64/native/libe_sqlite3.dylib" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net6.0/runtimes/unix/lib/net6.0/System.Drawing.Common.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net6.0/runtimes/unix/lib/netcoreapp3.1/Microsoft.Data.SqlClient.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net6.0/runtimes/win-arm/lib/net6.0/dotnet-aspnet-codegenerator-design.exe" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net6.0/runtimes/win-arm/native/Microsoft.Data.SqlClient.SNI.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net6.0/runtimes/win-arm/native/e_sqlite3.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net6.0/runtimes/win-arm64/lib/net6.0/dotnet-aspnet-codegenerator-design.exe" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net6.0/runtimes/win-arm64/native/Microsoft.Data.SqlClient.SNI.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net6.0/runtimes/win-arm64/native/e_sqlite3.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net6.0/runtimes/win-x64/native/Magick.Native-Q16-x64.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net6.0/runtimes/win-x64/native/Microsoft.Data.SqlClient.SNI.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net6.0/runtimes/win-x64/native/e_sqlite3.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net6.0/runtimes/win-x64/native/libopus.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net6.0/runtimes/win-x64/native/libsodium.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net6.0/runtimes/win-x86/native/Magick.Native-Q16-x86.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net6.0/runtimes/win-x86/native/Microsoft.Data.SqlClient.SNI.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net6.0/runtimes/win-x86/native/e_sqlite3.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net6.0/runtimes/win-x86/native/libopus.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net6.0/runtimes/win-x86/native/libsodium.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net6.0/runtimes/win/lib/net6.0/Microsoft.Win32.SystemEvents.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net6.0/runtimes/win/lib/net6.0/System.Drawing.Common.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net6.0/runtimes/win/lib/net6.0/System.Runtime.Caching.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net6.0/runtimes/win/lib/net6.0/System.Security.Cryptography.ProtectedData.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net6.0/runtimes/win/lib/net6.0/System.Windows.Extensions.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net6.0/runtimes/win/lib/netcoreapp3.1/Microsoft.Data.SqlClient.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net6.0/taglib-sharp.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net6.0/tr/Microsoft.CodeAnalysis.CSharp.Features.resources.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net6.0/tr/Microsoft.CodeAnalysis.CSharp.Scripting.resources.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net6.0/tr/Microsoft.CodeAnalysis.CSharp.Workspaces.resources.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net6.0/tr/Microsoft.CodeAnalysis.CSharp.resources.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net6.0/tr/Microsoft.CodeAnalysis.Features.resources.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net6.0/tr/Microsoft.CodeAnalysis.Scripting.resources.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net6.0/tr/Microsoft.CodeAnalysis.VisualBasic.Features.resources.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net6.0/tr/Microsoft.CodeAnalysis.VisualBasic.Workspaces.resources.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net6.0/tr/Microsoft.CodeAnalysis.VisualBasic.resources.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net6.0/tr/Microsoft.CodeAnalysis.Workspaces.MSBuild.resources.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net6.0/tr/Microsoft.CodeAnalysis.Workspaces.resources.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net6.0/tr/Microsoft.CodeAnalysis.resources.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net6.0/zh-Hans/Microsoft.CodeAnalysis.CSharp.Features.resources.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net6.0/zh-Hans/Microsoft.CodeAnalysis.CSharp.Scripting.resources.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net6.0/zh-Hans/Microsoft.CodeAnalysis.CSharp.Workspaces.resources.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net6.0/zh-Hans/Microsoft.CodeAnalysis.CSharp.resources.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net6.0/zh-Hans/Microsoft.CodeAnalysis.Features.resources.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net6.0/zh-Hans/Microsoft.CodeAnalysis.Scripting.resources.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net6.0/zh-Hans/Microsoft.CodeAnalysis.VisualBasic.Features.resources.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net6.0/zh-Hans/Microsoft.CodeAnalysis.VisualBasic.Workspaces.resources.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net6.0/zh-Hans/Microsoft.CodeAnalysis.VisualBasic.resources.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net6.0/zh-Hans/Microsoft.CodeAnalysis.Workspaces.MSBuild.resources.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net6.0/zh-Hans/Microsoft.CodeAnalysis.Workspaces.resources.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net6.0/zh-Hans/Microsoft.CodeAnalysis.resources.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net6.0/zh-Hant/Microsoft.CodeAnalysis.CSharp.Features.resources.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net6.0/zh-Hant/Microsoft.CodeAnalysis.CSharp.Scripting.resources.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net6.0/zh-Hant/Microsoft.CodeAnalysis.CSharp.Workspaces.resources.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net6.0/zh-Hant/Microsoft.CodeAnalysis.CSharp.resources.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net6.0/zh-Hant/Microsoft.CodeAnalysis.Features.resources.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net6.0/zh-Hant/Microsoft.CodeAnalysis.Scripting.resources.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net6.0/zh-Hant/Microsoft.CodeAnalysis.VisualBasic.Features.resources.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net6.0/zh-Hant/Microsoft.CodeAnalysis.VisualBasic.Workspaces.resources.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net6.0/zh-Hant/Microsoft.CodeAnalysis.VisualBasic.resources.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net6.0/zh-Hant/Microsoft.CodeAnalysis.Workspaces.MSBuild.resources.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net6.0/zh-Hant/Microsoft.CodeAnalysis.Workspaces.resources.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net6.0/zh-Hant/Microsoft.CodeAnalysis.resources.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/global.json" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/obj/Debug/net5.0/BatToshoRESTApp.csproj.AssemblyReference.cache" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/obj/Debug/net5.0/project.razor.json" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/obj/Debug/net6.0/.NETCoreApp,Version=v6.0.AssemblyAttributes.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/obj/Debug/net6.0/BatToshoRESTApp.AssemblyInfo.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/obj/Debug/net6.0/BatToshoRESTApp.AssemblyInfoInputs.cache" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/obj/Debug/net6.0/BatToshoRESTApp.GeneratedMSBuildEditorConfig.editorconfig" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/obj/Debug/net6.0/BatToshoRESTApp.MvcApplicationPartsAssemblyInfo.cache" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/obj/Debug/net6.0/BatToshoRESTApp.assets.cache" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/obj/Debug/net6.0/BatToshoRESTApp.csproj.AssemblyReference.cache" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/obj/Debug/net6.0/BatToshoRESTApp.csproj.CopyComplete" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/obj/Debug/net6.0/BatToshoRESTApp.csproj.CoreCompileInputs.cache" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/obj/Debug/net6.0/BatToshoRESTApp.csproj.FileListAbsolute.txt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/obj/Debug/net6.0/BatToshoRESTApp.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/obj/Debug/net6.0/BatToshoRESTApp.genruntimeconfig.cache" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/obj/Debug/net6.0/BatToshoRESTApp.pdb" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/obj/Debug/net6.0/apphost" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/obj/Debug/net6.0/project.razor.json" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/obj/Debug/net6.0/ref/BatToshoRESTApp.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/obj/Debug/net6.0/staticwebassets.build.json" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/obj/Debug/net6.0/staticwebassets.development.json" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/obj/staticwebassets.pack.sentinel" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/726854998503456779-726854998545399834-BQrBvb.batp" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Bot/Audio/Objects/LyricsApiStuff.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Bot/Audio/Platforms/Discord/SharePlaylist.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Bot/Audio/Platforms/Local/File.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Bot/Audio/Platforms/Local/Files.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Standalone/Audio.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Standalone/FfMpeg2.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/.idea.BatToshoRESTApp.dir/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.BatToshoRESTApp.dir/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/BatToshoRESTApp.csproj" beforeDir="false" afterPath="$PROJECT_DIR$/BatToshoRESTApp.csproj" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Bot/Audio/Manager.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Bot/Audio/Manager.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Bot/Audio/Objects/FfMpeg.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Bot/Audio/Objects/FfMpeg.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Bot/Audio/Objects/OnlineFile.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Bot/Audio/Objects/OnlineFile.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Bot/Audio/Objects/SpotifyTrack.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Bot/Audio/Objects/SpotifyTrack.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Bot/Audio/Objects/SystemFile.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Bot/Audio/Objects/SystemFile.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Bot/Audio/Objects/YoutubeVideoInformation.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Bot/Audio/Objects/YoutubeVideoInformation.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Bot/Audio/Platforms/Discord/Attachments.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Bot/Audio/Platforms/Discord/Attachments.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Bot/Audio/Platforms/Search.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Bot/Audio/Platforms/Search.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Bot/Audio/Platforms/Youtube/Video.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Bot/Audio/Platforms/Youtube/Video.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Bot/Audio/Player.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Bot/Audio/Player.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Bot/Bot.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Bot/Bot.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Bot/Commands.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Bot/Commands.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Bot/Messages/Statusbar.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Bot/Messages/Statusbar.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Bot/Readers/HttpClient.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Bot/Readers/HttpClient.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Controllers/BatTosho.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Controllers/BatTosho.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/bin/Debug/net5.0/BatToshoRESTApp" beforeDir="false" afterPath="$PROJECT_DIR$/bin/Debug/net5.0/BatToshoRESTApp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/bin/Debug/net5.0/BatToshoRESTApp.deps.json" beforeDir="false" afterPath="$PROJECT_DIR$/bin/Debug/net5.0/BatToshoRESTApp.deps.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/bin/Debug/net5.0/BatToshoRESTApp.dll" beforeDir="false" afterPath="$PROJECT_DIR$/bin/Debug/net5.0/BatToshoRESTApp.dll" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/bin/Debug/net5.0/BatToshoRESTApp.pdb" beforeDir="false" afterPath="$PROJECT_DIR$/bin/Debug/net5.0/BatToshoRESTApp.pdb" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/bin/Debug/net5.0/ref/BatToshoRESTApp.dll" beforeDir="false" afterPath="$PROJECT_DIR$/bin/Debug/net5.0/ref/BatToshoRESTApp.dll" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bin/Debug/net6.0/BatToshoRESTApp.deps.json" beforeDir="false" afterPath="$PROJECT_DIR$/bin/Debug/net6.0/BatToshoRESTApp.deps.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bin/Debug/net6.0/BatToshoRESTApp.dll" beforeDir="false" afterPath="$PROJECT_DIR$/bin/Debug/net6.0/BatToshoRESTApp.dll" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bin/Debug/net6.0/BatToshoRESTApp.pdb" beforeDir="false" afterPath="$PROJECT_DIR$/bin/Debug/net6.0/BatToshoRESTApp.pdb" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bin/Debug/net6.0/ICSharpCode.SharpZipLib.dll" beforeDir="false" afterPath="$PROJECT_DIR$/bin/Debug/net6.0/ICSharpCode.SharpZipLib.dll" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bin/Debug/net6.0/Magick.NET-Q16-AnyCPU.dll" beforeDir="false" afterPath="$PROJECT_DIR$/bin/Debug/net6.0/Magick.NET-Q16-AnyCPU.dll" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bin/Debug/net6.0/Magick.NET.Core.dll" beforeDir="false" afterPath="$PROJECT_DIR$/bin/Debug/net6.0/Magick.NET.Core.dll" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bin/Debug/net6.0/Microsoft.AspNetCore.Authentication.Certificate.dll" beforeDir="false" afterPath="$PROJECT_DIR$/bin/Debug/net6.0/Microsoft.AspNetCore.Authentication.Certificate.dll" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bin/Debug/net6.0/Microsoft.AspNetCore.Razor.Language.dll" beforeDir="false" afterPath="$PROJECT_DIR$/bin/Debug/net6.0/Microsoft.AspNetCore.Razor.Language.dll" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bin/Debug/net6.0/Microsoft.CodeAnalysis.CSharp.Features.dll" beforeDir="false" afterPath="$PROJECT_DIR$/bin/Debug/net6.0/Microsoft.CodeAnalysis.CSharp.Features.dll" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bin/Debug/net6.0/Microsoft.CodeAnalysis.CSharp.Scripting.dll" beforeDir="false" afterPath="$PROJECT_DIR$/bin/Debug/net6.0/Microsoft.CodeAnalysis.CSharp.Scripting.dll" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bin/Debug/net6.0/Microsoft.CodeAnalysis.Razor.dll" beforeDir="false" afterPath="$PROJECT_DIR$/bin/Debug/net6.0/Microsoft.CodeAnalysis.Razor.dll" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bin/Debug/net6.0/Microsoft.Data.Sqlite.dll" beforeDir="false" afterPath="$PROJECT_DIR$/bin/Debug/net6.0/Microsoft.Data.Sqlite.dll" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bin/Debug/net6.0/Microsoft.DotNet.Scaffolding.Shared.dll" beforeDir="false" afterPath="$PROJECT_DIR$/bin/Debug/net6.0/Microsoft.DotNet.Scaffolding.Shared.dll" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bin/Debug/net6.0/Microsoft.EntityFrameworkCore.Abstractions.dll" beforeDir="false" afterPath="$PROJECT_DIR$/bin/Debug/net6.0/Microsoft.EntityFrameworkCore.Abstractions.dll" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bin/Debug/net6.0/Microsoft.EntityFrameworkCore.Design.dll" beforeDir="false" afterPath="$PROJECT_DIR$/bin/Debug/net6.0/Microsoft.EntityFrameworkCore.Design.dll" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bin/Debug/net6.0/Microsoft.EntityFrameworkCore.Relational.dll" beforeDir="false" afterPath="$PROJECT_DIR$/bin/Debug/net6.0/Microsoft.EntityFrameworkCore.Relational.dll" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bin/Debug/net6.0/Microsoft.EntityFrameworkCore.SqlServer.dll" beforeDir="false" afterPath="$PROJECT_DIR$/bin/Debug/net6.0/Microsoft.EntityFrameworkCore.SqlServer.dll" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bin/Debug/net6.0/Microsoft.EntityFrameworkCore.Sqlite.dll" beforeDir="false" afterPath="$PROJECT_DIR$/bin/Debug/net6.0/Microsoft.EntityFrameworkCore.Sqlite.dll" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bin/Debug/net6.0/Microsoft.EntityFrameworkCore.dll" beforeDir="false" afterPath="$PROJECT_DIR$/bin/Debug/net6.0/Microsoft.EntityFrameworkCore.dll" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bin/Debug/net6.0/Microsoft.VisualStudio.Web.CodeGeneration.Core.dll" beforeDir="false" afterPath="$PROJECT_DIR$/bin/Debug/net6.0/Microsoft.VisualStudio.Web.CodeGeneration.Core.dll" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bin/Debug/net6.0/Microsoft.VisualStudio.Web.CodeGeneration.EntityFrameworkCore.dll" beforeDir="false" afterPath="$PROJECT_DIR$/bin/Debug/net6.0/Microsoft.VisualStudio.Web.CodeGeneration.EntityFrameworkCore.dll" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bin/Debug/net6.0/Microsoft.VisualStudio.Web.CodeGeneration.Templating.dll" beforeDir="false" afterPath="$PROJECT_DIR$/bin/Debug/net6.0/Microsoft.VisualStudio.Web.CodeGeneration.Templating.dll" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bin/Debug/net6.0/Microsoft.VisualStudio.Web.CodeGeneration.Utils.dll" beforeDir="false" afterPath="$PROJECT_DIR$/bin/Debug/net6.0/Microsoft.VisualStudio.Web.CodeGeneration.Utils.dll" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bin/Debug/net6.0/Microsoft.VisualStudio.Web.CodeGeneration.dll" beforeDir="false" afterPath="$PROJECT_DIR$/bin/Debug/net6.0/Microsoft.VisualStudio.Web.CodeGeneration.dll" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bin/Debug/net6.0/Microsoft.VisualStudio.Web.CodeGenerators.Mvc.dll" beforeDir="false" afterPath="$PROJECT_DIR$/bin/Debug/net6.0/Microsoft.VisualStudio.Web.CodeGenerators.Mvc.dll" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bin/Debug/net6.0/NuGet.Common.dll" beforeDir="false" afterPath="$PROJECT_DIR$/bin/Debug/net6.0/NuGet.Common.dll" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bin/Debug/net6.0/NuGet.Configuration.dll" beforeDir="false" afterPath="$PROJECT_DIR$/bin/Debug/net6.0/NuGet.Configuration.dll" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bin/Debug/net6.0/NuGet.DependencyResolver.Core.dll" beforeDir="false" afterPath="$PROJECT_DIR$/bin/Debug/net6.0/NuGet.DependencyResolver.Core.dll" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bin/Debug/net6.0/NuGet.Frameworks.dll" beforeDir="false" afterPath="$PROJECT_DIR$/bin/Debug/net6.0/NuGet.Frameworks.dll" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bin/Debug/net6.0/NuGet.LibraryModel.dll" beforeDir="false" afterPath="$PROJECT_DIR$/bin/Debug/net6.0/NuGet.LibraryModel.dll" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bin/Debug/net6.0/NuGet.Packaging.dll" beforeDir="false" afterPath="$PROJECT_DIR$/bin/Debug/net6.0/NuGet.Packaging.dll" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bin/Debug/net6.0/NuGet.ProjectModel.dll" beforeDir="false" afterPath="$PROJECT_DIR$/bin/Debug/net6.0/NuGet.ProjectModel.dll" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bin/Debug/net6.0/NuGet.Protocol.dll" beforeDir="false" afterPath="$PROJECT_DIR$/bin/Debug/net6.0/NuGet.Protocol.dll" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bin/Debug/net6.0/NuGet.Versioning.dll" beforeDir="false" afterPath="$PROJECT_DIR$/bin/Debug/net6.0/NuGet.Versioning.dll" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bin/Debug/net6.0/PuppeteerSharp.dll" beforeDir="false" afterPath="$PROJECT_DIR$/bin/Debug/net6.0/PuppeteerSharp.dll" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bin/Debug/net6.0/System.CodeDom.dll" beforeDir="false" afterPath="$PROJECT_DIR$/bin/Debug/net6.0/System.CodeDom.dll" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bin/Debug/net6.0/System.Resources.Extensions.dll" beforeDir="false" afterPath="$PROJECT_DIR$/bin/Debug/net6.0/System.Resources.Extensions.dll" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bin/Debug/net6.0/cs/Microsoft.CodeAnalysis.CSharp.Features.resources.dll" beforeDir="false" afterPath="$PROJECT_DIR$/bin/Debug/net6.0/cs/Microsoft.CodeAnalysis.CSharp.Features.resources.dll" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bin/Debug/net6.0/cs/Microsoft.CodeAnalysis.CSharp.Scripting.resources.dll" beforeDir="false" afterPath="$PROJECT_DIR$/bin/Debug/net6.0/cs/Microsoft.CodeAnalysis.CSharp.Scripting.resources.dll" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bin/Debug/net6.0/de/Microsoft.CodeAnalysis.CSharp.Features.resources.dll" beforeDir="false" afterPath="$PROJECT_DIR$/bin/Debug/net6.0/de/Microsoft.CodeAnalysis.CSharp.Features.resources.dll" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bin/Debug/net6.0/de/Microsoft.CodeAnalysis.CSharp.Scripting.resources.dll" beforeDir="false" afterPath="$PROJECT_DIR$/bin/Debug/net6.0/de/Microsoft.CodeAnalysis.CSharp.Scripting.resources.dll" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bin/Debug/net6.0/dotnet-aspnet-codegenerator-design.dll" beforeDir="false" afterPath="$PROJECT_DIR$/bin/Debug/net6.0/dotnet-aspnet-codegenerator-design.dll" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bin/Debug/net6.0/es/Microsoft.CodeAnalysis.CSharp.Features.resources.dll" beforeDir="false" afterPath="$PROJECT_DIR$/bin/Debug/net6.0/es/Microsoft.CodeAnalysis.CSharp.Features.resources.dll" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bin/Debug/net6.0/es/Microsoft.CodeAnalysis.CSharp.Scripting.resources.dll" beforeDir="false" afterPath="$PROJECT_DIR$/bin/Debug/net6.0/es/Microsoft.CodeAnalysis.CSharp.Scripting.resources.dll" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bin/Debug/net6.0/fr/Microsoft.CodeAnalysis.CSharp.Features.resources.dll" beforeDir="false" afterPath="$PROJECT_DIR$/bin/Debug/net6.0/fr/Microsoft.CodeAnalysis.CSharp.Features.resources.dll" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bin/Debug/net6.0/fr/Microsoft.CodeAnalysis.CSharp.Scripting.resources.dll" beforeDir="false" afterPath="$PROJECT_DIR$/bin/Debug/net6.0/fr/Microsoft.CodeAnalysis.CSharp.Scripting.resources.dll" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bin/Debug/net6.0/it/Microsoft.CodeAnalysis.CSharp.Features.resources.dll" beforeDir="false" afterPath="$PROJECT_DIR$/bin/Debug/net6.0/it/Microsoft.CodeAnalysis.CSharp.Features.resources.dll" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bin/Debug/net6.0/it/Microsoft.CodeAnalysis.CSharp.Scripting.resources.dll" beforeDir="false" afterPath="$PROJECT_DIR$/bin/Debug/net6.0/it/Microsoft.CodeAnalysis.CSharp.Scripting.resources.dll" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bin/Debug/net6.0/ja/Microsoft.CodeAnalysis.CSharp.Features.resources.dll" beforeDir="false" afterPath="$PROJECT_DIR$/bin/Debug/net6.0/ja/Microsoft.CodeAnalysis.CSharp.Features.resources.dll" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bin/Debug/net6.0/ja/Microsoft.CodeAnalysis.CSharp.Scripting.resources.dll" beforeDir="false" afterPath="$PROJECT_DIR$/bin/Debug/net6.0/ja/Microsoft.CodeAnalysis.CSharp.Scripting.resources.dll" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bin/Debug/net6.0/ko/Microsoft.CodeAnalysis.CSharp.Features.resources.dll" beforeDir="false" afterPath="$PROJECT_DIR$/bin/Debug/net6.0/ko/Microsoft.CodeAnalysis.CSharp.Features.resources.dll" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bin/Debug/net6.0/ko/Microsoft.CodeAnalysis.CSharp.Scripting.resources.dll" beforeDir="false" afterPath="$PROJECT_DIR$/bin/Debug/net6.0/ko/Microsoft.CodeAnalysis.CSharp.Scripting.resources.dll" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bin/Debug/net6.0/pl/Microsoft.CodeAnalysis.CSharp.Features.resources.dll" beforeDir="false" afterPath="$PROJECT_DIR$/bin/Debug/net6.0/pl/Microsoft.CodeAnalysis.CSharp.Features.resources.dll" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bin/Debug/net6.0/pl/Microsoft.CodeAnalysis.CSharp.Scripting.resources.dll" beforeDir="false" afterPath="$PROJECT_DIR$/bin/Debug/net6.0/pl/Microsoft.CodeAnalysis.CSharp.Scripting.resources.dll" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bin/Debug/net6.0/pt-BR/Microsoft.CodeAnalysis.CSharp.Features.resources.dll" beforeDir="false" afterPath="$PROJECT_DIR$/bin/Debug/net6.0/pt-BR/Microsoft.CodeAnalysis.CSharp.Features.resources.dll" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bin/Debug/net6.0/pt-BR/Microsoft.CodeAnalysis.CSharp.Scripting.resources.dll" beforeDir="false" afterPath="$PROJECT_DIR$/bin/Debug/net6.0/pt-BR/Microsoft.CodeAnalysis.CSharp.Scripting.resources.dll" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bin/Debug/net6.0/ref/BatToshoRESTApp.dll" beforeDir="false" afterPath="$PROJECT_DIR$/bin/Debug/net6.0/ref/BatToshoRESTApp.dll" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bin/Debug/net6.0/ru/Microsoft.CodeAnalysis.CSharp.Features.resources.dll" beforeDir="false" afterPath="$PROJECT_DIR$/bin/Debug/net6.0/ru/Microsoft.CodeAnalysis.CSharp.Features.resources.dll" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bin/Debug/net6.0/ru/Microsoft.CodeAnalysis.CSharp.Scripting.resources.dll" beforeDir="false" afterPath="$PROJECT_DIR$/bin/Debug/net6.0/ru/Microsoft.CodeAnalysis.CSharp.Scripting.resources.dll" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bin/Debug/net6.0/runtimes/linux-musl-x64/native/Magick.Native-Q16-x64.dll.so" beforeDir="false" afterPath="$PROJECT_DIR$/bin/Debug/net6.0/runtimes/linux-musl-x64/native/Magick.Native-Q16-x64.dll.so" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bin/Debug/net6.0/runtimes/linux-x64/native/Magick.Native-Q16-x64.dll.so" beforeDir="false" afterPath="$PROJECT_DIR$/bin/Debug/net6.0/runtimes/linux-x64/native/Magick.Native-Q16-x64.dll.so" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bin/Debug/net6.0/runtimes/osx-x64/native/Magick.Native-Q16-x64.dll.dylib" beforeDir="false" afterPath="$PROJECT_DIR$/bin/Debug/net6.0/runtimes/osx-x64/native/Magick.Native-Q16-x64.dll.dylib" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bin/Debug/net6.0/runtimes/win-arm/lib/net6.0/dotnet-aspnet-codegenerator-design.exe" beforeDir="false" afterPath="$PROJECT_DIR$/bin/Debug/net6.0/runtimes/win-arm/lib/net6.0/dotnet-aspnet-codegenerator-design.exe" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bin/Debug/net6.0/runtimes/win-arm64/lib/net6.0/dotnet-aspnet-codegenerator-design.exe" beforeDir="false" afterPath="$PROJECT_DIR$/bin/Debug/net6.0/runtimes/win-arm64/lib/net6.0/dotnet-aspnet-codegenerator-design.exe" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bin/Debug/net6.0/runtimes/win-x64/native/Magick.Native-Q16-x64.dll" beforeDir="false" afterPath="$PROJECT_DIR$/bin/Debug/net6.0/runtimes/win-x64/native/Magick.Native-Q16-x64.dll" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bin/Debug/net6.0/runtimes/win-x86/native/Magick.Native-Q16-x86.dll" beforeDir="false" afterPath="$PROJECT_DIR$/bin/Debug/net6.0/runtimes/win-x86/native/Magick.Native-Q16-x86.dll" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bin/Debug/net6.0/tr/Microsoft.CodeAnalysis.CSharp.Features.resources.dll" beforeDir="false" afterPath="$PROJECT_DIR$/bin/Debug/net6.0/tr/Microsoft.CodeAnalysis.CSharp.Features.resources.dll" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bin/Debug/net6.0/tr/Microsoft.CodeAnalysis.CSharp.Scripting.resources.dll" beforeDir="false" afterPath="$PROJECT_DIR$/bin/Debug/net6.0/tr/Microsoft.CodeAnalysis.CSharp.Scripting.resources.dll" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bin/Debug/net6.0/zh-Hans/Microsoft.CodeAnalysis.CSharp.Features.resources.dll" beforeDir="false" afterPath="$PROJECT_DIR$/bin/Debug/net6.0/zh-Hans/Microsoft.CodeAnalysis.CSharp.Features.resources.dll" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bin/Debug/net6.0/zh-Hans/Microsoft.CodeAnalysis.CSharp.Scripting.resources.dll" beforeDir="false" afterPath="$PROJECT_DIR$/bin/Debug/net6.0/zh-Hans/Microsoft.CodeAnalysis.CSharp.Scripting.resources.dll" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bin/Debug/net6.0/zh-Hant/Microsoft.CodeAnalysis.CSharp.Features.resources.dll" beforeDir="false" afterPath="$PROJECT_DIR$/bin/Debug/net6.0/zh-Hant/Microsoft.CodeAnalysis.CSharp.Features.resources.dll" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bin/Debug/net6.0/zh-Hant/Microsoft.CodeAnalysis.CSharp.Scripting.resources.dll" beforeDir="false" afterPath="$PROJECT_DIR$/bin/Debug/net6.0/zh-Hant/Microsoft.CodeAnalysis.CSharp.Scripting.resources.dll" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/obj/BatToshoRESTApp.csproj.nuget.dgspec.json" beforeDir="false" afterPath="$PROJECT_DIR$/obj/BatToshoRESTApp.csproj.nuget.dgspec.json" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/obj/BatToshoRESTApp.csproj.nuget.g.props" beforeDir="false" afterPath="$PROJECT_DIR$/obj/BatToshoRESTApp.csproj.nuget.g.props" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/obj/BatToshoRESTApp.csproj.nuget.g.targets" beforeDir="false" afterPath="$PROJECT_DIR$/obj/BatToshoRESTApp.csproj.nuget.g.targets" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/obj/Debug/net5.0/BatToshoRESTApp.GeneratedMSBuildEditorConfig.editorconfig" beforeDir="false" afterPath="$PROJECT_DIR$/obj/Debug/net5.0/BatToshoRESTApp.GeneratedMSBuildEditorConfig.editorconfig" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/obj/Debug/net5.0/BatToshoRESTApp.assets.cache" beforeDir="false" afterPath="$PROJECT_DIR$/obj/Debug/net5.0/BatToshoRESTApp.assets.cache" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/obj/Debug/net5.0/BatToshoRESTApp.csproj.CoreCompileInputs.cache" beforeDir="false" afterPath="$PROJECT_DIR$/obj/Debug/net5.0/BatToshoRESTApp.csproj.CoreCompileInputs.cache" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/obj/Debug/net5.0/BatToshoRESTApp.csproj.FileListAbsolute.txt" beforeDir="false" afterPath="$PROJECT_DIR$/obj/Debug/net5.0/BatToshoRESTApp.csproj.FileListAbsolute.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/obj/Debug/net5.0/BatToshoRESTApp.csprojAssemblyReference.cache" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/obj/Debug/net5.0/BatToshoRESTApp.dll" beforeDir="false" afterPath="$PROJECT_DIR$/obj/Debug/net5.0/BatToshoRESTApp.dll" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/obj/Debug/net5.0/BatToshoRESTApp.pdb" beforeDir="false" afterPath="$PROJECT_DIR$/obj/Debug/net5.0/BatToshoRESTApp.pdb" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/obj/Debug/net5.0/apphost" beforeDir="false" afterPath="$PROJECT_DIR$/obj/Debug/net5.0/apphost" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/obj/Debug/net5.0/ref/BatToshoRESTApp.dll" beforeDir="false" afterPath="$PROJECT_DIR$/obj/Debug/net5.0/ref/BatToshoRESTApp.dll" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/obj/Debug/net5.0/staticwebassets/BatToshoRESTApp.StaticWebAssets.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/obj/Debug/net6.0/BatToshoRESTApp.assets.cache" beforeDir="false" afterPath="$PROJECT_DIR$/obj/Debug/net6.0/BatToshoRESTApp.assets.cache" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/obj/Debug/net6.0/BatToshoRESTApp.csproj.AssemblyReference.cache" beforeDir="false" afterPath="$PROJECT_DIR$/obj/Debug/net6.0/BatToshoRESTApp.csproj.AssemblyReference.cache" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/obj/Debug/net6.0/BatToshoRESTApp.csproj.CoreCompileInputs.cache" beforeDir="false" afterPath="$PROJECT_DIR$/obj/Debug/net6.0/BatToshoRESTApp.csproj.CoreCompileInputs.cache" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/obj/Debug/net6.0/BatToshoRESTApp.csproj.FileListAbsolute.txt" beforeDir="false" afterPath="$PROJECT_DIR$/obj/Debug/net6.0/BatToshoRESTApp.csproj.FileListAbsolute.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/obj/Debug/net6.0/BatToshoRESTApp.dll" beforeDir="false" afterPath="$PROJECT_DIR$/obj/Debug/net6.0/BatToshoRESTApp.dll" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/obj/Debug/net6.0/BatToshoRESTApp.pdb" beforeDir="false" afterPath="$PROJECT_DIR$/obj/Debug/net6.0/BatToshoRESTApp.pdb" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/obj/Debug/net6.0/ref/BatToshoRESTApp.dll" beforeDir="false" afterPath="$PROJECT_DIR$/obj/Debug/net6.0/ref/BatToshoRESTApp.dll" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/obj/project.assets.json" beforeDir="false" afterPath="$PROJECT_DIR$/obj/project.assets.json" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/obj/project.nuget.cache" beforeDir="false" afterPath="$PROJECT_DIR$/obj/project.nuget.cache" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/obj/project.packagespec.json" beforeDir="false" afterPath="$PROJECT_DIR$/obj/project.packagespec.json" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/obj/rider.project.restore.info" beforeDir="false" afterPath="$PROJECT_DIR$/obj/rider.project.restore.info" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/obj/staticwebassets.pack.sentinel" beforeDir="false" afterPath="$PROJECT_DIR$/obj/staticwebassets.pack.sentinel" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -414,21 +151,17 @@
     <setting file="file://$PROJECT_DIR$/Bot/Messages/Statusbar.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/Bot/Tools/StringToTimeSpan.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/obj/Release/net5.0/linux-x64/.NETCoreApp,Version=v5.0.AssemblyAttributes.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/obj/Debug/net6.0/.NETCoreApp,Version=v6.0.AssemblyAttributes.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/appsettings.json" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/Bot/Commands.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/Bot/Audio/Objects/SystemFile.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/Bot/Audio/Objects/YoutubeVideoInformation.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/B627F089-78BC-4998-B463-995E4FEE6725/d0/23e2e647/CefRenderHandler.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Bot/Audio/Platforms/Discord/SharePlaylist.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/Bot/Audio/Platforms/Youtube/Video.cs" root0="FORCE_HIGHLIGHTING" />
   </component>
   <component name="IdeDocumentHistory">
     <changedPaths>
-      <option value="$PROJECT_DIR$/Bot/Readers/MariaDB/VideoInformationGetter.cs" />
-      <option value="$PROJECT_DIR$/Bot/Readers/MariaDB/ExistingGetter.cs" />
-      <option value="$PROJECT_DIR$/Bot/Readers/Interfaces/IBaseJson.cs" />
-      <option value="$PROJECT_DIR$/Bot/Readers/Interfaces/IBaseMariaDatabase.cs" />
-      <option value="$PROJECT_DIR$/Bot/Audio/Objects/IPlayerInfo.cs" />
-      <option value="$PROJECT_DIR$/Bot/Audio/Platforms/Spotify/Methods.cs" />
       <option value="$PROJECT_DIR$/Bot/Tools/TimeSpan.cs" />
       <option value="$PROJECT_DIR$/Bot/Audio/Objects/IPlayabeItem.cs" />
       <option value="$PROJECT_DIR$/Bot/Enums/Loop.cs" />
@@ -440,7 +173,6 @@
       <option value="$PROJECT_DIR$/Interfaces/IBaseStatusbar.cs" />
       <option value="$PROJECT_DIR$/Bot/Audio/Objects/IPlayableItem.cs" />
       <option value="$PROJECT_DIR$/Bot/Audio/Objects/Instance.cs" />
-      <option value="$PROJECT_DIR$/Bot/Audio/Objects/FfMpeg.cs" />
       <option value="$PROJECT_DIR$/Interfaces/IBaseJson.cs" />
       <option value="$PROJECT_DIR$/Bot/Readers/JSON/SearchJsonReader.cs" />
       <option value="$PROJECT_DIR$/Bot/Tools/StringToTimeSpan.cs" />
@@ -453,27 +185,34 @@
       <option value="$PROJECT_DIR$/Bot/CommandsSlash.cs" />
       <option value="$PROJECT_DIR$/Interfaces/IPlayableItem.cs" />
       <option value="$PROJECT_DIR$/Bot/Audio/Objects/Vbox7Video.cs" />
-      <option value="$PROJECT_DIR$/Bot/Audio/Objects/SpotifyTrack.cs" />
       <option value="$PROJECT_DIR$/Bot/Audio/Platforms/Spotify/Track.cs" />
       <option value="$PROJECT_DIR$/Bot/Audio/Platforms/Spotify/Playlist.cs" />
       <option value="$PROJECT_DIR$/Bot/Audio/Platforms/Vbox7/Video.cs" />
-      <option value="$PROJECT_DIR$/Bot/Readers/HttpClient.cs" />
       <option value="$PROJECT_DIR$/Bot/Audio/Objects/Queue.cs" />
       <option value="$PROJECT_DIR$/Properties/launchSettings.json" />
-      <option value="$PROJECT_DIR$/Bot/Audio/Platforms/Youtube/Video.cs" />
       <option value="$PROJECT_DIR$/Bot/Readers/MariaDB/ExistingVideoInfoGetter.cs" />
       <option value="$PROJECT_DIR$/Controllers/WebSockets.cs" />
-      <option value="$PROJECT_DIR$/Bot/Audio/Objects/YoutubeVideoInformation.cs" />
-      <option value="$PROJECT_DIR$/Bot/Messages/Statusbar.cs" />
-      <option value="$PROJECT_DIR$/Bot/Bot.cs" />
       <option value="$PROJECT_DIR$/Bot/Audio/Objects/OnlineFile.cs" />
+      <option value="$PROJECT_DIR$/Bot/Bot.cs" />
+      <option value="$PROJECT_DIR$/Bot/Audio/Platforms/Local/Files.cs" />
+      <option value="$PROJECT_DIR$/Bot/Audio/Objects/SpotifyTrack.cs" />
+      <option value="$PROJECT_DIR$/Bot/Messages/Statusbar.cs" />
+      <option value="$PROJECT_DIR$/Bot/Audio/Objects/FfMpeg.cs" />
+      <option value="$PROJECT_DIR$/Standalone/FfMpeg2.cs" />
       <option value="$PROJECT_DIR$/Controllers/BatTosho.cs" />
-      <option value="$PROJECT_DIR$/Bot/Audio/Objects/SystemFile.cs" />
+      <option value="$PROJECT_DIR$/Standalone/Audio.cs" />
+      <option value="$PROJECT_DIR$/Bot/Audio/Platforms/Youtube/Video.cs" />
+      <option value="$PROJECT_DIR$/Bot/Readers/HttpClient.cs" />
       <option value="$PROJECT_DIR$/Bot/Audio/Platforms/Discord/Attachments.cs" />
       <option value="$PROJECT_DIR$/Bot/Audio/Platforms/Search.cs" />
+      <option value="$PROJECT_DIR$/Bot/Audio/Platforms/Local/File.cs" />
+      <option value="$PROJECT_DIR$/Bot/Audio/Objects/SystemFile.cs" />
+      <option value="$PROJECT_DIR$/Bot/Audio/Objects/YoutubeVideoInformation.cs" />
       <option value="$PROJECT_DIR$/Bot/Audio/Player.cs" />
-      <option value="$PROJECT_DIR$/Bot/Commands.cs" />
+      <option value="$PROJECT_DIR$/Bot/Audio/Objects/LyricsApiStuff.cs" />
+      <option value="$PROJECT_DIR$/Bot/Audio/Platforms/Discord/SharePlaylist.cs" />
       <option value="$PROJECT_DIR$/Bot/Audio/Manager.cs" />
+      <option value="$PROJECT_DIR$/Bot/Commands.cs" />
     </changedPaths>
   </component>
   <component name="ProjectId" id="1zHyNpOFsvMsmTOx0jxwruJidi4" />
@@ -670,7 +409,26 @@
       <workItem from="1639768794889" duration="3355000" />
       <workItem from="1639773766448" duration="639000" />
       <workItem from="1639949521747" duration="1049000" />
-      <workItem from="1639950621205" duration="1893000" />
+      <workItem from="1639950621205" duration="2076000" />
+      <workItem from="1640214956169" duration="70000" />
+      <workItem from="1640215675813" duration="200000" />
+      <workItem from="1640279507571" duration="2826000" />
+      <workItem from="1640293023624" duration="602000" />
+      <workItem from="1640433949369" duration="3318000" />
+      <workItem from="1640440089451" duration="219000" />
+      <workItem from="1640440396786" duration="20000" />
+      <workItem from="1640442866574" duration="3554000" />
+      <workItem from="1640464209753" duration="2066000" />
+      <workItem from="1640631167863" duration="7194000" />
+      <workItem from="1640649416440" duration="5465000" />
+      <workItem from="1640696242432" duration="2482000" />
+      <workItem from="1640702224481" duration="1737000" />
+      <workItem from="1640715196703" duration="11000" />
+      <workItem from="1640721397651" duration="33000" />
+      <workItem from="1640811974621" duration="2753000" />
+      <workItem from="1640891460385" duration="822000" />
+      <workItem from="1640895732901" duration="6649000" />
+      <workItem from="1641320083428" duration="5569000" />
     </task>
     <task id="LOCAL-00001" summary="Bobur Vecher Momcheta I Momicheta">
       <created>1633820044215</created>
@@ -784,7 +542,14 @@
       <option name="project" value="LOCAL" />
       <updated>1636066348031</updated>
     </task>
-    <option name="localTasksCounter" value="17" />
+    <task id="LOCAL-00017" summary="Fixed some bugs, hopefully, and updated to .NET 6.0">
+      <created>1639952546487</created>
+      <option name="number" value="00017" />
+      <option name="presentableId" value="LOCAL-00017" />
+      <option name="project" value="LOCAL" />
+      <updated>1639952546487</updated>
+    </task>
+    <option name="localTasksCounter" value="18" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -1201,6 +966,7 @@
     <MESSAGE value="quick fix x2" />
     <MESSAGE value="Added more accurate Spotify Search.&#10;&#10;I am too lazy to debug this so let's hope it works first time. Please" />
     <MESSAGE value="UDRI MAISTORE, KUDE E DJULEVATA RAKIYA" />
-    <option name="LAST_COMMIT_MESSAGE" value="UDRI MAISTORE, KUDE E DJULEVATA RAKIYA" />
+    <MESSAGE value="Fixed some bugs, hopefully, and updated to .NET 6.0" />
+    <option name="LAST_COMMIT_MESSAGE" value="Fixed some bugs, hopefully, and updated to .NET 6.0" />
   </component>
 </project>

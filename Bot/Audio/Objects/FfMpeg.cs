@@ -28,11 +28,18 @@ namespace BatToshoRESTApp.Audio.Objects
         {
             if (wait) await Task.Delay(100);
             if (display) await Debug.WriteAsync("Killing FFMpeg");
-            FfMpegProcess.Kill();
+            KillSync();
+        }
+
+        private void CancelStream()
+        {
+            FfMpegProcess.StandardOutput.DiscardBufferedData();
+            FfMpegProcess.StandardOutput.BaseStream.Flush();
         }
 
         public void KillSync()
         {
+            CancelStream();
             FfMpegProcess.Kill();
         }
     }

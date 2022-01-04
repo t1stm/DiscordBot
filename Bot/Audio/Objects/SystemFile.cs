@@ -1,6 +1,7 @@
 using System;
 using System.Threading.Tasks;
 using DSharpPlus.Entities;
+using TagLib;
 
 namespace BatToshoRESTApp.Audio.Objects
 {
@@ -11,6 +12,7 @@ namespace BatToshoRESTApp.Audio.Objects
         public string Title { get; set; }
         public string Author { get; set; }
         public ulong Length { get; set; }
+        private bool Checked { get; set; }
 
         private DiscordMember Requester { get; set; }
 
@@ -26,7 +28,7 @@ namespace BatToshoRESTApp.Audio.Objects
 
         public string GetThumbnailUrl()
         {
-            return null;
+            return "";
         }
 
         public bool GetIfErrored()
@@ -51,6 +53,22 @@ namespace BatToshoRESTApp.Audio.Objects
 
         public Task Download()
         {
+            if (Checked) return Task.CompletedTask;
+            Checked = true;
+            try
+            {
+                var info = File.Create(Location);
+                var tag = info.GetTag(TagTypes.AllTags);
+                if (tag == null) return Task.CompletedTask;
+                Title = tag.Title;
+                Author = tag.JoinedPerformers;
+                Length = (ulong) info.Length;
+            }
+            catch (Exception)
+            {
+                return Task.CompletedTask;
+            }
+
             return Task.CompletedTask;
         }
 
@@ -64,7 +82,10 @@ namespace BatToshoRESTApp.Audio.Objects
             return Requester;
         }
 
-        public string GetId() => "";
+        public string GetId()
+        {
+            return "";
+        }
 
         public string GetTypeOf()
         {

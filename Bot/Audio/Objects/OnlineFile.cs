@@ -39,7 +39,10 @@ namespace BatToshoRESTApp.Audio.Objects
             return Requester;
         }
 
-        public string GetId() => "";
+        public string GetId()
+        {
+            return "";
+        }
 
         public string GetTypeOf()
         {

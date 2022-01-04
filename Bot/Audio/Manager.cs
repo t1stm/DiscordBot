@@ -1,10 +1,14 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Http;
+using System.Text.Json;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using BatToshoRESTApp.Audio.Objects;
 using BatToshoRESTApp.Audio.Platforms;
+using BatToshoRESTApp.Audio.Platforms.Discord;
 using BatToshoRESTApp.Audio.Platforms.Youtube;
 using BatToshoRESTApp.Controllers;
 using BatToshoRESTApp.Methods;
@@ -13,6 +17,7 @@ using DSharpPlus.CommandsNext;
 using DSharpPlus.Entities;
 using DSharpPlus.Interactivity.Extensions;
 using DSharpPlus.VoiceNext;
+using HttpClient = BatToshoRESTApp.Readers.HttpClient;
 
 namespace BatToshoRESTApp.Audio
 {
@@ -72,14 +77,14 @@ namespace BatToshoRESTApp.Audio
             var userVoiceS = ctx.Member.VoiceState.Channel;
             if (userVoiceS == null)
             {
-                await ctx.Member.SendMessageAsync("```Enter a channel before using the play command.```");
+                await Bot.SendDirectMessage(ctx, "Enter a channel before using the play command.");
                 return;
             }
 
             var player = await GetPlayer(userVoiceS, ctx.Client);
             if (player == null)
             {
-                await ctx.RespondAsync("```No free bot accounts in this guild.```");
+                await Bot.SendDirectMessage(ctx, "No free bot accounts in this guild.");
                 return;
             }
 
@@ -162,6 +167,7 @@ namespace BatToshoRESTApp.Audio
                             player.Paused = false;
                             return;
                         }
+
                         if (select && !term.Contains("http"))
                         {
                             var results = await new Video().SearchAllResults(term);
@@ -218,7 +224,7 @@ namespace BatToshoRESTApp.Audio
             var userVoiceS = ctx.Member.VoiceState.Channel;
             if (userVoiceS == null)
             {
-                await ctx.Member.SendMessageAsync("```Enter a channel before using the play command.```");
+                await Bot.SendDirectMessage(ctx, "Enter a channel before using the play command.");
                 return;
             }
 
@@ -233,7 +239,7 @@ namespace BatToshoRESTApp.Audio
             var userVoiceS = ctx.Member.VoiceState.Channel;
             if (userVoiceS == null)
             {
-                await ctx.Member.SendMessageAsync("```Enter a channel before using the leave command.```");
+                await Bot.SendDirectMessage(ctx, "Enter a channel before using the leave command.");
                 return;
             }
 
@@ -258,7 +264,7 @@ namespace BatToshoRESTApp.Audio
             var userVoiceS = ctx.Member.VoiceState.Channel;
             if (userVoiceS == null)
             {
-                await ctx.Member.SendMessageAsync("```Enter a channel before using the shuffle command.```");
+                await Bot.SendDirectMessage(ctx, "Enter a channel before using the shuffle command.");
                 return;
             }
 
@@ -271,7 +277,7 @@ namespace BatToshoRESTApp.Audio
             var userVoiceS = ctx.Member.VoiceState.Channel;
             if (userVoiceS == null)
             {
-                await ctx.Member.SendMessageAsync("```Enter a channel before using the loop command.```");
+                await Bot.SendDirectMessage(ctx, "Enter a channel before using the loop command.");
                 return;
             }
 
@@ -290,7 +296,7 @@ namespace BatToshoRESTApp.Audio
             var userVoiceS = ctx.Member.VoiceState.Channel;
             if (userVoiceS == null)
             {
-                await ctx.Member.SendMessageAsync("```Enter a channel before using the pause command.```");
+                await Bot.SendDirectMessage(ctx, "Enter a channel before using the pause command.");
                 return;
             }
 
@@ -303,7 +309,7 @@ namespace BatToshoRESTApp.Audio
             var userVoiceS = ctx.Member.VoiceState.Channel;
             if (userVoiceS == null)
             {
-                await ctx.Member.SendMessageAsync("```Enter a channel before using the play command.```");
+                await Bot.SendDirectMessage(ctx, "Enter a channel before using the play command.");
                 return;
             }
 
@@ -314,13 +320,14 @@ namespace BatToshoRESTApp.Audio
                 return;
             }
 
-            if (int.TryParse(term, out int nextSong))
+            if (int.TryParse(term, out var nextSong))
             {
                 var thing = player.Queue.Items[nextSong - 1];
                 player.Queue.RemoveFromQueue(thing);
                 player.Queue.AddToQueueNext(thing);
                 return;
             }
+
             List<IPlayableItem> item;
             if (ctx.Message.Attachments.Count > 0)
                 item = await new Search().Get(term, ctx.Message.Attachments.ToList(), ctx.Guild.Id);
@@ -335,7 +342,7 @@ namespace BatToshoRESTApp.Audio
             var userVoiceS = ctx.Member.VoiceState.Channel;
             if (userVoiceS == null)
             {
-                await ctx.Member.SendMessageAsync("```Enter a channel before using the remove command.```");
+                await Bot.SendDirectMessage(ctx, "Enter a channel before using the remove command.");
                 return;
             }
 
@@ -353,16 +360,17 @@ namespace BatToshoRESTApp.Audio
             {
                 var key = BatTosho.WebUiUsers[ctx.Member.Id];
                 await ctx.Member.SendMessageAsync(new DiscordMessageBuilder()
-                    .WithContent($"```You have already generated a Web UI code: {key}```").WithEmbed(new DiscordEmbedBuilder
-                    {
-                        Title = "Bai Tosho Web Interface",
-                        Url = "https://dankest.gq/BaiToshoBeta",
-                        Description = "Control the bot using a fancy interface.",
-                        Thumbnail = new DiscordEmbedBuilder.EmbedThumbnail
+                    .WithContent($"```You have already generated a Web UI code: {key}```").WithEmbed(
+                        new DiscordEmbedBuilder
                         {
-                            Url = "https://dankest.gq/BaiToshoBeta/tosho.png"
-                        }
-                    }));
+                            Title = "Bai Tosho Web Interface",
+                            Url = "https://dankest.gq/BaiToshoBeta",
+                            Description = "Control the bot using a fancy interface.",
+                            Thumbnail = new DiscordEmbedBuilder.EmbedThumbnail
+                            {
+                                Url = "https://dankest.gq/BaiToshoBeta/tosho.png"
+                            }
+                        }));
                 return;
             }
 
@@ -386,7 +394,7 @@ namespace BatToshoRESTApp.Audio
             var userVoiceS = ctx.Member.VoiceState.Channel;
             if (userVoiceS == null)
             {
-                await ctx.Member.SendMessageAsync("```Enter a channel before using the move command.```");
+                await Bot.SendDirectMessage(ctx, "Enter a channel before using the move command.");
                 return;
             }
 
@@ -412,7 +420,7 @@ namespace BatToshoRESTApp.Audio
             var userVoiceS = ctx.Member.VoiceState.Channel;
             if (userVoiceS == null)
             {
-                await ctx.Member.SendMessageAsync("```Enter a channel before using the shuffle command.```");
+                await Bot.SendDirectMessage(ctx, "Enter a channel before using the shuffle command.");
                 return;
             }
 
@@ -425,7 +433,7 @@ namespace BatToshoRESTApp.Audio
             var userVoiceS = ctx.Member.VoiceState.Channel;
             if (userVoiceS == null)
             {
-                await ctx.Member.SendMessageAsync("```Enter a channel before using the shuffle command.```");
+                await Bot.SendDirectMessage(ctx, "Enter a channel before using the shuffle command.");
                 return;
             }
 
@@ -441,12 +449,99 @@ namespace BatToshoRESTApp.Audio
             var userVoiceS = ctx.Member.VoiceState.Channel;
             if (userVoiceS == null)
             {
-                await ctx.Member.SendMessageAsync("```Enter a channel before using the shuffle command.```");
+                await Bot.SendDirectMessage(ctx, "Enter a channel before using the shuffle command.");
                 return;
             }
 
             var player = await GetPlayer(userVoiceS, ctx.Client);
             player?.GoToIndex(index);
+        }
+
+        public static async Task SavePlaylist(CommandContext ctx)
+        {
+            var userVoiceS = ctx.Member.VoiceState.Channel;
+            if (userVoiceS == null)
+            {
+                await Bot.SendDirectMessage(ctx,
+                    "Enter a channel before using the continue to another server command.");
+                return;
+            }
+
+            var player = await GetPlayer(userVoiceS, ctx.Client);
+            if (player == null)
+            {
+                await Bot.SendDirectMessage(ctx, "The bot isn't in a channel.");
+                return;
+            }
+
+            var token = $"{ctx.Guild.Id}-{ctx.Channel.Id}-{Bot.RandomString(6)}";
+            var fs = SharePlaylist.Write(token, player.Queue.Items);
+            fs.Position = 0;
+            await ctx.RespondAsync(
+                new DiscordMessageBuilder().WithContent($"```Queue saved sucessfully. \n\nYou can play it again with this command\"-p pl:{token}\", " +
+                                                        "or by sending the attached file and using the play command```")
+                    .WithFile($"{token}.batp",fs));
+        }
+
+        public static async Task SendLyrics(CommandContext ctx, string text)
+        {
+            string query;
+            switch (string.IsNullOrEmpty(text))
+            {
+                case true:
+                    var userVoiceS = ctx.Member.VoiceState.Channel;
+                    if (userVoiceS == null)
+                    {
+                        await Bot.SendDirectMessage(ctx,
+                            "Enter a channel before using the lyrics command without a search term.");
+                        return;
+                    }
+
+                    var player = await GetPlayer(userVoiceS, ctx.Client);
+                    if (player == null)
+                    {
+                        await Bot.SendDirectMessage(ctx,
+                            "The bot isn't in the channel. If you want to know the lyrics of a song add it's name after the command.");
+                        return;
+                    }
+
+                    var item = player.Queue.GetCurrent();
+                    query = $"{Regex.Replace(Regex.Replace(item.GetTitle(), @"\([^()]*\)", ""), @"\[[^]]*\]", "")}" +
+                            $"{item.GetTitle().Contains('-') switch {true => "", false => $" - {Regex.Replace(Regex.Replace(item.GetAuthor(), "- Topic", ""), @"\([^()]*\)", "")}"}}";
+                    break;
+
+                case false:
+                    query = text;
+                    break;
+            }
+
+            var lyrics = await GetLyrics(query);
+            if (lyrics.Length + query.Length + 13 + 6 > 2000)
+            {
+                await Bot.Reply(ctx,
+                    "The lyrics are longer than 2000 characters, which is Discord's length limit. Too bad.");
+                return;
+            }
+
+            await Bot.Reply(ctx, $"Lyrics for {query}: {lyrics}");
+        }
+
+        public static async Task<string> GetLyrics(string query)
+        {
+            var client = HttpClient.WithCookies();
+            const string apiKey = "ce7175JINJTgC94aJFgeiwa7Bh99EaoqZFhTeFV9ejmpO2qjEXOpi1eR";
+            var resp = await client.SendAsync(new HttpRequestMessage(HttpMethod.Get,
+                $"https://api.happi.dev/v1/music?q={query}&limit=5&apikey={apiKey}&type=track&lyrics=1"));
+            var response = await resp.Content.ReadAsStringAsync();
+            var apiMusicResponse = JsonSerializer.Deserialize<LyricsApiStuff.HappiApiMusicResponse>(response);
+            if (apiMusicResponse is null) throw new InvalidOperationException();
+            //$"{apiMusicResponse.result.First().api_lyrics}?apikey={apiKey}"
+            resp = await client.SendAsync(new HttpRequestMessage(HttpMethod.Get,
+                $"{apiMusicResponse.result.First().api_lyrics}?apikey={apiKey}"));
+            response = await resp.Content.ReadAsStringAsync();
+            var lyricsResponse = JsonSerializer.Deserialize<LyricsApiStuff.HappiApiLyricsResponse>(response);
+            if (lyricsResponse is null) throw new InvalidOperationException();
+            return lyricsResponse.result.lyrics;
         }
     }
 }

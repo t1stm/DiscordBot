@@ -26,6 +26,17 @@ namespace BatToshoRESTApp.Readers
             return new System.Net.Http.HttpClient(handler);
         }
 
+        public static async Task<string> DownloadFile(string url, string location, bool withCookies = true)
+        {
+            var client = withCookies ? WithCookies() : new System.Net.Http.HttpClient();
+            var request = new HttpRequestMessage(HttpMethod.Get, url);
+            var send = await client.SendAsync(request);
+            var response = await send.Content.ReadAsStreamAsync();
+            var fs = new FileStream(location, FileMode.Create, FileAccess.Write, FileShare.Read);
+            await response.CopyToAsync(fs);
+            return location;
+        }
+
         private static IEnumerable<Cookie> ParseFileAsCookies(string yes)
         {
             var cookies = new List<Cookie>();

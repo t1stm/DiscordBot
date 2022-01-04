@@ -1,9 +1,9 @@
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using BatToshoRESTApp.Audio.Objects;
 using BatToshoRESTApp.Audio.Platforms.Discord;
+using BatToshoRESTApp.Audio.Platforms.Local;
 using BatToshoRESTApp.Audio.Platforms.Spotify;
 using BatToshoRESTApp.Audio.Platforms.Youtube;
 using DSharpPlus.Entities;
@@ -70,28 +70,14 @@ namespace BatToshoRESTApp.Audio.Platforms
                 };
 
             if (searchTerm.StartsWith("file://"))
-                if (Directory.Exists(searchTerm[7..]))
-                {
-                    return Directory.EnumerateFiles(searchTerm[7..]).Select(file => new SystemFile {Location = file, Title = file, Author = null, Length = 0}).Cast<IPlayableItem>().ToList();
-                }
-                else
-                {
-                    return new List<IPlayableItem>
-                    {
-                        new SystemFile
-                        {
-                            Location = searchTerm[7..],
-                            Title = searchTerm,
-                            Author = null,
-                            Length = 0
-                        }
-                    };
-                }
+                return Files.Get(searchTerm[7..]);
             if (searchTerm.StartsWith("vb7:"))
                 return new List<IPlayableItem>
                 {
                     await new Vbox7.Video().Search(searchTerm[4..])
                 };
+            if (searchTerm.StartsWith("pl:"))
+                return SharePlaylist.Get(searchTerm[3..]);
             return new List<IPlayableItem>
             {
                 await new Video().Search(searchTerm, length: length)

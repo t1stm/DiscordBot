@@ -175,7 +175,7 @@ namespace BatToshoRESTApp.Audio
                 var increment = total / 32f;
                 var display = time / increment;
                 var remaining = 0f;
-                for (float i = 0; i < display; i++)
+                for (float i = 0; i < (display > 32 ? 32 : display); i++)
                 {
                     progress += FullBlock;
                     remaining++;

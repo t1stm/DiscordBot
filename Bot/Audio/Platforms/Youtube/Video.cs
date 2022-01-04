@@ -17,7 +17,7 @@ namespace BatToshoRESTApp.Audio.Platforms.Youtube
     public class Video
     {
         public async Task<YoutubeVideoInformation> Search(string term, bool urgent = false,
-            ulong length = 0)
+            ulong length = 0, SpotifyTrack track = null)
         {
             YoutubeVideoInformation info;
             var jsonId = await GetIdFromJson(term);
@@ -32,9 +32,22 @@ namespace BatToshoRESTApp.Audio.Platforms.Youtube
             var response = await client.SearchAsync(HttpClient.WithCookies(), term, 25);
             var res = response.Results.ToList();
             if (length != 0)
+            {
                 res = res.OrderBy(r =>
                         Math.Abs(StringToTimeSpan.Generate(((YoutubeVideo) r).Duration).TotalMilliseconds - length))
                     .ToList();
+                if (track != null)
+                {
+                    if (!term.ToLower().Contains("8d") && !term.ToLower().Contains("karaoke") &&
+                        !term.ToLower().Contains("remix"))
+                        res.RemoveAll(r =>
+                            r.Title.ToLower().Contains("8d") || r.Title.ToLower().Contains("karaoke") ||
+                            r.Title.ToLower().Contains("remix"));
+                    res = res.OrderBy(r => r.Title.ToLower().Contains("official")).ToList();
+                    res = res.OrderBy(r => LevenshteinDistance.Compute(r.Title, track.Title) < 3).ToList();
+                }
+            }
+
             var result = (YoutubeVideo) res.First();
             if (result == null) return null;
             await Debug.WriteAsync(
@@ -137,7 +150,7 @@ namespace BatToshoRESTApp.Audio.Platforms.Youtube
         public async Task<YoutubeVideoInformation> Search(SpotifyTrack track, bool urgent = false)
         {
             await Debug.WriteAsync($"Track: {track.GetName()}, Length: {track.GetLength()}");
-            var result = await Search($"{track.Title} - {track.Author} {track.Album} - Topic", urgent, track.Length);
+            var result = await Search($"{track.Title} - {track.Author} - Topic", urgent, track.Length);
             result.OriginTrack = track;
             result.Requester = track.GetRequester();
             if (urgent) await result.Download();

@@ -2,7 +2,6 @@ using System;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Net;
 using System.Threading.Tasks;
 using BatToshoRESTApp.Readers;
 using DSharpPlus.Entities;
@@ -64,11 +63,11 @@ namespace BatToshoRESTApp.Audio.Objects
                 try
                 {
                     Downloading = true;
-                    Location = CheckIfExists(YoutubeId);
+                    Location = ReturnIfExists(YoutubeId);
                     if (!string.IsNullOrEmpty(Location)) return;
                     try
                     {
-                        await DownloadYtDl(YoutubeId);
+                        await DownloadYtDlp(YoutubeId);
                     }
                     catch (Exception)
                     {
@@ -128,7 +127,7 @@ namespace BatToshoRESTApp.Audio.Objects
             return "Youtube Video";
         }
 
-        private static string CheckIfExists(string id)
+        private static string ReturnIfExists(string id)
         {
             if (File.Exists($"{DownloadDirectory}/{id}.webm") &&
                 new FileInfo($"{DownloadDirectory}/{id}.webm").Length > 0)
@@ -142,14 +141,14 @@ namespace BatToshoRESTApp.Audio.Objects
                 : null;
         }
 
-        private async Task DownloadYtDl(string id)
+        private async Task DownloadYtDlp(string id)
         {
             var sett = new ProcessStartInfo
             {
                 RedirectStandardOutput = true,
                 RedirectStandardError = true,
                 Arguments = $"-g -f bestaudio --cookies \"{HttpClient.CookieDestination}\" {id}",
-                FileName = "youtube-dl"
+                FileName = "yt-dlp"
             };
             var pr = Process.Start(sett);
             if (pr == null) throw new NullReferenceException();
@@ -162,9 +161,9 @@ namespace BatToshoRESTApp.Audio.Objects
                 {
                     if (File.Exists($"{DownloadDirectory}/{id}.webm"))
                         File.Delete($"{DownloadDirectory}/{id}.webm");
-                    WebClient webClient = new();
-                    await webClient.DownloadFileTaskAsync(url, $"{DownloadDirectory}/{id}.webm");
-                    Location = $"{DownloadDirectory}/{id}.webm";
+                    //await webClient.DownloadFileTaskAsync(url, $"{DownloadDirectory}/{id}.webm"); // Updating to HttpClient down below
+                    //Update 30 Dec 2021: Moved the HTTP Client Downloader to it's own class.
+                    Location = await HttpClient.DownloadFile(url, $"{DownloadDirectory}/{id}.webm");
                 }
                 catch (Exception e)
                 {
@@ -192,7 +191,8 @@ namespace BatToshoRESTApp.Audio.Objects
             {
                 try
                 {
-                    await new WebClient().DownloadFileTaskAsync(new Uri(audioInfo.DownloadUrl), audioPath);
+                    //await new WebClient().DownloadFileTaskAsync(new Uri(audioInfo.DownloadUrl), audioPath); // 30 Dec 2021: Migrated to new HttpClient
+                    await HttpClient.DownloadFile(audioInfo.DownloadUrl, audioPath);
                     Location = audioPath;
                 }
                 catch (Exception e)

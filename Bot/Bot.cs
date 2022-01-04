@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Timers;
 using BatToshoRESTApp.Audio;
 using BatToshoRESTApp.Controllers;
 using BatToshoRESTApp.Methods;
@@ -32,11 +33,14 @@ namespace BatToshoRESTApp
         public static Random Rng = new();
 
         public static string WorkingDirectory = "/home/kris/BatTosho";
+        private static Timer GarbageCollectTimer { get; } = new(60000);
         public static int UpdateDelay { get; set; } = 1600; //Milliseconds
         public static List<DiscordClient> Clients { get; } = new();
 
         public static async Task Initialize(RunType token)
         {
+            GarbageCollectTimer.Elapsed += (_, _) => { GC.Collect(); };
+            GarbageCollectTimer.Start();
             BatTosho.LoadUsers();
             HttpClient.WithCookies();
             switch (token)

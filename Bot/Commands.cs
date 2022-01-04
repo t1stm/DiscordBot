@@ -243,5 +243,33 @@ namespace BatToshoRESTApp
                 throw;
             }
         }
+
+        [Command("saveplaylist"), Aliases("savequeue", "sq", "sp", "сажеяуеуе", "сажеплаълист")]
+        public async Task SavePlaylist(CommandContext ctx)
+        {
+            try
+            {
+                await Manager.SavePlaylist(ctx);
+            }
+            catch (Exception e)
+            {
+                await Debug.WriteAsync($"Save playlist to command threw exception: {e}");
+                throw;
+            }
+        }
+
+        [Command("lyrics")]
+        public async Task GetLyrics(CommandContext ctx, [RemainingText] string search)
+        {
+            try
+            {
+                await Manager.SendLyrics(ctx, search);
+            }
+            catch (Exception e)
+            {
+                await Debug.WriteAsync($"Lyrics command threw exception: {e}");
+                throw;
+            }
+        }
     }
 }

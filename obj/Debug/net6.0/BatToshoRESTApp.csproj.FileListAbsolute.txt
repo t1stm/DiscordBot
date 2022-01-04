@@ -329,3 +329,6 @@
 /home/kris/RiderProjects/BatTosho2/bin/Debug/net6.0/runtimes/win/lib/net6.0/System.Security.Cryptography.ProtectedData.dll
 /home/kris/RiderProjects/BatTosho2/bin/Debug/net6.0/runtimes/win/lib/net6.0/System.Windows.Extensions.dll
 /home/kris/RiderProjects/BatTosho2/bin/Debug/net6.0/Microsoft.NET.StringTools.dll
+/home/kris/RiderProjects/BatTosho2/bin/Debug/net6.0/Microsoft.Build.Locator.dll
+/home/kris/RiderProjects/BatTosho2/bin/Debug/net6.0/System.IO.Pipelines.dll
+/home/kris/RiderProjects/BatTosho2/bin/Debug/net6.0/System.Text.Json.dll

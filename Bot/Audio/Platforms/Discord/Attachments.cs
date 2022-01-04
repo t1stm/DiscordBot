@@ -1,9 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Net;
 using System.Threading.Tasks;
 using BatToshoRESTApp.Audio.Objects;
+using BatToshoRESTApp.Readers;
 using DSharpPlus.Entities;
 
 namespace BatToshoRESTApp.Audio.Platforms.Discord
@@ -12,14 +12,19 @@ namespace BatToshoRESTApp.Audio.Platforms.Discord
     {
         private static readonly string DownloadDirectory = $"{Bot.WorkingDirectory}/dll/Discord Attachments/";
 
-        public static async Task<List<SystemFile>> GetAttachments(List<DiscordAttachment> attachments, ulong guild = 0)
+        public static async Task<List<IPlayableItem>> GetAttachments(List<DiscordAttachment> attachments,
+            ulong guild = 0)
         {
-            var list = new List<SystemFile>();
-            foreach (var at in attachments) list.Add(await GetAttachment(at, guild));
+            var list = new List<IPlayableItem>();
+            foreach (var at in attachments)
+                if (at.FileName.EndsWith(".batp"))
+                    list.AddRange(await SharePlaylist.Get(at));
+                else
+                    list.Add(await GetAttachment(at, guild));
             return list;
         }
 
-        public static async Task<SystemFile> GetAttachment(DiscordAttachment attachment, ulong guild = 0)
+        private static async Task<IPlayableItem> GetAttachment(DiscordAttachment attachment, ulong guild = 0)
         {
             var url = attachment.Url;
             var location = DownloadDirectory +
@@ -27,8 +32,7 @@ namespace BatToshoRESTApp.Audio.Platforms.Discord
             if (!Directory.Exists(DownloadDirectory + $"{guild}/"))
                 Directory.CreateDirectory(DownloadDirectory + $"{guild}/");
             if (File.Exists(location)) File.Delete(location);
-            using var wb = new WebClient();
-            await wb.DownloadFileTaskAsync(url, location);
+            await HttpClient.DownloadFile(url, location);
             var tags = TagLib.File.Create(location);
             SystemFile file;
             try

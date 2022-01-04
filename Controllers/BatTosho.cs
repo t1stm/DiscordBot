@@ -3,11 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
-using DSharpPlus;
-using Microsoft.AspNetCore.Mvc;
-using YoutubeExplode;
-using YoutubeExplode.Common;
-
 using BatToshoRESTApp.Audio;
 using BatToshoRESTApp.Audio.Objects;
 using BatToshoRESTApp.Audio.Platforms.Spotify;
@@ -15,6 +10,10 @@ using BatToshoRESTApp.Audio.Platforms.Youtube;
 using BatToshoRESTApp.Enums;
 using BatToshoRESTApp.Methods;
 using BatToshoRESTApp.Readers;
+using DSharpPlus;
+using Microsoft.AspNetCore.Mvc;
+using YoutubeExplode;
+using YoutubeExplode.Common;
 using Playlist = BatToshoRESTApp.Audio.Platforms.Spotify.Playlist;
 using YtPlaylist = BatToshoRESTApp.Audio.Platforms.Youtube.Playlist;
 
@@ -255,7 +254,7 @@ namespace BatToshoRESTApp.Controllers
                         Loop.None => "None", Loop.One => "One", Loop.WholeQueue => "WholeQueue",
                         _ => "bad"
                     };
-                    stats.ThumbnailUrl = player.CurrentItem.GetThumbnailUrl().Split("?")[0];
+                    stats.ThumbnailUrl = player.CurrentItem.GetThumbnailUrl();
                     stats.Paused = player.Paused;
                     stats.Index = player.Queue.Items.ToList().IndexOf(player.CurrentItem);
                 }
@@ -320,8 +319,9 @@ namespace BatToshoRESTApp.Controllers
                 Title = qu.GetTitle(),
                 Author = qu.GetAuthor(),
                 Index = queue.IndexOf(qu),
-                ThumbnailUrl = qu.GetThumbnailUrl().Split("?")[0] ?? "nothumb.png",
-                Length = qu.GetLength() == 0 ? "10" : TimeSpan.FromMilliseconds(qu.GetLength()).ToString("hh\\:mm\\:ss"),
+                ThumbnailUrl = qu.GetThumbnailUrl() ?? "nothumb.png",
+                Length =
+                    qu.GetLength() == 0 ? "10" : TimeSpan.FromMilliseconds(qu.GetLength()).ToString("hh\\:mm\\:ss"),
                 Url = qu.GetType() == typeof(YoutubeVideoInformation)
                     ? $"https://youtube.com/watch?v={qu.GetId()}"
                     : "no",

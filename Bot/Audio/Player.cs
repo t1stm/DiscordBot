@@ -20,7 +20,7 @@ namespace BatToshoRESTApp.Audio
             Interval = 1000
         };
 
-        public FfMpeg FfMpeg = new();
+        private readonly FfMpeg FfMpeg = new();
         private ElapsedEventHandler Handler { get; set; }
         public bool WaitingToLeave { get; set; }
         public bool Started { get; set; }
@@ -72,14 +72,15 @@ namespace BatToshoRESTApp.Audio
                         var list = await new Search().Get(tr);
                         var track = list.First();
                         await track.Download();
-                        break;
+                        Queue.Current -= 1;
+                        continue;
                     case YoutubeVideoInformation vi:
-                        while (Stopwatch.ElapsedMilliseconds < 3000)
+                        while (Stopwatch.ElapsedMilliseconds < 1000)
                         {
                             await vi.Download();
-                            await PlayTrack(vi.GetLocation(), Stopwatch.Elapsed.ToString(@"c"));
-                            await Task.Delay(66);
+                            await PlayTrack(CurrentItem.GetLocation(), Stopwatch.Elapsed.ToString(@"c"));
                         }
+
                         break;
                     default:
                         await PlayTrack(CurrentItem.GetLocation(), Stopwatch.Elapsed.ToString(@"c"));
@@ -103,7 +104,7 @@ namespace BatToshoRESTApp.Audio
                 {
                     Statusbar.ChangeMode(StatusbarMode.Waiting);
                     await Task.Delay(166);
-                    if (Queue.Current + 1 >= Queue.Count && !(WaitingStopwatch.Elapsed.TotalMinutes >= 15)) continue;
+                    if (Queue.Current + 1 >= Queue.Count && WaitingStopwatch.Elapsed.TotalMinutes < 15) continue;
                     WaitingToLeave = false;
                     WaitingStopwatch.Reset();
                 }
@@ -118,8 +119,6 @@ namespace BatToshoRESTApp.Audio
             await Debug.WriteAsync($"Location is: {location}");
             if (!Stopwatch.IsRunning) Stopwatch.Start();
             await FfMpeg.ConvertAudioToPcm(location, startingTime, Normalize).CopyToAsync(Sink);
-            await Sink.FlushAsync();
-            await FfMpeg.Kill(false, false);
         }
 
         public void UpdateVolume(float percent)
@@ -149,6 +148,7 @@ namespace BatToshoRESTApp.Audio
         {
             Queue.Current += times - 1;
             await FfMpeg.Kill();
+            await Sink.FlushAsync();
         }
 
         public void Disconnect()
@@ -159,6 +159,7 @@ namespace BatToshoRESTApp.Audio
             task.Start();
             FfMpeg.KillSync();
             Die = true;
+            Sink.Dispose();
         }
 
         public void Shuffle()
@@ -177,14 +178,21 @@ namespace BatToshoRESTApp.Audio
         {
             Paused = !Paused;
             if (!Paused) return;
+            Queue.Current -= 1;
             FfMpeg.KillSync();
             Stopwatch.Stop();
-            Queue.Current += -1;
         }
 
         ~Player()
         {
-            Disconnect();
+            try
+            {
+                Disconnect();
+            }
+            catch (Exception e)
+            {
+                Debug.Write($"Failed to disconnect: {e}");
+            }
         }
     }
 }
