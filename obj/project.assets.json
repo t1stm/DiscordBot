@@ -69,7 +69,7 @@
           "lib/netstandard2.0/ConcurrentCollections.dll": {}
         }
       },
-      "DSharpPlus/4.2.0-nightly-01043": {
+      "DSharpPlus/4.2.0-nightly-01062": {
         "type": "package",
         "dependencies": {
           "Emzi0767.Common": "2.6.2",
@@ -89,10 +89,10 @@
           "lib/netstandard2.0/DSharpPlus.dll": {}
         }
       },
-      "DSharpPlus.CommandsNext/4.2.0-nightly-01043": {
+      "DSharpPlus.CommandsNext/4.2.0-nightly-01062": {
         "type": "package",
         "dependencies": {
-          "DSharpPlus": "4.2.0-nightly-01043",
+          "DSharpPlus": "4.2.0-nightly-01062",
           "Microsoft.Extensions.DependencyInjection": "5.0.1"
         },
         "compile": {
@@ -102,11 +102,11 @@
           "lib/netstandard2.0/DSharpPlus.CommandsNext.dll": {}
         }
       },
-      "DSharpPlus.Interactivity/4.2.0-nightly-01043": {
+      "DSharpPlus.Interactivity/4.2.0-nightly-01062": {
         "type": "package",
         "dependencies": {
           "ConcurrentHashSet": "1.1.0",
-          "DSharpPlus": "4.2.0-nightly-01043"
+          "DSharpPlus": "4.2.0-nightly-01062"
         },
         "compile": {
           "lib/netstandard2.0/DSharpPlus.Interactivity.dll": {}
@@ -115,10 +115,10 @@
           "lib/netstandard2.0/DSharpPlus.Interactivity.dll": {}
         }
       },
-      "DSharpPlus.Rest/4.2.0-nightly-01043": {
+      "DSharpPlus.Rest/4.2.0-nightly-01062": {
         "type": "package",
         "dependencies": {
-          "DSharpPlus": "4.2.0-nightly-01043"
+          "DSharpPlus": "4.2.0-nightly-01062"
         },
         "compile": {
           "lib/netstandard2.0/DSharpPlus.Rest.dll": {}
@@ -127,10 +127,10 @@
           "lib/netstandard2.0/DSharpPlus.Rest.dll": {}
         }
       },
-      "DSharpPlus.SlashCommands/4.2.0-nightly-01043": {
+      "DSharpPlus.SlashCommands/4.2.0-nightly-01062": {
         "type": "package",
         "dependencies": {
-          "DSharpPlus": "4.2.0-nightly-01043",
+          "DSharpPlus": "4.2.0-nightly-01062",
           "Microsoft.Extensions.DependencyInjection": "5.0.1"
         },
         "compile": {
@@ -140,10 +140,10 @@
           "lib/netstandard2.0/DSharpPlus.SlashCommands.dll": {}
         }
       },
-      "DSharpPlus.VoiceNext/4.2.0-nightly-01043": {
+      "DSharpPlus.VoiceNext/4.2.0-nightly-01062": {
         "type": "package",
         "dependencies": {
-          "DSharpPlus": "4.2.0-nightly-01043",
+          "DSharpPlus": "4.2.0-nightly-01062",
           "DSharpPlus.VoiceNext.Natives": "1.0.0",
           "System.Threading.Channels": "5.0.0"
         },
@@ -3165,6 +3165,18 @@
           "lib/netcoreapp2.0/_._": {}
         }
       },
+      "System.Reactive/4.2.0": {
+        "type": "package",
+        "compile": {
+          "lib/netcoreapp3.0/_._": {}
+        },
+        "runtime": {
+          "lib/netcoreapp3.0/_._": {}
+        },
+        "build": {
+          "buildTransitive/netcoreapp3.0/System.Reactive.targets": {}
+        }
+      },
       "System.Reflection/4.3.0": {
         "type": "package",
         "dependencies": {
@@ -3964,6 +3976,19 @@
           "lib/netstandard2.0/Swan.Lite.dll": {}
         }
       },
+      "WebSocketSharper/1.0.39": {
+        "type": "package",
+        "dependencies": {
+          "Microsoft.Extensions.Logging.Abstractions": "3.0.1",
+          "System.Reactive": "4.2.0"
+        },
+        "compile": {
+          "lib/netstandard2.0/WebSocketSharper.dll": {}
+        },
+        "runtime": {
+          "lib/netstandard2.0/WebSocketSharper.dll": {}
+        }
+      },
       "YouTubeApiSharp/0.0.5": {
         "type": "package",
         "dependencies": {
@@ -4105,79 +4130,79 @@
         "lib/netstandard2.0/ConcurrentCollections.xml"
       ]
     },
-    "DSharpPlus/4.2.0-nightly-01043": {
-      "sha512": "+S5h4d0nlBaDJ/0dcTqjSDpkniow1icoU5tFp7B1pRo1pxPFBPvsRqw40yFoc4dIkkESWb3tg6Rs5Er67ENOEg==",
+    "DSharpPlus/4.2.0-nightly-01062": {
+      "sha512": "I8uBbnlmeLH23nlJJSw0h1VMEtD9O/iQZTuI61E9HkHcqB9CmWQWmRdKd9yBtZBQ7VddX7sgFQDE2Gv202NYgw==",
       "type": "package",
-      "path": "dsharpplus/4.2.0-nightly-01043",
+      "path": "dsharpplus/4.2.0-nightly-01062",
       "files": [
         ".nupkg.metadata",
-        "dsharpplus.4.2.0-nightly-01043.nupkg.sha512",
+        "dsharpplus.4.2.0-nightly-01062.nupkg.sha512",
         "dsharpplus.nuspec",
         "dsharpplus.png",
         "lib/netstandard2.0/DSharpPlus.dll",
         "lib/netstandard2.0/DSharpPlus.xml"
       ]
     },
-    "DSharpPlus.CommandsNext/4.2.0-nightly-01043": {
-      "sha512": "Ylw1HjdF6XH7aHOLunN3m0lHZtaG1rlm6TC8xKM4zYSQKLqqY9VrxpCLFeWauPOjTas1aMq+DfOKsvHes0KDRQ==",
+    "DSharpPlus.CommandsNext/4.2.0-nightly-01062": {
+      "sha512": "ELss31vdumAG7UsVFFA15jBCI5XcncTfqovimgY40RueGE0qgiOXJnqkk1qR2lX7TXc1WtQy97qSEDX0k3L9wg==",
       "type": "package",
-      "path": "dsharpplus.commandsnext/4.2.0-nightly-01043",
+      "path": "dsharpplus.commandsnext/4.2.0-nightly-01062",
       "files": [
         ".nupkg.metadata",
-        "dsharpplus.commandsnext.4.2.0-nightly-01043.nupkg.sha512",
+        "dsharpplus.commandsnext.4.2.0-nightly-01062.nupkg.sha512",
         "dsharpplus.commandsnext.nuspec",
         "dsharpplus.png",
         "lib/netstandard2.0/DSharpPlus.CommandsNext.dll",
         "lib/netstandard2.0/DSharpPlus.CommandsNext.xml"
       ]
     },
-    "DSharpPlus.Interactivity/4.2.0-nightly-01043": {
-      "sha512": "i4bMzbYtHv7qf0kPALrW2SQOkBYx/J8V4tZKTO4QE8eFsOdF/e5GYvqjHMcIEKOby37h4Lzy4446tNdfue8f4w==",
+    "DSharpPlus.Interactivity/4.2.0-nightly-01062": {
+      "sha512": "bFWzh5wv73+lKvfwwx599C10wKif5UpZd3F0lsg6Ibj8QMpuF6TphHLQOWEnGfiYTChRpMLxG7nezlacYa42BA==",
       "type": "package",
-      "path": "dsharpplus.interactivity/4.2.0-nightly-01043",
+      "path": "dsharpplus.interactivity/4.2.0-nightly-01062",
       "files": [
         ".nupkg.metadata",
-        "dsharpplus.interactivity.4.2.0-nightly-01043.nupkg.sha512",
+        "dsharpplus.interactivity.4.2.0-nightly-01062.nupkg.sha512",
         "dsharpplus.interactivity.nuspec",
         "dsharpplus.png",
         "lib/netstandard2.0/DSharpPlus.Interactivity.dll",
         "lib/netstandard2.0/DSharpPlus.Interactivity.xml"
       ]
     },
-    "DSharpPlus.Rest/4.2.0-nightly-01043": {
-      "sha512": "59M+ln1CxroRow033S++yfsjvgzrergAa/IsYL63ITjot539onHjCGMMePHbN8KWwYKPT/s+v8wnBC7eG8HoDg==",
+    "DSharpPlus.Rest/4.2.0-nightly-01062": {
+      "sha512": "J4YwmXmScspOASPtOuzCK+i18SQ2HQuoeClPX4cWb0pWmzMRaifOyh62lRcstT2GKjn8SJmJ3mv/9ZTtuUAsMA==",
       "type": "package",
-      "path": "dsharpplus.rest/4.2.0-nightly-01043",
+      "path": "dsharpplus.rest/4.2.0-nightly-01062",
       "files": [
         ".nupkg.metadata",
         "dsharpplus.png",
-        "dsharpplus.rest.4.2.0-nightly-01043.nupkg.sha512",
+        "dsharpplus.rest.4.2.0-nightly-01062.nupkg.sha512",
         "dsharpplus.rest.nuspec",
         "lib/netstandard2.0/DSharpPlus.Rest.dll",
         "lib/netstandard2.0/DSharpPlus.Rest.xml"
       ]
     },
-    "DSharpPlus.SlashCommands/4.2.0-nightly-01043": {
-      "sha512": "daLjquPn/BCJrZlDc51M95LsIG45gKNEhsni7E9o9SXV2WQfZB60AjmZtTVL+lq1Td+fYWPZ/hb6NvJiZ7Q6vQ==",
+    "DSharpPlus.SlashCommands/4.2.0-nightly-01062": {
+      "sha512": "T5/tXtIvCXX6wb3FQlvQ7HoUG9La679f8NYLRPv+lqSDWSTS0BQWN154VL9Gbm3VM9NGd2kUbLO95lssugtMTA==",
       "type": "package",
-      "path": "dsharpplus.slashcommands/4.2.0-nightly-01043",
+      "path": "dsharpplus.slashcommands/4.2.0-nightly-01062",
       "files": [
         ".nupkg.metadata",
         "dsharpplus.png",
-        "dsharpplus.slashcommands.4.2.0-nightly-01043.nupkg.sha512",
+        "dsharpplus.slashcommands.4.2.0-nightly-01062.nupkg.sha512",
         "dsharpplus.slashcommands.nuspec",
         "lib/netstandard2.0/DSharpPlus.SlashCommands.dll",
         "lib/netstandard2.0/DSharpPlus.SlashCommands.xml"
       ]
     },
-    "DSharpPlus.VoiceNext/4.2.0-nightly-01043": {
-      "sha512": "fKVTI7YIwEs1dvEJjtqaznuor6ISDOqZp5bReyY85ZZNaJFakqKGiqFCmgfbRIZMnMgXuKsLePXIwfkrLlgZAA==",
+    "DSharpPlus.VoiceNext/4.2.0-nightly-01062": {
+      "sha512": "NWxGumCiRj8oeN/RGKPwbAWSi2MkQ51kpbyZjgtwNUXZFTOCXY1yiDhWwo2FA3P5lbtgGSZVUG1My7taEx0j4Q==",
       "type": "package",
-      "path": "dsharpplus.voicenext/4.2.0-nightly-01043",
+      "path": "dsharpplus.voicenext/4.2.0-nightly-01062",
       "files": [
         ".nupkg.metadata",
         "dsharpplus.png",
-        "dsharpplus.voicenext.4.2.0-nightly-01043.nupkg.sha512",
+        "dsharpplus.voicenext.4.2.0-nightly-01062.nupkg.sha512",
         "dsharpplus.voicenext.nuspec",
         "lib/netstandard2.0/DSharpPlus.VoiceNext.dll",
         "lib/netstandard2.0/DSharpPlus.VoiceNext.xml"
@@ -9554,6 +9579,32 @@
         "version.txt"
       ]
     },
+    "System.Reactive/4.2.0": {
+      "sha512": "ZG1jkv/g+7bnbXUvpBWR2+9DWCM0+AEBxcPxNKzOJQsfdZpTEUKKSEGgFAZ9cScVyVmPhlQB9IO5KDXX40EfBA==",
+      "type": "package",
+      "path": "system.reactive/4.2.0",
+      "files": [
+        ".nupkg.metadata",
+        ".signature.p7s",
+        "build/netcoreapp3.0/System.Reactive.dll",
+        "build/netcoreapp3.0/System.Reactive.targets",
+        "build/netcoreapp3.0/System.Reactive.xml",
+        "buildTransitive/netcoreapp3.0/System.Reactive.targets",
+        "lib/net46/System.Reactive.dll",
+        "lib/net46/System.Reactive.xml",
+        "lib/netcoreapp3.0/_._",
+        "lib/netstandard2.0/System.Reactive.dll",
+        "lib/netstandard2.0/System.Reactive.xml",
+        "lib/uap10.0.16299/System.Reactive.dll",
+        "lib/uap10.0.16299/System.Reactive.pri",
+        "lib/uap10.0.16299/System.Reactive.xml",
+        "lib/uap10.0/System.Reactive.dll",
+        "lib/uap10.0/System.Reactive.pri",
+        "lib/uap10.0/System.Reactive.xml",
+        "system.reactive.4.2.0.nupkg.sha512",
+        "system.reactive.nuspec"
+      ]
+    },
     "System.Reflection/4.3.0": {
       "sha512": "KMiAFoW7MfJGa9nDFNcfu+FpEdiHpWgTcS2HdMpDvt9saK3y/G4GwprPyzqjFH9NTaGPQeWNHU+iDlDILj96aQ==",
       "type": "package",
@@ -11818,6 +11869,18 @@
         "unosquare.swan.lite.nuspec"
       ]
     },
+    "WebSocketSharper/1.0.39": {
+      "sha512": "6oCjUQGTp6jk0+NCDiWtFaSWRr6uW0c5dtkP8oH8AsK+HFkbfLsbVGHzSapbn72yr0bWTTqyFO3Yxc/ow7Abww==",
+      "type": "package",
+      "path": "websocketsharper/1.0.39",
+      "files": [
+        ".nupkg.metadata",
+        ".signature.p7s",
+        "lib/netstandard2.0/WebSocketSharper.dll",
+        "websocketsharper.1.0.39.nupkg.sha512",
+        "websocketsharper.nuspec"
+      ]
+    },
     "YouTubeApiSharp/0.0.5": {
       "sha512": "oNoPd5H9cevfA8uXRqukLAjAahVMEy88ZoQ0MHN3ZLXagXhKTJlUsGcOl/qT/SEL7j5y/pLJoMroVSRmT5v7FQ==",
       "type": "package",
@@ -11875,12 +11938,12 @@
       "Azure.Identity >= 1.5.0",
       "BouncyCastle.NetCore >= 1.8.10",
       "ConcurrentHashSet >= 1.3.0",
-      "DSharpPlus >= 4.2.0-nightly-01043",
-      "DSharpPlus.CommandsNext >= 4.2.0-nightly-01043",
-      "DSharpPlus.Interactivity >= 4.2.0-nightly-01043",
-      "DSharpPlus.Rest >= 4.2.0-nightly-01043",
-      "DSharpPlus.SlashCommands >= 4.2.0-nightly-01043",
-      "DSharpPlus.VoiceNext >= 4.2.0-nightly-01043",
+      "DSharpPlus >= 4.2.0-nightly-01062",
+      "DSharpPlus.CommandsNext >= 4.2.0-nightly-01062",
+      "DSharpPlus.Interactivity >= 4.2.0-nightly-01062",
+      "DSharpPlus.Rest >= 4.2.0-nightly-01062",
+      "DSharpPlus.SlashCommands >= 4.2.0-nightly-01062",
+      "DSharpPlus.VoiceNext >= 4.2.0-nightly-01062",
       "DSharpPlus.VoiceNext.Natives >= 1.0.0",
       "EmbedIO >= 3.4.3",
       "Emzi0767.Common >= 2.6.2",
@@ -12079,6 +12142,7 @@
       "System.Xml.ReaderWriter >= 4.3.1",
       "System.Xml.XDocument >= 4.3.0",
       "Unosquare.Swan.Lite >= 3.1.0",
+      "WebSocketSharper >= 1.0.39",
       "YouTubeApiSharp >= 0.0.5",
       "YoutubeExplode >= 6.0.7",
       "YoutubeSearchApi.Net >= 2021.8.24",
@@ -12166,27 +12230,27 @@
           },
           "DSharpPlus": {
             "target": "Package",
-            "version": "[4.2.0-nightly-01043, )"
+            "version": "[4.2.0-nightly-01062, )"
           },
           "DSharpPlus.CommandsNext": {
             "target": "Package",
-            "version": "[4.2.0-nightly-01043, )"
+            "version": "[4.2.0-nightly-01062, )"
           },
           "DSharpPlus.Interactivity": {
             "target": "Package",
-            "version": "[4.2.0-nightly-01043, )"
+            "version": "[4.2.0-nightly-01062, )"
           },
           "DSharpPlus.Rest": {
             "target": "Package",
-            "version": "[4.2.0-nightly-01043, )"
+            "version": "[4.2.0-nightly-01062, )"
           },
           "DSharpPlus.SlashCommands": {
             "target": "Package",
-            "version": "[4.2.0-nightly-01043, )"
+            "version": "[4.2.0-nightly-01062, )"
           },
           "DSharpPlus.VoiceNext": {
             "target": "Package",
-            "version": "[4.2.0-nightly-01043, )"
+            "version": "[4.2.0-nightly-01062, )"
           },
           "DSharpPlus.VoiceNext.Natives": {
             "target": "Package",
@@ -12983,6 +13047,10 @@
           "Unosquare.Swan.Lite": {
             "target": "Package",
             "version": "[3.1.0, )"
+          },
+          "WebSocketSharper": {
+            "target": "Package",
+            "version": "[1.0.39, )"
           },
           "YouTubeApiSharp": {
             "target": "Package",

@@ -192,7 +192,7 @@ namespace BatToshoRESTApp.Controllers
                 if (userIndex == -1) return "418 I'm a teapot";
                 var guild = Bot.Clients[0].Guilds.First(g => g.Value.Id == id).Value;
                 var channels = await guild.GetChannelsAsync();
-                var items = channels.Where(ch => ch.Type == ChannelType.Voice).Where(ch => Manager.Main.ContainsKey(ch))
+                var items = channels.Where(ch => ch.Type == ChannelType.Voice).Where(ch => Manager.Main.Any(pl => pl.VoiceChannel.Id == ch.Id))
                     .Select(g => new GuildItem {Id = g.Id + "", Name = g.Name}).ToList();
                 return JsonSerializer.Serialize(items);
             }
@@ -237,8 +237,8 @@ namespace BatToshoRESTApp.Controllers
         {
             try
             {
-                if (Manager.Main.Keys.All(ch => ch.Id != channelId)) return "403";
-                var player = Manager.Main[Manager.Main.Keys.First(ch => ch.Id == channelId)];
+                if (Manager.Main.All(ch => ch.VoiceChannel.Id != channelId)) return "403";
+                var player = Manager.Main.First(ch => ch.VoiceChannel.Id == channelId);
                 var stats = new PlayerInfo();
                 try
                 {
@@ -277,7 +277,7 @@ namespace BatToshoRESTApp.Controllers
             try
             {
                 if (!WebUiUsers.ContainsValue(clientSecret)) return "404";
-                if (Manager.Main.Keys.All(ch => ch.Id != channelId)) return "403";
+                if (Manager.Main.All(ch => ch.VoiceChannel.Id != channelId)) return "403";
                 var userIndex = -1;
                 try
                 {
@@ -288,7 +288,7 @@ namespace BatToshoRESTApp.Controllers
                     return "403";
                 }
 
-                var player = Manager.Main[Manager.Main.Keys.First(ch => ch.Id == channelId)];
+                var player = Manager.Main.First(ch => ch.VoiceChannel.Id == channelId);
                 IPlayableItem search;
 
                 if (!spotify) search = await new Video().SearchById(id);
@@ -311,8 +311,8 @@ namespace BatToshoRESTApp.Controllers
 
         public string GetQueue(ulong channelId)
         {
-            if (Manager.Main.Keys.All(ch => ch.Id != channelId)) return "403";
-            var player = Manager.Main[Manager.Main.Keys.First(ch => ch.Id == channelId)];
+            if (Manager.Main.All(ch => ch.VoiceChannel.Id != channelId)) return "403";
+            var player = Manager.Main.First(ch => ch.VoiceChannel.Id == channelId);
             var queue = player.Queue.Items;
             var items = queue.Select(qu => new SearchResult
             {
@@ -336,8 +336,8 @@ namespace BatToshoRESTApp.Controllers
             try
             {
                 if (!WebUiUsers.ContainsValue(clientSecret)) return "404";
-                if (Manager.Main.Keys.All(ch => ch.Id != channelId)) return "403";
-                var player = Manager.Main[Manager.Main.Keys.First(ch => ch.Id == channelId)];
+                if (Manager.Main.All(ch => ch.VoiceChannel.Id != channelId)) return "403";
+                var player = Manager.Main.First(ch => ch.VoiceChannel.Id == channelId);
                 player?.Pause();
                 return "200";
             }
@@ -352,8 +352,8 @@ namespace BatToshoRESTApp.Controllers
             try
             {
                 if (!WebUiUsers.ContainsValue(clientSecret)) return "404";
-                if (Manager.Main.Keys.All(ch => ch.Id != channelId)) return "403";
-                var player = Manager.Main[Manager.Main.Keys.First(ch => ch.Id == channelId)];
+                if (Manager.Main.All(ch => ch.VoiceChannel.Id != channelId)) return "403";
+                var player = Manager.Main.First(ch => ch.VoiceChannel.Id == channelId);
                 await player.Skip(times);
                 return "200";
             }
@@ -369,8 +369,8 @@ namespace BatToshoRESTApp.Controllers
             {
                 if (index == -555) return "404";
                 if (!WebUiUsers.ContainsValue(clientSecret)) return "404";
-                if (Manager.Main.Keys.All(ch => ch.Id != channelId)) return "403";
-                var player = Manager.Main[Manager.Main.Keys.First(ch => ch.Id == channelId)];
+                if (Manager.Main.All(ch => ch.VoiceChannel.Id != channelId)) return "403";
+                var player = Manager.Main.First(ch => ch.VoiceChannel.Id == channelId);
                 player.GoToIndex(index);
                 return "200";
             }
@@ -385,8 +385,8 @@ namespace BatToshoRESTApp.Controllers
             try
             {
                 if (!WebUiUsers.ContainsValue(clientSecret)) return "404";
-                if (Manager.Main.Keys.All(ch => ch.Id != channelId)) return "403";
-                var player = Manager.Main[Manager.Main.Keys.First(ch => ch.Id == channelId)];
+                if (Manager.Main.All(ch => ch.VoiceChannel.Id != channelId)) return "403";
+                var player = Manager.Main.First(ch => ch.VoiceChannel.Id == channelId);
                 player.Queue.Shuffle();
                 return "200";
             }
@@ -401,10 +401,10 @@ namespace BatToshoRESTApp.Controllers
             try
             {
                 if (!WebUiUsers.ContainsValue(clientSecret)) return "404";
-                if (Manager.Main.Keys.All(ch => ch.Id != channelId)) return "403";
-                var player = Manager.Main[Manager.Main.Keys.First(ch => ch.Id == channelId)];
+                if (Manager.Main.All(ch => ch.VoiceChannel.Id != channelId)) return "403";
+                var player = Manager.Main.First(ch => ch.VoiceChannel.Id == channelId);
                 player.Disconnect();
-                Manager.Main.Remove(Manager.Main.Keys.First(ch => ch.Id == channelId));
+                Manager.Main.Remove(Manager.Main.First(ch => ch.VoiceChannel.Id == channelId));
                 return "200";
             }
             catch (Exception)
@@ -418,8 +418,8 @@ namespace BatToshoRESTApp.Controllers
             try
             {
                 if (!WebUiUsers.ContainsValue(clientSecret)) return "404";
-                if (Manager.Main.Keys.All(ch => ch.Id != channelId)) return "403";
-                var player = Manager.Main[Manager.Main.Keys.First(ch => ch.Id == channelId)];
+                if (Manager.Main.All(ch => ch.VoiceChannel.Id != channelId)) return "403";
+                var player = Manager.Main.First(ch => ch.VoiceChannel.Id == channelId);
                 if (index == player.Queue.Current)
                 {
                     player.Queue.RemoveFromQueue(index);
@@ -501,7 +501,7 @@ namespace BatToshoRESTApp.Controllers
             try
             {
                 if (!WebUiUsers.ContainsValue(clientSecret)) return "404";
-                if (Manager.Main.Keys.All(ch => ch.Id != channelId)) return "403";
+                if (Manager.Main.Keys.All(ch => ch != channelId)) return "403";
                 var player = Manager.Main[Manager.Main.Keys.First(ch => ch.Id == channelId)];
                 player.Queue.RemoveFromQueue(term);
                 return "200";
@@ -516,7 +516,7 @@ namespace BatToshoRESTApp.Controllers
         {
             return !WebUiUsers.ContainsValue(clientSecret) ? "404" : "200";
         } // ReSharper disable UnusedAutoPropertyAccessor.Local
-        private struct SearchResult
+        public struct SearchResult
         {
             public string Title { get; init; }
             public string Author { get; init; }
@@ -538,7 +538,7 @@ namespace BatToshoRESTApp.Controllers
             public string IconUrl { get; init; }
         }
 
-        private struct PlayerInfo
+        public struct PlayerInfo
         {
             public string Title { get; set; }
             public string Author { get; set; }

@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using System.Timers;
 using BatToshoRESTApp.Audio;
 using BatToshoRESTApp.Controllers;
 using BatToshoRESTApp.Methods;
@@ -15,6 +14,8 @@ using DSharpPlus.Interactivity.Extensions;
 using DSharpPlus.SlashCommands;
 using DSharpPlus.VoiceNext;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
+using WebSocketSharper.Server;
 
 namespace BatToshoRESTApp
 {
@@ -30,17 +31,20 @@ namespace BatToshoRESTApp
             BotBeta = "NjcxMDg3NjM4NjM1MDg1ODUy.Xi31EQ.v-QjHqPT6BAQhans6bveYhNC9CU",
             SecondaryBot = "OTAzMjg3NzM3Nzc4NTg5NzA2.YXqyQg.F3cDKz-icUbYYMUJXwLxT-BX574";
 
-        public static Random Rng = new();
+        private static Random Rng = new();
 
-        public static string WorkingDirectory = "/home/kris/BatTosho";
-        private static Timer GarbageCollectTimer { get; } = new(60000);
+        public const string WorkingDirectory = "/home/kris/BatTosho";
+
+        //private static Timer GarbageCollectTimer { get; } = new(60000);
         public static int UpdateDelay { get; set; } = 1600; //Milliseconds
         public static List<DiscordClient> Clients { get; } = new();
 
+        public static readonly HttpServer WebSocketServer = new (NullLogger.Instance, 8000); //This is a server by the WebSocketSharp lib.
+
         public static async Task Initialize(RunType token)
         {
-            GarbageCollectTimer.Elapsed += (_, _) => { GC.Collect(); };
-            GarbageCollectTimer.Start();
+            //GarbageCollectTimer.Elapsed += (_, _) => { GC.Collect(); };
+            //GarbageCollectTimer.Start();
             BatTosho.LoadUsers();
             HttpClient.WithCookies();
             switch (token)
@@ -68,6 +72,7 @@ namespace BatToshoRESTApp
 
             foreach (var client in Clients) await client.ConnectAsync();
             string text;
+            WebSocketServer.Start();
             while ((text = Console.ReadLine()) != "null")
                 try
                 {
@@ -78,10 +83,9 @@ namespace BatToshoRESTApp
                             await Debug.WriteAsync("Listing all player instances:");
                             for (var i = 0; i < Manager.Main.Count; i++)
                             {
-                                var ke = Manager.Main.Keys.ToList()[i];
-                                var val = Manager.Main.Values.ToList()[i];
+                                var pl = Manager.Main.ToList()[i];
                                 await Debug.WriteAsync(
-                                    $"\"{ke.Name} - {ke.Id}\":\"{val.Channel.Name} - {val.CurrentGuild.Name}\"");
+                                    $"\"{pl.CurrentGuild.Name}\" : \"{pl.VoiceChannel.Name} - {pl.VoiceChannel.Id}\"");
                             }
 
                             continue;
@@ -92,18 +96,27 @@ namespace BatToshoRESTApp
                                 Console.Clear();
                                 await Debug.WriteAsync("Waiting to restart.");
                                 await Debug.WriteAsync("Active guilds: ");
-                                foreach (var val in Manager.Main.Select(kvp => kvp.Value))
+                                foreach (var val in Manager.Main)
                                     await Debug.WriteAsync(
                                         $"{val.CurrentGuild} : {val.VoiceChannel.Name} " +
                                         $"- Owner : {val.CurrentGuild.Owner.DisplayName} - {val.CurrentGuild.Owner.Id} " +
-                                        $"- Track: {val.Queue.Current + 1} - {val.Queue.Count}");
+                                        $"- Track: {val.Queue.Current + 1} - {val.Queue.Count} " +
+                                        $"- Waiting Stopwatch: {val.WaitingStopwatch.Elapsed:c}");
                                 await Task.Delay(1000);
                             }
 
                             Environment.Exit(0);
                             break;
                         case "forceoff":
+                            foreach (var pl in Manager.Main)
+                            {
+                                await pl.DisconnectAsync("Disconnecting due to an update in the bot's code. Sorry for the inconvenience.");
+                            }
                             Environment.Exit(0);
+                            break;
+                        case "clear":
+                            Console.Clear();
+                            await Debug.WriteAsync("Cleared the Console");
                             break;
                         case "wusers":
                             await Debug.WriteAsync("Listing all Web Ui users:");
@@ -144,6 +157,33 @@ namespace BatToshoRESTApp
                 EnableMentionPrefix = true,
                 EnableDefaultHelp = useDefaultHelpCommand
             });
+            if (prefixes != null)
+            {
+                client.VoiceStateUpdated += async (_, args) =>
+                {
+                    try
+                    {
+                        if (Clients.All(c => c.CurrentUser.Id != args.User.Id)) return;
+                        if (Manager.Main.Count < 1) return;
+                        if (args.Before == null) return;
+                        var cl = Manager.Main.FirstOrDefault(c => c.VoiceChannel.Id == args.Before.Channel.Id);
+                        if (cl == null) return;
+                        if (args.After.Channel == null && !cl.UpdatedChannel)
+                        {
+                            await Debug.WriteAsync("After Channel is Null");
+                            await cl.DisconnectAsync(isEvent:true);
+                            Manager.Main.Remove(cl);
+                            return;
+                        }
+                        if (args.Before.Channel.Id == args.After.Channel.Id) return;
+                        cl.UpdateChannel(args.After.Channel);
+                    }
+                    catch (Exception e)
+                    {
+                        await Debug.WriteAsync($"Voice State Updated failed: {e}");
+                    }
+                };
+            }
             commandsExtension.RegisterCommands<Commands>();
             if (useInteractivity)
                 client.UseInteractivity(new InteractivityConfiguration
@@ -154,7 +194,8 @@ namespace BatToshoRESTApp
             if (useVoiceNext) client.UseVoiceNext();
             if (!useSlashCommands) return client;
             var ext = client.UseSlashCommands();
-            ext.RegisterCommands<CommandsSlash>(726854998503456779);
+            ext.RegisterCommands<CommandsSlash>();
+            ext.RegisterCommands<CommandsSlash>(933977766284652594);
             Debug.Write("Using Slash Commands.");
 
             return client;

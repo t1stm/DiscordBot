@@ -61,27 +61,27 @@
             },
             "DSharpPlus": {
               "target": "Package",
-              "version": "[4.2.0-nightly-01043, )"
+              "version": "[4.2.0-nightly-01062, )"
             },
             "DSharpPlus.CommandsNext": {
               "target": "Package",
-              "version": "[4.2.0-nightly-01043, )"
+              "version": "[4.2.0-nightly-01062, )"
             },
             "DSharpPlus.Interactivity": {
               "target": "Package",
-              "version": "[4.2.0-nightly-01043, )"
+              "version": "[4.2.0-nightly-01062, )"
             },
             "DSharpPlus.Rest": {
               "target": "Package",
-              "version": "[4.2.0-nightly-01043, )"
+              "version": "[4.2.0-nightly-01062, )"
             },
             "DSharpPlus.SlashCommands": {
               "target": "Package",
-              "version": "[4.2.0-nightly-01043, )"
+              "version": "[4.2.0-nightly-01062, )"
             },
             "DSharpPlus.VoiceNext": {
               "target": "Package",
-              "version": "[4.2.0-nightly-01043, )"
+              "version": "[4.2.0-nightly-01062, )"
             },
             "DSharpPlus.VoiceNext.Natives": {
               "target": "Package",
@@ -878,6 +878,10 @@
             "Unosquare.Swan.Lite": {
               "target": "Package",
               "version": "[3.1.0, )"
+            },
+            "WebSocketSharper": {
+              "target": "Package",
+              "version": "[1.0.39, )"
             },
             "YouTubeApiSharp": {
               "target": "Package",

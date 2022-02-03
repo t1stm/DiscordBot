@@ -23,52 +23,61 @@ namespace BatToshoRESTApp.Audio
 {
     public static class Manager
     {
-        public static readonly Dictionary<DiscordChannel, Player> Main = new();
+        public static readonly List<Player> Main = new();
+        private static int FailedGetAttempts { get; set; }
 
-        public static async Task<Player> GetPlayer(DiscordChannel channel, DiscordClient client)
+        public static Player GetPlayer(DiscordChannel channel, DiscordClient client)
         {
             //UDRI MAISTORE EDNA DJULEVA RAKIQ
             try
             {
-                if (Main.ContainsKey(channel))
+                lock (Main)
                 {
-                    await Debug.WriteAsync($"Returning channel: \"{channel.Name}\" in guild: \"{channel.Guild.Name}\"");
-                    return Main[channel];
-                }
-
-                var conn = client.GetVoiceNext().GetConnection(channel.Guild);
-                if (conn == null)
-                {
-                    Main.Add(channel, new Player
+                    if (Main.Any(pl => pl.VoiceChannel.Id == channel.Id))
                     {
-                        CurrentClient = client, VoiceChannel = channel
-                    });
-                    await Debug.WriteAsync(
-                        $"Adding new item to dictionary: \"{channel.Name}\", in guild: \"{channel.Guild.Name}\", with id: \"{channel.GuildId}\"");
-                    return Main[channel];
-                }
+                        Debug.Write($"Returning channel: \"{channel.Name}\" in guild: \"{channel.Guild.Name}\"");
+                        FailedGetAttempts = 0;
+                        return Main.First(pl => pl.VoiceChannel.Id == channel.Id);
+                    }
 
-                var list = Bot.Clients.Where(cl => cl.CurrentUser.Id != client.CurrentUser.Id)
-                    .Where(cl => cl.Guilds.ContainsKey(channel.Guild.Id));
-                foreach (var cl in from cl in list
-                    let con = cl.GetVoiceNext().GetConnection(channel.Guild)
-                    where con == null
-                    select cl)
-                {
-                    await Debug.WriteAsync($"Client is: {cl.CurrentUser.Id}, {nameof(cl)}");
-                    Main.Add(channel, new Player
+                    var conn = client.GetVoiceNext().GetConnection(channel.Guild);
+                    if (conn == null)
                     {
-                        CurrentClient = cl, VoiceChannel = cl.Guilds[channel.Guild.Id].Channels[channel.Id]
-                    });
-                    return Main[channel];
+                        var pl = new Player
+                        {
+                            CurrentClient = client, VoiceChannel = channel
+                        };
+                        Main.Add(pl);
+                        Debug.Write(
+                            $"Adding new item to dictionary: \"{channel.Name}\", in guild: \"{channel.Guild.Name}\", with id: \"{channel.GuildId}\"");
+                        FailedGetAttempts = 0;
+                        return pl;
+                    }
+
+                    var list = Bot.Clients.Where(cl => cl.CurrentUser.Id != client.CurrentUser.Id)
+                        .Where(cl => cl.Guilds.ContainsKey(channel.Guild.Id));
+                    foreach (var cl in from cl in list
+                        let con = cl.GetVoiceNext().GetConnection(channel.Guild)
+                        where con is null
+                        select cl)
+                    {
+                        Debug.Write($"Client is: {cl.CurrentUser.Id}, {nameof(cl)}");
+                        var pl = new Player
+                        {
+                            CurrentClient = cl, VoiceChannel = cl.Guilds[channel.Guild.Id].Channels[channel.Id]
+                        };
+                        Main.Add(pl);
+                        FailedGetAttempts = 0;
+                        return pl;
+                    }
                 }
             }
             catch (Exception e)
             {
-                await Debug.WriteAsync($"{e}");
-                return null;
+                FailedGetAttempts++;
+                Debug.Write($"Get Player failed with: \"{e}\"");
+                return FailedGetAttempts > 3 ? null : GetPlayer(channel, client);
             }
-
             return null;
         }
 
@@ -81,7 +90,7 @@ namespace BatToshoRESTApp.Audio
                 return;
             }
 
-            var player = await GetPlayer(userVoiceS, ctx.Client);
+            var player = GetPlayer(userVoiceS, ctx.Client);
             if (player == null)
             {
                 await Bot.SendDirectMessage(ctx, "No free bot accounts in this guild.");
@@ -150,7 +159,7 @@ namespace BatToshoRESTApp.Audio
                     player.Disconnect();
                     await Debug.WriteAsync(
                         $"Disconnecting from channel: {player.VoiceChannel.Name} in guild: {player.CurrentGuild.Name}");
-                    Main.Remove(userVoiceS);
+                    Main.Remove(Main.First(pl => pl.VoiceChannel.Id == userVoiceS.Id));
                 }
                 else
                 {
@@ -214,7 +223,7 @@ namespace BatToshoRESTApp.Audio
                     await Debug.WriteAsync($"Failed to disconnect when caught error: {exception}");
                 }
 
-                Main.Remove(player.VoiceChannel);
+                Main.Remove(Main.First(pl => pl.VoiceChannel.Id == userVoiceS.Id));
                 throw;
             }
         }
@@ -228,7 +237,7 @@ namespace BatToshoRESTApp.Audio
                 return;
             }
 
-            var player = await GetPlayer(userVoiceS, ctx.Client);
+            var player = GetPlayer(userVoiceS, ctx.Client);
             if (player == null) return;
 
             await player.Skip(times);
@@ -243,20 +252,21 @@ namespace BatToshoRESTApp.Audio
                 return;
             }
 
-            var player = await GetPlayer(userVoiceS, ctx.Client);
+            var player = GetPlayer(userVoiceS, ctx.Client);
             if (player == null) return;
             try
             {
+                // ReSharper disable once MethodHasAsyncOverload
+                //This is because I hate when the bot takes ages to disconnect. I am talking from experience.
                 player.Disconnect();
                 player.Statusbar.Stop();
             }
             catch (Exception e)
             {
                 await Debug.WriteAsync($"Disconnecting exception: {e}");
-                Main.Remove(player.VoiceChannel);
+                Main.Remove(Main.First(pl => pl.VoiceChannel.Id == userVoiceS.Id));
             }
-
-            Main.Remove(player.VoiceChannel);
+            Main.Remove(Main.First(pl => pl.VoiceChannel.Id == userVoiceS.Id));
         }
 
         public static async Task Shuffle(CommandContext ctx)
@@ -268,7 +278,7 @@ namespace BatToshoRESTApp.Audio
                 return;
             }
 
-            var player = await GetPlayer(userVoiceS, ctx.Client);
+            var player = GetPlayer(userVoiceS, ctx.Client);
             player?.Shuffle();
         }
 
@@ -281,7 +291,7 @@ namespace BatToshoRESTApp.Audio
                 return;
             }
 
-            var player = await GetPlayer(userVoiceS, ctx.Client);
+            var player = GetPlayer(userVoiceS, ctx.Client);
             if (player == null) return;
             player.ToggleLoop();
             await ctx.RespondAsync("```Loop status is now: " + player.LoopStatus switch
@@ -300,7 +310,7 @@ namespace BatToshoRESTApp.Audio
                 return;
             }
 
-            var player = await GetPlayer(userVoiceS, ctx.Client);
+            var player = GetPlayer(userVoiceS, ctx.Client);
             player?.Pause();
         }
 
@@ -313,7 +323,7 @@ namespace BatToshoRESTApp.Audio
                 return;
             }
 
-            var player = await GetPlayer(userVoiceS, ctx.Client);
+            var player = GetPlayer(userVoiceS, ctx.Client);
             if (player.Connection == null)
             {
                 await PlayCommand(ctx, term);
@@ -325,16 +335,21 @@ namespace BatToshoRESTApp.Audio
                 var thing = player.Queue.Items[nextSong - 1];
                 player.Queue.RemoveFromQueue(thing);
                 player.Queue.AddToQueueNext(thing);
+                await Bot.Reply(ctx, $"Playing: \"{thing.GetName()}\" after this.");
                 return;
             }
 
             List<IPlayableItem> item;
             if (ctx.Message.Attachments.Count > 0)
+            {
                 item = await new Search().Get(term, ctx.Message.Attachments.ToList(), ctx.Guild.Id);
+                term = ctx.Message.Attachments.ToList()[0].FileName;
+            }
             else
                 item = await new Search().Get(term);
             item.ForEach(it => it.SetRequester(ctx.Member));
             player.Queue.AddToQueueNext(item);
+            await Bot.Reply(ctx, $"Playing: \"{(item.Count > 1 ? term : item[0].GetName())}\" after this.");
         }
 
         public static async Task Remove(CommandContext ctx, string text)
@@ -346,12 +361,10 @@ namespace BatToshoRESTApp.Audio
                 return;
             }
 
-            var player = await GetPlayer(userVoiceS, ctx.Client);
+            var player = GetPlayer(userVoiceS, ctx.Client);
             if (player == null) return;
-
-            if (int.TryParse(text, out var num))
-                player.Queue.RemoveFromQueue(num - 1);
-            else player.Queue.RemoveFromQueue(text);
+            var item = int.TryParse(text, out var num) ? player.Queue.RemoveFromQueue(num - 1) : player.Queue.RemoveFromQueue(text);
+            await Bot.Reply(ctx, $"Removing {item.GetName()}");
         }
 
         public static async Task GetWebUi(CommandContext ctx)
@@ -398,7 +411,7 @@ namespace BatToshoRESTApp.Audio
                 return;
             }
 
-            var player = await GetPlayer(userVoiceS, ctx.Client);
+            var player = GetPlayer(userVoiceS, ctx.Client);
             if (player == null) return;
 
             var stuff = move.Split(" ");
@@ -424,7 +437,7 @@ namespace BatToshoRESTApp.Audio
                 return;
             }
 
-            var player = await GetPlayer(userVoiceS, ctx.Client);
+            var player = GetPlayer(userVoiceS, ctx.Client);
             player?.Queue.ShuffleWithSeed(seedInt);
         }
 
@@ -437,7 +450,7 @@ namespace BatToshoRESTApp.Audio
                 return;
             }
 
-            var player = await GetPlayer(userVoiceS, ctx.Client);
+            var player = GetPlayer(userVoiceS, ctx.Client);
             if (player == null) return;
             var seed = player.Queue.RandomSeed;
             await Bot.Reply(ctx,
@@ -453,7 +466,7 @@ namespace BatToshoRESTApp.Audio
                 return;
             }
 
-            var player = await GetPlayer(userVoiceS, ctx.Client);
+            var player = GetPlayer(userVoiceS, ctx.Client);
             player?.GoToIndex(index);
         }
 
@@ -467,7 +480,7 @@ namespace BatToshoRESTApp.Audio
                 return;
             }
 
-            var player = await GetPlayer(userVoiceS, ctx.Client);
+            var player = GetPlayer(userVoiceS, ctx.Client);
             if (player == null)
             {
                 await Bot.SendDirectMessage(ctx, "The bot isn't in a channel.");
@@ -497,7 +510,7 @@ namespace BatToshoRESTApp.Audio
                         return;
                     }
 
-                    var player = await GetPlayer(userVoiceS, ctx.Client);
+                    var player = GetPlayer(userVoiceS, ctx.Client);
                     if (player == null)
                     {
                         await Bot.SendDirectMessage(ctx,

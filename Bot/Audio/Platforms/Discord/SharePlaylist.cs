@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 using BatToshoRESTApp.Audio.Objects;
 using BatToshoRESTApp.Methods;
@@ -24,6 +25,11 @@ namespace BatToshoRESTApp.Audio.Platforms.Discord
         {
             try
             {
+                if (token.StartsWith("http"))
+                {
+                    var str = HttpClient.DownloadStream(token).Result;
+                    token = Encoding.UTF8.GetString(str.ToArray());
+                }
                 var list = new List<IPlayableItem>();
                 var listDeserialized = Deserialize(token);
                 foreach (var info in listDeserialized)

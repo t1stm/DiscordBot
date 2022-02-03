@@ -88,7 +88,6 @@ namespace BatToshoRESTApp.Audio.Objects
                             }
                         }
                     }
-
                     Downloading = false;
                 }
                 catch (Exception e)

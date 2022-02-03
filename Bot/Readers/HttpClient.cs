@@ -23,7 +23,9 @@ namespace BatToshoRESTApp.Readers
             foreach (var cook in cl) collection.Add(cook);
             container.Add(collection);
             var handler = new HttpClientHandler {UseCookies = true, CookieContainer = container};
-            return new System.Net.Http.HttpClient(handler);
+            var client = new System.Net.Http.HttpClient(handler);
+            client.DefaultRequestHeaders.UserAgent.ParseAdd("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/71.0.3554.0 Safari/537.36");
+            return client;
         }
 
         public static async Task<string> DownloadFile(string url, string location, bool withCookies = true)
@@ -35,6 +37,17 @@ namespace BatToshoRESTApp.Readers
             var fs = new FileStream(location, FileMode.Create, FileAccess.Write, FileShare.Read);
             await response.CopyToAsync(fs);
             return location;
+        }
+        public static async Task<MemoryStream> DownloadStream(string url, bool withCookies = true)
+        {
+            var client = withCookies ? WithCookies() : new System.Net.Http.HttpClient();
+            var request = new HttpRequestMessage(HttpMethod.Get, url);
+            var send = await client.SendAsync(request);
+            var response = await send.Content.ReadAsStreamAsync();
+            var ms = new MemoryStream();
+            await response.CopyToAsync(ms);
+            ms.Position = 0;
+            return ms;
         }
 
         private static IEnumerable<Cookie> ParseFileAsCookies(string yes)

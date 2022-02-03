@@ -55,7 +55,7 @@ namespace BatToshoRESTApp
                 endpoints.MapControllerRoute(
                     "default",
                     "{controller=Home}/{action=Index}/{id?}");
-                endpoints.MapHub<WebSockets>("/ws");
+                //endpoints.MapHub<WebSockets>("/ws");
             });
         }
     }

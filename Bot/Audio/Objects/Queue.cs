@@ -11,7 +11,7 @@ namespace BatToshoRESTApp.Audio.Objects
     public class Queue
     {
         private int _downloadTasks;
-        public List<IPlayableItem> Items { get; set; } = new();
+        public List<IPlayableItem> Items = new();
         public int Current { get; set; }
         public long Count => Items.Count;
 
@@ -37,19 +37,24 @@ namespace BatToshoRESTApp.Audio.Objects
             Items.Insert(Current + 1, info);
         }
 
-        public void RemoveFromQueue(int index)
+        public IPlayableItem RemoveFromQueue(int index)
         {
-            Items.RemoveAt(index);
+            var item = Items.ElementAt(index);
+            Items.Remove(item);
+            return item;
         }
 
-        public void RemoveFromQueue(IPlayableItem item)
+        public IPlayableItem RemoveFromQueue(IPlayableItem item)
         {
             Items.Remove(item);
+            return item;
         }
 
-        public bool RemoveFromQueue(string name)
+        public IPlayableItem RemoveFromQueue(string name)
         {
-            return Items.Remove(Items.First(vi => LevenshteinDistance.Compute(vi.GetName(), name) < 3));
+            var item = Items.First(vi => LevenshteinDistance.Compute(vi.GetName(), name) < 3);
+            Items.Remove(item);
+            return item;
         }
 
         public async Task DownloadAll()
