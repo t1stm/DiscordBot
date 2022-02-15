@@ -404,7 +404,6 @@ namespace BatToshoRESTApp.Controllers
                 if (Manager.Main.All(ch => ch.VoiceChannel.Id != channelId)) return "403";
                 var player = Manager.Main.First(ch => ch.VoiceChannel.Id == channelId);
                 player.Disconnect();
-                Manager.Main.Remove(Manager.Main.First(ch => ch.VoiceChannel.Id == channelId));
                 return "200";
             }
             catch (Exception)

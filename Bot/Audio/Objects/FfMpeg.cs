@@ -13,15 +13,15 @@ namespace BatToshoRESTApp.Audio.Objects
         private readonly HttpClient _httpClient = new();
         private Process FfMpegProcess { get; set; }
 
-        private bool FinishedDownloading = true;
+        private bool _finishedDownloading = true;
 
-        public Stream PathToPcm(string videoPath, string startingTime = "00:00:00.000", bool normalize = true)
+        public Stream PathToPcm(string videoPath, string startingTime = "00:00:00.000", bool normalize = false)
         {
             var ffmpegStartInfo = new ProcessStartInfo
             {
                 FileName = "ffmpeg",
                 Arguments = @"-nostats " +
-                            //"-v quiet " + //This line is going to be changed very often, I fucking know it.
+                            "-v error " + //This line is going to be changed very often, I fucking know it.
                             "-hide_banner " +
                             $@"-i ""{videoPath}"" -ss {startingTime.Trim()} " +
                             "-user_agent \"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/71.0.3554.0 Safari/537.36\" " +
@@ -42,7 +42,7 @@ namespace BatToshoRESTApp.Audio.Objects
             {
                 FileName = "ffmpeg",
                 Arguments = @"-nostats " +
-                            //"-v quiet " + //This line is going to be changed very often, I fucking know it.
+                            "-v error " + //This line is going to be changed very often, I fucking know it.
                             "-hide_banner " +
                             $@"-i - -ss {startingTime.Trim()} " +
                             "-user_agent \"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/71.0.3554.0 Safari/537.36\" " +
@@ -72,7 +72,7 @@ namespace BatToshoRESTApp.Audio.Objects
                         }
                         for (var i = 0; i < ms.Length; i++)
                         {
-                            while (i == ms.Length - 1 && !FinishedDownloading)
+                            while (i == ms.Length - 1 && !_finishedDownloading)
                             {
                                 await Task.Delay(3);
                             }
@@ -83,6 +83,7 @@ namespace BatToshoRESTApp.Audio.Objects
                             }
                             catch (Exception e)
                             {
+                                if (e.Message.ToLower().Contains("broken pipe")) break;
                                 await Debug.WriteAsync($"Writing byte falure: {e}");
                                 break;
                             }
@@ -101,7 +102,7 @@ namespace BatToshoRESTApp.Audio.Objects
                 }
                 catch (Exception e)
                 {
-                    await Debug.WriteAsync($"FFmpeg url caching failed :( : \"{e}\"");
+                    await Debug.WriteAsync($"FFmpeg url caching failed :( \"{e}\"");
                 }
             });
             task.Start();
@@ -125,7 +126,7 @@ namespace BatToshoRESTApp.Audio.Objects
                 const long chunkSize = 10_485_760;
                 if (fileSize == 0) throw new Exception("File has no any content");
                 var segmentCount = (int) Math.Ceiling(1.0 * fileSize / chunkSize);
-                FinishedDownloading = false;
+                _finishedDownloading = false;
                 for (var i = 0; i < segmentCount; i++)
                 {
                     var from = i * chunkSize;
@@ -149,12 +150,13 @@ namespace BatToshoRESTApp.Audio.Objects
                         }
                     } while (bytesCopied > 0 && !FfMpegProcess.HasExited);
                 }
-                FinishedDownloading = true;
+                _finishedDownloading = true;
                 await Debug.WriteAsync("Downloading has finished.");
             }
             catch (Exception e)
             {
                 await Debug.WriteAsync($"Failed: {e}");
+                KillSync();
             }
         }
 

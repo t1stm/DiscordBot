@@ -11,7 +11,9 @@ namespace BatToshoRESTApp.Audio.Objects
         public ulong Length { get; init; }
         public string Album { get; init; }
 
-        public DiscordMember Requester { get; set; }
+        public bool Explicit { get; init; } = false;
+
+        private DiscordMember Requester { get; set; }
 
         public string GetTitle()
         {

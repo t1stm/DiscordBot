@@ -13,48 +13,66 @@ namespace BatToshoRESTApp.Audio.Objects
         private int _downloadTasks;
         public List<IPlayableItem> Items = new();
         public int Current { get; set; }
-        public long Count => Items.Count;
+        public long Count
+        {
+            get
+            {
+                lock (Items)
+                {
+                    return Items.Count;
+                }
+            }
+        }
 
         public int RandomSeed { get; set; }
 
         public void AddToQueue(IPlayableItem info)
         {
-            Items.Add(info);
+            lock (Items) Items.Add(info);
         }
 
         public void AddToQueue(IEnumerable<IPlayableItem> infos)
         {
-            Items.AddRange(infos);
+            lock (Items) Items.AddRange(infos);
         }
 
         public void AddToQueueNext(IEnumerable<IPlayableItem> infos)
         {
-            Items.InsertRange(Current + 1, infos);
+            lock (Items) Items.InsertRange(Current + 1, infos);
         }
 
         public void AddToQueueNext(IPlayableItem info)
         {
-            Items.Insert(Current + 1, info);
+            lock (Items) Items.Insert(Current + 1, info);
         }
 
         public IPlayableItem RemoveFromQueue(int index)
         {
-            var item = Items.ElementAt(index);
-            Items.Remove(item);
-            return item;
+            lock (Items)
+            {
+                var item = Items.ElementAt(index);
+                Items.Remove(item);
+                return item;
+            }
         }
 
         public IPlayableItem RemoveFromQueue(IPlayableItem item)
         {
-            Items.Remove(item);
-            return item;
+            lock (Items)
+            {
+                Items.Remove(item);
+                return item;
+            }
         }
 
         public IPlayableItem RemoveFromQueue(string name)
         {
-            var item = Items.First(vi => LevenshteinDistance.Compute(vi.GetName(), name) < 3);
-            Items.Remove(item);
-            return item;
+            lock (Items)
+            {
+                var item = Items.First(vi => LevenshteinDistance.Compute(vi.GetName(), name) < 3);
+                Items.Remove(item);
+                return item;
+            }
         }
 
         public async Task DownloadAll()
@@ -63,7 +81,8 @@ namespace BatToshoRESTApp.Audio.Objects
             _downloadTasks = 1;
             try
             {
-                var dll = Items.Where(it => string.IsNullOrEmpty(it.GetLocation()));
+                IEnumerable<IPlayableItem> dll;
+                lock (Items) dll = Items.Where(it => string.IsNullOrEmpty(it.GetLocation()));
                 var playableItems = dll.ToArray();
                 // ReSharper disable once ForCanBeConvertedToForeach
                 for (var i = 0; i < playableItems.Length; i++)
@@ -71,9 +90,13 @@ namespace BatToshoRESTApp.Audio.Objects
                     var pl = playableItems[i];
                     if (pl is SpotifyTrack tr)
                     {
-                        var index = Items.IndexOf(pl);
+                        int index;
+                        lock (Items) index = Items.IndexOf(pl);
                         var newI = await new Video().Search(tr);
-                        Items[index] = newI;
+                        lock (Items)
+                        {
+                            Items[index] = newI;
+                        }
                         await newI.Download();
                         continue;
                     }
@@ -94,45 +117,66 @@ namespace BatToshoRESTApp.Audio.Objects
 
         public void Shuffle()
         {
-            var queue = Items.OrderBy(_ => new Random().Next()).ToList();
+            lock (Items)
+            {
+                var queue = Items.OrderBy(_ => new Random().Next()).ToList();
+                var current = GetCurrent();
+                queue.Remove(current);
+                queue.Insert(0, current);
+                Items = queue;
+                Current = 0;
+            }
+        }
+
+        public void Clear()
+        {
             var current = GetCurrent();
-            queue.Remove(current);
-            queue.Insert(0, current);
-            Items = queue;
-            Current = 0;
+            lock (Items)
+            {
+                Current = 0;
+                Items = new List<IPlayableItem> {current};
+            }
         }
 
         public void ShuffleWithSeed(int seed)
         {
-            if (seed == -555) seed = new Random().Next(int.MaxValue);
-            var queue = Items.OrderBy(_ => new Random(seed).Next()).ToList();
-            var current = GetCurrent();
-            queue.Remove(current);
-            queue.Insert(0, current);
-            Items = queue;
-            Current = 0;
-            RandomSeed = seed;
+            lock (Items)
+            {
+                if (seed == -555) seed = new Random().Next(int.MaxValue);
+                var queue = Items.OrderBy(_ => new Random(seed).Next()).ToList();
+                var current = GetCurrent();
+                queue.Remove(current);
+                queue.Insert(0, current);
+                Items = queue;
+                Current = 0;
+                RandomSeed = seed;
+            }
         }
 
         public IPlayableItem GetCurrent()
         {
-            return Items[Current];
+            lock (Items)
+            {
+                return Items[Current];
+            }
         }
 
         public IPlayableItem GetNext()
         {
-            return Items[Current + 1];
+            lock (Items)
+            {
+                return Items[Current + 1];
+            }
         }
 
         public bool Move(int result, int thing2)
         {
             try
             {
-                var one = Items[result];
-                var two = Items[thing2];
-                if (one == null || two == null) return false;
-                Items[result] = two;
-                Items[thing2] = one;
+                lock (Items)
+                {
+                    
+                }
                 return true;
             }
             catch (Exception e)
@@ -146,15 +190,18 @@ namespace BatToshoRESTApp.Audio.Objects
         {
             try
             {
-                var one = Items.FirstOrDefault(vi =>
-                    LevenshteinDistance.Compute(vi.GetName(), result.Trim()) < vi.GetName().Length * 0.2);
-                var two = Items.FirstOrDefault(vi =>
-                    LevenshteinDistance.Compute(vi.GetName(), thing2.Trim()) < vi.GetName().Length * 0.2);
-                if (one == null || two == null) return false;
-                var iOne = Items.IndexOf(one);
-                var iTwo = Items.IndexOf(two);
-                Items[iOne] = two;
-                Items[iTwo] = one;
+                lock (Items)
+                {
+                    var one = Items.FirstOrDefault(vi =>
+                        LevenshteinDistance.Compute(vi.GetName(), result.Trim()) < vi.GetName().Length * 0.2);
+                    var two = Items.FirstOrDefault(vi =>
+                        LevenshteinDistance.Compute(vi.GetName(), thing2.Trim()) < vi.GetName().Length * 0.2);
+                    if (one == null || two == null) return false;
+                    var iOne = Items.IndexOf(one);
+                    var iTwo = Items.IndexOf(two);
+                    Items[iOne] = two;
+                    Items[iTwo] = one;
+                }
                 return true;
             }
             catch (Exception e)

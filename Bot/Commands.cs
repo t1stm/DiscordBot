@@ -1,19 +1,23 @@
 using System;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using BatToshoRESTApp.Audio;
 using BatToshoRESTApp.Methods;
+using BatToshoRESTApp.Tools;
 using DSharpPlus;
 using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Attributes;
 using DSharpPlus.Entities;
+using DSharpPlus.Interactivity.Extensions;
 
 namespace BatToshoRESTApp
 {
     // ReSharper disable once ClassNeverInstantiated.Global
     public class Commands : BaseCommandModule
     {
-        public static bool Abuse = false;
+        private static bool DailySalt { get; set; }= false;
+        private static bool Abuse = false;
         [Command("play")]
         [Aliases("p", "плаъ", "п")]
         public async Task PlayCommand(CommandContext ctx, [RemainingText] string search)
@@ -251,6 +255,20 @@ namespace BatToshoRESTApp
             }
         }
 
+        [Command("clear")]
+        public async Task ClearCommand(CommandContext ctx)
+        {
+            try
+            {
+                await Manager.Clear(ctx);
+            }
+            catch (Exception e)
+            {
+                await Debug.WriteAsync($"Clear command threw exception: {e}");
+                throw;
+            }
+        }
+
         [Command("getwebui")]
         [Aliases("гетвебуи", "webui", "вебуи", "wu", "ву")]
         public async Task WebUiCommand(CommandContext ctx)
@@ -375,6 +393,195 @@ namespace BatToshoRESTApp
             catch (Exception e)
             {
                 await Debug.WriteAsync($"Kick command threw exception: {e}");
+                throw;
+            }
+        }
+        [Command("meme")]
+        [Aliases("memes")]
+        public async Task MemeCommand(CommandContext ctx, [RemainingText] string meme = null)
+        {
+            try
+            {
+                var de = new DiscordEmbedBuilder();
+                var rng = new Random();
+                string[] seenMemes = {"index.php", "style.css", "latest date.txt"};
+                string[] memes = Directory.GetFiles("/srv/http/Memes");
+                if (!DailySalt)
+                {
+                    DailySalt = true;
+                    de.Url = "https://dankest.gq/Bat_Tosho_Content/straight_facts4.png";
+                }
+                else if (meme != null)
+                {
+                    de.Url = $"https://dankest.gq/Memes/{meme.Replace("https://dankest.gq/Memes/", "")}";
+                }
+                else
+                {
+                    var i = rng.Next(0, memes.Length - 1);
+                    if (seenMemes.Length >= memes.Length)
+                        seenMemes = new[] {"index.php", "style.css", "latest date.txt"};
+                    while (seenMemes.Any(m => m == memes[i]))
+                    {
+                        i = rng.Next(0, memes.Length - 1);
+                    }
+
+                    meme = memes[i];
+                    de.Url = $"https://dankest.gq/Memes/{memes[i].Split("/srv/http/Memes/")[1]}";
+                }
+
+                var message = await ctx.RespondAsync(de.Url.Replace(" ", "%20"));
+                if (Emojis.CheckIfEmoji(meme, out var emojis))
+                {
+                    foreach (var emoji in emojis)
+                    {
+                        await message.CreateReactionAsync(emoji);
+                        await Task.Delay(333);
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                await Debug.WriteAsync($"Meme command threw error: \n{e}");
+                throw;
+            }
+        }
+        [Command("hvanizakura")]
+        [Aliases("хванизакура")]
+        public async Task HvaniZaKura(CommandContext ctx, DiscordUser du)
+        {
+            try
+            {
+                DiscordMessage respond = null;
+                du ??= ctx.User;
+                if (du.Mention != null)
+                {
+                    //await ctx.RespondAsync($"{ctx.User.Mention} хвана {du.Mention} за кура.");
+                    respond = await ctx.RespondAsync(new DiscordMessageBuilder().WithContent($"{ctx.User.Mention} хвана {du.Mention} за кура.")
+                        .WithFile("hahaha_funny_peepee.jpg", await Methods.ImageMagick.DiscordUserHandler
+                            (ctx.User, du, Enums.ImageTypes.Dick)));
+                }
+                if (du.IsBot && du.IsCurrent)
+                {
+                    await ctx.RespondAsync("ohh spicy");
+                    if (respond != null) await respond.CreateReactionAsync(DiscordEmoji.FromName(Bot.Clients[0], ":tired_face:"));
+                }
+            }
+            catch (Exception e)
+            {
+                await Debug.WriteAsync($"Hvani za kura command threw error: \n{e}");
+                throw;
+            }
+        }
+
+        [Command("hvanimezakura")]
+        [Aliases("хванимезакура")]
+        public async Task HvaniMeZaKura(CommandContext ctx, DiscordUser du = null)
+        {
+            try
+            {
+                DiscordMessage respond = null;
+                du ??= ctx.User;
+                if (du.Mention != null)
+                {
+                    const ulong yesEmoji = 837062162471976982;
+                    const ulong noEmoji = 837062173296427028;
+                    var message =
+                        await ctx.RespondAsync($"{du.Mention} Искаш ли да хванеш {ctx.User.Mention} за кура?");
+                    if (du.IsBot && du.IsCurrent)
+                    {
+                        await Task.Delay(500);
+                        await message.CreateReactionAsync(DiscordEmoji.FromGuildEmote(Bot.Clients[0], yesEmoji));
+                        await Task.Delay(1000);
+                        respond = await ctx.RespondAsync(new DiscordMessageBuilder().WithContent($"{ctx.User.Mention} беше хванат от {du.Mention} за кура.")
+                            .WithFile("hahaha_funny_dick.jpg", await Methods.ImageMagick.DiscordUserHandler
+                                (du, ctx.User, Enums.ImageTypes.Dick)));
+                    }
+                    else
+                    {
+                        var timedOut = false;
+                        var em = 2;
+                        for (int i = 0; i < 38; i++)
+                        {
+                            var yRec = await message.GetReactionsAsync(DiscordEmoji.FromGuildEmote(Bot.Clients[0], yesEmoji));
+                            var nRec = await message.GetReactionsAsync(DiscordEmoji.FromGuildEmote(Bot.Clients[0], noEmoji));
+                            if (yRec.Contains(du))
+                            {
+                                em = 0;
+                                break;
+                            }
+                            if (yRec.Contains(du))
+                            {
+                                em = 1;
+                                break;
+                            }
+                            await Task.Delay(1200);
+                        }
+
+                        if (em == 2)
+                        {
+                            timedOut = true;
+                        }
+                        
+                        switch (timedOut)
+                        {
+                            case false when em is 0:
+                                var str = await Methods.ImageMagick.DiscordUserHandler(du, ctx.User, Enums.ImageTypes.Dick);
+                                str.Position = 0;
+                                respond = await ctx.RespondAsync(new DiscordMessageBuilder().WithContent($"{ctx.User.Mention} беше хванат от {du.Mention} за кура.")
+                                    .WithFile("hahaha_funny_peepee.jpg", await Methods.ImageMagick.DiscordUserHandler
+                                        (du, ctx.User, Enums.ImageTypes.Dick)));
+                                break;
+                            case true or false when em is 1:
+                                await ctx.RespondAsync($"Не бе получен consent от {du.Mention}");
+                                break;
+                            default:
+                                return;
+                        }
+                    }
+                }
+
+                if (du.IsBot && du.IsCurrent)
+                {
+                    await ctx.RespondAsync("ohh spicy");
+                    if (respond != null)
+                        await respond.CreateReactionAsync(DiscordEmoji.FromName(Bot.Clients[0], ":tired_face:"));
+                }
+            }
+            catch (Exception e)
+            {
+                await Debug.WriteAsync($"Meme command threw error: \n{e}");
+                throw;
+            }
+        }
+
+        [Command("monke")]
+        public async Task MonkeCommand(CommandContext ctx, DiscordUser du = null)
+        {
+            try
+            {
+                DiscordMessage respond = null;
+                du = du switch
+                {
+                    null => ctx.User,
+                    _ => du
+                };
+                if (du.Mention != null)
+                {
+                  respond = await ctx.RespondAsync(new DiscordMessageBuilder().WithContent($"{du.Mention} is now monke.")
+                      .WithFile("haha_funny_monke.jpg", await Methods.ImageMagick.DiscordUserHandler
+                        (du, null, Enums.ImageTypes.Monke)));
+                }
+
+                if (du.IsBot && du.IsCurrent)
+                {
+                    await ctx.RespondAsync("ohh spicy");
+                    if (respond != null)
+                        await respond.CreateReactionAsync(DiscordEmoji.FromName(Bot.Clients[0], ":tired_face:"));
+                }
+            }
+            catch (Exception e)
+            {
+                await Debug.WriteAsync($"Monke command threw error: \n{e}");
                 throw;
             }
         }

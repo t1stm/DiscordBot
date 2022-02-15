@@ -25,7 +25,7 @@ namespace BatToshoRESTApp.Audio.Platforms
 
                 if (searchTerm.Contains("/track"))
                 {
-                    var tr = await Track.Get(searchTerm.Split("track/").Last().Split("?")[0]);
+                    var tr = await Track.Get(searchTerm);
                     return new List<IPlayableItem> {tr};
                 }
             }

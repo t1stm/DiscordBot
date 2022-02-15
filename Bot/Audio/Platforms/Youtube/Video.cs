@@ -38,11 +38,13 @@ namespace BatToshoRESTApp.Audio.Platforms.Youtube
                     .ToList();
                 if (track != null)
                 {
-                    if (!term.ToLower().Contains("8d") && !term.ToLower().Contains("karaoke") &&
-                        !term.ToLower().Contains("remix"))
+                    /*if (!term.ToLower().Contains("8d") && !term.ToLower().Contains("karaoke") &&
+                        !term.ToLower().Contains("remix") && !term.ToLower().Contains("instru") && !term.ToLower().Contains("clean"))
                         res.RemoveAll(r =>
                             r.Title.ToLower().Contains("8d") || r.Title.ToLower().Contains("karaoke") ||
-                            r.Title.ToLower().Contains("remix"));
+                            r.Title.ToLower().Contains("remix") || r.Title.ToLower().Contains("instru") ||
+                            r.Title.ToLower().Contains("clean")); */
+                    RemoveAll(res, "8d", "remix", "karaoke", "instru", "clean");
                     res = res.OrderBy(r => r.Title.ToLower().Contains("official")).ToList();
                     res = res.OrderBy(r => LevenshteinDistance.Compute(r.Title, track.Title) < 3).ToList();
                 }
@@ -77,6 +79,16 @@ namespace BatToshoRESTApp.Audio.Platforms.Youtube
             task.Start();
             if (urgent) await info.Download();
             return info;
+        }
+
+        private static void RemoveAll(List<IResponseResult> list, string searchTerm, params string[] terms)
+        {
+            
+            foreach (var term in terms)
+            {
+                if (searchTerm.Contains(term)) continue;
+                list.RemoveAll(r => r.Title.ToLower().Contains(term.ToLower()));
+            }
         }
 
         public async Task<List<YoutubeVideoInformation>> SearchAllResults(string term, bool urgent = false,
@@ -137,12 +149,12 @@ namespace BatToshoRESTApp.Audio.Platforms.Youtube
             }
         }
 
-        private async Task<PreviousSearchResult> GetIdFromJson(string term)
+        private static async Task<PreviousSearchResult> GetIdFromJson(string term)
         {
             return await new SearchJsonReader().GetVideo(term);
         }
 
-        private async Task<YoutubeVideoInformation> GetCachedVideoFromId(string id)
+        private static async Task<YoutubeVideoInformation> GetCachedVideoFromId(string id)
         {
             return await new ExistingVideoInfoGetter().Read(id);
         }
@@ -150,7 +162,7 @@ namespace BatToshoRESTApp.Audio.Platforms.Youtube
         public async Task<YoutubeVideoInformation> Search(SpotifyTrack track, bool urgent = false)
         {
             await Debug.WriteAsync($"Track: {track.GetName()}, Length: {track.GetLength()}");
-            var result = await Search($"{track.Title} - {track.Author} - Topic", urgent, track.Length);
+            var result = await Search($"{track.Title} - {track.Author} {track.Explicit switch {true => "Explicit Version ", false => ""}}- Topic", urgent, track.Length);
             result.OriginTrack = track;
             result.Requester = track.GetRequester();
             if (urgent) await result.Download();

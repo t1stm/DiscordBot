@@ -31,20 +31,21 @@ namespace BatToshoRESTApp
             BotBeta = "NjcxMDg3NjM4NjM1MDg1ODUy.Xi31EQ.v-QjHqPT6BAQhans6bveYhNC9CU",
             SecondaryBot = "OTAzMjg3NzM3Nzc4NTg5NzA2.YXqyQg.F3cDKz-icUbYYMUJXwLxT-BX574";
 
-        private static Random Rng = new();
+        private static readonly Random Rng = new();
 
         public const string WorkingDirectory = "/home/kris/BatTosho";
 
         //private static Timer GarbageCollectTimer { get; } = new(60000);
-        public static int UpdateDelay { get; set; } = 1600; //Milliseconds
+        public const int UpdateDelay = 2500; //Milliseconds
         public static List<DiscordClient> Clients { get; } = new();
+        public static bool DebugMode { get; private set; }
 
         public static readonly HttpServer WebSocketServer = new (NullLogger.Instance, 8000); //This is a server by the WebSocketSharp lib.
 
         public static async Task Initialize(RunType token)
         {
-            //GarbageCollectTimer.Elapsed += (_, _) => { GC.Collect(); };
-            //GarbageCollectTimer.Start();
+            //GarbageCollectTimer.Elapsed += (_, _) => { GC.Collect(); }; // I've removed this because it was a bad idea to call the GC manually. 
+            //GarbageCollectTimer.Start();                                // Please if you're reading this don't do it.
             BatTosho.LoadUsers();
             HttpClient.WithCookies();
             switch (token)
@@ -69,7 +70,7 @@ namespace BatToshoRESTApp
                 default:
                     throw new ArgumentOutOfRangeException(nameof(token), token, null);
             }
-
+            Clients.Add(SpecificContentBot());
             foreach (var client in Clients) await client.ConnectAsync();
             string text;
             WebSocketServer.Start();
@@ -91,20 +92,47 @@ namespace BatToshoRESTApp
                             continue;
                         }
                         case "reboot":
-                            while (Manager.Main.Count > 0)
+                            var cancel = false;
+                            var force = false;
+                            var writeTask = new Task(() =>
+                            {
+                                string cs;
+                                while ((cs = Console.ReadLine()) is not ("cancel" or "force")) {}
+
+                                switch (cs)
+                                {
+                                    case "cancel":
+                                        cancel = true;
+                                        break;
+                                    case "force":
+                                        force = true;
+                                        break;
+                                }
+                            });
+                            writeTask.Start();
+                            while (Manager.Main.Count > 0 && !cancel && !force)
                             {
                                 Console.Clear();
                                 await Debug.WriteAsync("Waiting to restart.");
                                 await Debug.WriteAsync("Active guilds: ");
-                                foreach (var val in Manager.Main)
+                                foreach (var pl in Manager.Main)
                                     await Debug.WriteAsync(
-                                        $"{val.CurrentGuild} : {val.VoiceChannel.Name} " +
-                                        $"- Owner : {val.CurrentGuild.Owner.DisplayName} - {val.CurrentGuild.Owner.Id} " +
-                                        $"- Track: {val.Queue.Current + 1} - {val.Queue.Count} " +
-                                        $"- Waiting Stopwatch: {val.WaitingStopwatch.Elapsed:c}");
+                                        $"{pl.CurrentGuild} : {pl.VoiceChannel.Name} " +
+                                        $"- Owner : {pl.CurrentGuild.Owner.DisplayName} - {pl.CurrentGuild.Owner.Id} " +
+                                        $"- Track: ({pl.Queue.Current + 1}) \"{pl.CurrentItem.GetName()}\" - ({pl.Queue.Count}) " +
+                                        $"- Waiting Stopwatch: {Statusbar.Time(pl.WaitingStopwatch.Elapsed)} " +
+                                        $"- Time: {Statusbar.Time(pl.Stopwatch.Elapsed)} " +
+                                        $"- {Statusbar.Time(TimeSpan.FromMilliseconds(pl.CurrentItem.GetLength()))} " +
+                                        $"- Paused: {pl.Paused}");
                                 await Task.Delay(1000);
                             }
 
+                            if (cancel && !force)
+                            {
+                                force = false;
+                                cancel = false;
+                                break;
+                            }
                             Environment.Exit(0);
                             break;
                         case "forceoff":
@@ -130,7 +158,9 @@ namespace BatToshoRESTApp
                                 await Debug.WriteAsync(
                                     $"{val.Name} : {val.Id} - Owner : {val.Owner.DisplayName} - {val.Owner.Id}");
                             }
-
+                            continue;
+                        case "debug":
+                            DebugMode = !DebugMode;
                             continue;
                     }
                 }
@@ -148,7 +178,8 @@ namespace BatToshoRESTApp
             {
                 Token = token,
                 TokenType = TokenType.Bot,
-                MinimumLogLevel = LogLevel.None
+                MinimumLogLevel = LogLevel.Information,
+                LogTimestampFormat = Debug.DebugTimeDateFormat
             });
             var commandsExtension = client.UseCommandsNext(new CommandsNextConfiguration
             {
@@ -172,7 +203,6 @@ namespace BatToshoRESTApp
                         {
                             await Debug.WriteAsync("After Channel is Null");
                             await cl.DisconnectAsync(isEvent:true);
-                            Manager.Main.Remove(cl);
                             return;
                         }
                         if (args.Before.Channel.Id == args.After.Channel.Id) return;
@@ -191,12 +221,31 @@ namespace BatToshoRESTApp
                     PollBehaviour = PollBehaviour.KeepEmojis,
                     Timeout = TimeSpan.FromSeconds(60)
                 });
-            if (useVoiceNext) client.UseVoiceNext();
+            if (useVoiceNext) client.UseVoiceNext(new VoiceNextConfiguration
+            {
+                AudioFormat = new AudioFormat(48000, 2, VoiceApplication.LowLatency),
+                EnableIncoming = false
+            });
             if (!useSlashCommands) return client;
             var ext = client.UseSlashCommands();
             ext.RegisterCommands<CommandsSlash>();
             ext.RegisterCommands<CommandsSlash>(933977766284652594);
             Debug.Write("Using Slash Commands.");
+
+            return client;
+        }
+
+        private static DiscordClient SpecificContentBot()
+        {
+            var client = new DiscordClient(new DiscordConfiguration
+            {
+               Token = "OTQwNjMwMzQzNTg3ODcyNzc4.YgKMRQ.EsRo8pmgYCd6Gju23uSgTiqzSqM",
+               TokenType = TokenType.Bot,
+               MinimumLogLevel = LogLevel.None
+            });
+            var ext = client.UseSlashCommands();
+            ext.RegisterCommands<CommandsSpecific>();
+            //ext.RegisterCommands<CommandsSpecific>(933977766284652594);
 
             return client;
         }

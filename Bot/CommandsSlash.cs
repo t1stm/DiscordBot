@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Threading.Tasks;
 using BatToshoRESTApp.Audio;
 using BatToshoRESTApp.Audio.Platforms.Discord;
@@ -6,6 +7,7 @@ using BatToshoRESTApp.Controllers;
 using BatToshoRESTApp.Methods;
 using DSharpPlus;
 using DSharpPlus.Entities;
+using DSharpPlus.Interactivity.Extensions;
 using DSharpPlus.SlashCommands;
 
 namespace BatToshoRESTApp
@@ -262,6 +264,121 @@ namespace BatToshoRESTApp
             catch (Exception e)
             {
                 await Debug.WriteAsync($"Save Playlist Slash Command failed: {e}");
+            }
+        }
+
+        [ContextMenu(ApplicationCommandType.UserContextMenu, "Hvani Za Kura.")]
+        public async Task CatchDick(ContextMenuContext ctx)
+        {
+            try
+            {
+                DiscordMessage respond = null;
+                var du = ctx.TargetMember;
+                await ctx.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, new DiscordInteractionResponseBuilder().WithContent("```Sending request```"));
+                var im = new Methods.ImageMagick();
+                if (du.Mention != null)
+                {
+                    var str = await Methods.ImageMagick.DiscordUserHandler(ctx.User, du, Enums.ImageTypes.Dick);
+                    //await ctx.RespondAsync($"{ctx.User.Mention} хвана {du.Mention} за кура.");
+                    str.Position = 0;
+                    await ctx.Member.SendMessageAsync(new DiscordMessageBuilder().WithContent($"```Ти хвана за {du.Username}#{du.Discriminator} кура.```")
+                        .WithFile("hahaha_funny_peepee.jpg", str));
+                    str.Position = 0;
+                    if (du != ctx.Client.CurrentUser) respond = await du.SendMessageAsync(new DiscordMessageBuilder().WithContent($"```{ctx.User.Username}#{ctx.User.Discriminator} те хвана за кура.```")
+                        .WithFile("hahaha_funny_peepee.jpg", str));
+                }
+                if (du.IsBot && du.IsCurrent)
+                {
+                    if (respond != null) await respond.CreateReactionAsync(DiscordEmoji.FromName(Bot.Clients[0], ":tired_face:"));
+                }
+            }
+            catch (Exception e)
+            {
+                await Debug.WriteAsync($"Hvani Za Kura Context Menu failed: {e}");
+            }
+        }
+        
+        [ContextMenu(ApplicationCommandType.UserContextMenu, "Send \"Hvani Me Za Kura\" request.")]
+        public async Task CatchDickRequest(ContextMenuContext ctx)
+        {
+            try
+            {
+                 DiscordMessage respond = null;
+                var du = ctx.TargetMember;
+                if (du.Mention != null)
+                {
+                    const ulong yesEmoji = 837062162471976982;
+                    const ulong noEmoji = 837062173296427028;
+                    var message =
+                        await du.SendMessageAsync($"```{ctx.User.Username}#{ctx.User.Discriminator} Иска да го хванеш да кура, съгласен ли си?```");
+                    await ctx.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, new DiscordInteractionResponseBuilder().WithContent("```Sending request```"));
+                    if (du.IsBot && du.IsCurrent)
+                    {
+                        await Task.Delay(3000);
+                        respond = await ctx.Member.SendMessageAsync(new DiscordMessageBuilder().WithContent($"```Ти хвана {du.Username}#{du.Discriminator} за кура.```")
+                            .WithFile("hahaha_funny_dick.jpg", await Methods.ImageMagick.DiscordUserHandler
+                                (du, ctx.User, Enums.ImageTypes.Dick)));
+                    }
+                    else
+                    {
+                        await message.CreateReactionAsync(DiscordEmoji.FromGuildEmote(Bot.Clients[0], yesEmoji));
+                        await message.CreateReactionAsync(DiscordEmoji.FromGuildEmote(Bot.Clients[0], noEmoji));
+                        //var response = await message.WaitForReactionAsync(du);
+                        var timedOut = false;
+                        var em = 2;
+                        for (int i = 0; i < 38; i++)
+                        {
+                            var yRec = await message.GetReactionsAsync(DiscordEmoji.FromGuildEmote(Bot.Clients[0], yesEmoji));
+                            var nRec = await message.GetReactionsAsync(DiscordEmoji.FromGuildEmote(Bot.Clients[0], noEmoji));
+                            if (yRec.Contains(du))
+                            {
+                                em = 0;
+                                break;
+                            }
+                            if (yRec.Contains(du))
+                            {
+                                em = 1;
+                                break;
+                            }
+                            await Task.Delay(1200);
+                        }
+
+                        if (em == 2)
+                        {
+                            timedOut = true;
+                        }
+                        
+                        switch (timedOut)
+                        {
+                            case false when em is 0:
+                                var str = await Methods.ImageMagick.DiscordUserHandler(du, ctx.User, Enums.ImageTypes.Dick);
+                                str.Position = 0;
+                                await ctx.Member.SendMessageAsync(new DiscordMessageBuilder().WithContent($"```Ти хвана {du.Username}#{du.Discriminator} за кура.```")
+                                    .WithFile("hahaha_funny_peepee.jpg", str));
+                                str.Position = 0;
+                                respond = await du.SendMessageAsync(new DiscordMessageBuilder().WithContent($"```Ти беше хванат от {ctx.Member.Username}#{ctx.Member.Discriminator} за кура.```")
+                                    .WithFile("hahaha_funny_peepee.jpg", str));
+                                break;
+                            case true or false when em is 1:
+                                await ctx.Member.SendMessageAsync($"```Не бе получен consent от {du.Username}#{du.Discriminator}```");
+                                await du.SendMessageAsync("```Не даде consent```");
+                                break;
+                            default:
+                                return;
+                        }
+                    }
+                    
+                }
+
+                if (du.IsBot && du.IsCurrent)
+                {
+                    if (respond != null)
+                        await respond.CreateReactionAsync(DiscordEmoji.FromName(Bot.Clients[0], ":tired_face:"));
+                }
+            }
+            catch (Exception e)
+            {
+                await Debug.WriteAsync($"Hvani Me Za Kura Context Menu failed: {e}");
             }
         }
     }

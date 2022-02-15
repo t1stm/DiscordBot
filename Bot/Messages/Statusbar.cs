@@ -128,6 +128,7 @@ namespace BatToshoRESTApp.Audio
             var length = Player.CurrentItem.GetLength();
             var time = Player.Stopwatch.ElapsedMilliseconds;
             var progress = GenerateProgressbar(Player);
+            if (Bot.DebugMode) Debug.Write($"Updated Statusbar in guild \"{Player.CurrentGuild.Name}\": Track: \"{Player.CurrentItem.GetName()}\", Time: {Time(Player.Stopwatch.Elapsed)} - {Time(TimeSpan.FromMilliseconds(length))}");
 
             return
                 $"```Playing {Player.CurrentItem.GetTypeOf()}:\n" +
@@ -209,9 +210,14 @@ namespace BatToshoRESTApp.Audio
             return progress;
         }
 
-        private static string Time(TimeSpan span)
+        public static string Time(TimeSpan span)
         {
             return span.ToString("hh\\:mm\\:ss");
+        }
+
+        ~Statusbar()
+        {
+            Stop();
         }
     }
 }

@@ -24,11 +24,11 @@ namespace BatToshoRESTApp.Audio
     public static class Manager
     {
         public static readonly List<Player> Main = new();
-        private static int FailedGetAttempts { get; set; }
 
-        public static Player GetPlayer(DiscordChannel channel, DiscordClient client)
+        public static Player GetPlayer(DiscordChannel channel, DiscordClient client, int fail = 0)
         {
             //UDRI MAISTORE EDNA DJULEVA RAKIQ
+            var failedGetAttempts = fail;
             try
             {
                 lock (Main)
@@ -36,7 +36,7 @@ namespace BatToshoRESTApp.Audio
                     if (Main.Any(pl => pl.VoiceChannel.Id == channel.Id))
                     {
                         Debug.Write($"Returning channel: \"{channel.Name}\" in guild: \"{channel.Guild.Name}\"");
-                        FailedGetAttempts = 0;
+                        failedGetAttempts = 0;
                         return Main.First(pl => pl.VoiceChannel.Id == channel.Id);
                     }
 
@@ -50,7 +50,7 @@ namespace BatToshoRESTApp.Audio
                         Main.Add(pl);
                         Debug.Write(
                             $"Adding new item to dictionary: \"{channel.Name}\", in guild: \"{channel.Guild.Name}\", with id: \"{channel.GuildId}\"");
-                        FailedGetAttempts = 0;
+                        failedGetAttempts = 0;
                         return pl;
                     }
 
@@ -67,16 +67,16 @@ namespace BatToshoRESTApp.Audio
                             CurrentClient = cl, VoiceChannel = cl.Guilds[channel.Guild.Id].Channels[channel.Id]
                         };
                         Main.Add(pl);
-                        FailedGetAttempts = 0;
+                        failedGetAttempts = 0;
                         return pl;
                     }
                 }
             }
             catch (Exception e)
             {
-                FailedGetAttempts++;
+                failedGetAttempts++;
                 Debug.Write($"Get Player failed with: \"{e}\"");
-                return FailedGetAttempts > 3 ? null : GetPlayer(channel, client);
+                return failedGetAttempts > 3 ? null : GetPlayer(channel, client, failedGetAttempts);
             }
             return null;
         }
@@ -155,11 +155,16 @@ namespace BatToshoRESTApp.Audio
                     player.VoiceChannel = userVoiceS;
                     player.Sink = player.Connection.GetTransmitSink();
                     player.CurrentGuild = user.Guild;
-                    await player.Play();
-                    player.Disconnect();
-                    await Debug.WriteAsync(
-                        $"Disconnecting from channel: {player.VoiceChannel.Name} in guild: {player.CurrentGuild.Name}");
-                    Main.Remove(Main.First(pl => pl.VoiceChannel.Id == userVoiceS.Id));
+                    var playerTask = new Task(async () => {
+                        try
+                        {
+                            await player.Play();
+                        }
+                        catch (Exception e)
+                        {
+                            await Debug.WriteAsync($"Player Task Failed: {e}");
+                        }});
+                    playerTask.Start();
                 }
                 else
                 {
@@ -207,14 +212,14 @@ namespace BatToshoRESTApp.Audio
                         await player.CurrentClient.SendMessageAsync(messageChannel, $"```Added: {term}```");
                     else
                         await player.CurrentClient.SendMessageAsync(messageChannel,
-                            $"```Added: {items.First().GetName()}```");
+                            $"```Added: ({player.Queue.Items.IndexOf(items.First()) + 1}) - {items.First().GetName()}```");
                 }
             }
             catch (Exception e)
             {
                 try
                 {
-                    player.Connection.Disconnect();
+                    player.Disconnect();
                     player.Statusbar.Stop();
                     await Debug.WriteAsync($"Error in Play: {e}");
                 }
@@ -222,8 +227,6 @@ namespace BatToshoRESTApp.Audio
                 {
                     await Debug.WriteAsync($"Failed to disconnect when caught error: {exception}");
                 }
-
-                Main.Remove(Main.First(pl => pl.VoiceChannel.Id == userVoiceS.Id));
                 throw;
             }
         }
@@ -264,9 +267,7 @@ namespace BatToshoRESTApp.Audio
             catch (Exception e)
             {
                 await Debug.WriteAsync($"Disconnecting exception: {e}");
-                Main.Remove(Main.First(pl => pl.VoiceChannel.Id == userVoiceS.Id));
             }
-            Main.Remove(Main.First(pl => pl.VoiceChannel.Id == userVoiceS.Id));
         }
 
         public static async Task Shuffle(CommandContext ctx)
@@ -293,8 +294,7 @@ namespace BatToshoRESTApp.Audio
 
             var player = GetPlayer(userVoiceS, ctx.Client);
             if (player == null) return;
-            player.ToggleLoop();
-            await ctx.RespondAsync("```Loop status is now: " + player.LoopStatus switch
+            await ctx.RespondAsync("```Loop status is now: " + player.ToggleLoop() switch
             {
                 Enums.Loop.None => "None", Enums.Loop.WholeQueue => "Looping whole queue.",
                 Enums.Loop.One => "One Item Only.", _ => "None"
@@ -335,7 +335,7 @@ namespace BatToshoRESTApp.Audio
                 var thing = player.Queue.Items[nextSong - 1];
                 player.Queue.RemoveFromQueue(thing);
                 player.Queue.AddToQueueNext(thing);
-                await Bot.Reply(ctx, $"Playing: \"{thing.GetName()}\" after this.");
+                await Bot.Reply(ctx, $"Playing: ({player.Queue.Items.IndexOf(thing) + 1}) - \"{thing.GetName()}\" after this.");
                 return;
             }
 
@@ -349,7 +349,7 @@ namespace BatToshoRESTApp.Audio
                 item = await new Search().Get(term);
             item.ForEach(it => it.SetRequester(ctx.Member));
             player.Queue.AddToQueueNext(item);
-            await Bot.Reply(ctx, $"Playing: \"{(item.Count > 1 ? term : item[0].GetName())}\" after this.");
+            await Bot.Reply(ctx, $"Playing: {(item.Count > 1 ? $"\"{term}\"" : $"({player.Queue.Items.IndexOf(item[0]) + 1}) - \"{item[0].GetName()}\"")} after this.");
         }
 
         public static async Task Remove(CommandContext ctx, string text)
@@ -468,6 +468,19 @@ namespace BatToshoRESTApp.Audio
 
             var player = GetPlayer(userVoiceS, ctx.Client);
             player?.GoToIndex(index);
+        }
+
+        public static async Task Clear(CommandContext ctx)
+        {
+            var userVoiceS = ctx.Member.VoiceState.Channel;
+            if (userVoiceS == null)
+            {
+                await Bot.SendDirectMessage(ctx, "Enter a channel before using the shuffle command.");
+                return;
+            }
+
+            var player = GetPlayer(userVoiceS, ctx.Client);
+            player.Queue.Clear();
         }
 
         public static async Task SavePlaylist(CommandContext ctx)

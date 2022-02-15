@@ -7,9 +7,10 @@ namespace BatToshoRESTApp.Methods
 {
     public static class Debug
     {
+        public const string DebugTimeDateFormat = "dd/MM/yyyy hh:mm:ss tt";
         public static async Task WriteAsync(string text, bool save = false)
         {
-            var date = $"{DateTime.Now.ToShortDateString()} {DateTime.Now.ToLongTimeString()}";
+            var date = $"{DateTime.Now.ToString(DebugTimeDateFormat)}";
             var transformed = $"{date}: {text}";
             Console.WriteLine(transformed);
             if (!save) return;
@@ -19,7 +20,7 @@ namespace BatToshoRESTApp.Methods
 
         public static void Write(string text, bool save = false)
         {
-            var date = $"{DateTime.Now.ToShortDateString()} {DateTime.Now.ToLongTimeString()}";
+            var date = $"{DateTime.Now.ToString(DebugTimeDateFormat)}";
             var transformed = $"{date}: {text}";
             Console.WriteLine(transformed);
             if (!save) return;

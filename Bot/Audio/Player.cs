@@ -90,11 +90,15 @@ namespace BatToshoRESTApp.Audio
                             continue;
                         
                         case YoutubeVideoInformation vi:
-                            while (Stopwatch.ElapsedMilliseconds < 1000)
+                            int tries = 1;
+                            while (string.IsNullOrEmpty(vi.GetLocation()) && tries < 5)
                             {
                                 await vi.Download();
-                                await PlayTrack(CurrentItem.GetLocation(), Stopwatch.Elapsed.ToString(@"c"), true);
+                                await Task.Delay(33);
+                                tries++;
                             }
+                            await PlayTrack(vi.GetLocation(), Stopwatch.Elapsed.ToString(@"c"), true);
+                            
                             break;
                         
                         default:
@@ -124,7 +128,8 @@ namespace BatToshoRESTApp.Audio
                         WaitingStopwatch.Reset();
                     }
                 }
-
+                Disconnect();
+                
                 _timer.Stop();
                 _timer.Elapsed -= Handler;
             }
@@ -152,9 +157,11 @@ namespace BatToshoRESTApp.Audio
                 }
                 await Debug.WriteAsync($"Location is: {location}");
                 if (!Stopwatch.IsRunning) Stopwatch.Start();
-                if (location is {Length: > 4} && location[..4] == "http" && isYoutube) await FfMpeg.UrlToPcm(location, startingTime, Normalize).CopyToAsync(Sink);
+                if (location is {Length: > 4} && location[..4] == "http" && isYoutube) 
+                    await FfMpeg.UrlToPcm(location, startingTime, Normalize).CopyToAsync(Sink);
                 else 
-                    await FfMpeg.PathToPcm(location, startingTime, Normalize).CopyToAsync(Sink, null, CancelSource.Token);
+                    await FfMpeg.PathToPcm(location, startingTime, Normalize)
+                        .CopyToAsync(Sink, null, CancelSource.Token);
                 if (!UpdatedChannel)
                     try
                     {
@@ -236,6 +243,11 @@ namespace BatToshoRESTApp.Audio
             FfMpeg.KillSync();
             Connection.Disconnect();
             Sink.Dispose();
+            lock (Manager.Main)
+            {
+                if (Manager.Main.Contains(this)) Manager.Main.Remove(this);
+            }
+            Debug.Write($"Disconnecting from channel: {VoiceChannel.Name} in guild: {CurrentGuild.Name}");
         }
 
         public async Task DisconnectAsync(string message = "Bye! \\(◕ ◡ ◕\\)", bool isEvent = false)
@@ -250,6 +262,11 @@ namespace BatToshoRESTApp.Audio
                 Sink.Dispose();
                 if (isEvent) return;
                 Connection.Disconnect();
+                lock (Manager.Main)
+                {
+                    if (Manager.Main.Contains(this)) Manager.Main.Remove(this);
+                }
+                await Debug.WriteAsync($"Disconnecting from channel: {VoiceChannel.Name} in guild: {CurrentGuild.Name}");
             }
             catch (Exception e)
             {
@@ -282,6 +299,10 @@ namespace BatToshoRESTApp.Audio
         {
             try
             {
+                lock (Manager.Main)
+                {
+                    if (Manager.Main.Contains(this)) Manager.Main.Remove(this);
+                }
                 Disconnect();
             }
             catch (Exception e)
