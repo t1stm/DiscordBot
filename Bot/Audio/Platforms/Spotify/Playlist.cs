@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using BatToshoRESTApp.Audio.Objects;
 using SpotifyAPI.Web;
@@ -45,6 +46,29 @@ namespace BatToshoRESTApp.Audio.Platforms.Spotify
                 }
 
             return list;
+        }
+
+        public static async Task<List<SpotifyTrack>> GetAlbum(string albumId)
+        {
+            var tempTracks = await Spotify.Albums.GetTracks(albumId, new AlbumTracksRequest {Offset = 0});
+            var playlistTracks = new List<SimpleTrack>();
+            var offset = 0;
+            while (tempTracks.Items != null && tempTracks.Items.Count != 0)
+            {
+                playlistTracks.AddRange(tempTracks.Items);
+                offset += 100;
+                tempTracks = await Spotify.Albums.GetTracks(albumId, new AlbumTracksRequest {Offset = offset});
+            }
+            return playlistTracks.Select(track => new SpotifyTrack
+                {
+                    Title = track.Name,
+                    Author = Methods.ArtistsNameCombine(track.Artists),
+                    Length = (ulong) track.DurationMs,
+                    TrackId = track.Id,
+                    Album = null,
+                    Explicit = track.Explicit
+                })
+                .ToList();
         }
     }
 }

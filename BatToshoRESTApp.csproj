@@ -243,7 +243,7 @@
       <PackageReference Include="System.Xml.XDocument" Version="4.3.0" />
       <PackageReference Include="taglib-sharp-netstandard2.0" Version="2.1.0" />
       <PackageReference Include="Unosquare.Swan.Lite" Version="3.1.0" />
-      <PackageReference Include="WebSocketSharper" Version="1.0.39" />
+      <PackageReference Include="WebSocketSharp" Version="1.0.3-rc11" />
       <PackageReference Include="YouTubeApiSharp" Version="0.0.5" />
       <PackageReference Include="YoutubeExplode" Version="6.0.8" />
       <PackageReference Include="YoutubeSearchApi.Net" Version="2021.8.24" />

@@ -1,5 +1,5 @@
-using WebSocketSharper;
-using WebSocketSharper.Server;
+using WebSocketSharp;
+using WebSocketSharp.Server;
 using static System.String;
 
 namespace BatToshoRESTApp.Controllers

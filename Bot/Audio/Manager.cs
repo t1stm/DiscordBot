@@ -1,7 +1,9 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Net.Http;
+using System.Text;
 using System.Text.Json;
 using System.Text.RegularExpressions;
 using System.Threading;
@@ -27,7 +29,7 @@ namespace BatToshoRESTApp.Audio
 
         public static Player GetPlayer(DiscordChannel channel, DiscordClient client, int fail = 0)
         {
-            //UDRI MAISTORE EDNA DJULEVA RAKIQ
+            //UDRI MAISTORE EDNA PO DJULEVA RAKIQ
             var failedGetAttempts = fail;
             try
             {
@@ -61,7 +63,7 @@ namespace BatToshoRESTApp.Audio
                         where con is null
                         select cl)
                     {
-                        Debug.Write($"Client is: {cl.CurrentUser.Id}, {nameof(cl)}");
+                        Debug.Write($"Client is: {cl.CurrentUser.Id}, {cl.CurrentUser.Username}");
                         var pl = new Player
                         {
                             CurrentClient = cl, VoiceChannel = cl.Guilds[channel.Guild.Id].Channels[channel.Id]
@@ -75,7 +77,7 @@ namespace BatToshoRESTApp.Audio
             catch (Exception e)
             {
                 failedGetAttempts++;
-                Debug.Write($"Get Player failed with: \"{e}\"");
+                Debug.Write($"Get Player failed with: \"{e}\"", true, Debug.DebugColor.Urgent);
                 return failedGetAttempts > 3 ? null : GetPlayer(channel, client, failedGetAttempts);
             }
             return null;
@@ -93,11 +95,23 @@ namespace BatToshoRESTApp.Audio
             var player = GetPlayer(userVoiceS, ctx.Client);
             if (player == null)
             {
-                await Bot.SendDirectMessage(ctx, "No free bot accounts in this guild.");
+                await Bot.SendDirectMessage(ctx, "No free bot accounts in this guild. You can add more bot accounts from the bot site when it's made.");
                 return;
             }
 
-            await Play(term, select, player, userVoiceS, ctx.Member, ctx.Message.Attachments.ToList(), ctx.Channel);
+            try
+            {
+                await Play(term, select, player, userVoiceS, ctx.Member, ctx.Message.Attachments.ToList(), ctx.Channel);
+            }
+            catch (Exception e)
+            {
+                await Debug.WriteAsync($"Exception in Play: {e}");
+                lock (Main)
+                {
+                    if (Main.Contains(player)) Main.Remove(player);
+                }
+                throw;
+            }
         }
 
         public static async Task Play(string term, bool select, Player player, DiscordChannel userVoiceS,
@@ -259,10 +273,12 @@ namespace BatToshoRESTApp.Audio
             if (player == null) return;
             try
             {
-                // ReSharper disable once MethodHasAsyncOverload
-                //This is because I hate when the bot takes ages to disconnect. I am talking from experience.
-                player.Disconnect();
                 player.Statusbar.Stop();
+                await player.DisconnectAsync();
+                lock (Main)
+                {
+                    if (Main.Contains(player)) Main.Remove(player);
+                }
             }
             catch (Exception e)
             {
@@ -335,7 +351,7 @@ namespace BatToshoRESTApp.Audio
                 var thing = player.Queue.Items[nextSong - 1];
                 player.Queue.RemoveFromQueue(thing);
                 player.Queue.AddToQueueNext(thing);
-                await Bot.Reply(ctx, $"Playing: ({player.Queue.Items.IndexOf(thing) + 1}) - \"{thing.GetName()}\" after this.");
+                await Bot.Reply(player.CurrentClient, ctx.Channel, $"Playing: ({player.Queue.Items.IndexOf(thing) + 1}) - \"{thing.GetName()}\" after this.");
                 return;
             }
 
@@ -343,13 +359,16 @@ namespace BatToshoRESTApp.Audio
             if (ctx.Message.Attachments.Count > 0)
             {
                 item = await new Search().Get(term, ctx.Message.Attachments.ToList(), ctx.Guild.Id);
-                term = ctx.Message.Attachments.ToList()[0].FileName;
+                term = ctx.Message.Attachments.Count switch
+                {
+                    1 => ctx.Message.Attachments.ToList()[0].FileName, _ => "Discord Attachments"
+                };
             }
             else
                 item = await new Search().Get(term);
             item.ForEach(it => it.SetRequester(ctx.Member));
             player.Queue.AddToQueueNext(item);
-            await Bot.Reply(ctx, $"Playing: {(item.Count > 1 ? $"\"{term}\"" : $"({player.Queue.Items.IndexOf(item[0]) + 1}) - \"{item[0].GetName()}\"")} after this.");
+            await Bot.Reply(player.CurrentClient, ctx.Channel, $"Playing: {(item.Count > 1 ? $"\"{term}\"" : $"({player.Queue.Items.IndexOf(item[0]) + 1}) - \"{item[0].GetName()}\"")} after this.");
         }
 
         public static async Task Remove(CommandContext ctx, string text)
@@ -363,8 +382,13 @@ namespace BatToshoRESTApp.Audio
 
             var player = GetPlayer(userVoiceS, ctx.Client);
             if (player == null) return;
-            var item = int.TryParse(text, out var num) ? player.Queue.RemoveFromQueue(num - 1) : player.Queue.RemoveFromQueue(text);
-            await Bot.Reply(ctx, $"Removing {item.GetName()}");
+            var item = int.TryParse(text, out var num) ? await player.RemoveFromQueue(num - 1) : await player.RemoveFromQueue(text);
+            if (item == null)
+            {
+                await Bot.Reply(player.CurrentClient, ctx.Channel, $"Failed to remove: \"{text}\"");
+                return;
+            }
+            await Bot.Reply(player.CurrentClient, ctx.Channel, $"Removing {item.GetName()}");
         }
 
         public static async Task GetWebUi(CommandContext ctx)
@@ -417,15 +441,21 @@ namespace BatToshoRESTApp.Audio
             var stuff = move.Split(" ");
             if (int.TryParse(stuff[0], out var thing1) && int.TryParse(stuff[1], out var thing2))
             {
-                player.Queue.Move(thing1 - 1, thing2 - 1);
+                var succ = player.Queue.Move(thing1 - 1, thing2 - 1, out var item);
+                if (succ) await Bot.Reply(player.CurrentClient, ctx.Channel, $"Moved ({thing1}) \"{item.GetName()}\" to ({thing2})");
+                else await Bot.Reply(player.CurrentClient, ctx.Channel, "Failed to move.");
                 return;
             }
 
             if (!move.Contains("!to"))
-                await player.CurrentClient.SendMessageAsync(ctx.Channel, "```Invalid move format```");
+                await player.CurrentClient.SendMessageAsync(ctx.Channel, 
+                    "```Invalid move format.\nYou must use two numbers or use the format specified below:\n\n" +
+                    "-mv Exact Name !to Exact Name 2 ```");
 
             var tracks = move.Split("!to");
-            player.Queue.Move(tracks[0], tracks[1]);
+            var success = player.Queue.Move(tracks[0], tracks[1], out var i1, out var i2);
+            if (success) await Bot.Reply(player.CurrentClient, ctx.Channel, $"Switched the places of \"{i1.GetName()}\" and \"{i2.GetName()}\"");
+            else await Bot.Reply(player.CurrentClient, ctx.Channel, "Failed to move.");
         }
 
         public static async Task Shuffle(CommandContext ctx, int seedInt)
@@ -456,18 +486,45 @@ namespace BatToshoRESTApp.Audio
             await Bot.Reply(ctx,
                 seed switch {0 => "This queue hasn't been shuffled.", _ => $"The queue's seed is: \"{seed}\""});
         }
-
+        
+        public static async Task List(CommandContext ctx, bool inDiscord)
+        {
+            var userVoiceS = ctx.Member.VoiceState.Channel;
+            if (userVoiceS == null)
+            {
+                await Bot.SendDirectMessage(ctx, "Enter a channel before using the list command.");
+                return;
+            }
+            var player = GetPlayer(userVoiceS, ctx.Client);
+            if (player == null) return;
+            switch (inDiscord)
+            {
+                case true:
+                    await Bot.Reply(ctx,
+                        new DiscordMessageBuilder().WithContent("```Current Queue:```").WithFile("queue.txt", new MemoryStream(Encoding.UTF8.GetBytes(player.Queue 
+                            + "\n\nHere's a tech tip. " +
+                            "\nYou can use the bot web interface which displays the list automatically. " +
+                            "\nYou can add, remove and overall control the bot using a spicy looking interface. " +
+                            "\nYou can use it with the -webui command. " +
+                            "\nThe bot will DM you a link which you can use to login, and a token for authentication."))));
+                    break;
+                case false:
+                    break;
+            }    
+        }
+        
         public static async Task GoTo(CommandContext ctx, int index)
         {
             var userVoiceS = ctx.Member.VoiceState.Channel;
             if (userVoiceS == null)
             {
-                await Bot.SendDirectMessage(ctx, "Enter a channel before using the shuffle command.");
+                await Bot.SendDirectMessage(ctx, "Enter a channel before using the GoTo command.");
                 return;
             }
 
             var player = GetPlayer(userVoiceS, ctx.Client);
-            player?.GoToIndex(index);
+            var thing = player?.GoToIndex(index + 1);
+            await Bot.Reply(ctx, $"Going to ({index + 1}) - \"{thing?.GetName()}\"");
         }
 
         public static async Task Clear(CommandContext ctx)
@@ -542,14 +599,21 @@ namespace BatToshoRESTApp.Audio
             }
 
             var lyrics = await GetLyrics(query);
+            if (lyrics == null)
+            {
+                await Bot.Reply(ctx, "No results found for this song");
+                return;
+            }
             if (lyrics.Length + query.Length + 13 + 6 > 2000)
             {
-                await Bot.Reply(ctx,
-                    "The lyrics are longer than 2000 characters, which is Discord's length limit. Too bad.");
+                await Bot.Reply(ctx,new DiscordMessageBuilder()
+                    .WithContent("```The lyrics are longer than 2000 characters, which is Discord's length limit. Too bad. Sending song as a file.```")
+                    .WithFile("lyrics.txt", new MemoryStream(Encoding.UTF8.GetBytes(lyrics)))
+                );
                 return;
             }
 
-            await Bot.Reply(ctx, $"Lyrics for {query}: {lyrics}");
+            await Bot.Reply(ctx, $"Lyrics for {query}: \n{lyrics}");
         }
 
         public static async Task<string> GetLyrics(string query)
@@ -562,8 +626,15 @@ namespace BatToshoRESTApp.Audio
             var apiMusicResponse = JsonSerializer.Deserialize<LyricsApiStuff.HappiApiMusicResponse>(response);
             if (apiMusicResponse is null) throw new InvalidOperationException();
             //$"{apiMusicResponse.result.First().api_lyrics}?apikey={apiKey}"
-            resp = await client.SendAsync(new HttpRequestMessage(HttpMethod.Get,
-                $"{apiMusicResponse.result.First().api_lyrics}?apikey={apiKey}"));
+            try
+            {
+                resp = await client.SendAsync(new HttpRequestMessage(HttpMethod.Get,
+                    $"{apiMusicResponse.result.First().api_lyrics}?apikey={apiKey}"));
+            }
+            catch (Exception)
+            {
+                return "null";
+            }
             response = await resp.Content.ReadAsStringAsync();
             var lyricsResponse = JsonSerializer.Deserialize<LyricsApiStuff.HappiApiLyricsResponse>(response);
             if (lyricsResponse is null) throw new InvalidOperationException();

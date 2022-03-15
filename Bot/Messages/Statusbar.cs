@@ -128,6 +128,7 @@ namespace BatToshoRESTApp.Audio
             var length = Player.CurrentItem.GetLength();
             var time = Player.Stopwatch.ElapsedMilliseconds;
             var progress = GenerateProgressbar(Player);
+            var message = string.IsNullOrEmpty(Player.StatusbarMessage) ? "" : $"\n{Player.StatusbarMessage}";
             if (Bot.DebugMode) Debug.Write($"Updated Statusbar in guild \"{Player.CurrentGuild.Name}\": Track: \"{Player.CurrentItem.GetName()}\", Time: {Time(Player.Stopwatch.Elapsed)} - {Time(TimeSpan.FromMilliseconds(length))}");
 
             return
@@ -137,7 +138,8 @@ namespace BatToshoRESTApp.Audio
                 $"{Player.Sink switch {null => "", _ => Player.Sink.VolumeModifier switch {0 => " (🔇", >0 and <.33 => " (🔈", >=.33 and <=.66 => " (🔉", >.66 => " (🔊", _ => " (🔊"} + $" {(int) (Player.Sink.VolumeModifier * 100)}%)"}}" +
                 $"{Player.LoopStatus switch {Loop.One => " ( 🔂 )", Loop.WholeQueue => " ( 🔁 )", _ => ""}}" +
                 $"{req switch {null => "", not null => $"\nRequested by: {req.Username} #{req.Discriminator}"}}" +
-                $"{next switch {null => "", _ => $"\n\nNext: ({Player.Queue.Current + 2}) {next.GetName()}"}}```";
+                $"{next switch {null => "", _ => $"\n\nNext: ({Player.Queue.Current + 2}) {next.GetName()}"}}" +
+                $"{message}```";
         }
 
         private async Task UpdateWaiting()

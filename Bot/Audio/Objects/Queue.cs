@@ -24,7 +24,7 @@ namespace BatToshoRESTApp.Audio.Objects
             }
         }
 
-        public int RandomSeed { get; set; }
+        public int RandomSeed { get; private set; }
 
         public void AddToQueue(IPlayableItem info)
         {
@@ -72,6 +72,14 @@ namespace BatToshoRESTApp.Audio.Objects
                 var item = Items.First(vi => LevenshteinDistance.Compute(vi.GetName(), name) < 3);
                 Items.Remove(item);
                 return item;
+            }
+        }
+
+        public IPlayableItem GetWithString(string name)
+        {
+            lock (Items)
+            {
+                return Items.First(vi => LevenshteinDistance.Compute(vi.GetName(), name) < 3);
             }
         }
 
@@ -169,13 +177,17 @@ namespace BatToshoRESTApp.Audio.Objects
             }
         }
 
-        public bool Move(int result, int thing2)
+        public bool Move(int result, int thing2, out IPlayableItem item)
         {
+            item = null;
             try
             {
                 lock (Items)
                 {
-                    
+                    var iOne = Items[result];
+                    Items.Remove(iOne);
+                    Items.Insert(thing2, iOne);
+                    item = iOne;
                 }
                 return true;
             }
@@ -186,8 +198,31 @@ namespace BatToshoRESTApp.Audio.Objects
             }
         }
 
-        public bool Move(string result, string thing2)
+        public override string ToString()
         {
+            string result = "";
+            lock (Items)
+            {
+                if (Items.Count < 1) return "The queue is empty";
+                for (var index = 0; index < Items.Count; index++)
+                {
+                    var item = Items[index];
+                    if (index == Current)
+                    {
+                        result += new string('-', item.GetName().Length + 8) + '\n';
+                        result += $"({Items.IndexOf(item) + 1}) - \"{item.GetName()}\"\n";
+                        result += new string('-', item.GetName().Length + 8) + '\n';
+                    }
+                    else result += $"({Items.IndexOf(item) + 1}) - \"{item.GetName()}\"\n";
+                }
+            }
+
+            return result;
+        }
+        public bool Move(string result, string thing2, out IPlayableItem item1, out IPlayableItem item2)
+        {
+            item1 = null;
+            item2 = null;
             try
             {
                 lock (Items)
@@ -196,11 +231,20 @@ namespace BatToshoRESTApp.Audio.Objects
                         LevenshteinDistance.Compute(vi.GetName(), result.Trim()) < vi.GetName().Length * 0.2);
                     var two = Items.FirstOrDefault(vi =>
                         LevenshteinDistance.Compute(vi.GetName(), thing2.Trim()) < vi.GetName().Length * 0.2);
-                    if (one == null || two == null) return false;
+                    if (one == null || two == null)
+                    {
+                        one = Items.OrderBy(vi =>
+                            LevenshteinDistance.Compute(vi.GetTitle(), result.Trim())).FirstOrDefault();
+                        two = Items.OrderBy(vi =>
+                            LevenshteinDistance.Compute(vi.GetTitle(), thing2.Trim())).FirstOrDefault();
+                        if (one == null || two == null) return false;
+                    }
                     var iOne = Items.IndexOf(one);
                     var iTwo = Items.IndexOf(two);
                     Items[iOne] = two;
                     Items[iTwo] = one;
+                    item2 = Items[iOne];
+                    item1 = Items[iTwo];
                 }
                 return true;
             }

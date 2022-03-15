@@ -5,6 +5,7 @@ using System.Text.Json;
 using System.Threading.Tasks;
 using BatToshoRESTApp.Audio;
 using BatToshoRESTApp.Audio.Objects;
+using BatToshoRESTApp.Audio.Platforms.Discord;
 using BatToshoRESTApp.Audio.Platforms.Spotify;
 using BatToshoRESTApp.Audio.Platforms.Youtube;
 using BatToshoRESTApp.Enums;
@@ -57,6 +58,21 @@ namespace BatToshoRESTApp.Controllers
         {
             var client = new YoutubeClient(HttpClient.WithCookies());
             var items = new List<SearchResult>();
+            if (searchTerm.StartsWith("pl:"))
+            {
+                var shp = SharePlaylist.Get(searchTerm[3..]);
+                items = shp.Select(item => new SearchResult
+                {
+                    Title = item.GetTitle(),
+                    Author = item.GetAuthor(),
+                    IsSpotify = false,
+                    Length = TimeSpan.FromMilliseconds(item.GetLength()).ToString("hh\\:mm\\:ss"),
+                    Id = item.GetId(),
+                    ThumbnailUrl = item.GetThumbnailUrl()
+                }).ToList();
+                var resp = JsonSerializer.Serialize(items);
+                return resp;
+            }
             if (searchTerm.Contains("https://open.spotify.com/playlist"))
             {
                 var sp = await Playlist.Get(searchTerm.Split("/playlist/").Last().Split("?si")
@@ -293,14 +309,11 @@ namespace BatToshoRESTApp.Controllers
 
                 if (!spotify) search = await new Video().SearchById(id);
                 else search = await Track.Get(id, true);
-
                 if (search == null) return "410";
                 var req = player.CurrentGuild.Members[WebUiUsers.Keys.ToList()[userIndex]];
                 search.SetRequester(req);
-                if (!next)
-                    player.Queue.AddToQueue(search);
-                else
-                    player.Queue.AddToQueueNext(search);
+                if (!next) player.Queue.AddToQueue(search);
+                else player.Queue.AddToQueueNext(search);
                 return "200";
             }
             catch (Exception)
@@ -449,7 +462,7 @@ namespace BatToshoRESTApp.Controllers
             {
                 if (!WebUiUsers.ContainsValue(clientSecret)) return "404";
                 var fDir = $"{Bot.WorkingDirectory}/chat/{channelId}.chat";
-                if (!System.IO.File.Exists(fDir)) System.IO.File.WriteAllText(fDir, "{}");
+                if (!System.IO.File.Exists(fDir)) System.IO.File.WriteAllText(fDir, "[]");
                 var els = JsonSerializer.Deserialize<List<ChatMessage>>(System.IO.File.ReadAllText(fDir));
                 return JsonSerializer.Serialize(els);
             }
@@ -466,7 +479,7 @@ namespace BatToshoRESTApp.Controllers
             {
                 if (!WebUiUsers.ContainsValue(clientSecret)) return "404";
                 var fDir = $"{Bot.WorkingDirectory}/chat/{channelId}.chat";
-                if (!System.IO.File.Exists(fDir)) await System.IO.File.WriteAllTextAsync(fDir, "{}");
+                if (!System.IO.File.Exists(fDir)) await System.IO.File.WriteAllTextAsync(fDir, "[]");
                 var els = JsonSerializer.Deserialize<List<ChatMessage>>(await System.IO.File.ReadAllTextAsync(fDir)) ??
                           new List<ChatMessage>();
                 var userIndex = -1;

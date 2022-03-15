@@ -1,21 +1,24 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Text.Json;
 using System.Threading.Tasks;
+using System.Timers;
 using BatToshoRESTApp.Audio;
 using BatToshoRESTApp.Controllers;
 using BatToshoRESTApp.Methods;
 using BatToshoRESTApp.Readers;
 using DSharpPlus;
 using DSharpPlus.CommandsNext;
+using DSharpPlus.Entities;
 using DSharpPlus.Interactivity;
 using DSharpPlus.Interactivity.Enums;
 using DSharpPlus.Interactivity.Extensions;
 using DSharpPlus.SlashCommands;
 using DSharpPlus.VoiceNext;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Logging.Abstractions;
-using WebSocketSharper.Server;
+using WebSocketSharp.Server;
 
 namespace BatToshoRESTApp
 {
@@ -37,17 +40,24 @@ namespace BatToshoRESTApp
 
         //private static Timer GarbageCollectTimer { get; } = new(60000);
         public const int UpdateDelay = 2500; //Milliseconds
+        private static Timer UpdateLoop { get; } = new(UpdateDelay);
         public static List<DiscordClient> Clients { get; } = new();
         public static bool DebugMode { get; private set; }
 
-        public static readonly HttpServer WebSocketServer = new (NullLogger.Instance, 8000); //This is a server by the WebSocketSharp lib.
+        public static readonly HttpServer WebSocketServer = new (8000); //This is a server by the WebSocketSharp lib.
 
         public static async Task Initialize(RunType token)
         {
             //GarbageCollectTimer.Elapsed += (_, _) => { GC.Collect(); }; // I've removed this because it was a bad idea to call the GC manually. 
             //GarbageCollectTimer.Start();                                // Please if you're reading this don't do it.
+            UpdateLoop.Elapsed += (_, _) => OnUpdate();
+            UpdateLoop.Start();
             BatTosho.LoadUsers();
             HttpClient.WithCookies();
+            if (!File.Exists($"{WorkingDirectory}/Status.json"))
+            {
+                await UpdateStatus(null, "Chalga", ActivityType.ListeningTo);
+            }
             switch (token)
             {
                 case RunType.Release:
@@ -70,10 +80,11 @@ namespace BatToshoRESTApp
                 default:
                     throw new ArgumentOutOfRangeException(nameof(token), token, null);
             }
-            Clients.Add(SpecificContentBot());
+            Clients.Add(SpecificContentBot()); //Ah yes, the specific content bot. Thank you very much.
             foreach (var client in Clients) await client.ConnectAsync();
             string text;
             WebSocketServer.Start();
+            await ReadStatus(Clients[0]);
             while ((text = Console.ReadLine()) != "null")
                 try
                 {
@@ -117,9 +128,9 @@ namespace BatToshoRESTApp
                                 await Debug.WriteAsync("Active guilds: ");
                                 foreach (var pl in Manager.Main)
                                     await Debug.WriteAsync(
-                                        $"{pl.CurrentGuild} : {pl.VoiceChannel.Name} " +
-                                        $"- Owner : {pl.CurrentGuild.Owner.DisplayName} - {pl.CurrentGuild.Owner.Id} " +
-                                        $"- Track: ({pl.Queue.Current + 1}) \"{pl.CurrentItem.GetName()}\" - ({pl.Queue.Count}) " +
+                                        $"{pl.CurrentGuild} : {pl.VoiceChannel?.Name} " +
+                                        $"- Owner : {pl.CurrentGuild?.Owner?.DisplayName} - {pl.CurrentGuild?.Owner?.Id} " +
+                                        $"- Track: ({pl.Queue?.Current + 1}) \"{pl.CurrentItem?.GetName()}\" - ({pl.Queue?.Count}) " +
                                         $"- Waiting Stopwatch: {Statusbar.Time(pl.WaitingStopwatch.Elapsed)} " +
                                         $"- Time: {Statusbar.Time(pl.Stopwatch.Elapsed)} " +
                                         $"- {Statusbar.Time(TimeSpan.FromMilliseconds(pl.CurrentItem.GetLength()))} " +
@@ -136,16 +147,23 @@ namespace BatToshoRESTApp
                             Environment.Exit(0);
                             break;
                         case "forceoff":
-                            foreach (var pl in Manager.Main)
+                            lock (Manager.Main)
                             {
-                                await pl.DisconnectAsync("Disconnecting due to an update in the bot's code. Sorry for the inconvenience.");
+                                for (var index = 0; index < Manager.Main.Count; index++)
+                                {
+                                    var pl = Manager.Main[index];
+                                    pl.Disconnect(
+                                        "Disconnecting due to an update in the bot's code. Sorry for the inconvenience.");
+                                    Debug.Write($"Disconnecting: {index}");
+                                }
                             }
+
                             Environment.Exit(0);
                             break;
                         case "clear":
                             Console.Clear();
                             await Debug.WriteAsync("Cleared the Console");
-                            break;
+                            continue;
                         case "wusers":
                             await Debug.WriteAsync("Listing all Web Ui users:");
                             BatTosho.PrintUsers();
@@ -162,12 +180,62 @@ namespace BatToshoRESTApp
                         case "debug":
                             DebugMode = !DebugMode;
                             continue;
+                        case "us":
+                            await Debug.WriteAsync("Enter a new status", false, Debug.DebugColor.Urgent);
+                            var s = Console.ReadLine();
+                            var sp = s.Split("&&");
+                            if (sp.Length != 2) continue;
+                            await UpdateStatus(Clients[0],sp[0], sp[1].ToLower() switch
+                            {
+                                "playing" => ActivityType.Playing,
+                                "listening to" => ActivityType.ListeningTo,
+                                "watching" => ActivityType.Watching,
+                                "streaming" => ActivityType.Streaming,
+                                "competing" => ActivityType.Competing,
+                                _ => ActivityType.Playing
+                            });
+                            continue;
+                        case "rs":
+                            await ReadStatus(Clients[0]);
+                            continue;
                     }
                 }
                 catch (Exception e)
                 {
                     await Debug.WriteAsync(e + "");
                 }
+        }
+
+        private static async Task ReadStatus(DiscordClient client)
+        {
+            var f = File.OpenText($"{WorkingDirectory}/Status.json");
+            var json = JsonSerializer.Deserialize<BotActivity>(f.BaseStream);
+            if (json != null)
+                await client.UpdateStatusAsync(new DiscordActivity(json.Status, json.ActivityType));
+            f.Close();
+        }
+        private static async Task UpdateStatus(DiscordClient client, string status, ActivityType activity)
+        {
+            if (client != null)
+                await client.UpdateStatusAsync(new DiscordActivity(status, activity));
+            var f = File.OpenWrite($"{WorkingDirectory}/Status.json");
+            await JsonSerializer.SerializeAsync(f, new BotActivity
+            {
+                ActivityType = activity,
+                Status = status
+            });
+            f.Close();
+        }
+        private static void OnUpdate() // This is updated with the global UpdateDelay integer.
+        {                              // And for the sake of not crashing the bot when the spaghetti code acts up, I've enclosed it with try catch blocks.
+            try                        // Genius. Insert head blown guy GIF here.
+            {
+                JsonWriteQueue.Update();
+            }
+            catch (Exception e)
+            {
+                Debug.Write($"UpdateLoop error: \"{e}\"", true, Debug.DebugColor.Warning);
+            }
         }
 
         private static DiscordClient MakeClient(string token, IEnumerable<string> prefixes,
@@ -178,7 +246,7 @@ namespace BatToshoRESTApp
             {
                 Token = token,
                 TokenType = TokenType.Bot,
-                MinimumLogLevel = LogLevel.Information,
+                MinimumLogLevel = LogLevel.None,
                 LogTimestampFormat = Debug.DebugTimeDateFormat
             });
             var commandsExtension = client.UseCommandsNext(new CommandsNextConfiguration
@@ -201,16 +269,16 @@ namespace BatToshoRESTApp
                         if (cl == null) return;
                         if (args.After.Channel == null && !cl.UpdatedChannel)
                         {
-                            await Debug.WriteAsync("After Channel is Null");
-                            await cl.DisconnectAsync(isEvent:true);
+                            await Debug.WriteAsync("After Channel is Null", false, Debug.DebugColor.Warning);
+                            await cl.DisconnectAsync();
                             return;
                         }
-                        if (args.Before.Channel.Id == args.After.Channel.Id) return;
+                        if (args.Before.Channel.Id == args.After.Channel?.Id) return;
                         cl.UpdateChannel(args.After.Channel);
                     }
                     catch (Exception e)
                     {
-                        await Debug.WriteAsync($"Voice State Updated failed: {e}");
+                        await Debug.WriteAsync($"Voice State Updated failed: {e}", false, Debug.DebugColor.Urgent);
                     }
                 };
             }
@@ -254,6 +322,18 @@ namespace BatToshoRESTApp
         {
             await ctx.RespondAsync(formatted ? $"```{text}```" : text);
         }
+        public static async Task Reply(CommandContext ctx, DiscordMessageBuilder builder)
+        {
+            await ctx.RespondAsync(builder);
+        }
+        public static async Task Reply(DiscordClient client, DiscordChannel channel, DiscordMessageBuilder builder)
+        {
+            await client.SendMessageAsync(channel, builder);
+        }
+        public static async Task Reply(DiscordClient client, DiscordChannel channel, string text, bool formatted = true)
+        {
+            await client.SendMessageAsync(channel, formatted ? $"```{text}```" : text);
+        }
 
         public static async Task SendDirectMessage(CommandContext ctx, string text, bool formatted = true)
         {
@@ -266,6 +346,12 @@ namespace BatToshoRESTApp
                 .Repeat(
                     $"abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789{includeBadSymbols switch {true => "_-.", false => ""}}",
                     length).Select(s => s[new Random(Rng.Next(int.MaxValue)).Next(s.Length)]).ToArray());
+        }
+
+        public record BotActivity
+        {
+            public string Status { get; set; }
+            public ActivityType ActivityType { get; set; }
         }
     }
 }

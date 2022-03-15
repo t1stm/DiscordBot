@@ -5,11 +5,10 @@ namespace BatToshoRESTApp.Audio.Platforms.Local
 {
     public static class File
     {
-        // ReSharper disable SuggestVarOrType_BuiltInTypes // Fucking Jetbrains Rider ooga booga stuff...
         public static SystemFile GetInfo(string path)
         {
             if (path.Split("/").Last().Length < 4) return null;
-            string filename = path.Split("/").Last();
+            var filename = path.Split("/").Last();
             var file = new SystemFile
             {
                 Title = filename,

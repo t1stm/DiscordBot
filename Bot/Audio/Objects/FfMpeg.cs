@@ -169,14 +169,28 @@ namespace BatToshoRESTApp.Audio.Objects
 
         private void CancelStream()
         {
-            FfMpegProcess.StandardOutput.DiscardBufferedData();
-            FfMpegProcess.StandardOutput.BaseStream.Flush();
+            try
+            {
+                FfMpegProcess.StandardOutput.DiscardBufferedData();
+                FfMpegProcess.StandardOutput.BaseStream.Flush();
+            }
+            catch (Exception)
+            {
+                //Ignored
+            }
         }
 
         public void KillSync()
         {
             CancelStream();
-            FfMpegProcess.Kill();
+            try
+            {
+                FfMpegProcess.Kill();
+            }
+            catch (Exception)
+            {
+                //Ignored
+            }
         }
     }
 }

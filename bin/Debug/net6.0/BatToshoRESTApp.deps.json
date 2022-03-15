@@ -218,7 +218,7 @@
           "System.Xml.ReaderWriter": "4.3.1",
           "System.Xml.XDocument": "4.3.0",
           "Unosquare.Swan.Lite": "3.1.0",
-          "WebSocketSharper": "1.0.39",
+          "WebSocketSharp": "1.0.3-rc11",
           "YouTubeApiSharp": "0.0.5",
           "YoutubeExplode": "6.0.8",
           "YoutubeSearchApi.Net": "2021.8.24",
@@ -243,8 +243,7 @@
           "runtime.ubuntu.16.04-x64.runtime.native.System.Security.Cryptography.OpenSsl": "4.3.3",
           "runtime.ubuntu.16.10-x64.runtime.native.System.Security.Cryptography.OpenSsl": "4.3.3",
           "runtime.ubuntu.18.04-x64.runtime.native.System.Security.Cryptography.OpenSsl": "4.3.3",
-          "taglib-sharp-netstandard2.0": "2.1.0",
-          "System.Reactive.Reference": "4.2.0.0"
+          "taglib-sharp-netstandard2.0": "2.1.0"
         },
         "runtime": {
           "BatToshoRESTApp.dll": {}
@@ -2789,7 +2788,6 @@
           "Microsoft.NETCore.Targets": "6.0.0-preview.4.21253.7"
         }
       },
-      "System.Reactive/4.2.0": {},
       "System.Reflection/4.3.0": {
         "dependencies": {
           "Microsoft.NETCore.Platforms": "6.0.2-mauipre.1.22054.8",
@@ -3295,15 +3293,11 @@
           }
         }
       },
-      "WebSocketSharper/1.0.39": {
-        "dependencies": {
-          "Microsoft.Extensions.Logging.Abstractions": "6.0.2-mauipre.1.22054.8",
-          "System.Reactive": "4.2.0"
-        },
+      "WebSocketSharp/1.0.3-rc11": {
         "runtime": {
-          "lib/netstandard2.0/WebSocketSharper.dll": {
-            "assemblyVersion": "1.0.0.0",
-            "fileVersion": "1.0.39.15761"
+          "lib/websocket-sharp.dll": {
+            "assemblyVersion": "1.0.2.59611",
+            "fileVersion": "0.0.0.0"
           }
         }
       },
@@ -3339,14 +3333,6 @@
           "lib/netstandard2.0/YoutubeSearchApi.Net.dll": {
             "assemblyVersion": "2021.8.24.0",
             "fileVersion": "2021.8.24.0"
-          }
-        }
-      },
-      "System.Reactive.Reference/4.2.0.0": {
-        "runtime": {
-          "System.Reactive.dll": {
-            "assemblyVersion": "4.2.0.0",
-            "fileVersion": "4.2.0.1"
           }
         }
       }
@@ -4709,13 +4695,6 @@
       "path": "system.private.uri/4.3.2",
       "hashPath": "system.private.uri.4.3.2.nupkg.sha512"
     },
-    "System.Reactive/4.2.0": {
-      "type": "package",
-      "serviceable": true,
-      "sha512": "sha512-ZG1jkv/g+7bnbXUvpBWR2+9DWCM0+AEBxcPxNKzOJQsfdZpTEUKKSEGgFAZ9cScVyVmPhlQB9IO5KDXX40EfBA==",
-      "path": "system.reactive/4.2.0",
-      "hashPath": "system.reactive.4.2.0.nupkg.sha512"
-    },
     "System.Reflection/4.3.0": {
       "type": "package",
       "serviceable": true,
@@ -5052,12 +5031,12 @@
       "path": "unosquare.swan.lite/3.1.0",
       "hashPath": "unosquare.swan.lite.3.1.0.nupkg.sha512"
     },
-    "WebSocketSharper/1.0.39": {
+    "WebSocketSharp/1.0.3-rc11": {
       "type": "package",
       "serviceable": true,
-      "sha512": "sha512-6oCjUQGTp6jk0+NCDiWtFaSWRr6uW0c5dtkP8oH8AsK+HFkbfLsbVGHzSapbn72yr0bWTTqyFO3Yxc/ow7Abww==",
-      "path": "websocketsharper/1.0.39",
-      "hashPath": "websocketsharper.1.0.39.nupkg.sha512"
+      "sha512": "sha512-7VCF7f7zVMOvLGD8LeGS4DVXc8lOcB6kXnUMeTxigu+PMiU+6wW5Olq2gYrDU8vDRKOwFY+5RyBaLyzb8skEzA==",
+      "path": "websocketsharp/1.0.3-rc11",
+      "hashPath": "websocketsharp.1.0.3-rc11.nupkg.sha512"
     },
     "YouTubeApiSharp/0.0.5": {
       "type": "package",
@@ -5079,11 +5058,6 @@
       "sha512": "sha512-yhpuLwmY+CemwtP5qRrtFcCloszaReEaIE5TL0EbEMw2Uz9cQcwfb3W8cz9utqvbFPZeUsZMIP1g8OjAQhjeOg==",
       "path": "youtubesearchapi.net/2021.8.24",
       "hashPath": "youtubesearchapi.net.2021.8.24.nupkg.sha512"
-    },
-    "System.Reactive.Reference/4.2.0.0": {
-      "type": "reference",
-      "serviceable": false,
-      "sha512": ""
     }
   }
 }

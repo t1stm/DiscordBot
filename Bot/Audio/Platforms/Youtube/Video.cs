@@ -31,12 +31,14 @@ namespace BatToshoRESTApp.Audio.Platforms.Youtube
             var client = new DefaultSearchClient(new YoutubeSearchBackend());
             var response = await client.SearchAsync(HttpClient.WithCookies(), term, 25);
             var res = response.Results.ToList();
+            RemoveAll(ref res, term, "8d", "remix", "karaoke", "instru", "clean", "bass boosted", "bass", "ear rape", "earrape", "ear", "rape", 
+                "cover", "кавър", "backstage", "live");
             if (length != 0)
             {
                 res = res.OrderBy(r =>
                         Math.Abs(StringToTimeSpan.Generate(((YoutubeVideo) r).Duration).TotalMilliseconds - length))
                     .ToList();
-                if (track != null)
+                if (track is {})
                 {
                     /*if (!term.ToLower().Contains("8d") && !term.ToLower().Contains("karaoke") &&
                         !term.ToLower().Contains("remix") && !term.ToLower().Contains("instru") && !term.ToLower().Contains("clean"))
@@ -44,12 +46,11 @@ namespace BatToshoRESTApp.Audio.Platforms.Youtube
                             r.Title.ToLower().Contains("8d") || r.Title.ToLower().Contains("karaoke") ||
                             r.Title.ToLower().Contains("remix") || r.Title.ToLower().Contains("instru") ||
                             r.Title.ToLower().Contains("clean")); */
-                    RemoveAll(res, "8d", "remix", "karaoke", "instru", "clean");
-                    res = res.OrderBy(r => r.Title.ToLower().Contains("official")).ToList();
+                    if (res.Any(r => r.Title.ToLower().Contains("official audio"))) res = res.OrderBy(r => r.Title.ToLower().Contains("official audio")).ToList();
                     res = res.OrderBy(r => LevenshteinDistance.Compute(r.Title, track.Title) < 3).ToList();
                 }
             }
-
+            
             var result = (YoutubeVideo) res.First();
             if (result == null) return null;
             await Debug.WriteAsync(
@@ -67,7 +68,8 @@ namespace BatToshoRESTApp.Audio.Platforms.Youtube
             {
                 try
                 {
-                    await new SearchJsonReader().AddVideo(term, result.Id);
+                    //await new SearchJsonReader().AddVideo(term, result.Id);
+                    JsonWriteQueue.Add(term, result.Id);
                     await new ExistingVideoInfoGetter().Add(info);
                 }
                 catch (Exception e)
@@ -81,14 +83,28 @@ namespace BatToshoRESTApp.Audio.Platforms.Youtube
             return info;
         }
 
-        private static void RemoveAll(List<IResponseResult> list, string searchTerm, params string[] terms)
+        private static void RemoveAll(ref List<IResponseResult> list, string searchTerm, params string[] terms)
         {
-            
-            foreach (var term in terms)
+            var li = list;
+            lock (list)
             {
-                if (searchTerm.Contains(term)) continue;
-                list.RemoveAll(r => r.Title.ToLower().Contains(term.ToLower()));
+                foreach (var term in terms)
+                {
+                    if (searchTerm.ToLower().Contains(term.ToLower())) continue;
+                    var source = searchTerm.Split(new[] { '.', '?', '!', ' ', ';', ':', ',' }, StringSplitOptions.RemoveEmptyEntries);
+                    var times = from word in source
+                        where string.Equals(word, term, StringComparison.CurrentCultureIgnoreCase)
+                        select word;
+                    if (times.Count() == 1) continue;
+                    var things = li.Where(r => r.Title.ToLower().Contains(term.ToLower())).ToList();
+                    foreach (var th in things)
+                    {
+                        li.Remove(th);
+                        Debug.Write($"Removed result: {th.Title}", false, Debug.DebugColor.Warning);
+                    }
+                }
             }
+            list = li;
         }
 
         public async Task<List<YoutubeVideoInformation>> SearchAllResults(string term, bool urgent = false,
@@ -136,7 +152,7 @@ namespace BatToshoRESTApp.Audio.Platforms.Youtube
                     }
                     catch (Exception e)
                     {
-                        await Debug.WriteAsync($"Adding information in Youtube/Video.cs/SearchById {e}");
+                        await Debug.WriteAsync($"Adding information in Youtube/Video.cs/SearchById {e}", true, Debug.DebugColor.Urgent);
                     }
                 });
                 task.Start();

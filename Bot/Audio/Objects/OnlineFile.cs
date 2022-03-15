@@ -13,7 +13,6 @@ namespace BatToshoRESTApp.Audio.Objects
             var loc = GetLocation();
             return loc.Length > 40 ? $"{loc[..40]}..." : loc;
         }
-
         public ulong GetLength()
         {
             return 0;

@@ -18,16 +18,13 @@ namespace BatToshoRESTApp.Audio.Platforms
             if (searchTerm.Contains("open.spotify.com/"))
             {
                 if (searchTerm.Contains("/playlist/"))
-                {
-                    var pl = await Playlist.Get(searchTerm.Split("playlist/").Last().Split("?")[0]);
-                    return new List<IPlayableItem>(pl);
-                }
+                    return new List<IPlayableItem>(await Playlist.Get(searchTerm.Split("playlist/").Last().Split("?")[0]));
 
                 if (searchTerm.Contains("/track"))
-                {
-                    var tr = await Track.Get(searchTerm);
-                    return new List<IPlayableItem> {tr};
-                }
+                    return new List<IPlayableItem> {await Track.Get(searchTerm)};
+                
+                if (searchTerm.Contains("/album"))
+                    return new List<IPlayableItem>(await Playlist.GetAlbum(searchTerm.Split("album/").Last().Split("?")[0]));
             }
 
             if (searchTerm.Contains("youtube.com/"))

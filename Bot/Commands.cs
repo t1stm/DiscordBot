@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using BatToshoRESTApp.Audio;
 using BatToshoRESTApp.Methods;
+using BatToshoRESTApp.Readers;
 using BatToshoRESTApp.Tools;
 using DSharpPlus;
 using DSharpPlus.CommandsNext;
@@ -255,6 +256,38 @@ namespace BatToshoRESTApp
             }
         }
 
+        [Command("list")]
+        [Aliases("лист", "яуеуе", "queue")]
+        public async Task ListCommand(CommandContext ctx)
+        {
+            try
+            {
+                await Manager.List(ctx, true); //I plan on making it use a custom site made only for listing the queue, but I will implement it when I make the websocket server.
+            }
+            catch (Exception e)
+            {
+                await Debug.WriteAsync($"List command threw exception: {e}");
+                throw;
+            }
+        }
+
+        [Command("getavatar")]
+        public async Task GetAvatarCommand(CommandContext ctx, DiscordMember user)
+        {
+            try
+            {
+                //var us = ctx.Message.MentionedUsers;
+                await Bot.Reply(ctx,
+                    new DiscordMessageBuilder().WithContent($"```{user.Username}'s avatar```").WithFile($"{user.Username}.webp", 
+                        await HttpClient.DownloadStream(user.GetAvatarUrl(ImageFormat.WebP))));
+            }
+            catch (Exception e)
+            {
+                await Debug.WriteAsync($"Get avatar command threw exception: {e}");
+                throw;
+            }
+        }
+        
         [Command("clear")]
         public async Task ClearCommand(CommandContext ctx)
         {
@@ -320,10 +353,10 @@ namespace BatToshoRESTApp
             {
                 var presence = ctx.Member.Presence;
                 var username = ctx.Member.Username;
-                var act = presence.Activity.Name;
-                var actType = presence.Activity.ActivityType;
+                var act = presence?.Activity?.Name;
+                var actType = presence?.Activity?.ActivityType;
                 await Bot.Reply(ctx,
-                    $"{username}'s presence is {presence}, with activity: {act}, with activity type {actType}");
+                    $"{username}'s presence is \"{presence}\", with activity: \"{act}\", with activity type \"{actType}\". This is a debug command so please don't use it much.");
             }
             catch (Exception e)
             {

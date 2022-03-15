@@ -3,6 +3,7 @@ using System.IO;
 using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
+using BatToshoRESTApp.Methods;
 
 namespace BatToshoRESTApp.Readers
 {
@@ -24,6 +25,7 @@ namespace BatToshoRESTApp.Readers
             var t = term.ToLower();
             var search = JsonSerializer.Deserialize<List<PreviousSearchResult>>(json);
             var obj = search?.FirstOrDefault(si => si.SearchTerm == t);
+            if (obj == null) await Debug.WriteAsync($"Couldn't find video in the JSON file with term: {t}", false, Debug.DebugColor.Warning);
             return obj;
         }
 
@@ -37,7 +39,7 @@ namespace BatToshoRESTApp.Readers
             var search = await GetAllResults();
             searchTerm = searchTerm.ToLower();
             if (search == null) return;
-            if (search.Any(si => si.SearchTerm == searchTerm || si.VideoId == id)) return;
+            if (search.Any(si => si.SearchTerm == searchTerm && si.VideoId == id)) return;
             var f = new PreviousSearchResult
             {
                 SearchTerm = searchTerm,

@@ -8,7 +8,7 @@ namespace BatToshoRESTApp.Audio.Objects
     public class SystemFile : IPlayableItem
     {
         public bool IsDiscordAttachment { get; init; } = true;
-        public string Location { get; set; }
+        public string Location { get; init; }
         public string Title { get; set; }
         public string Author { get; set; }
         public ulong Length { get; set; }
@@ -58,11 +58,11 @@ namespace BatToshoRESTApp.Audio.Objects
             try
             {
                 var info = File.Create(Location);
-                var tag = info.GetTag(TagTypes.AllTags);
+                Length = (ulong) info.Properties.Duration.TotalMilliseconds + 0; //Fixed: 15 Mar 2022 How can I be this dumb.
+                var tag = info.GetTag(TagTypes.AudibleMetadata);
                 if (tag == null) return Task.CompletedTask;
                 Title = tag.Title;
                 Author = tag.JoinedPerformers;
-                Length = (ulong) info.Length;
             }
             catch (Exception)
             {

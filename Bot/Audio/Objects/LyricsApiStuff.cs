@@ -2,24 +2,24 @@ namespace BatToshoRESTApp.Audio.Objects
 {
     public static class LyricsApiStuff
     {
-        public record HappiApiResponseMusic
+        public class HappiApiResponseMusic
         {
-            public string album;
-            public string api_album;
-            public string api_albumsm;
-            public string api_artist;
-            public string api_lyrics;
-            public string api_track;
-            public string api_tracks;
-            public string artist;
-            public int bpm;
-            public string cover;
-            public bool haslyrics;
-            public int id_album;
-            public int id_artist;
-            public int id_track;
-            public string lang;
-            public string track;
+            public string album { get; set; }
+            public string api_album { get; set; }
+            public string api_albumsm { get; set; }
+            public string api_artist { get; set; }
+            public string api_lyrics { get; set; }
+            public string api_track { get; set; }
+            public string api_tracks { get; set; }
+            public string artist { get; set; }
+            public int bpm { get; set; }
+            public string cover { get; set; }
+            public bool haslyrics { get; set; }
+            public int id_album { get; set; }
+            public int id_artist { get; set; }
+            public int id_track { get; set; }
+            public string lang { get; set; }
+            public string track { get; set; }
         }
 
         /*private record HappiApiResponseLyrics (string artist; int id_artist; string track; int id_track; int id_album;
@@ -29,37 +29,37 @@ namespace BatToshoRESTApp.Audio.Objects
 
         public record HappiApiMusicResponse
         {
-            public int length;
-            public HappiApiResponseMusic[] result;
-            public bool success;
+            public int length { get; set; }
+            public HappiApiResponseMusic[] result { get; set; }
+            public bool success { get; set; }
         }
 
         public record HappiApiLyricsResponse
         {
-            public int length;
-            public HappiApiResponseLyrics result;
-            public bool success;
+            public int length { get; set; }
+            public HappiApiResponseLyrics result { get; set; }
+            public bool success { get; set; }
         }
 
         public record HappiApiResponseLyrics
         {
-            public string album;
-            public string api_album;
-            public string api_albums;
-            public string api_artist;
-            public string api_lyrics;
-            public string api_track;
-            public string api_tracks;
-            public string artist;
-            public string copyright_label;
-            public string copyright_notice;
-            public string copyright_text;
-            private int id_album;
-            private int id_artist;
-            private int id_track;
-            public string lang;
-            public string lyrics;
-            public string track;
+            public string album { get; set; }
+            public string api_album { get; set; }
+            public string api_albums { get; set; }
+            public string api_artist { get; set; }
+            public string api_lyrics { get; set; }
+            public string api_track { get; set; }
+            public string api_tracks { get; set; }
+            public string artist { get; set; }
+            public string copyright_label { get; set; }
+            public string copyright_notice { get; set; }
+            public string copyright_text { get; set; }
+            private int id_album { get; set; }
+            private int id_artist { get; set; }
+            private int id_track { get; set; }
+            public string lang { get; set; }
+            public string lyrics { get; set; }
+            public string track { get; set; }
         }
     }
 }

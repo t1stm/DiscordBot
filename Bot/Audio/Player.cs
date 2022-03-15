@@ -6,7 +6,6 @@ using System.Threading.Tasks;
 using System.Timers;
 using BatToshoRESTApp.Audio.Objects;
 using BatToshoRESTApp.Audio.Platforms;
-using BatToshoRESTApp.Controllers.Objects;
 using BatToshoRESTApp.Enums;
 using DSharpPlus;
 using DSharpPlus.Entities;
@@ -25,27 +24,29 @@ namespace BatToshoRESTApp.Audio
 
         private FfMpeg FfMpeg { get; set; }= new();
         private ElapsedEventHandler Handler { get; set; }
-        public bool WaitingToLeave { get; set; }
+        private bool WaitingToLeave { get; set; }
         public bool Started { get; set; }
         public DiscordChannel VoiceChannel { get; set; }
         public bool Paused { get; set; }
-        public bool Normalize { get; set; } = true;
+        public bool Normalize { get; init; } = true;
         private CancellationTokenSource CancelSource { get; set; } = new();
         public Queue Queue { get; } = new();
-        public Statusbar Statusbar { get; set; } = new();
+        public Statusbar Statusbar { get; } = new();
         public DiscordChannel Channel { get; set; }
         public DiscordClient CurrentClient { get; init; }
         public DiscordGuild CurrentGuild { get; set; }
         public VoiceTransmitSink Sink { get; set; }
         public VoiceNextConnection Connection { get; set; }
-        public bool UpdatedChannel { get; set; } = false;
+        public bool UpdatedChannel { get; private set; }
         public Loop LoopStatus { get; private set; } = Loop.None;
         private bool BreakNow { get; set; }
         public IPlayableItem CurrentItem { get; private set; }
         public Stopwatch Stopwatch { get; } = new();
         public Stopwatch WaitingStopwatch { get; } = new();
         public int VoiceUsers { get; set; }
-        public bool Die { get; set; }
+        public bool Die { get; private set; }
+
+        public string StatusbarMessage { get; private set; } = "";
 
         public async Task Play(int current = 0)
         {
@@ -58,18 +59,18 @@ namespace BatToshoRESTApp.Audio
                 Statusbar.Channel = Channel;
                 Connection.VoiceSocketErrored += async (_, args) =>
                 {
-                    await Debug.WriteAsync($"VoiceSocket Errored in Guild: \"{CurrentGuild.Name}\" with arguments \"{args.Exception}\"");
+                    await Debug.WriteAsync($"VoiceSocket Errored in Guild: \"{CurrentGuild.Name}\" with arguments \"{args.Exception}\"", true, Debug.DebugColor.Urgent);
                 };
+                
                 var statusbar = new Task(async () => { await Statusbar.Start(); });
                 statusbar.Start();
                 Handler = async (_, _) => { await Queue.DownloadAll(); };
                 _timer.Elapsed += Handler;
                 _timer.Start();
-                #pragma warning disable 618
-                Bot.WebSocketServer.AddWebSocketService($"/{VoiceChannel.Id}", () => new WebSock(this));
-                #pragma warning restore 618
+                
                 for (Queue.Current = current; Queue.Current < Queue.Count; Queue.Current++)
                 {
+                    if (Die) return;
                     CurrentItem = Queue.GetCurrent();
                     Statusbar.ChangeMode(StatusbarMode.Playing);
                     while (Paused)
@@ -90,6 +91,7 @@ namespace BatToshoRESTApp.Audio
                             continue;
                         
                         case YoutubeVideoInformation vi:
+                            
                             int tries = 1;
                             while (string.IsNullOrEmpty(vi.GetLocation()) && tries < 5)
                             {
@@ -97,11 +99,13 @@ namespace BatToshoRESTApp.Audio
                                 await Task.Delay(33);
                                 tries++;
                             }
+
+                            StatusbarMessage = tries > 5 ? $"Failed to get item: ({Queue.Current}) \"{vi.GetName()}\", skipping it." : StatusbarMessage;
                             await PlayTrack(vi.GetLocation(), Stopwatch.Elapsed.ToString(@"c"), true);
-                            
                             break;
                         
                         default:
+                            await CurrentItem.Download();
                             await PlayTrack(CurrentItem.GetLocation(), Stopwatch.Elapsed.ToString(@"c"));
                             break;
                     }
@@ -128,14 +132,13 @@ namespace BatToshoRESTApp.Audio
                         WaitingStopwatch.Reset();
                     }
                 }
-                Disconnect();
-                
+                await DisconnectAsync();
                 _timer.Stop();
                 _timer.Elapsed -= Handler;
             }
             catch (Exception e)
             {
-                await Debug.WriteAsync($"Player Error: {e}");
+                await Debug.WriteAsync($"Player Error: {e}", true, Debug.DebugColor.Urgent);
                 throw;
             }
         }
@@ -158,7 +161,7 @@ namespace BatToshoRESTApp.Audio
                 await Debug.WriteAsync($"Location is: {location}");
                 if (!Stopwatch.IsRunning) Stopwatch.Start();
                 if (location is {Length: > 4} && location[..4] == "http" && isYoutube) 
-                    await FfMpeg.UrlToPcm(location, startingTime, Normalize).CopyToAsync(Sink);
+                    await FfMpeg.UrlToPcm(location, startingTime, Normalize).CopyToAsync(Sink, null, CancelSource.Token);
                 else 
                     await FfMpeg.PathToPcm(location, startingTime, Normalize)
                         .CopyToAsync(Sink, null, CancelSource.Token);
@@ -174,11 +177,12 @@ namespace BatToshoRESTApp.Audio
             }
             catch (Exception e)
             {
-                await Debug.WriteAsync($"PlayTrack failed: {e}");
+                if (!e.Message.Contains("The operation was canceled.")) //Cancellation token
+                    await Debug.WriteAsync($"PlayTrack failed: {e}", true, Debug.DebugColor.Urgent);
             }
         }
 
-        public bool UpdateVolume(float percent)
+        public bool UpdateVolume(float percent) //When will I implement this I don't know too. This has existed for over 1 year, left unused.
         {
             if (percent is > 200 or < 1) return false;
             Sink.VolumeModifier = percent / 100;
@@ -193,11 +197,11 @@ namespace BatToshoRESTApp.Audio
                 {
                     if (CurrentGuild == null)
                     {
-                        await Debug.WriteAsync("No Guild");
+                        await Debug.WriteAsync("No Guild", true, Debug.DebugColor.Urgent);
                         return;
                     }
 
-                    await Debug.WriteAsync($"Current Voice Channel: {VoiceChannel.Id} - New: {channel.Id}");
+                    await Debug.WriteAsync($"Current Voice Channel: {VoiceChannel?.Id} - New: {channel.Id}");
                     VoiceChannel = channel;
                     var conn = CurrentClient.GetVoiceNext().GetConnection(CurrentGuild);
                     UpdatedChannel = true;
@@ -205,13 +209,17 @@ namespace BatToshoRESTApp.Audio
                     var chan = CurrentGuild.Channels[channel.Id];
                     await Task.Delay(300);
                     Connection = await CurrentClient.GetVoiceNext().ConnectAsync(chan);
+                    Connection.VoiceSocketErrored += async (_, args) =>
+                    {
+                        await Debug.WriteAsync($"VoiceSocket Errored in Guild: \"{CurrentGuild.Name}\" with arguments \"{args.Exception}\"", true, Debug.DebugColor.Urgent);
+                    };
                     Sink = Connection.GetTransmitSink();
                     await Skip(0);
                     CancelSource.Cancel();
                 }
                 catch (Exception e)
                 {
-                    await Debug.WriteAsync($"Updating Channel Failed: {e}");
+                    await Debug.WriteAsync($"Updating Channel Failed: {e}", true, Debug.DebugColor.Urgent);
                 }
             });
             task.Start();
@@ -233,9 +241,85 @@ namespace BatToshoRESTApp.Audio
             await Sink.FlushAsync();
         }
 
+        public async Task<IPlayableItem> RemoveFromQueue(int index)
+        {
+            try
+            {
+                if (index == Queue.Current)
+                {
+                    var it = Queue.RemoveFromQueue(index);
+                    Queue.Current -= 1;
+                    await Skip();
+                    return it;
+                }
+
+                if (index >= Queue.Current) return Queue.RemoveFromQueue(index);
+                {
+                    var it = Queue.RemoveFromQueue(index);
+                    Queue.Current -= 1;
+                    return it;
+                }
+            }
+            catch (Exception e)
+            {
+                await Debug.WriteAsync($"Removing from queue failed: {e}", true, Debug.DebugColor.Error);
+            }
+
+            return null;
+        }
+        public async Task<IPlayableItem> RemoveFromQueue(IPlayableItem item)
+        {
+            var index = Queue.Items.IndexOf(item);
+            try
+            {
+                if (index == Queue.Current)
+                {
+                    var it = Queue.RemoveFromQueue(item);
+                    Queue.Current -= 1;
+                    await Skip();
+                    return it;
+                }
+                if (index >= Queue.Current) return Queue.RemoveFromQueue(item);
+                {
+                    var it = Queue.RemoveFromQueue(item);
+                    Queue.Current -= 1;
+                    return it;
+                }
+            }
+            catch (Exception e)
+            {
+                await Debug.WriteAsync($"Removing from queue failed: {e}", true, Debug.DebugColor.Error);
+                return null;
+            }
+        }
+        public async Task<IPlayableItem> RemoveFromQueue(string name)
+        {
+            var item = Queue.GetWithString(name);
+            var index = Queue.Items.IndexOf(item);
+            try
+            {
+                if (index == Queue.Current)
+                {
+                    var it = Queue.RemoveFromQueue(item);
+                    Queue.Current -= 1;
+                    await Skip();
+                    return it;
+                }
+                if (index >= Queue.Current) return Queue.RemoveFromQueue(item);
+                {
+                    var it = Queue.RemoveFromQueue(item);
+                    Queue.Current -= 1;
+                    return it;
+                }
+            }
+            catch (Exception e)
+            {
+                await Debug.WriteAsync($"Removing from queue failed: {e}", true, Debug.DebugColor.Error);
+                return null;
+            }
+        }
         public void Disconnect(string message = "Bye! \\(◕ ◡ ◕\\)")
         {
-            Bot.WebSocketServer.RemoveWebSocketService($"/{VoiceChannel.Id}");
             _timer.Stop();
             var task = new Task(async () => { await Statusbar.UpdateMessageAndStop(message); });
             task.Start();
@@ -248,19 +332,19 @@ namespace BatToshoRESTApp.Audio
                 if (Manager.Main.Contains(this)) Manager.Main.Remove(this);
             }
             Debug.Write($"Disconnecting from channel: {VoiceChannel.Name} in guild: {CurrentGuild.Name}");
+            
         }
 
-        public async Task DisconnectAsync(string message = "Bye! \\(◕ ◡ ◕\\)", bool isEvent = false)
+        public async Task DisconnectAsync(string message = "Bye! \\(◕ ◡ ◕\\)")
         {
             try
             {
-                Bot.WebSocketServer.RemoveWebSocketService($"/{VoiceChannel.Id}");
                 _timer.Stop();
                 await Statusbar.UpdateMessageAndStop(message);
                 Die = true;
                 FfMpeg.KillSync();
+                CancelSource.Cancel();
                 Sink.Dispose();
-                if (isEvent) return;
                 Connection.Disconnect();
                 lock (Manager.Main)
                 {
@@ -270,7 +354,7 @@ namespace BatToshoRESTApp.Audio
             }
             catch (Exception e)
             {
-                await Debug.WriteAsync($"Disconnect Async Failed: {e}");
+                await Debug.WriteAsync($"Disconnect Async Failed: {e}", true, Debug.DebugColor.Urgent);
             }
         }
 
@@ -279,11 +363,12 @@ namespace BatToshoRESTApp.Audio
             Queue.Shuffle();
         }
 
-        public void GoToIndex(int index)
+        public IPlayableItem GoToIndex(int index)
         {
-            if (index >= Queue.Count && index < -1) return;
+            if (index >= Queue.Count && index < -1) return null;
             Queue.Current = index - 1;
             FfMpeg.KillSync();
+            return Queue.GetCurrent();
         }
 
         public void Pause()
@@ -307,7 +392,7 @@ namespace BatToshoRESTApp.Audio
             }
             catch (Exception e)
             {
-                Debug.Write($"Failed to disconnect: {e}");
+                Debug.Write($"Failed to disconnect from destructor in Player.cs: \"{e}\"", true, Debug.DebugColor.Urgent);
             }
         }
     }
