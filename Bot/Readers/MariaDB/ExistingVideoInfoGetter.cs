@@ -9,7 +9,7 @@ namespace BatToshoRESTApp.Readers.MariaDB
 {
     public class ExistingVideoInfoGetter : IBaseMariaDatabase
     {
-        private const string Database = "SERVER=localhost;DATABASE=data;UID=root;PASSWORD=123;SSL Mode=None;";
+        private const string Database = "SERVER=localhost;DATABASE=data;UID=root;PASSWORD=123;SSL Mode=None;Port=3306;";
 
         public async Task<YoutubeVideoInformation> Read(string id)
         {

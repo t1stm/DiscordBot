@@ -13,7 +13,7 @@ namespace BatToshoRESTApp.Audio.Platforms
 {
     public class Search
     {
-        public async Task<List<IPlayableItem>> Get(string searchTerm, ulong length = 0)
+        public async Task<List<IPlayableItem>> Get(string searchTerm, ulong length = 0, bool returnAllResults = false)
         {
             if (searchTerm.Contains("open.spotify.com/"))
             {

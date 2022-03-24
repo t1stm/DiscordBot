@@ -351,7 +351,7 @@ namespace BatToshoRESTApp.Controllers
                 if (!WebUiUsers.ContainsValue(clientSecret)) return "404";
                 if (Manager.Main.All(ch => ch.VoiceChannel.Id != channelId)) return "403";
                 var player = Manager.Main.First(ch => ch.VoiceChannel.Id == channelId);
-                player?.Pause();
+                player.Pause();
                 return "200";
             }
             catch (Exception)

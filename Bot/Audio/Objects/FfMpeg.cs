@@ -1,8 +1,6 @@
 using System;
 using System.Diagnostics;
 using System.IO;
-using System.Net.Http;
-using System.Net.Http.Headers;
 using System.Threading.Tasks;
 using Debug = BatToshoRESTApp.Methods.Debug;
 
@@ -10,10 +8,11 @@ namespace BatToshoRESTApp.Audio.Objects
 {
     public class FfMpeg
     {
-        private readonly HttpClient _httpClient = new();
         private Process FfMpegProcess { get; set; }
 
         private bool _finishedDownloading = true;
+
+        private int Random = new Random().Next(0, int.MaxValue / 32);
 
         public Stream PathToPcm(string videoPath, string startingTime = "00:00:00.000", bool normalize = false)
         {
@@ -74,9 +73,9 @@ namespace BatToshoRESTApp.Audio.Objects
                         {
                             while (i == ms.Length - 1 && !_finishedDownloading)
                             {
-                                await Task.Delay(3);
+                                await Task.Delay(3); // These are the spaghetti code fixes I adore.
                             }
-                            var by = ms.GetBuffer()[i];
+                            var by = ms.GetBuffer()[i]; // I am starting to think that this method is quite slow.
                             try
                             {
                                 FfMpegProcess.StandardInput.BaseStream.WriteByte(by);
@@ -88,14 +87,14 @@ namespace BatToshoRESTApp.Audio.Objects
                                 break;
                             }
                         }
-
                         try
                         {
                             FfMpegProcess.StandardInput.Close();
                         }
                         catch (Exception e)
                         {
-                            Console.WriteLine(e);
+                            if (e.Message.ToLower().Contains("pipe is broken")) return;
+                            await Debug.WriteAsync($"FFmpeg closing stdin failed: {e}");
                         }
                     });
                     copyTask.Start();
@@ -109,53 +108,19 @@ namespace BatToshoRESTApp.Audio.Objects
             return FfMpegProcess?.StandardOutput.BaseStream;
         }
 
-        private async Task<long?> GetContentLengthAsync(string requestUri, bool ensureSuccess = true)
-        {
-            using var request = new HttpRequestMessage(HttpMethod.Head, requestUri);
-            var response = await _httpClient.SendAsync(request, HttpCompletionOption.ResponseHeadersRead);
-            if (ensureSuccess)
-                response.EnsureSuccessStatusCode();
-            return response.Content.Headers.ContentLength;
-        }
-
         private async Task CreateDownloadAsync(Uri uri, params Stream[] streams)
         {
             try
             {
-                var fileSize = await GetContentLengthAsync(uri.AbsoluteUri) ?? 0;
-                const long chunkSize = 10_485_760;
-                if (fileSize == 0) throw new Exception("File has no any content");
-                var segmentCount = (int) Math.Ceiling(1.0 * fileSize / chunkSize);
+                await Debug.WriteAsync($"Caching of \'{Random}\' starting.");
                 _finishedDownloading = false;
-                for (var i = 0; i < segmentCount; i++)
-                {
-                    var from = i * chunkSize;
-                    var to = (i + 1) * chunkSize - 1;
-                    var request = new HttpRequestMessage(HttpMethod.Get, uri);
-                    request.Headers.Range = new RangeHeaderValue(from, to);
-
-                    // Download Stream
-                    var response = await _httpClient.SendAsync(request, HttpCompletionOption.ResponseHeadersRead);
-                    if (response.IsSuccessStatusCode)
-                        response.EnsureSuccessStatusCode();
-                    var stream = await response.Content.ReadAsStreamAsync();
-                    var buffer = new byte[81920];
-                    int bytesCopied;
-                    do
-                    {
-                        bytesCopied = await stream.ReadAsync(buffer.AsMemory(0, buffer.Length));
-                        foreach (var output in streams)
-                        {
-                            await output.WriteAsync(buffer.AsMemory(0, bytesCopied));
-                        }
-                    } while (bytesCopied > 0 && !FfMpegProcess.HasExited);
-                }
+                await Readers.HttpClient.ChunkedDownloaderToStream(Readers.HttpClient.WithCookies(), uri, streams);
                 _finishedDownloading = true;
-                await Debug.WriteAsync("Downloading has finished.");
+                await Debug.WriteAsync($"Caching of \'{Random}\' completed.");
             }
             catch (Exception e)
             {
-                await Debug.WriteAsync($"Failed: {e}");
+                await Debug.WriteAsync($"Creating Download Failed: {e}");
                 KillSync();
             }
         }

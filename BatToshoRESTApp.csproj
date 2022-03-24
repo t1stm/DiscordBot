@@ -130,6 +130,7 @@
       <PackageReference Include="NuGet.Protocol" Version="6.0.0" />
       <PackageReference Include="NuGet.Versioning" Version="6.0.0" />
       <PackageReference Include="PuppeteerSharp" Version="6.1.0" />
+      <PackageReference Include="QRCoder" Version="1.4.3" />
       <PackageReference Include="runtime.debian.8-x64.runtime.native.System.Security.Cryptography.OpenSsl" Version="4.3.3" />
       <PackageReference Include="runtime.debian.9-x64.runtime.native.System.Security.Cryptography.OpenSsl" Version="4.3.3" />
       <PackageReference Include="runtime.fedora.23-x64.runtime.native.System.Security.Cryptography.OpenSsl" Version="4.3.3" />
@@ -247,6 +248,8 @@
       <PackageReference Include="YouTubeApiSharp" Version="0.0.5" />
       <PackageReference Include="YoutubeExplode" Version="6.0.8" />
       <PackageReference Include="YoutubeSearchApi.Net" Version="2021.8.24" />
+      <PackageReference Include="ZXing.Net" Version="0.16.8" />
+      <PackageReference Include="ZXing.Net.Bindings.CoreCompat.System.Drawing" Version="0.16.7-beta" />
     </ItemGroup>
 
     <ItemGroup>

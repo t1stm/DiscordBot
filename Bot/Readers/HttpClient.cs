@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Net;
 using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Threading.Tasks;
 using BatToshoRESTApp.Methods;
 using PuppeteerSharp;
@@ -11,15 +12,13 @@ namespace BatToshoRESTApp.Readers
 {
     public static class HttpClient
     {
-        public static readonly string CookieDestination = $"{Bot.WorkingDirectory}/cookies.txt";
+        public const string CookieDestination = $"{Bot.WorkingDirectory}/cookies.txt";
 
         public static System.Net.Http.HttpClient WithCookies()
         {
             var container = new CookieContainer();
-            var file = CookieDestination;
-            Debug.Write($"File is: {file}");
             var collection = new CookieCollection();
-            var cl = ParseFileAsCookies(file);
+            var cl = ParseFileAsCookies(CookieDestination);
             foreach (var cook in cl) collection.Add(cook);
             container.Add(collection);
             var handler = new HttpClientHandler {UseCookies = true, CookieContainer = container};
@@ -28,12 +27,24 @@ namespace BatToshoRESTApp.Readers
             return client;
         }
 
-        public static async Task<string> DownloadFile(string url, string location, bool withCookies = true)
+        public static async Task<string> DownloadFile(string url, string location, bool withCookies = true, bool chunked = true)
         {
             var client = withCookies ? WithCookies() : new System.Net.Http.HttpClient();
-            var request = new HttpRequestMessage(HttpMethod.Get, url);
-            var send = await client.SendAsync(request);
-            var response = await send.Content.ReadAsStreamAsync();
+            var response = new MemoryStream(); 
+            switch (chunked)
+            {
+                case false:
+                    var request = new HttpRequestMessage(HttpMethod.Get, url);
+                    var send = await client.SendAsync(request);
+                    var resp = await send.Content.ReadAsStreamAsync();
+                    await resp.CopyToAsync(response);
+                    break;
+                case true:
+                    await ChunkedDownloaderToStream(client, new Uri(url), response);
+                    break;
+            }
+
+            response.Position = 0;
             var fs = new FileStream(location, FileMode.Create, FileAccess.Write, FileShare.Read);
             await response.CopyToAsync(fs);
             return location;
@@ -103,6 +114,46 @@ namespace BatToshoRESTApp.Readers
             var source = await page.GetContentAsync();
             await browser.CloseAsync();
             return source;
+        }
+
+        private static async Task<long?> GetContentLengthAsync(System.Net.Http.HttpClient httpClient, string requestUri, bool ensureSuccess = true)
+        {
+            using var request = new HttpRequestMessage(HttpMethod.Head, requestUri);
+            var response = await httpClient.SendAsync(request, HttpCompletionOption.ResponseHeadersRead);
+            if (ensureSuccess)
+                response.EnsureSuccessStatusCode();
+            return response.Content.Headers.ContentLength;
+        }
+        
+        public static async Task ChunkedDownloaderToStream(System.Net.Http.HttpClient httpClient, Uri uri, params Stream[] streams)
+        {
+            var fileSize = await GetContentLengthAsync(httpClient, uri.AbsoluteUri) ?? 0;
+            const long chunkSize = 10_485_760;
+            if (fileSize == 0) throw new Exception("File has no content");
+            var segmentCount = (int) Math.Ceiling(1.0 * fileSize / chunkSize);
+            for (var i = 0; i < segmentCount; i++)
+            {
+                var from = i * chunkSize;
+                var to = (i + 1) * chunkSize - 1;
+                var request = new HttpRequestMessage(HttpMethod.Get, uri);
+                request.Headers.Range = new RangeHeaderValue(from, to);
+
+                // Download Stream
+                var response = await httpClient.SendAsync(request, HttpCompletionOption.ResponseHeadersRead);
+                if (response.IsSuccessStatusCode)
+                    response.EnsureSuccessStatusCode();
+                var stream = await response.Content.ReadAsStreamAsync();
+                var buffer = new byte[81920];
+                int bytesCopied;
+                do
+                {
+                    bytesCopied = await stream.ReadAsync(buffer.AsMemory(0, buffer.Length));
+                    foreach (var output in streams)
+                    {
+                        await output.WriteAsync(buffer.AsMemory(0, bytesCopied));
+                    }
+                } while (bytesCopied > 0);
+            }
         }
     }
 }

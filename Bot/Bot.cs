@@ -39,10 +39,12 @@ namespace BatToshoRESTApp
         public const string WorkingDirectory = "/home/kris/BatTosho";
 
         //private static Timer GarbageCollectTimer { get; } = new(60000);
-        public const int UpdateDelay = 2500; //Milliseconds
+        public const int UpdateDelay = 4000; //Milliseconds
         private static Timer UpdateLoop { get; } = new(UpdateDelay);
         public static List<DiscordClient> Clients { get; } = new();
         public static bool DebugMode { get; private set; }
+
+        private static List<DiscordMessage> BotMessages { get; set; } = new();
 
         public static readonly HttpServer WebSocketServer = new (8000); //This is a server by the WebSocketSharp lib.
 
@@ -61,7 +63,7 @@ namespace BatToshoRESTApp
             switch (token)
             {
                 case RunType.Release:
-                    Clients.Add(MakeClient(BotRelease, new[] {"=", "-"}, useSlashCommands: true));
+                    Clients.Add(MakeClient(BotRelease, new[] {"=", "-"}, useSlashCommands: true, useDefaultHelpCommand: false));
                     Clients.Add(MakeClient(BotBeta, null));
                     Clients.Add(MakeClient(SecondaryBot, null));
                     Clients.Add(MakeClient("OTA2MDc2NTM2Nzk5NjI1MjU3.YYTXiA.8GU3WJRqU_kWW7lhQ_upcH_mfGI", null));
@@ -70,7 +72,7 @@ namespace BatToshoRESTApp
                     await Debug.WriteAsync($"Bat Tosho E Veche Velik! RunType = {token}, Token is: \"{BotRelease}\"");
                     break;
                 case RunType.Beta:
-                    Clients.Add(MakeClient(BotBeta, new[] {";"}, useSlashCommands: true));
+                    Clients.Add(MakeClient(BotBeta, new[] {";"}, useSlashCommands: false));
                     Clients.Add(MakeClient(SecondaryBot, null));
                     Clients.Add(MakeClient("OTA2MDc2NTM2Nzk5NjI1MjU3.YYTXiA.8GU3WJRqU_kWW7lhQ_upcH_mfGI", null));
                     Clients.Add(MakeClient("OTA2MDc2ODA2Njg2MzMwOTQw.YYTXyA.uFzpZH2q3-XPIv5fXoqhMDEFD5g", null));
@@ -114,9 +116,11 @@ namespace BatToshoRESTApp
                                 {
                                     case "cancel":
                                         cancel = true;
+                                        Debug.Write("Cancelled the reboot.", false, Debug.DebugColor.Warning);
                                         break;
                                     case "force":
                                         force = true;
+                                        Debug.Write("Forcing the reboot.", false, Debug.DebugColor.Warning);
                                         break;
                                 }
                             });
@@ -180,12 +184,25 @@ namespace BatToshoRESTApp
                         case "debug":
                             DebugMode = !DebugMode;
                             continue;
+                        case "sms":
+                            await Debug.WriteAsync("Enter a message (example: \"messageId&&Insert Message Here\")", false, Debug.DebugColor.Urgent);
+                            var sms = Console.ReadLine();
+                            var smsSplit = sms.Split("&&");
+                            if (smsSplit.Length != 2)
+                            {
+                                var mess = BotMessages.Last();
+                                await mess.RespondAsync(smsSplit[1]);
+                                continue;
+                            }
+                            var message = BotMessages.ElementAtOrDefault(int.Parse(smsSplit[0]));
+                            await message?.RespondAsync(smsSplit[1]);
+                            continue;
                         case "us":
-                            await Debug.WriteAsync("Enter a new status", false, Debug.DebugColor.Urgent);
+                            await Debug.WriteAsync("Enter a new status (example: \"listening to&&kuceci\")", false, Debug.DebugColor.Urgent);
                             var s = Console.ReadLine();
                             var sp = s.Split("&&");
                             if (sp.Length != 2) continue;
-                            await UpdateStatus(Clients[0],sp[0], sp[1].ToLower() switch
+                            await UpdateStatus(Clients[0],sp[1], sp[0].ToLower().Trim() switch
                             {
                                 "playing" => ActivityType.Playing,
                                 "listening to" => ActivityType.ListeningTo,
@@ -208,23 +225,39 @@ namespace BatToshoRESTApp
 
         private static async Task ReadStatus(DiscordClient client)
         {
-            var f = File.OpenText($"{WorkingDirectory}/Status.json");
-            var json = JsonSerializer.Deserialize<BotActivity>(f.BaseStream);
-            if (json != null)
-                await client.UpdateStatusAsync(new DiscordActivity(json.Status, json.ActivityType));
-            f.Close();
+            try
+            {
+                var f = File.OpenText($"{WorkingDirectory}/Status.json");
+                var json = JsonSerializer.Deserialize<BotActivity>(f.BaseStream);
+                if (json != null)
+                    await client.UpdateStatusAsync(new DiscordActivity(json.Status, json.ActivityType));
+                f.Close();
+            }
+            catch (Exception e)
+            {
+                await Debug.WriteAsync($"Reading status failed: {e}");
+            }
         }
         private static async Task UpdateStatus(DiscordClient client, string status, ActivityType activity)
         {
-            if (client != null)
-                await client.UpdateStatusAsync(new DiscordActivity(status, activity));
-            var f = File.OpenWrite($"{WorkingDirectory}/Status.json");
-            await JsonSerializer.SerializeAsync(f, new BotActivity
+            try
             {
-                ActivityType = activity,
-                Status = status
-            });
-            f.Close();
+                if (client != null)
+                    await client.UpdateStatusAsync(new DiscordActivity(status, activity));
+                var f = File.OpenWrite($"{WorkingDirectory}/Status.json");
+                f.Flush();
+                await JsonSerializer.SerializeAsync(f, new BotActivity
+                {
+                    ActivityType = activity,
+                    Status = status
+                });
+                f.Close();
+            }
+            catch (Exception e)
+            {
+                await Debug.WriteAsync($"Writing status failed: {e}");
+            }
+            
         }
         private static void OnUpdate() // This is updated with the global UpdateDelay integer.
         {                              // And for the sake of not crashing the bot when the spaghetti code acts up, I've enclosed it with try catch blocks.
@@ -239,7 +272,7 @@ namespace BatToshoRESTApp
         }
 
         private static DiscordClient MakeClient(string token, IEnumerable<string> prefixes,
-            bool useDefaultHelpCommand = true,
+            bool useDefaultHelpCommand = false,
             bool useInteractivity = true, bool useVoiceNext = true, bool useSlashCommands = false)
         {
             var client = new DiscordClient(new DiscordConfiguration
@@ -294,10 +327,21 @@ namespace BatToshoRESTApp
                 AudioFormat = new AudioFormat(48000, 2, VoiceApplication.LowLatency),
                 EnableIncoming = false
             });
+            client.MessageCreated += async (sender, args) =>
+            {
+                if (!args.Channel.IsPrivate) return;
+                var id = BotMessages.Count;
+                BotMessages.Add(args.Message);
+                await Debug.WriteAsync(
+                    $"Bot account: \"{sender.CurrentUser.Username}\" with id: \"{sender.CurrentUser.Id}\" recieved private message from " +
+                    $"\"{args.Author.Username}#{args.Author.Discriminator}\": \"{args.Message.Content}\" in channel id \"{args.Channel.Id}\" - Message id is: {id}", 
+                    true, Debug.DebugColor.Warning);
+            };
             if (!useSlashCommands) return client;
             var ext = client.UseSlashCommands();
             ext.RegisterCommands<CommandsSlash>();
-            ext.RegisterCommands<CommandsSlash>(933977766284652594);
+            //ext.RegisterCommands<CommandsSlash>(933977766284652594);
+            //// Same as the message on line 335, but I don't think I'll need to debug this anymore. Let's hope I didn't just jinx this just now.
             Debug.Write("Using Slash Commands.");
 
             return client;
@@ -313,7 +357,7 @@ namespace BatToshoRESTApp
             });
             var ext = client.UseSlashCommands();
             ext.RegisterCommands<CommandsSpecific>();
-            //ext.RegisterCommands<CommandsSpecific>(933977766284652594);
+            //ext.RegisterCommands<CommandsSpecific>(933977766284652594); // This is used only when debugging.
 
             return client;
         }

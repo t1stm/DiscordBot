@@ -519,6 +519,10 @@
               "target": "Package",
               "version": "[6.1.0, )"
             },
+            "QRCoder": {
+              "target": "Package",
+              "version": "[1.4.3, )"
+            },
             "Selenium.WebDriver": {
               "target": "Package",
               "version": "[4.1.0, )"
@@ -898,6 +902,14 @@
             "YoutubeSearchApi.Net": {
               "target": "Package",
               "version": "[2021.8.24, )"
+            },
+            "ZXing.Net": {
+              "target": "Package",
+              "version": "[0.16.8, )"
+            },
+            "ZXing.Net.Bindings.CoreCompat.System.Drawing": {
+              "target": "Package",
+              "version": "[0.16.7-beta, )"
             },
             "runtime.debian.8-x64.runtime.native.System.Security.Cryptography.OpenSsl": {
               "target": "Package",

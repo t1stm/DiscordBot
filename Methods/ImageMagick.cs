@@ -30,7 +30,7 @@ namespace BatToshoRESTApp.Methods
                 image.Composite(watermark2, x2.Value, y2.Value, CompositeOperator.Over);
             }
             await image.WriteAsync(ms);
-
+            ms.Position = 0;
             return ms;
         }
 

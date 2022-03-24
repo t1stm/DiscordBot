@@ -5,6 +5,7 @@ using BatToshoRESTApp.Audio;
 using BatToshoRESTApp.Audio.Platforms.Discord;
 using BatToshoRESTApp.Controllers;
 using BatToshoRESTApp.Methods;
+using BatToshoRESTApp.Miscellaneous;
 using DSharpPlus;
 using DSharpPlus.Entities;
 using DSharpPlus.Interactivity.Extensions;
@@ -81,6 +82,96 @@ namespace BatToshoRESTApp
             Manager.Main.Remove(player);
         }
 
+        public enum HelpCommandCategories
+        {
+            [ChoiceName("Home")]
+            Home,
+            [ChoiceName("Play")]
+            Play,
+            [ChoiceName("Play Next")] 
+            PlayNext,
+            [ChoiceName("Play Select")] 
+            PlaySelect,
+            [ChoiceName("Skip")] 
+            Skip,
+            [ChoiceName("Leave")] 
+            Leave,
+            [ChoiceName("Back")] 
+            Back,
+            [ChoiceName("Shuffle")] 
+            Shuffle,
+            [ChoiceName("Loop")] 
+            Loop,
+            [ChoiceName("Pause")] 
+            Pause,
+            [ChoiceName("Remove")] 
+            Remove,
+            [ChoiceName("Move")] 
+            Move,
+            [ChoiceName("List")] 
+            List,
+            [ChoiceName("Clear")] 
+            Clear,
+            [ChoiceName("WebUi")] 
+            WebUi,
+            [ChoiceName("GoTo")] 
+            GoTo,
+            [ChoiceName("Save Playlist")] 
+            SavePlaylist,
+            [ChoiceName("Lyrics")] 
+            Lyrics,
+            [ChoiceName("Get Avatar")] 
+            GetAvatar,
+            [ChoiceName("Meme")] 
+            Meme
+        }
+        
+        [SlashCommand("help", "This command lists all the commands, a brief explaination of what they do and how to use them.")]
+        public async Task SendHelpMessage(InteractionContext ctx, [Option("command", "Command to recieve help")] HelpCommandCategories cat = HelpCommandCategories.Home)
+        {
+            try
+            {
+                var command = cat switch
+                {
+                    HelpCommandCategories.Home => "home",
+                    HelpCommandCategories.Play => "play",
+                    HelpCommandCategories.PlayNext => "playnext",
+                    HelpCommandCategories.PlaySelect => "playselect",
+                    HelpCommandCategories.Skip => "skip",
+                    HelpCommandCategories.Leave => "leave",
+                    HelpCommandCategories.Back => "back",
+                    HelpCommandCategories.Shuffle => "shuffle",
+                    HelpCommandCategories.Loop => "loop",
+                    HelpCommandCategories.Pause => "pause",
+                    HelpCommandCategories.Remove => "remove",
+                    HelpCommandCategories.Move => "move",
+                    HelpCommandCategories.List => "list",
+                    HelpCommandCategories.Clear => "clear",
+                    HelpCommandCategories.WebUi => "webui",
+                    HelpCommandCategories.GoTo => "goto",
+                    HelpCommandCategories.SavePlaylist => "saveplaylist",
+                    HelpCommandCategories.Lyrics => "lyrics",
+                    HelpCommandCategories.GetAvatar => "getavatar",
+                    HelpCommandCategories.Meme => "meme",
+                    _ => "home"
+                };
+                if (string.IsNullOrEmpty(command)) command = "home";
+                if (command.StartsWith("-") || command.StartsWith("=") || command.StartsWith("/")) command = command[1..];
+                var get = HelpMessages.GetMessage(command);
+                if (get == null)
+                {
+                    await ctx.CreateResponseAsync($"```Couldn't find command: {command}```");
+                    return;
+                }
+
+                await ctx.CreateResponseAsync(get);
+            }
+            catch (Exception e)
+            {
+                await Debug.WriteAsync($"Sending help message in slash command failed. \"{e}\"");
+            }
+        }
+
         [SlashCommand("skip", "This is the skip command. It makes the bot skip an item.")]
         public async Task SkipCommand(InteractionContext ctx, [Option("times", "Times to skip")] long times = 1)
         {
@@ -107,7 +198,7 @@ namespace BatToshoRESTApp
 
             await ctx.EditResponseAsync(new DiscordWebhookBuilder
             {
-                Content = $"```Skipping {(times == 1 ? $"{times} times" : "one time")}.```"
+                Content = $"```Skipping {(times == 1 ? "one times" : $"{times} times")}.```"
             });
 
             await player.Skip((int) times);
@@ -189,13 +280,38 @@ namespace BatToshoRESTApp
                 if (BatTosho.WebUiUsers.ContainsKey(ctx.Member.Id))
                 {
                     var key = BatTosho.WebUiUsers[ctx.Member.Id];
-                    await ctx.Member.SendMessageAsync($"```You have already generated a Web UI code: {key}```");
+                    //await ctx.Member.SendMessageAsync($"```You have already generated a Web UI code: {key}```");
+                    await ctx.Member.SendMessageAsync(new DiscordMessageBuilder()
+                        .WithContent($"```Your Web UI Code is: {key}```")
+                        .WithFile("qr_code.jpg", Manager.GetQrCodeForWebUi(key))
+                        .WithEmbed(new DiscordEmbedBuilder
+                        {
+                            Title = "Bai Tosho Web Interface",
+                            Url = $"https://dankest.gq/BaiToshoBeta?clientSecret={key}",
+                            Description = "Control the bot using a fancy interface.",
+                            Thumbnail = new DiscordEmbedBuilder.EmbedThumbnail
+                            {
+                                Url = "https://dankest.gq/BaiToshoBeta/tosho.png"
+                            }
+                        }));
                     return;
                 }
 
                 var randomString = Bot.RandomString(96);
                 BatTosho.AddUser(ctx.Member.Id, randomString);
-                await ctx.Member.SendMessageAsync($"```Your Web UI Code is: {randomString}```");
+                await ctx.Member.SendMessageAsync(new DiscordMessageBuilder()
+                    .WithContent($"```Your Web UI Code is: {randomString}```")
+                    .WithFile("qr_code.jpg", Manager.GetQrCodeForWebUi(randomString))
+                    .WithEmbed(new DiscordEmbedBuilder
+                    {
+                        Title = "Bai Tosho Web Interface",
+                        Url = $"https://dankest.gq/BaiToshoBeta?clientSecret={randomString}",
+                        Description = "Control the bot using a fancy interface.",
+                        Thumbnail = new DiscordEmbedBuilder.EmbedThumbnail
+                        {
+                            Url = "https://dankest.gq/BaiToshoBeta/tosho.png"
+                        }
+                    }));
             }
             catch (Exception e)
             {
@@ -267,7 +383,7 @@ namespace BatToshoRESTApp
             }
         }
 
-        [ContextMenu(ApplicationCommandType.UserContextMenu, "Hvani Za Kura.")]
+        [ContextMenu(ApplicationCommandType.UserContextMenu, "Catch penis.")]
         public async Task CatchDick(ContextMenuContext ctx)
         {
             try
@@ -275,16 +391,15 @@ namespace BatToshoRESTApp
                 DiscordMessage respond = null;
                 var du = ctx.TargetMember;
                 await ctx.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, new DiscordInteractionResponseBuilder().WithContent("```Sending request```"));
-                var im = new Methods.ImageMagick();
                 if (du.Mention != null)
                 {
                     var str = await Methods.ImageMagick.DiscordUserHandler(ctx.User, du, Enums.ImageTypes.Dick);
                     //await ctx.RespondAsync($"{ctx.User.Mention} хвана {du.Mention} за кура.");
                     str.Position = 0;
-                    await ctx.Member.SendMessageAsync(new DiscordMessageBuilder().WithContent($"```Ти хвана за {du.Username}#{du.Discriminator} кура.```")
+                    await ctx.Member.SendMessageAsync(new DiscordMessageBuilder().WithContent($"```You caught {du.Username}#{du.Discriminator}'s penis.```")
                         .WithFile("hahaha_funny_peepee.jpg", str));
                     str.Position = 0;
-                    if (du != ctx.Client.CurrentUser) respond = await du.SendMessageAsync(new DiscordMessageBuilder().WithContent($"```{ctx.User.Username}#{ctx.User.Discriminator} те хвана за кура.```")
+                    if (du != ctx.Client.CurrentUser) respond = await du.SendMessageAsync(new DiscordMessageBuilder().WithContent($"```{ctx.User.Username}#{ctx.User.Discriminator} caught your dick.```")
                         .WithFile("hahaha_funny_peepee.jpg", str));
                 }
                 if (du.IsBot && du.IsCurrent)
@@ -298,7 +413,7 @@ namespace BatToshoRESTApp
             }
         }
         
-        [ContextMenu(ApplicationCommandType.UserContextMenu, "Send \"Hvani Me Za Kura\" request.")]
+        [ContextMenu(ApplicationCommandType.UserContextMenu, "Send \"Catch Penis\" request.")]
         public async Task CatchDickRequest(ContextMenuContext ctx)
         {
             try
@@ -310,12 +425,12 @@ namespace BatToshoRESTApp
                     const ulong yesEmoji = 837062162471976982;
                     const ulong noEmoji = 837062173296427028;
                     var message =
-                        await du.SendMessageAsync($"```{ctx.User.Username}#{ctx.User.Discriminator} Иска да го хванеш да кура, съгласен ли си?```");
+                        await du.SendMessageAsync($"```{ctx.User.Username}#{ctx.User.Discriminator} wants you to catch his penis. Do you agree?```");
                     await ctx.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, new DiscordInteractionResponseBuilder().WithContent("```Sending request```"));
                     if (du.IsBot && du.IsCurrent)
                     {
                         await Task.Delay(3000);
-                        respond = await ctx.Member.SendMessageAsync(new DiscordMessageBuilder().WithContent($"```Ти хвана {du.Username}#{du.Discriminator} за кура.```")
+                        respond = await ctx.Member.SendMessageAsync(new DiscordMessageBuilder().WithContent($"```You caught \"{du.Username}#{du.Discriminator}\"'s dick.```")
                             .WithFile("hahaha_funny_dick.jpg", await Methods.ImageMagick.DiscordUserHandler
                                 (du, ctx.User, Enums.ImageTypes.Dick)));
                     }
@@ -335,7 +450,7 @@ namespace BatToshoRESTApp
                                 em = 0;
                                 break;
                             }
-                            if (yRec.Contains(du))
+                            if (nRec.Contains(du))
                             {
                                 em = 1;
                                 break;
@@ -353,15 +468,15 @@ namespace BatToshoRESTApp
                             case false when em is 0:
                                 var str = await Methods.ImageMagick.DiscordUserHandler(du, ctx.User, Enums.ImageTypes.Dick);
                                 str.Position = 0;
-                                await ctx.Member.SendMessageAsync(new DiscordMessageBuilder().WithContent($"```Ти хвана {du.Username}#{du.Discriminator} за кура.```")
+                                await ctx.Member.SendMessageAsync(new DiscordMessageBuilder().WithContent($"```You caught \"{du.Username}#{du.Discriminator}\"'s penis.```")
                                     .WithFile("hahaha_funny_peepee.jpg", str));
                                 str.Position = 0;
-                                respond = await du.SendMessageAsync(new DiscordMessageBuilder().WithContent($"```Ти беше хванат от {ctx.Member.Username}#{ctx.Member.Discriminator} за кура.```")
+                                respond = await du.SendMessageAsync(new DiscordMessageBuilder().WithContent($"```{ctx.Member.Username}#{ctx.Member.Discriminator} caught your penis.```")
                                     .WithFile("hahaha_funny_peepee.jpg", str));
                                 break;
                             case true or false when em is 1:
-                                await ctx.Member.SendMessageAsync($"```Не бе получен consent от {du.Username}#{du.Discriminator}```");
-                                await du.SendMessageAsync("```Не даде consent```");
+                                await ctx.Member.SendMessageAsync($"```You didn't recieve consent from {du.Username}#{du.Discriminator}```");
+                                await du.SendMessageAsync("```You didn't give consent```");
                                 break;
                             default:
                                 return;

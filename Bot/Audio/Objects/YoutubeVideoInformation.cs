@@ -17,11 +17,12 @@ namespace BatToshoRESTApp.Audio.Objects
         private static readonly string DownloadDirectory = $"{Bot.WorkingDirectory}/dll/audio";
         private bool Downloading { get; set; }
         private bool Errored { get; set; }
+        private bool IsLiveStream { get; set; }
         public string SearchTerm { get; init; }
         public bool IsId { get; init; }
         public string YoutubeId { get; set; }
         public SpotifyTrack OriginTrack { get; set; }
-        public string Location { get; private set; }
+        private string Location { get; set; }
         public string Title { get; init; }
         public string Author { get; init; }
         public string ThumbnailUrl { get; init; }
@@ -48,6 +49,8 @@ namespace BatToshoRESTApp.Audio.Objects
         {
             return ThumbnailUrl;
         }
+
+        public bool GetIfLiveStream() => IsLiveStream;
 
         public string GetLocation()
         {
@@ -123,7 +126,7 @@ namespace BatToshoRESTApp.Audio.Objects
 
         public string GetTypeOf()
         {
-            return "Youtube Video";
+            return IsLiveStream ? "Youtube Live Stream" : "Youtube Video";
         }
 
         private static string ReturnIfExists(string id)
@@ -140,19 +143,31 @@ namespace BatToshoRESTApp.Audio.Objects
                 : null;
         }
 
-        private async Task DownloadYtDlp(string id)
+        private async Task DownloadYtDlp(string id, bool live = false)
         {
             var sett = new ProcessStartInfo
             {
                 RedirectStandardOutput = true,
                 RedirectStandardError = true,
-                Arguments = $"-g -f bestaudio --cookies \"{HttpClient.CookieDestination}\" {id}",
+                Arguments = $"-g {live switch {true => "", false => "-f bestaudio "}}--cookies \"{HttpClient.CookieDestination}\" {id}",
                 FileName = "yt-dlp"
             };
             var pr = Process.Start(sett);
             if (pr == null) throw new NullReferenceException();
             await pr.WaitForExitAsync();
             var url = await pr.StandardOutput.ReadLineAsync();
+            var err = await pr.StandardError.ReadLineAsync();
+            if (live)
+            {
+                IsLiveStream = true;
+                Location = url;
+                return;
+            }
+            if (!string.IsNullOrEmpty(err) && err.Contains("Requested format is not available"))
+            {
+                await DownloadYtDlp(id, true);
+                return;
+            }
             if (url == null) throw new NullReferenceException();
             var dll = new Task(async () =>
             {

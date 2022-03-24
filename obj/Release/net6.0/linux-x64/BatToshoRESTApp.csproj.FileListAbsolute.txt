@@ -616,3 +616,7 @@
 /home/kris/RiderProjects/BatTosho2/obj/Release/net6.0/linux-x64/ref/BatToshoRESTApp.dll
 /home/kris/RiderProjects/BatTosho2/obj/Release/net6.0/linux-x64/BatToshoRESTApp.pdb
 /home/kris/RiderProjects/BatTosho2/obj/Release/net6.0/linux-x64/BatToshoRESTApp.genruntimeconfig.cache
+/home/kris/RiderProjects/BatTosho2/bin/Release/net6.0/linux-x64/CoreCompat.System.Drawing.dll
+/home/kris/RiderProjects/BatTosho2/bin/Release/net6.0/linux-x64/QRCoder.dll
+/home/kris/RiderProjects/BatTosho2/bin/Release/net6.0/linux-x64/zxing.dll
+/home/kris/RiderProjects/BatTosho2/bin/Release/net6.0/linux-x64/ZXing.CoreCompat.System.Drawing.v2.dll

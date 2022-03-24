@@ -14,12 +14,14 @@ using BatToshoRESTApp.Audio.Platforms.Discord;
 using BatToshoRESTApp.Audio.Platforms.Youtube;
 using BatToshoRESTApp.Controllers;
 using BatToshoRESTApp.Methods;
+using BatToshoRESTApp.Miscellaneous;
 using DSharpPlus;
 using DSharpPlus.CommandsNext;
 using DSharpPlus.Entities;
 using DSharpPlus.Interactivity.Extensions;
 using DSharpPlus.VoiceNext;
 using HttpClient = BatToshoRESTApp.Readers.HttpClient;
+using QRCoder;
 
 namespace BatToshoRESTApp.Audio
 {
@@ -274,7 +276,7 @@ namespace BatToshoRESTApp.Audio
             try
             {
                 player.Statusbar.Stop();
-                await player.DisconnectAsync();
+                player.Disconnect();
                 lock (Main)
                 {
                     if (Main.Contains(player)) Main.Remove(player);
@@ -299,6 +301,18 @@ namespace BatToshoRESTApp.Audio
             player?.Shuffle();
         }
 
+        public static async Task SendHelpMessage(DiscordChannel channel, string command = "home")
+        {
+            if (string.IsNullOrEmpty(command)) command = "home";
+            if (command.StartsWith("-") || command.StartsWith("=") || command.StartsWith("/")) command = command[1..];
+            var get = HelpMessages.GetMessage(command);
+            if (get == null)
+            {
+                await channel.SendMessageAsync($"```Couldn't find command: {command}```");
+                return;
+            }
+            await channel.SendMessageAsync(get);
+        }
         public static async Task Loop(CommandContext ctx)
         {
             var userVoiceS = ctx.Member.VoiceState.Channel;
@@ -391,33 +405,47 @@ namespace BatToshoRESTApp.Audio
             await Bot.Reply(player.CurrentClient, ctx.Channel, $"Removing {item.GetName()}");
         }
 
+        public static MemoryStream GetQrCodeForWebUi(string key)
+        {
+            var qrGenerator = new QRCodeGenerator();
+            var qrCodeData = qrGenerator.CreateQrCode($"https://dankest.gq/BaiToshoBeta?clientSecret={key}", QRCodeGenerator.ECCLevel.Q);
+            var qrCode = new PngByteQRCode(qrCodeData);
+            var qrCodeAsPngByteArr = qrCode.GetGraphic(4);
+            return new MemoryStream(qrCodeAsPngByteArr);
+        }
+
         public static async Task GetWebUi(CommandContext ctx)
         {
             if (BatTosho.WebUiUsers.ContainsKey(ctx.Member.Id))
             {
                 var key = BatTosho.WebUiUsers[ctx.Member.Id];
+                
                 await ctx.Member.SendMessageAsync(new DiscordMessageBuilder()
-                    .WithContent($"```You have already generated a Web UI code: {key}```").WithEmbed(
-                        new DiscordEmbedBuilder
+                    .WithContent($"```You have already generated a Web UI code: {key}```")
+                    .WithFile("qr_code.jpg", GetQrCodeForWebUi(key))
+                    .WithEmbed(new DiscordEmbedBuilder
                         {
                             Title = "Bai Tosho Web Interface",
-                            Url = "https://dankest.gq/BaiToshoBeta",
+                            Url = $"https://dankest.gq/BaiToshoBeta?clientSecret={key}",
                             Description = "Control the bot using a fancy interface.",
                             Thumbnail = new DiscordEmbedBuilder.EmbedThumbnail
                             {
                                 Url = "https://dankest.gq/BaiToshoBeta/tosho.png"
                             }
-                        }));
+                        })
+                    );
                 return;
             }
 
             var randomString = Bot.RandomString(96);
             BatTosho.AddUser(ctx.Member.Id, randomString);
             await ctx.Member.SendMessageAsync(new DiscordMessageBuilder()
-                .WithContent($"```Your Web UI Code is: {randomString}```").WithEmbed(new DiscordEmbedBuilder
+                .WithContent($"```Your Web UI Code is: {randomString}```")
+                .WithFile("qr_code.jpg", GetQrCodeForWebUi(randomString))
+                .WithEmbed(new DiscordEmbedBuilder
                 {
                     Title = "Bai Tosho Web Interface",
-                    Url = "https://dankest.gq/BaiToshoBeta",
+                    Url = $"https://dankest.gq/BaiToshoBeta?clientSecret={randomString}",
                     Description = "Control the bot using a fancy interface.",
                     Thumbnail = new DiscordEmbedBuilder.EmbedThumbnail
                     {
@@ -523,8 +551,8 @@ namespace BatToshoRESTApp.Audio
             }
 
             var player = GetPlayer(userVoiceS, ctx.Client);
-            var thing = player?.GoToIndex(index + 1);
-            await Bot.Reply(ctx, $"Going to ({index + 1}) - \"{thing?.GetName()}\"");
+            var thing = player?.GoToIndex(index - 1);
+            await Bot.Reply(ctx, $"Going to ({index}) - \"{thing?.GetName()}\"");
         }
 
         public static async Task Clear(CommandContext ctx)

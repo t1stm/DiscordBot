@@ -81,6 +81,18 @@ namespace BatToshoRESTApp.Audio
                         break;
                     }
 
+                    var upd = new Task(async () =>
+                    {
+                        try
+                        {
+                            await Statusbar.UpdateSong();
+                        }
+                        catch (Exception e)
+                        {
+                            await Debug.WriteAsync($"Updating Song in Statusbar failed: {e}");
+                        }
+                    });
+                    upd.Start();
                     switch (CurrentItem)
                     {
                         case SpotifyTrack tr:
@@ -101,7 +113,8 @@ namespace BatToshoRESTApp.Audio
                             }
 
                             StatusbarMessage = tries > 5 ? $"Failed to get item: ({Queue.Current}) \"{vi.GetName()}\", skipping it." : StatusbarMessage;
-                            await PlayTrack(vi.GetLocation(), Stopwatch.Elapsed.ToString(@"c"), true);
+                            if (!vi.GetIfLiveStream()) await PlayTrack(vi.GetLocation(), Stopwatch.Elapsed.ToString(@"c"), true);
+                            else await PlayTrack(vi.GetLocation(), Stopwatch.Elapsed.ToString(@"c"));
                             break;
                         
                         default:
@@ -368,7 +381,7 @@ namespace BatToshoRESTApp.Audio
             if (index >= Queue.Count && index < -1) return null;
             Queue.Current = index - 1;
             FfMpeg.KillSync();
-            return Queue.GetCurrent();
+            return Queue.GetNext();
         }
 
         public void Pause()

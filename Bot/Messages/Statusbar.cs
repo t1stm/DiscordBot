@@ -1,20 +1,21 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using BatToshoRESTApp.Audio.Objects;
 using BatToshoRESTApp.Enums;
 using BatToshoRESTApp.Interfaces;
-using BatToshoRESTApp.Methods;
 using DSharpPlus;
 using DSharpPlus.Entities;
+using Debug = BatToshoRESTApp.Methods.Debug;
 
 namespace BatToshoRESTApp.Audio
 {
     public class Statusbar : IBaseStatusbar
     {
         private const char EmptyBlock = '□', FullBlock = '■';
-        private static int _pl0, _pl1 = 1, _pl2 = 2, _pl3 = 3, _pl4 = 4;
+        private int _pl0, _pl1 = 1, _pl2 = 2, _pl3 = 3, _pl4 = 4;
         private bool Stopped { get; set; }
         public Player Player { get; set; }
         public DiscordGuild Guild { get; set; }
@@ -22,6 +23,8 @@ namespace BatToshoRESTApp.Audio
         public DiscordClient Client { get; set; }
         public DiscordMessage Message { get; set; }
         private StatusbarMode Mode { get; set; } = StatusbarMode.Stopped;
+
+        private int UpdateDelay { get; set; } = Bot.UpdateDelay;
 
         public async Task UpdateStatusbar()
         {
@@ -67,7 +70,15 @@ namespace BatToshoRESTApp.Audio
             {
                 try
                 {
-                    await UpdateStatusbar();
+                    if (Bot.DebugMode)
+                    {
+                        var stopwatch = new Stopwatch();
+                        stopwatch.Start();
+                        await UpdateStatusbar();
+                        stopwatch.Stop();
+                        await Debug.WriteAsync($"Updating statusbar took: {stopwatch.Elapsed:c}");
+                    }
+                    else await UpdateStatusbar();
                 }
                 catch (Exception e)
                 {
@@ -76,8 +87,9 @@ namespace BatToshoRESTApp.Audio
                         Message = await Client.Guilds[Guild.Id].Channels[Channel.Id]
                             .SendMessageAsync("```Hello! This message will update shortly.```");
                 }
-
-                await Task.Delay(Bot.UpdateDelay);
+                if (UpdateDelay > Bot.UpdateDelay) UpdateDelay -= 2000;
+                if (UpdateDelay < Bot.UpdateDelay) UpdateDelay = Bot.UpdateDelay; 
+                await Task.Delay(UpdateDelay);
             }
         }
 
@@ -89,6 +101,20 @@ namespace BatToshoRESTApp.Audio
         public void ChangeMode(StatusbarMode mode)
         {
             Mode = mode;
+        }
+
+        public async Task UpdateSong()
+        {
+            try
+            {
+                if (Message == null) return;
+                await UpdateStatusbar();
+                UpdateDelay += 2000;
+            }
+            catch (Exception e)
+            {
+                await Debug.WriteAsync($"Updating Statusbar due to updated song failed. \"{e}\"");
+            }
         }
 
         public async Task UpdatePlacement()
@@ -128,7 +154,7 @@ namespace BatToshoRESTApp.Audio
             var length = Player.CurrentItem.GetLength();
             var time = Player.Stopwatch.ElapsedMilliseconds;
             var progress = GenerateProgressbar(Player);
-            var message = string.IsNullOrEmpty(Player.StatusbarMessage) ? "" : $"\n{Player.StatusbarMessage}";
+            var message = string.IsNullOrEmpty(Player.StatusbarMessage) ? "\n\nOne can use the web interface with the command: \"-webui\"" : $"\n\n{Player.StatusbarMessage}";
             if (Bot.DebugMode) Debug.Write($"Updated Statusbar in guild \"{Player.CurrentGuild.Name}\": Track: \"{Player.CurrentItem.GetName()}\", Time: {Time(Player.Stopwatch.Elapsed)} - {Time(TimeSpan.FromMilliseconds(length))}");
 
             return
@@ -162,14 +188,14 @@ namespace BatToshoRESTApp.Audio
             }
         }
 
-        private static string GenerateProgressbar(Player player)
+        private string GenerateProgressbar(Player player)
         {
             var total = (long) player.Queue.GetCurrent().GetLength();
             var current = player.Stopwatch.ElapsedMilliseconds;
             return GenerateProgressbar(current, total);
         }
 
-        private static string GenerateProgressbar(long current, long total)
+        private string GenerateProgressbar(long current, long total)
         {
             var progress = "";
             if (total != 0)

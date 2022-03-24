@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "dgSpecHash": "l++MBO/luJauR4Z4b63ss7y5JM+nunLhPT7NFFPO9UeOrayAfN5GzRoEopkwlCnULYkkQ7kEEn41lQcklETbbQ==",
+  "dgSpecHash": "9+ejxecROqAg5wD5LMu5t9PfQ4/YwA8BQJ8U6aXkKv4u3JP1AjmvjEhGlH43EzdQU4XP4+EgmHrQrchk2CRVVw==",
   "success": true,
   "projectFilePath": "/home/kris/RiderProjects/BatTosho2/BatToshoRESTApp.csproj",
   "expectedPackageFiles": [
@@ -9,6 +9,7 @@
     "/home/kris/.nuget/packages/azure.identity/1.6.0-beta.1/azure.identity.1.6.0-beta.1.nupkg.sha512",
     "/home/kris/.nuget/packages/bouncycastle.netcore/1.8.10/bouncycastle.netcore.1.8.10.nupkg.sha512",
     "/home/kris/.nuget/packages/concurrenthashset/1.3.0/concurrenthashset.1.3.0.nupkg.sha512",
+    "/home/kris/.nuget/packages/corecompat.system.drawing.v2/5.2.0-preview1-r131/corecompat.system.drawing.v2.5.2.0-preview1-r131.nupkg.sha512",
     "/home/kris/.nuget/packages/dsharpplus/4.2.0-nightly-01062/dsharpplus.4.2.0-nightly-01062.nupkg.sha512",
     "/home/kris/.nuget/packages/dsharpplus.commandsnext/4.2.0-nightly-01062/dsharpplus.commandsnext.4.2.0-nightly-01062.nupkg.sha512",
     "/home/kris/.nuget/packages/dsharpplus.interactivity/4.2.0-nightly-01062/dsharpplus.interactivity.4.2.0-nightly-01062.nupkg.sha512",
@@ -127,6 +128,7 @@
     "/home/kris/.nuget/packages/nuget.protocol/6.0.0/nuget.protocol.6.0.0.nupkg.sha512",
     "/home/kris/.nuget/packages/nuget.versioning/6.0.0/nuget.versioning.6.0.0.nupkg.sha512",
     "/home/kris/.nuget/packages/puppeteersharp/6.1.0/puppeteersharp.6.1.0.nupkg.sha512",
+    "/home/kris/.nuget/packages/qrcoder/1.4.3/qrcoder.1.4.3.nupkg.sha512",
     "/home/kris/.nuget/packages/runtime.debian.8-x64.runtime.native.system.security.cryptography.openssl/4.3.3/runtime.debian.8-x64.runtime.native.system.security.cryptography.openssl.4.3.3.nupkg.sha512",
     "/home/kris/.nuget/packages/runtime.debian.9-x64.runtime.native.system.security.cryptography.openssl/4.3.3/runtime.debian.9-x64.runtime.native.system.security.cryptography.openssl.4.3.3.nupkg.sha512",
     "/home/kris/.nuget/packages/runtime.fedora.23-x64.runtime.native.system.security.cryptography.openssl/4.3.3/runtime.fedora.23-x64.runtime.native.system.security.cryptography.openssl.4.3.3.nupkg.sha512",
@@ -248,7 +250,9 @@
     "/home/kris/.nuget/packages/websocketsharp/1.0.3-rc11/websocketsharp.1.0.3-rc11.nupkg.sha512",
     "/home/kris/.nuget/packages/youtubeapisharp/0.0.5/youtubeapisharp.0.0.5.nupkg.sha512",
     "/home/kris/.nuget/packages/youtubeexplode/6.0.8/youtubeexplode.6.0.8.nupkg.sha512",
-    "/home/kris/.nuget/packages/youtubesearchapi.net/2021.8.24/youtubesearchapi.net.2021.8.24.nupkg.sha512"
+    "/home/kris/.nuget/packages/youtubesearchapi.net/2021.8.24/youtubesearchapi.net.2021.8.24.nupkg.sha512",
+    "/home/kris/.nuget/packages/zxing.net/0.16.8/zxing.net.0.16.8.nupkg.sha512",
+    "/home/kris/.nuget/packages/zxing.net.bindings.corecompat.system.drawing/0.16.7-beta/zxing.net.bindings.corecompat.system.drawing.0.16.7-beta.nupkg.sha512"
   ],
   "logs": [
     {

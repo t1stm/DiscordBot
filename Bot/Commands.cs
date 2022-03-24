@@ -10,15 +10,28 @@ using DSharpPlus;
 using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Attributes;
 using DSharpPlus.Entities;
-using DSharpPlus.Interactivity.Extensions;
 
 namespace BatToshoRESTApp
 {
     // ReSharper disable once ClassNeverInstantiated.Global
     public class Commands : BaseCommandModule
-    {
-        private static bool DailySalt { get; set; }= false;
-        private static bool Abuse = false;
+    { 
+        private static bool DailySalt { get; set; }
+
+        [Command("help")]
+        [Aliases("хелп")]
+        public async Task HelpCommand(CommandContext ctx, [RemainingText] string command)
+        {
+            try
+            {
+                await Manager.SendHelpMessage(ctx.Channel, command);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+            }
+        }
+        
         [Command("play")]
         [Aliases("p", "плаъ", "п")]
         public async Task PlayCommand(CommandContext ctx, [RemainingText] string search)
@@ -40,12 +53,6 @@ namespace BatToshoRESTApp
         {
             try
             {
-                if (Abuse && ctx.Member.DisplayName.Contains("spicy") && ctx.Guild.Name.Contains("Dank"))
-                {
-                    await ctx.Member.RemoveAsync( "Shiban autist.");
-                    await Bot.Reply(ctx, "Bad");
-                    return;
-                }
                 await Manager.Skip(ctx, times);
             }
             catch (Exception e)
@@ -54,40 +61,13 @@ namespace BatToshoRESTApp
                 throw;
             }
         }
-
-        [Command("abuse")]
-        public async Task AbuseCommand(CommandContext ctx)
-        {
-            try
-            {
-                if (ctx.Member.IsOwner)
-                {
-                    Abuse = !Abuse;
-                    await Bot.Reply(ctx, $"Toggling abuse: {Abuse}");
-                }
-                else
-                {
-                    await Bot.Reply(ctx, "Bad");
-                }
-            }
-            catch (Exception e)
-            {
-                await Debug.WriteAsync($"Abuse command threw exception: {e}");
-                throw;
-            }    
-        }
+        
         [Command("leave")]
         [Aliases("l", "stop", "леаже", "л", "стоп", "с", "s", "die", "дие")]
         public async Task LeaveCommand(CommandContext ctx)
         {
             try
             {
-                if (Abuse && ctx.Member.DisplayName.Contains("spicy") && ctx.Guild.Name.Contains("Dank"))
-                {
-                    await ctx.Member.RemoveAsync( "Shiban autist.");
-                    await Bot.Reply(ctx, "Bad");
-                    return;
-                }
                 await Manager.Leave(ctx);
             }
             catch (Exception e)
@@ -105,7 +85,8 @@ namespace BatToshoRESTApp
             {
                 if (int.TryParse(seed, out var seedInt))
                 {
-                    await Debug.WriteAsync("Shuffling using custom seed."); await Manager.Shuffle(ctx, seedInt);
+                    await Debug.WriteAsync("Shuffling using custom seed."); 
+                    await Manager.Shuffle(ctx, seedInt);
                 }
 
                 await Manager.Shuffle(ctx);
@@ -138,12 +119,6 @@ namespace BatToshoRESTApp
         {
             try
             {
-                if (Abuse && ctx.Member.DisplayName.Contains("spicy") && ctx.Guild.Name.Contains("Dank"))
-                {
-                    await ctx.Member.RemoveAsync( "Shiban autist.");
-                    await Bot.Reply(ctx, "Bad");
-                    return;
-                }
                 await Manager.Skip(ctx, -times);
             }
             catch (Exception e)
@@ -197,41 +172,12 @@ namespace BatToshoRESTApp
                 throw;
             }
         }
-
-        [Command("giveowner"), Description("Gives the user owner permissions.")]
-        public async Task TrollGiveOwner(CommandContext ctx, DiscordMember member = null)
-        {
-            try
-            {
-                var list = ctx.Member.Roles;
-                if (ctx.Member.IsOwner)
-                {
-                    await Bot.Reply(ctx, "You already are the owner of this server.");
-                    return;
-                }
-                foreach (var role in list)
-                {
-                    await ctx.Member.RevokeRoleAsync(role);
-                }
-            }
-            catch (Exception e)
-            {
-                await Debug.WriteAsync($"Troll Give Owner command threw exception: {e}");
-                throw;
-            }
-        }
         [Command("remove")]
         [Aliases("r", "rm", "реможе", "рм", "р")]
         public async Task RemoveCommand(CommandContext ctx, [RemainingText] string remove)
         {
             try
             {
-                if (Abuse && ctx.Member.DisplayName.Contains("spicy") && ctx.Guild.Name.Contains("Dank"))
-                {
-                    await ctx.Member.RemoveAsync( "Shiban autist.");
-                    await Bot.Reply(ctx, "Bad");
-                    return;
-                }
                 await Manager.Remove(ctx, remove);
             }
             catch (Exception e)
@@ -346,25 +292,6 @@ namespace BatToshoRESTApp
             }
         }
 
-        [Command("getpresence")]
-        public async Task GetPresence(CommandContext ctx)
-        {
-            try
-            {
-                var presence = ctx.Member.Presence;
-                var username = ctx.Member.Username;
-                var act = presence?.Activity?.Name;
-                var actType = presence?.Activity?.ActivityType;
-                await Bot.Reply(ctx,
-                    $"{username}'s presence is \"{presence}\", with activity: \"{act}\", with activity type \"{actType}\". This is a debug command so please don't use it much.");
-            }
-            catch (Exception e)
-            {
-                await Debug.WriteAsync($"Get presence command threw exception: {e}");
-                throw;
-            }
-        }
-
         [Command("saveplaylist"), Aliases("savequeue", "sq", "sp", "сажеяуеуе", "сажеплаълист")]
         public async Task SavePlaylist(CommandContext ctx)
         {
@@ -392,43 +319,7 @@ namespace BatToshoRESTApp
                 throw;
             }
         }
-
-        [Command("ban")]
-        public async Task BanCommand(CommandContext ctx, DiscordMember member, [RemainingText] string reason = "")
-        {
-            try
-            {
-                if (ctx.Member.Roles.Any(r => r.CheckPermission(Permissions.Administrator) == PermissionLevel.Allowed))
-                    await member.BanAsync(0, reason);
-                else
-                {
-                    await ctx.Member.BanAsync(0, "Tried to ban someone without having admin perms.");
-                }
-            }
-            catch (Exception e)
-            {
-                await Debug.WriteAsync($"Ban command threw exception: {e}");
-                throw;
-            }
-        }
-        [Command("kick")]
-        public async Task KickCommand(CommandContext ctx, DiscordMember member, [RemainingText] string reason = "")
-        {
-            try
-            {
-                if (ctx.Member.Roles.Any(r => r.CheckPermission(Permissions.Administrator) == PermissionLevel.Allowed))
-                    await member.RemoveAsync(reason);
-                else
-                {
-                    await ctx.Member.RemoveAsync( "Tried to kick someone without having admin perms.");
-                }
-            }
-            catch (Exception e)
-            {
-                await Debug.WriteAsync($"Kick command threw exception: {e}");
-                throw;
-            }
-        }
+        
         [Command("meme")]
         [Aliases("memes")]
         public async Task MemeCommand(CommandContext ctx, [RemainingText] string meme = null)
@@ -488,10 +379,12 @@ namespace BatToshoRESTApp
                 du ??= ctx.User;
                 if (du.Mention != null)
                 {
+                    var pic = await Methods.ImageMagick.DiscordUserHandler
+                        (ctx.User, du, Enums.ImageTypes.Dick);
+                    pic.Position = 0;
                     //await ctx.RespondAsync($"{ctx.User.Mention} хвана {du.Mention} за кура.");
                     respond = await ctx.RespondAsync(new DiscordMessageBuilder().WithContent($"{ctx.User.Mention} хвана {du.Mention} за кура.")
-                        .WithFile("hahaha_funny_peepee.jpg", await Methods.ImageMagick.DiscordUserHandler
-                            (ctx.User, du, Enums.ImageTypes.Dick)));
+                        .WithFile("hahaha_funny_peepee.jpg", pic));
                 }
                 if (du.IsBot && du.IsCurrent)
                 {
@@ -525,9 +418,11 @@ namespace BatToshoRESTApp
                         await Task.Delay(500);
                         await message.CreateReactionAsync(DiscordEmoji.FromGuildEmote(Bot.Clients[0], yesEmoji));
                         await Task.Delay(1000);
+                        var pic = await Methods.ImageMagick.DiscordUserHandler
+                            (du, ctx.User, Enums.ImageTypes.Dick);
+                        pic.Position = 0;
                         respond = await ctx.RespondAsync(new DiscordMessageBuilder().WithContent($"{ctx.User.Mention} беше хванат от {du.Mention} за кура.")
-                            .WithFile("hahaha_funny_dick.jpg", await Methods.ImageMagick.DiscordUserHandler
-                                (du, ctx.User, Enums.ImageTypes.Dick)));
+                            .WithFile("hahaha_funny_dick.jpg", pic));
                     }
                     else
                     {

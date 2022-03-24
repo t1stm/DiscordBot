@@ -308,6 +308,7 @@
 /home/kris/RiderProjects/BatTosho2/bin/Release/net6.0/linux-x64/publish/Azure.Identity.dll
 /home/kris/RiderProjects/BatTosho2/bin/Release/net6.0/linux-x64/publish/BouncyCastle.Crypto.dll
 /home/kris/RiderProjects/BatTosho2/bin/Release/net6.0/linux-x64/publish/ConcurrentCollections.dll
+/home/kris/RiderProjects/BatTosho2/bin/Release/net6.0/linux-x64/publish/CoreCompat.System.Drawing.dll
 /home/kris/RiderProjects/BatTosho2/bin/Release/net6.0/linux-x64/publish/DSharpPlus.dll
 /home/kris/RiderProjects/BatTosho2/bin/Release/net6.0/linux-x64/publish/DSharpPlus.CommandsNext.dll
 /home/kris/RiderProjects/BatTosho2/bin/Release/net6.0/linux-x64/publish/DSharpPlus.Interactivity.dll
@@ -399,6 +400,7 @@
 /home/kris/RiderProjects/BatTosho2/bin/Release/net6.0/linux-x64/publish/NuGet.Protocol.dll
 /home/kris/RiderProjects/BatTosho2/bin/Release/net6.0/linux-x64/publish/NuGet.Versioning.dll
 /home/kris/RiderProjects/BatTosho2/bin/Release/net6.0/linux-x64/publish/PuppeteerSharp.dll
+/home/kris/RiderProjects/BatTosho2/bin/Release/net6.0/linux-x64/publish/QRCoder.dll
 /home/kris/RiderProjects/BatTosho2/bin/Release/net6.0/linux-x64/publish/SOS.NETCore.dll
 /home/kris/RiderProjects/BatTosho2/bin/Release/net6.0/linux-x64/publish/WebDriver.dll
 /home/kris/RiderProjects/BatTosho2/bin/Release/net6.0/linux-x64/publish/ICSharpCode.SharpZipLib.dll
@@ -430,6 +432,8 @@
 /home/kris/RiderProjects/BatTosho2/bin/Release/net6.0/linux-x64/publish/YouTubeApiSharp.dll
 /home/kris/RiderProjects/BatTosho2/bin/Release/net6.0/linux-x64/publish/YoutubeExplode.dll
 /home/kris/RiderProjects/BatTosho2/bin/Release/net6.0/linux-x64/publish/YoutubeSearchApi.Net.dll
+/home/kris/RiderProjects/BatTosho2/bin/Release/net6.0/linux-x64/publish/zxing.dll
+/home/kris/RiderProjects/BatTosho2/bin/Release/net6.0/linux-x64/publish/ZXing.CoreCompat.System.Drawing.v2.dll
 /home/kris/RiderProjects/BatTosho2/bin/Release/net6.0/linux-x64/publish/cs/Microsoft.CodeAnalysis.resources.dll
 /home/kris/RiderProjects/BatTosho2/bin/Release/net6.0/linux-x64/publish/de/Microsoft.CodeAnalysis.resources.dll
 /home/kris/RiderProjects/BatTosho2/bin/Release/net6.0/linux-x64/publish/es/Microsoft.CodeAnalysis.resources.dll

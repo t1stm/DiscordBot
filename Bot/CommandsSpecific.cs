@@ -14,7 +14,7 @@ namespace BatToshoRESTApp
 {
     public class CommandsSpecific : ApplicationCommandModule
     {
-        [SlashCommand("givecontent", "This command gives you special content. rev 35")]
+        [SlashCommand("givecontent", "This command gives you special content. rev 39")]
         public async Task ContentCommand(InteractionContext ctx, [Option("id", "The id of the content", false)] long? id = default)
         {
             try
@@ -60,7 +60,7 @@ namespace BatToshoRESTApp
             }
         }
 
-        [SlashCommand("r34", "This command searches the rule. rev 35")]
+        [SlashCommand("r34", "This command searches the rule. rev 39")]
         public async Task RuleCommand(InteractionContext ctx, [Option("searchterm", "Search Term")] string search, [Option("results", "Number of results. Must be < 1000")] long? results)
         {
             try

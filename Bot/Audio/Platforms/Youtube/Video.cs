@@ -32,7 +32,7 @@ namespace BatToshoRESTApp.Audio.Platforms.Youtube
             var response = await client.SearchAsync(HttpClient.WithCookies(), term, 25);
             var res = response.Results.ToList();
             RemoveAll(ref res, term, "8d", "remix", "karaoke", "instru", "clean", "bass boosted", "bass", "ear rape", "earrape", "ear", "rape", 
-                "cover", "кавър", "backstage", "live");
+                "cover", "кавър", "backstage", "live", "version");
             if (length != 0)
             {
                 res = res.OrderBy(r =>
