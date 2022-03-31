@@ -10,7 +10,7 @@ namespace BatToshoRESTApp.Audio.Platforms.Discord
 {
     public static class Attachments
     {
-        private static readonly string DownloadDirectory = $"{Bot.WorkingDirectory}/dll/Discord Attachments/";
+        private const string DownloadDirectory = $"{Bot.WorkingDirectory}/dll/Discord Attachments/";
 
         public static async Task<List<IPlayableItem>> GetAttachments(List<DiscordAttachment> attachments,
             ulong guild = 0)

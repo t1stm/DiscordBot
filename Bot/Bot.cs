@@ -39,7 +39,7 @@ namespace BatToshoRESTApp
         public const string WorkingDirectory = "/home/kris/BatTosho";
 
         //private static Timer GarbageCollectTimer { get; } = new(60000);
-        public const int UpdateDelay = 4000; //Milliseconds
+        public const int UpdateDelay = 3200; //Milliseconds
         private static Timer UpdateLoop { get; } = new(UpdateDelay);
         public static List<DiscordClient> Clients { get; } = new();
         public static bool DebugMode { get; private set; }
@@ -131,6 +131,7 @@ namespace BatToshoRESTApp
                                 await Debug.WriteAsync("Waiting to restart.");
                                 await Debug.WriteAsync("Active guilds: ");
                                 foreach (var pl in Manager.Main)
+                                {
                                     await Debug.WriteAsync(
                                         $"{pl.CurrentGuild} : {pl.VoiceChannel?.Name} " +
                                         $"- Owner : {pl.CurrentGuild?.Owner?.DisplayName} - {pl.CurrentGuild?.Owner?.Id} " +
@@ -138,7 +139,8 @@ namespace BatToshoRESTApp
                                         $"- Waiting Stopwatch: {Statusbar.Time(pl.WaitingStopwatch.Elapsed)} " +
                                         $"- Time: {Statusbar.Time(pl.Stopwatch.Elapsed)} " +
                                         $"- {Statusbar.Time(TimeSpan.FromMilliseconds(pl.CurrentItem.GetLength()))} " +
-                                        $"- Paused: {pl.Paused}");
+                                        $"- Paused: {pl.Paused} - Voice Users: {pl.VoiceUsers}");
+                                }
                                 await Task.Delay(1000);
                             }
 

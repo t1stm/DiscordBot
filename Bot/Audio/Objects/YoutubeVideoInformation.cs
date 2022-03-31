@@ -14,7 +14,7 @@ namespace BatToshoRESTApp.Audio.Objects
 {
     public class YoutubeVideoInformation : IPlayableItem
     {
-        private static readonly string DownloadDirectory = $"{Bot.WorkingDirectory}/dll/audio";
+        private const string DownloadDirectory = $"{Bot.WorkingDirectory}/dll/audio";
         private bool Downloading { get; set; }
         private bool Errored { get; set; }
         private bool IsLiveStream { get; set; }
@@ -54,6 +54,12 @@ namespace BatToshoRESTApp.Audio.Objects
 
         public string GetLocation()
         {
+            if (!IsLiveStream) return Location;
+            var updateTask = Task.Run(async () =>
+            {
+                await DownloadYtDlp(YoutubeId, true);
+            });
+            updateTask.Wait();
             return Location;
         }
 

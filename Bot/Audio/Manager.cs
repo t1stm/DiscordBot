@@ -29,7 +29,7 @@ namespace BatToshoRESTApp.Audio
     {
         public static readonly List<Player> Main = new();
 
-        public static Player GetPlayer(DiscordChannel channel, DiscordClient client, int fail = 0)
+        public static Player GetPlayer(DiscordChannel channel, DiscordClient client, int fail = 0, bool generateNew = false)
         {
             //UDRI MAISTORE EDNA PO DJULEVA RAKIQ
             var failedGetAttempts = fail;
@@ -45,17 +45,22 @@ namespace BatToshoRESTApp.Audio
                     }
 
                     var conn = client.GetVoiceNext().GetConnection(channel.Guild);
-                    if (conn == null)
+                    switch (conn)
                     {
-                        var pl = new Player
+                        case null when !generateNew:
+                            return null;
+                        case null:
                         {
-                            CurrentClient = client, VoiceChannel = channel
-                        };
-                        Main.Add(pl);
-                        Debug.Write(
-                            $"Adding new item to dictionary: \"{channel.Name}\", in guild: \"{channel.Guild.Name}\", with id: \"{channel.GuildId}\"");
-                        failedGetAttempts = 0;
-                        return pl;
+                            var pl = new Player
+                            {
+                                CurrentClient = client, VoiceChannel = channel
+                            };
+                            Main.Add(pl);
+                            Debug.Write(
+                                $"Adding new item to dictionary: \"{channel.Name}\", in guild: \"{channel.Guild.Name}\", with id: \"{channel.GuildId}\"");
+                            failedGetAttempts = 0;
+                            return pl;
+                        }
                     }
 
                     var list = Bot.Clients.Where(cl => cl.CurrentUser.Id != client.CurrentUser.Id)
@@ -94,10 +99,10 @@ namespace BatToshoRESTApp.Audio
                 return;
             }
 
-            var player = GetPlayer(userVoiceS, ctx.Client);
+            var player = GetPlayer(userVoiceS, ctx.Client, generateNew: true);
             if (player == null)
             {
-                await Bot.SendDirectMessage(ctx, "No free bot accounts in this guild. You can add more bot accounts from the bot site when it's made.");
+                await Bot.SendDirectMessage(ctx, "No free bot accounts in this guild. You can add more bot accounts from the bot's support server.");
                 return;
             }
 
@@ -272,7 +277,11 @@ namespace BatToshoRESTApp.Audio
             }
 
             var player = GetPlayer(userVoiceS, ctx.Client);
-            if (player == null) return;
+            if (player == null)
+            {
+                await Bot.Reply(ctx, "The bot isn't in the channel");
+                return;
+            }
             try
             {
                 player.Statusbar.Stop();
@@ -296,9 +305,14 @@ namespace BatToshoRESTApp.Audio
                 await Bot.SendDirectMessage(ctx, "Enter a channel before using the shuffle command.");
                 return;
             }
-
+            
             var player = GetPlayer(userVoiceS, ctx.Client);
-            player?.Shuffle();
+            if (player == null)
+            {
+                await Bot.Reply(ctx, "The bot isn't in the channel");
+                return;
+            }
+            player.Shuffle();
         }
 
         public static async Task SendHelpMessage(DiscordChannel channel, string command = "home")
@@ -323,7 +337,11 @@ namespace BatToshoRESTApp.Audio
             }
 
             var player = GetPlayer(userVoiceS, ctx.Client);
-            if (player == null) return;
+            if (player == null)
+            {
+                await Bot.Reply(ctx, "The bot isn't in the channel");
+                return;
+            }
             await ctx.RespondAsync("```Loop status is now: " + player.ToggleLoop() switch
             {
                 Enums.Loop.None => "None", Enums.Loop.WholeQueue => "Looping whole queue.",
@@ -395,7 +413,11 @@ namespace BatToshoRESTApp.Audio
             }
 
             var player = GetPlayer(userVoiceS, ctx.Client);
-            if (player == null) return;
+            if (player == null)
+            {
+                await Bot.Reply(ctx, "The bot isn't in the channel");
+                return;
+            }
             var item = int.TryParse(text, out var num) ? await player.RemoveFromQueue(num - 1) : await player.RemoveFromQueue(text);
             if (item == null)
             {
@@ -464,7 +486,11 @@ namespace BatToshoRESTApp.Audio
             }
 
             var player = GetPlayer(userVoiceS, ctx.Client);
-            if (player == null) return;
+            if (player == null)
+            {
+                await Bot.Reply(ctx, "The bot isn't in the channel");
+                return;
+            }
 
             var stuff = move.Split(" ");
             if (int.TryParse(stuff[0], out var thing1) && int.TryParse(stuff[1], out var thing2))
@@ -496,7 +522,12 @@ namespace BatToshoRESTApp.Audio
             }
 
             var player = GetPlayer(userVoiceS, ctx.Client);
-            player?.Queue.ShuffleWithSeed(seedInt);
+            if (player == null)
+            {
+                await Bot.Reply(ctx, "The bot isn't in the channel");
+                return;
+            }
+            player.Queue.ShuffleWithSeed(seedInt);
         }
 
         public static async Task GetSeed(CommandContext ctx)
@@ -509,7 +540,11 @@ namespace BatToshoRESTApp.Audio
             }
 
             var player = GetPlayer(userVoiceS, ctx.Client);
-            if (player == null) return;
+            if (player == null)
+            {
+                await Bot.Reply(ctx, "The bot isn't in the channel");
+                return;
+            }
             var seed = player.Queue.RandomSeed;
             await Bot.Reply(ctx,
                 seed switch {0 => "This queue hasn't been shuffled.", _ => $"The queue's seed is: \"{seed}\""});
@@ -524,7 +559,11 @@ namespace BatToshoRESTApp.Audio
                 return;
             }
             var player = GetPlayer(userVoiceS, ctx.Client);
-            if (player == null) return;
+            if (player == null)
+            {
+                await Bot.Reply(ctx, "The bot isn't in the channel");
+                return;
+            }
             switch (inDiscord)
             {
                 case true:
@@ -551,7 +590,12 @@ namespace BatToshoRESTApp.Audio
             }
 
             var player = GetPlayer(userVoiceS, ctx.Client);
-            var thing = player?.GoToIndex(index - 1);
+            if (player == null)
+            {
+                await Bot.Reply(ctx, "The bot isn't in the channel");
+                return;
+            }
+            var thing = player.GoToIndex(index - 1);
             await Bot.Reply(ctx, $"Going to ({index}) - \"{thing?.GetName()}\"");
         }
 
@@ -565,6 +609,11 @@ namespace BatToshoRESTApp.Audio
             }
 
             var player = GetPlayer(userVoiceS, ctx.Client);
+            if (player == null)
+            {
+                await Bot.Reply(ctx, "The bot isn't in the channel");
+                return;
+            }
             player.Queue.Clear();
         }
 
@@ -581,7 +630,7 @@ namespace BatToshoRESTApp.Audio
             var player = GetPlayer(userVoiceS, ctx.Client);
             if (player == null)
             {
-                await Bot.SendDirectMessage(ctx, "The bot isn't in a channel.");
+                await Bot.SendDirectMessage(ctx, "The bot isn't in the channel.");
                 return;
             }
 

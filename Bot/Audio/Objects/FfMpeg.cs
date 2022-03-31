@@ -50,6 +50,7 @@ namespace BatToshoRESTApp.Audio.Objects
                             @$"-c:a pcm_s16le {normalize switch {true => "-af loudnorm=I=-16:LRA=11:TP=-1.5 ", false => ""}}-ac 2 -f s16le -ar 48000 pipe:1",
                 RedirectStandardOutput = true,
                 RedirectStandardInput = true,
+                RedirectStandardError = true,
                 UseShellExecute = false
             };
             FfMpegProcess = Process.Start(ffmpegStartInfo);

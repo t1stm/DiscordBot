@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using BatToshoRESTApp.Audio.Objects;
 using BatToshoRESTApp.Methods;
@@ -31,7 +32,9 @@ namespace BatToshoRESTApp.Audio.Platforms.Youtube
             var client = new DefaultSearchClient(new YoutubeSearchBackend());
             var response = await client.SearchAsync(HttpClient.WithCookies(), term, 25);
             var res = response.Results.ToList();
-            RemoveAll(ref res, term, "8d", "remix", "karaoke", "instru", "clean", "bass boosted", "bass", "ear rape", "earrape", "ear", "rape", 
+            RemoveTheFucking18dAudio(ref res, term); // I hate these videos, they add nothing and in my opinion are not even worth existing on YouTube,
+            // but who am I to tell people what to upload and what not, so let's fucking purge the results from even existing.
+            RemoveAll(ref res, term, "remix", "karaoke", "instru", "clean", "bass boosted", "bass", "ear rape", "earrape", "ear", "rape", 
                 "cover", "кавър", "backstage", "live", "version");
             if (length != 0)
             {
@@ -81,6 +84,21 @@ namespace BatToshoRESTApp.Audio.Platforms.Youtube
             task.Start();
             if (urgent) await info.Download();
             return info;
+        }
+
+        private static void RemoveTheFucking18dAudio(ref List<IResponseResult> list, string searchTerm)
+        {
+            lock (list)
+            {
+                searchTerm = searchTerm.ToLower();
+                if (Regex.IsMatch(searchTerm, @"(?<!\.)\d+d")) return;
+                var autisticVideo = list.Where(i => Regex.IsMatch(@"(?<!\.)\d+d", i.Title));
+                foreach (var autism in autisticVideo)
+                {
+                    list.Remove(autism);
+                    Debug.Write($"Removing autistic result: {autism.Title}", false, Debug.DebugColor.Warning);
+                }
+            }
         }
 
         private static void RemoveAll(ref List<IResponseResult> list, string searchTerm, params string[] terms)

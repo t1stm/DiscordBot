@@ -361,3 +361,7 @@
 /home/kris/RiderProjects/BatTosho2/bin/Debug/net6.0/runtimes/win/lib/net6.0/System.Text.Encoding.CodePages.dll
 /home/kris/RiderProjects/BatTosho2/bin/Debug/net6.0/runtimes/browser/lib/net6.0/System.Text.Encodings.Web.dll
 /home/kris/RiderProjects/BatTosho2/bin/Debug/net6.0/websocket-sharp.dll
+/home/kris/RiderProjects/BatTosho2/bin/Debug/net6.0/CoreCompat.System.Drawing.dll
+/home/kris/RiderProjects/BatTosho2/bin/Debug/net6.0/QRCoder.dll
+/home/kris/RiderProjects/BatTosho2/bin/Debug/net6.0/zxing.dll
+/home/kris/RiderProjects/BatTosho2/bin/Debug/net6.0/ZXing.CoreCompat.System.Drawing.v2.dll

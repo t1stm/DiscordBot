@@ -38,7 +38,7 @@ namespace BatToshoRESTApp.Audio
         public VoiceTransmitSink Sink { get; set; }
         public VoiceNextConnection Connection { get; set; }
         public bool UpdatedChannel { get; private set; }
-        public Loop LoopStatus { get; private set; } = Loop.None;
+        public Loop LoopStatus { get; set; } = Loop.None;
         private bool BreakNow { get; set; }
         public IPlayableItem CurrentItem { get; private set; }
         public Stopwatch Stopwatch { get; } = new();
@@ -59,7 +59,8 @@ namespace BatToshoRESTApp.Audio
                 Statusbar.Channel = Channel;
                 Connection.VoiceSocketErrored += async (_, args) =>
                 {
-                    await Debug.WriteAsync($"VoiceSocket Errored in Guild: \"{CurrentGuild.Name}\" with arguments \"{args.Exception}\"", true, Debug.DebugColor.Urgent);
+                    await Debug.WriteAsync($"VoiceSocket Errored in Guild: \"{CurrentGuild.Name}\" with arguments \"{args.Exception}\"\nAttempting to reconnect.", true, Debug.DebugColor.Urgent);
+                    UpdateChannel(VoiceChannel);
                 };
                 
                 var statusbar = new Task(async () => { await Statusbar.Start(); });
@@ -80,19 +81,6 @@ namespace BatToshoRESTApp.Audio
                         BreakNow = false;
                         break;
                     }
-
-                    var upd = new Task(async () =>
-                    {
-                        try
-                        {
-                            await Statusbar.UpdateSong();
-                        }
-                        catch (Exception e)
-                        {
-                            await Debug.WriteAsync($"Updating Song in Statusbar failed: {e}");
-                        }
-                    });
-                    upd.Start();
                     switch (CurrentItem)
                     {
                         case SpotifyTrack tr:
@@ -195,7 +183,7 @@ namespace BatToshoRESTApp.Audio
             }
         }
 
-        public bool UpdateVolume(float percent) //When will I implement this I don't know too. This has existed for over 1 year, left unused.
+        public bool UpdateVolume(float percent) //When will I implement this I don't know too. This has existed for over 1 year, left unused. To be honest, it has it's charms.
         {
             if (percent is > 200 or < 1) return false;
             Sink.VolumeModifier = percent / 100;
@@ -214,17 +202,21 @@ namespace BatToshoRESTApp.Audio
                         return;
                     }
 
-                    await Debug.WriteAsync($"Current Voice Channel: {VoiceChannel?.Id} - New: {channel.Id}");
-                    VoiceChannel = channel;
-                    var conn = CurrentClient.GetVoiceNext().GetConnection(CurrentGuild);
-                    UpdatedChannel = true;
-                    conn?.Disconnect();
+                    if (VoiceChannel != null && CurrentClient != null)
+                    {
+                        await Debug.WriteAsync($"Current Voice Channel: {VoiceChannel?.Id} - New: {channel.Id}");
+                        VoiceChannel = channel;
+                        var conn = CurrentClient.GetVoiceNext().GetConnection(CurrentGuild);
+                        UpdatedChannel = true;
+                        conn?.Disconnect();
+                    }
                     var chan = CurrentGuild.Channels[channel.Id];
                     await Task.Delay(300);
                     Connection = await CurrentClient.GetVoiceNext().ConnectAsync(chan);
                     Connection.VoiceSocketErrored += async (_, args) =>
                     {
-                        await Debug.WriteAsync($"VoiceSocket Errored in Guild: \"{CurrentGuild.Name}\" with arguments \"{args.Exception}\"", true, Debug.DebugColor.Urgent);
+                        await Debug.WriteAsync($"VoiceSocket Errored in Guild: \"{CurrentGuild.Name}\" with arguments \"{args.Exception}\"\nAttempting to reconnect.", true, Debug.DebugColor.Urgent);
+                        UpdateChannel(VoiceChannel);
                     };
                     Sink = Connection.GetTransmitSink();
                     await Skip(0);
@@ -399,9 +391,9 @@ namespace BatToshoRESTApp.Audio
             {
                 lock (Manager.Main)
                 {
+                    Disconnect();
                     if (Manager.Main.Contains(this)) Manager.Main.Remove(this);
                 }
-                Disconnect();
             }
             catch (Exception e)
             {

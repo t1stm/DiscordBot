@@ -9,6 +9,7 @@ namespace BatToshoRESTApp.Audio.Platforms.Vbox7
 {
     public class Video
     {
+        [Obsolete("This method of getting the Vbox7 video information is slow and very brain damaged. Please use the other methods.")]
         public async Task<IPlayableItem> Search(string searchTerm)
         {
             try
@@ -31,7 +32,8 @@ namespace BatToshoRESTApp.Audio.Platforms.Vbox7
                 return null;
             }
         }
-
+        
+        [Obsolete("This method of getting the Vbox7 video information is slow and very brain damaged. Please use the other methods.")]
         public async Task<IPlayableItem> GetVideoByUri(string reqUri)
         {
             var response = await HttpClient.GetSourceCodeAfterLoadingPage($"https://vbox7.com{reqUri}");

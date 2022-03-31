@@ -4,11 +4,11 @@ using System.Threading.Tasks;
 using BatToshoRESTApp.Audio;
 using BatToshoRESTApp.Audio.Platforms.Discord;
 using BatToshoRESTApp.Controllers;
+using BatToshoRESTApp.Enums;
 using BatToshoRESTApp.Methods;
 using BatToshoRESTApp.Miscellaneous;
 using DSharpPlus;
 using DSharpPlus.Entities;
-using DSharpPlus.Interactivity.Extensions;
 using DSharpPlus.SlashCommands;
 
 namespace BatToshoRESTApp
@@ -30,7 +30,7 @@ namespace BatToshoRESTApp
                 return;
             }
 
-            var player = Manager.GetPlayer(userVoiceS, ctx.Client);
+            var player = Manager.GetPlayer(userVoiceS, ctx.Client, generateNew: true);
             if (player == null)
             {
                 await ctx.EditResponseAsync(new DiscordWebhookBuilder
@@ -66,7 +66,7 @@ namespace BatToshoRESTApp
             {
                 await ctx.EditResponseAsync(new DiscordWebhookBuilder
                 {
-                    Content = "```No free bot accounts.```"
+                    Content = "```The bot isn't in the channel.```"
                 });
                 return;
             }
@@ -82,6 +82,16 @@ namespace BatToshoRESTApp
             Manager.Main.Remove(player);
         }
 
+        public enum LoopStatus
+        {
+            [ChoiceName("Disable looping")]
+            None,
+            [ChoiceName("Loop whole queue")]
+            LoopQueue,
+            [ChoiceName("Loop one item")]
+            LoopOne
+        }
+        
         public enum HelpCommandCategories
         {
             [ChoiceName("Home")]
@@ -172,34 +182,70 @@ namespace BatToshoRESTApp
             }
         }
 
-        [SlashCommand("skip", "This is the skip command. It makes the bot skip an item.")]
-        public async Task SkipCommand(InteractionContext ctx, [Option("times", "Times to skip")] long times = 1)
+        [SlashCommand("loop", "Choose loop type.")]
+        public async Task LoopCommand(InteractionContext ctx, [Option("looptype", "The type of looping you want")]
+            LoopStatus status)
         {
-            await ctx.CreateResponseAsync("Hello!");
             var userVoiceS = ctx.Member.VoiceState.Channel;
             if (userVoiceS == null)
             {
-                await ctx.EditResponseAsync(new DiscordWebhookBuilder
-                {
-                    Content = "```You cannot use this command while not being in a channel.```"
-                });
+                await ctx.CreateResponseAsync( "```You cannot use this command while not being in a channel.```");
+                return;
+            }
+            var player = Manager.GetPlayer(userVoiceS, ctx.Client);
+            if (player == null)
+            {
+                await ctx.CreateResponseAsync("```The bot isn't in the channel.```");
+                return;
+            }
+            player.LoopStatus = status switch
+            {
+                LoopStatus.None => Loop.None, LoopStatus.LoopOne => Loop.One,
+                LoopStatus.LoopQueue => Loop.WholeQueue,
+                _ => Loop.None
+            };
+            await ctx.CreateResponseAsync($"```Loop status is now: {player.LoopStatus switch {Loop.None => "Disabling loop", Loop.One => "Looping one item", Loop.WholeQueue => "Looping whole queue", _ => "Some other option that doesn't have a type"}}.```");
+        }
+
+        public async Task MoveCommand(InteractionContext ctx, [Option("item", "The item which you want to move")]
+            long x, [Option("place", "The place you want to place the item")]
+            long y)
+        {
+            var userVoiceS = ctx.Member.VoiceState.Channel;
+            if (userVoiceS == null)
+            {
+                await ctx.CreateResponseAsync( "```You cannot use this command while not being in a channel.```");
+                return;
+            }
+            var player = Manager.GetPlayer(userVoiceS, ctx.Client);
+            if (player == null)
+            {
+                await ctx.CreateResponseAsync( "```The bot isn't in the channel.```");
+                return;
+            }
+            player.Queue.Move((int) x - 1, (int) y - 1, out var item);
+            await ctx.CreateResponseAsync($"Moved ({x}) - \"{item.GetName()}\" to ({y})");
+        }
+        
+        [SlashCommand("skip", "This is the skip command. It makes the bot skip an item.")]
+        public async Task SkipCommand(InteractionContext ctx, [Option("times", "Times to skip")] long times = 1)
+        {
+            var userVoiceS = ctx.Member.VoiceState.Channel;
+            if (userVoiceS == null)
+            {
+                await ctx.CreateResponseAsync("```You cannot use this command while not being in a channel.```");
                 return;
             }
 
             var player = Manager.GetPlayer(userVoiceS, ctx.Client);
             if (player == null)
             {
-                await ctx.EditResponseAsync(new DiscordWebhookBuilder
-                {
-                    Content = "```No free bot accounts.```"
-                });
+                await ctx.CreateResponseAsync( "```The bot isn't in the channel.```");
                 return;
             }
 
-            await ctx.EditResponseAsync(new DiscordWebhookBuilder
-            {
-                Content = $"```Skipping {(times == 1 ? "one times" : $"{times} times")}.```"
-            });
+            await ctx.CreateResponseAsync( $"```Skipping {(times == 1 ? "one times" : $"{times} times")}.```"
+            );
 
             await player.Skip((int) times);
         }
@@ -207,31 +253,21 @@ namespace BatToshoRESTApp
         [SlashCommand("pause", "This is the pause command. It pauses the current item.")]
         public async Task PauseCommand(InteractionContext ctx)
         {
-            await ctx.CreateResponseAsync("Hello!");
             var userVoiceS = ctx.Member.VoiceState.Channel;
             if (userVoiceS == null)
             {
-                await ctx.EditResponseAsync(new DiscordWebhookBuilder
-                {
-                    Content = "```You cannot use this command while not being in a channel.```"
-                });
+                await ctx.CreateResponseAsync("```You cannot use this command while not being in a channel.```");
                 return;
             }
 
             var player = Manager.GetPlayer(userVoiceS, ctx.Client);
             if (player == null)
             {
-                await ctx.EditResponseAsync(new DiscordWebhookBuilder
-                {
-                    Content = "```No free bot accounts.```"
-                });
+                await ctx.CreateResponseAsync("```The bot isn't in the channel.```");
                 return;
             }
 
-            await ctx.EditResponseAsync(new DiscordWebhookBuilder
-            {
-                Content = "```Pausing the current item.```"
-            });
+            await ctx.CreateResponseAsync("```Pausing the current item.```");
             player.Pause();
         }
 
@@ -240,27 +276,21 @@ namespace BatToshoRESTApp
         {
             try
             {
-                await ctx.CreateResponseAsync("Hello!");
                 var userVoiceS = ctx.Member.VoiceState.Channel;
                 if (userVoiceS == null)
                 {
-                    await ctx.EditResponseAsync(new DiscordWebhookBuilder
-                    {
-                        Content = "```You cannot use this command while not being in a channel.```"
-                    });
+                    await ctx.CreateResponseAsync("```You cannot use this command while not being in a channel.```");
                     return;
                 }
 
                 var player = Manager.GetPlayer(userVoiceS, ctx.Client);
                 if (player == null)
                 {
-                    await ctx.EditResponseAsync(new DiscordWebhookBuilder
-                    {
-                        Content = "```No free bot accounts.```"
-                    });
+                    await ctx.CreateResponseAsync("```The bot isn't in the channel.```");
                     return;
                 }
                 player.Shuffle();
+                await ctx.CreateResponseAsync("```Shuffling the queue.```");
             }
             catch (Exception e)
             {
@@ -322,22 +352,21 @@ namespace BatToshoRESTApp
         [SlashCommand("remove", "This command removes an item from the queue.")]
         public async Task Remove(InteractionContext ctx, [Option("num", "Index to remove")] long num)
         {
-            await ctx.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource,
-                new DiscordInteractionResponseBuilder
-                {
-                    Content = "```Hello!```"
-                });
             var userVoiceS = ctx.Member.VoiceState.Channel;
             if (userVoiceS == null)
             {
-                await ctx.EditResponseAsync(new DiscordWebhookBuilder().WithContent("```Enter a channel before using the remove command.```"));
+                await ctx.CreateResponseAsync("```You cannot use this command while not being in a channel.```");
                 return;
             }
 
             var player = Manager.GetPlayer(userVoiceS, ctx.Client);
-            if (player == null) return;
+            if (player == null)
+            {
+                await ctx.CreateResponseAsync("```The bot isn't in the channel.```");
+                return;
+            }
             var item = player.Queue.RemoveFromQueue((int)num - 1);
-            await ctx.EditResponseAsync(new DiscordWebhookBuilder().WithContent($"Removing {item.GetName()}"));
+            await ctx.CreateResponseAsync($"Removing {item.GetName()}");
         }
 
         [SlashCommand("saveplaylist", "This command saves the playlist and sends it to the current text channel")]
@@ -345,37 +374,25 @@ namespace BatToshoRESTApp
         {
             try
             {
-                await ctx.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, new DiscordInteractionResponseBuilder().WithContent("```Hello!'''"));
                 var userVoiceS = ctx.Member.VoiceState.Channel;
                 if (userVoiceS == null)
                 {
-                    //await Bot.SendDirectMessage(ctx,
-                    //    "Enter a channel before using the continue to another server command.");
-                    await ctx.EditResponseAsync(
-                        new DiscordWebhookBuilder
-                        {
-                            Content = "```Enter a channel before using the continue to another server command```"
-                        });
+                    await ctx.CreateResponseAsync("```You cannot use this command while not being in a channel.```");
                     return;
                 }
 
                 var player = Manager.GetPlayer(userVoiceS, ctx.Client);
                 if (player == null)
                 {
-                    await ctx.EditResponseAsync(new DiscordWebhookBuilder
-                    {
-                        Content = "```The bot isn't in a channel.```"
-                    });
+                    await ctx.CreateResponseAsync("```The bot isn't in the channel.```");
                     return;
                 }
 
                 var token = $"{ctx.Guild.Id}-{ctx.Channel.Id}-{Bot.RandomString(6)}";
                 var fs = SharePlaylist.Write(token, player.Queue.Items);
                 fs.Position = 0;
-                await ctx.EditResponseAsync( 
-                    new DiscordWebhookBuilder()
-                        .WithContent($"```Queue saved sucessfully. \n\nYou can play it again with this command\"-p pl:{token}\", " +
-                                                                        "or by sending the attached file and using the play command```").AddFile($"{token}.batp",fs));
+                await ctx.CreateResponseAsync(new DiscordInteractionResponseBuilder().WithContent($"```Queue saved sucessfully. \n\nYou can play it again with this command\"-p pl:{token}\", " +
+                    "or by sending the attached file and using the play command```").AddFile($"{token}.batp",fs));
             }
             catch (Exception e)
             {

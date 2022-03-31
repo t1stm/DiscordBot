@@ -28,7 +28,7 @@ namespace BatToshoRESTApp.Audio
 
         public async Task UpdateStatusbar()
         {
-            Player.VoiceUsers = Player.VoiceChannel.Users.Count;
+            Player.VoiceUsers = Player?.VoiceChannel?.Users?.Count ?? 0;
             switch (Mode)
             {
                 case StatusbarMode.Stopped:
@@ -70,6 +70,7 @@ namespace BatToshoRESTApp.Audio
             {
                 try
                 {
+                    if (Stopped) continue; // Why do I have to add this, this doesn't make fucking sense, but it fixes a bug. Come on
                     if (Bot.DebugMode)
                     {
                         var stopwatch = new Stopwatch();
@@ -88,7 +89,7 @@ namespace BatToshoRESTApp.Audio
                             .SendMessageAsync("```Hello! This message will update shortly.```");
                 }
                 if (UpdateDelay > Bot.UpdateDelay) UpdateDelay -= 2000;
-                if (UpdateDelay < Bot.UpdateDelay) UpdateDelay = Bot.UpdateDelay; 
+                if (UpdateDelay < Bot.UpdateDelay) UpdateDelay = Bot.UpdateDelay;
                 await Task.Delay(UpdateDelay);
             }
         }
@@ -101,20 +102,6 @@ namespace BatToshoRESTApp.Audio
         public void ChangeMode(StatusbarMode mode)
         {
             Mode = mode;
-        }
-
-        public async Task UpdateSong()
-        {
-            try
-            {
-                if (Message == null) return;
-                await UpdateStatusbar();
-                UpdateDelay += 2000;
-            }
-            catch (Exception e)
-            {
-                await Debug.WriteAsync($"Updating Statusbar due to updated song failed. \"{e}\"");
-            }
         }
 
         public async Task UpdatePlacement()
