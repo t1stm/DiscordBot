@@ -1,69 +1,49 @@
 using System.Threading.Tasks;
-using DSharpPlus.Entities;
+using BatToshoRESTApp.Abstract;
 
 namespace BatToshoRESTApp.Audio.Objects
 {
-    public class OnlineFile : IPlayableItem
+    public class OnlineFile : PlayableItem
     {
         public string Url { private get; init; }
-        private DiscordMember Requester { get; set; }
 
-        public string GetName()
+        public new string GetName()
         {
             var loc = GetLocation();
             return loc.Length > 40 ? $"{loc[..40]}..." : loc;
         }
-        public ulong GetLength()
-        {
-            return 0;
-        }
 
-        public string GetLocation()
+        public new string GetLocation()
         {
             return Url;
         }
 
-        public Task Download()
+        public override Task Download()
         {
             return Task.CompletedTask;
         }
 
-        public void SetRequester(DiscordMember user)
-        {
-            Requester = user;
-        }
-
-        public DiscordMember GetRequester()
-        {
-            return Requester;
-        }
-
-        public string GetId()
+        public override string GetId()
         {
             return "";
         }
 
-        public string GetTypeOf()
+        public override string GetTypeOf()
         {
             return "Online File";
         }
 
-        public bool GetIfErrored()
-        {
-            return false;
-        }
-
-        public string GetTitle()
+        public new string GetTitle()
         {
             return GetLocation().Length <= 40 ? GetLocation() : GetLocation()[..40] + "...";
         }
 
-        public string GetAuthor()
+        public new string GetAuthor()
         {
             return "";
         }
 
-        public string GetThumbnailUrl()
+        public override string GetThumbnailUrl()
         {
             return null;
         }

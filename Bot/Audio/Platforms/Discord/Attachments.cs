@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
+using BatToshoRESTApp.Abstract;
 using BatToshoRESTApp.Audio.Objects;
 using BatToshoRESTApp.Readers;
 using DSharpPlus.Entities;
@@ -12,10 +13,10 @@ namespace BatToshoRESTApp.Audio.Platforms.Discord
     {
         private const string DownloadDirectory = $"{Bot.WorkingDirectory}/dll/Discord Attachments/";
 
-        public static async Task<List<IPlayableItem>> GetAttachments(List<DiscordAttachment> attachments,
+        public static async Task<List<PlayableItem>> GetAttachments(List<DiscordAttachment> attachments,
             ulong guild = 0)
         {
-            var list = new List<IPlayableItem>();
+            var list = new List<PlayableItem>();
             foreach (var at in attachments)
                 if (at.FileName.EndsWith(".batp"))
                     list.AddRange(await SharePlaylist.Get(at));
@@ -24,7 +25,7 @@ namespace BatToshoRESTApp.Audio.Platforms.Discord
             return list;
         }
 
-        private static async Task<IPlayableItem> GetAttachment(DiscordAttachment attachment, ulong guild = 0)
+        private static async Task<PlayableItem> GetAttachment(DiscordAttachment attachment, ulong guild = 0)
         {
             var url = attachment.Url;
             var location = DownloadDirectory +

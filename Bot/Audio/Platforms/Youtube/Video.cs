@@ -32,16 +32,33 @@ namespace BatToshoRESTApp.Audio.Platforms.Youtube
             var client = new DefaultSearchClient(new YoutubeSearchBackend());
             var response = await client.SearchAsync(HttpClient.WithCookies(), term, 25);
             var res = response.Results.ToList();
-            RemoveTheFucking18dAudio(ref res, term); // I hate these videos, they add nothing and in my opinion are not even worth existing on YouTube,
-            // but who am I to tell people what to upload and what not, so let's fucking purge the results from even existing.
-            RemoveAll(ref res, term, "remix", "karaoke", "instru", "clean", "bass boosted", "bass", "ear rape", "earrape", "ear", "rape", 
-                "cover", "кавър", "backstage", "live", "version");
+            try
+            {
+                RemoveTheFucking18dAudio(ref res,
+                    term); // I hate these videos, they add nothing and in my opinion are not even worth existing on YouTube,
+                // but who am I to tell people what to upload and what not, so let's fucking purge the results from even existing.
+            }
+            catch (Exception e)
+            {
+                await Debug.WriteAsync($"Removing shitty videos failed: {e}");
+            }
+
+            try
+            {
+                RemoveAll(ref res, term, "remix", "karaoke", "instru", "clean", "bass boosted", "bass", "ear rape",
+                    "earrape", "ear", "rape",
+                    "cover", "кавър", "backstage", "live", "version");
+            }
+            catch (Exception e)
+            {
+                await Debug.WriteAsync($"Removing specified terms failed: {e}");
+            }
             if (length != 0)
             {
                 res = res.OrderBy(r =>
                         Math.Abs(StringToTimeSpan.Generate(((YoutubeVideo) r).Duration).TotalMilliseconds - length))
                     .ToList();
-                if (track is {})
+                if (track is { })
                 {
                     /*if (!term.ToLower().Contains("8d") && !term.ToLower().Contains("karaoke") &&
                         !term.ToLower().Contains("remix") && !term.ToLower().Contains("instru") && !term.ToLower().Contains("clean"))
@@ -49,11 +66,12 @@ namespace BatToshoRESTApp.Audio.Platforms.Youtube
                             r.Title.ToLower().Contains("8d") || r.Title.ToLower().Contains("karaoke") ||
                             r.Title.ToLower().Contains("remix") || r.Title.ToLower().Contains("instru") ||
                             r.Title.ToLower().Contains("clean")); */
-                    if (res.Any(r => r.Title.ToLower().Contains("official audio"))) res = res.OrderBy(r => r.Title.ToLower().Contains("official audio")).ToList();
+                    if (res.Any(r => r.Title.ToLower().Contains("official audio")))
+                        res = res.OrderBy(r => r.Title.ToLower().Contains("official audio")).ToList();
                     res = res.OrderBy(r => LevenshteinDistance.Compute(r.Title, track.Title) < 3).ToList();
                 }
             }
-            
+
             var result = (YoutubeVideo) res.First();
             if (result == null) return null;
             await Debug.WriteAsync(
@@ -109,7 +127,8 @@ namespace BatToshoRESTApp.Audio.Platforms.Youtube
                 foreach (var term in terms)
                 {
                     if (searchTerm.ToLower().Contains(term.ToLower())) continue;
-                    var source = searchTerm.Split(new[] { '.', '?', '!', ' ', ';', ':', ',' }, StringSplitOptions.RemoveEmptyEntries);
+                    var source = searchTerm.Split(new[] {'.', '?', '!', ' ', ';', ':', ','},
+                        StringSplitOptions.RemoveEmptyEntries);
                     var times = from word in source
                         where string.Equals(word, term, StringComparison.CurrentCultureIgnoreCase)
                         select word;
@@ -122,6 +141,7 @@ namespace BatToshoRESTApp.Audio.Platforms.Youtube
                     }
                 }
             }
+
             list = li;
         }
 
@@ -158,8 +178,7 @@ namespace BatToshoRESTApp.Audio.Platforms.Youtube
                     Author = video.Author.Title,
                     Length = (ulong) video.Duration?.TotalMilliseconds,
                     YoutubeId = id,
-                    ThumbnailUrl = video.Thumbnails[0].Url,
-                    IsId = true
+                    ThumbnailUrl = video.Thumbnails[0].Url
                 };
                 if (urgent) await vid.Download();
                 var task = new Task(async () =>
@@ -170,7 +189,8 @@ namespace BatToshoRESTApp.Audio.Platforms.Youtube
                     }
                     catch (Exception e)
                     {
-                        await Debug.WriteAsync($"Adding information in Youtube/Video.cs/SearchById {e}", true, Debug.DebugColor.Urgent);
+                        await Debug.WriteAsync($"Adding information in Youtube/Video.cs/SearchById {e}", true,
+                            Debug.DebugColor.Urgent);
                     }
                 });
                 task.Start();
@@ -196,7 +216,10 @@ namespace BatToshoRESTApp.Audio.Platforms.Youtube
         public async Task<YoutubeVideoInformation> Search(SpotifyTrack track, bool urgent = false)
         {
             await Debug.WriteAsync($"Track: {track.GetName()}, Length: {track.GetLength()}");
-            var result = await Search($"{track.Title} - {track.Author} {track.Explicit switch {true => "Explicit Version ", false => ""}}- Topic", urgent, track.Length);
+            var result =
+                await Search(
+                    $"{track.Title} - {track.Author} {track.Explicit switch {true => "Explicit Version ", false => ""}}- Topic",
+                    urgent, track.Length);
             result.OriginTrack = track;
             result.Requester = track.GetRequester();
             if (urgent) await result.Download();

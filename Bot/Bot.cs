@@ -18,7 +18,6 @@ using DSharpPlus.Interactivity.Extensions;
 using DSharpPlus.SlashCommands;
 using DSharpPlus.VoiceNext;
 using Microsoft.Extensions.Logging;
-using WebSocketSharp.Server;
 
 namespace BatToshoRESTApp
 {
@@ -34,19 +33,19 @@ namespace BatToshoRESTApp
             BotBeta = "NjcxMDg3NjM4NjM1MDg1ODUy.Xi31EQ.v-QjHqPT6BAQhans6bveYhNC9CU",
             SecondaryBot = "OTAzMjg3NzM3Nzc4NTg5NzA2.YXqyQg.F3cDKz-icUbYYMUJXwLxT-BX574";
 
-        private static readonly Random Rng = new();
-
         public const string WorkingDirectory = "/home/kris/BatTosho";
 
         //private static Timer GarbageCollectTimer { get; } = new(60000);
         public const int UpdateDelay = 3200; //Milliseconds
+
+        private static readonly Random Rng = new();
         private static Timer UpdateLoop { get; } = new(UpdateDelay);
         public static List<DiscordClient> Clients { get; } = new();
         public static bool DebugMode { get; private set; }
 
-        private static List<DiscordMessage> BotMessages { get; set; } = new();
+        private static List<DiscordMessage> BotMessages { get; } = new();
 
-        public static readonly HttpServer WebSocketServer = new (8000); //This is a server by the WebSocketSharp lib.
+        //public static readonly HttpServer WebSocketServer = new (8000); //This is a server by the WebSocketSharp lib.
 
         public static async Task Initialize(RunType token)
         {
@@ -57,13 +56,12 @@ namespace BatToshoRESTApp
             BatTosho.LoadUsers();
             HttpClient.WithCookies();
             if (!File.Exists($"{WorkingDirectory}/Status.json"))
-            {
                 await UpdateStatus(null, "Chalga", ActivityType.ListeningTo);
-            }
             switch (token)
             {
                 case RunType.Release:
-                    Clients.Add(MakeClient(BotRelease, new[] {"=", "-"}, useSlashCommands: true, useDefaultHelpCommand: false));
+                    Clients.Add(MakeClient(BotRelease, new[] {"=", "-"}, useSlashCommands: true,
+                        useDefaultHelpCommand: false));
                     Clients.Add(MakeClient(BotBeta, null));
                     Clients.Add(MakeClient(SecondaryBot, null));
                     Clients.Add(MakeClient("OTA2MDc2NTM2Nzk5NjI1MjU3.YYTXiA.8GU3WJRqU_kWW7lhQ_upcH_mfGI", null));
@@ -82,10 +80,12 @@ namespace BatToshoRESTApp
                 default:
                     throw new ArgumentOutOfRangeException(nameof(token), token, null);
             }
+
             Clients.Add(SpecificContentBot()); //Ah yes, the specific content bot. Thank you very much.
             foreach (var client in Clients) await client.ConnectAsync();
             string text;
-            WebSocketServer.Start();
+            var task = new Task(async () => await WebSocketServer.Start());
+            task.Start();
             await ReadStatus(Clients[0]);
             while ((text = Console.ReadLine()) != "null")
                 try
@@ -110,7 +110,9 @@ namespace BatToshoRESTApp
                             var writeTask = new Task(() =>
                             {
                                 string cs;
-                                while ((cs = Console.ReadLine()) is not ("cancel" or "force")) {}
+                                while ((cs = Console.ReadLine()) is not ("cancel" or "force"))
+                                {
+                                }
 
                                 switch (cs)
                                 {
@@ -131,7 +133,6 @@ namespace BatToshoRESTApp
                                 await Debug.WriteAsync("Waiting to restart.");
                                 await Debug.WriteAsync("Active guilds: ");
                                 foreach (var pl in Manager.Main)
-                                {
                                     await Debug.WriteAsync(
                                         $"{pl.CurrentGuild} : {pl.VoiceChannel?.Name} " +
                                         $"- Owner : {pl.CurrentGuild?.Owner?.DisplayName} - {pl.CurrentGuild?.Owner?.Id} " +
@@ -140,7 +141,6 @@ namespace BatToshoRESTApp
                                         $"- Time: {Statusbar.Time(pl.Stopwatch.Elapsed)} " +
                                         $"- {Statusbar.Time(TimeSpan.FromMilliseconds(pl.CurrentItem.GetLength()))} " +
                                         $"- Paused: {pl.Paused} - Voice Users: {pl.VoiceUsers}");
-                                }
                                 await Task.Delay(1000);
                             }
 
@@ -150,6 +150,7 @@ namespace BatToshoRESTApp
                                 cancel = false;
                                 break;
                             }
+
                             Environment.Exit(0);
                             break;
                         case "forceoff":
@@ -182,12 +183,14 @@ namespace BatToshoRESTApp
                                 await Debug.WriteAsync(
                                     $"{val.Name} : {val.Id} - Owner : {val.Owner.DisplayName} - {val.Owner.Id}");
                             }
+
                             continue;
                         case "debug":
                             DebugMode = !DebugMode;
                             continue;
                         case "sms":
-                            await Debug.WriteAsync("Enter a message (example: \"messageId&&Insert Message Here\")", false, Debug.DebugColor.Urgent);
+                            await Debug.WriteAsync("Enter a message (example: \"messageId&&Insert Message Here\")",
+                                false, Debug.DebugColor.Urgent);
                             var sms = Console.ReadLine();
                             var smsSplit = sms.Split("&&");
                             if (smsSplit.Length != 2)
@@ -196,15 +199,17 @@ namespace BatToshoRESTApp
                                 await mess.RespondAsync(smsSplit[1]);
                                 continue;
                             }
+
                             var message = BotMessages.ElementAtOrDefault(int.Parse(smsSplit[0]));
                             await message?.RespondAsync(smsSplit[1]);
                             continue;
                         case "us":
-                            await Debug.WriteAsync("Enter a new status (example: \"listening to&&kuceci\")", false, Debug.DebugColor.Urgent);
+                            await Debug.WriteAsync("Enter a new status (example: \"listening to&&kuceci\")", false,
+                                Debug.DebugColor.Urgent);
                             var s = Console.ReadLine();
                             var sp = s.Split("&&");
                             if (sp.Length != 2) continue;
-                            await UpdateStatus(Clients[0],sp[1], sp[0].ToLower().Trim() switch
+                            await UpdateStatus(Clients[0], sp[1], sp[0].ToLower().Trim() switch
                             {
                                 "playing" => ActivityType.Playing,
                                 "listening to" => ActivityType.ListeningTo,
@@ -240,6 +245,7 @@ namespace BatToshoRESTApp
                 await Debug.WriteAsync($"Reading status failed: {e}");
             }
         }
+
         private static async Task UpdateStatus(DiscordClient client, string status, ActivityType activity)
         {
             try
@@ -259,13 +265,15 @@ namespace BatToshoRESTApp
             {
                 await Debug.WriteAsync($"Writing status failed: {e}");
             }
-            
         }
+
         private static void OnUpdate() // This is updated with the global UpdateDelay integer.
-        {                              // And for the sake of not crashing the bot when the spaghetti code acts up, I've enclosed it with try catch blocks.
-            try                        // Genius. Insert head blown guy GIF here.
+        {
+            // And for the sake of not crashing the bot when the spaghetti code acts up, I've enclosed it with try catch blocks.
+            try // Genius. Insert head blown guy GIF here.
             {
                 JsonWriteQueue.Update();
+                Event.Update();
             }
             catch (Exception e)
             {
@@ -292,7 +300,6 @@ namespace BatToshoRESTApp
                 EnableDefaultHelp = useDefaultHelpCommand
             });
             if (prefixes != null)
-            {
                 client.VoiceStateUpdated += async (_, args) =>
                 {
                     try
@@ -308,6 +315,7 @@ namespace BatToshoRESTApp
                             await cl.DisconnectAsync();
                             return;
                         }
+
                         if (args.Before.Channel.Id == args.After.Channel?.Id) return;
                         cl.UpdateChannel(args.After.Channel);
                     }
@@ -316,7 +324,6 @@ namespace BatToshoRESTApp
                         await Debug.WriteAsync($"Voice State Updated failed: {e}", false, Debug.DebugColor.Urgent);
                     }
                 };
-            }
             commandsExtension.RegisterCommands<Commands>();
             if (useInteractivity)
                 client.UseInteractivity(new InteractivityConfiguration
@@ -324,19 +331,20 @@ namespace BatToshoRESTApp
                     PollBehaviour = PollBehaviour.KeepEmojis,
                     Timeout = TimeSpan.FromSeconds(60)
                 });
-            if (useVoiceNext) client.UseVoiceNext(new VoiceNextConfiguration
-            {
-                AudioFormat = new AudioFormat(48000, 2, VoiceApplication.LowLatency),
-                EnableIncoming = false
-            });
+            if (useVoiceNext)
+                client.UseVoiceNext(new VoiceNextConfiguration
+                {
+                    AudioFormat = new AudioFormat(48000, 2, VoiceApplication.LowLatency),
+                    EnableIncoming = false
+                });
             client.MessageCreated += async (sender, args) =>
             {
-                if (!args.Channel.IsPrivate) return;
+                if (!args.Channel.IsPrivate && args.Channel.Guild != null) return;
                 var id = BotMessages.Count;
                 BotMessages.Add(args.Message);
                 await Debug.WriteAsync(
                     $"Bot account: \"{sender.CurrentUser.Username}\" with id: \"{sender.CurrentUser.Id}\" recieved private message from " +
-                    $"\"{args.Author.Username}#{args.Author.Discriminator}\": \"{args.Message.Content}\" in channel id \"{args.Channel.Id}\" - Message id is: {id}", 
+                    $"\"{args.Author.Username}#{args.Author.Discriminator}\": \"{args.Message.Content}\" in channel id \"{args.Channel.Id}\" - Message id is: {id}",
                     true, Debug.DebugColor.Warning);
             };
             if (!useSlashCommands) return client;
@@ -353,9 +361,9 @@ namespace BatToshoRESTApp
         {
             var client = new DiscordClient(new DiscordConfiguration
             {
-               Token = "OTQwNjMwMzQzNTg3ODcyNzc4.YgKMRQ.EsRo8pmgYCd6Gju23uSgTiqzSqM",
-               TokenType = TokenType.Bot,
-               MinimumLogLevel = LogLevel.None
+                Token = "OTQwNjMwMzQzNTg3ODcyNzc4.YgKMRQ.EsRo8pmgYCd6Gju23uSgTiqzSqM",
+                TokenType = TokenType.Bot,
+                MinimumLogLevel = LogLevel.None
             });
             var ext = client.UseSlashCommands();
             ext.RegisterCommands<CommandsSpecific>();
@@ -368,14 +376,17 @@ namespace BatToshoRESTApp
         {
             await ctx.RespondAsync(formatted ? $"```{text}```" : text);
         }
+
         public static async Task Reply(CommandContext ctx, DiscordMessageBuilder builder)
         {
             await ctx.RespondAsync(builder);
         }
+
         public static async Task Reply(DiscordClient client, DiscordChannel channel, DiscordMessageBuilder builder)
         {
             await client.SendMessageAsync(channel, builder);
         }
+
         public static async Task Reply(DiscordClient client, DiscordChannel channel, string text, bool formatted = true)
         {
             await client.SendMessageAsync(channel, formatted ? $"```{text}```" : text);

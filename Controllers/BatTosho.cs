@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
+using BatToshoRESTApp.Abstract;
 using BatToshoRESTApp.Audio;
 using BatToshoRESTApp.Audio.Objects;
 using BatToshoRESTApp.Audio.Platforms.Discord;
@@ -73,6 +74,7 @@ namespace BatToshoRESTApp.Controllers
                 var resp = JsonSerializer.Serialize(items);
                 return resp;
             }
+
             if (searchTerm.Contains("https://open.spotify.com/playlist"))
             {
                 var sp = await Playlist.Get(searchTerm.Split("/playlist/").Last().Split("?si")
@@ -208,7 +210,8 @@ namespace BatToshoRESTApp.Controllers
                 if (userIndex == -1) return "418 I'm a teapot";
                 var guild = Bot.Clients[0].Guilds.First(g => g.Value.Id == id).Value;
                 var channels = await guild.GetChannelsAsync();
-                var items = channels.Where(ch => ch.Type == ChannelType.Voice).Where(ch => Manager.Main.Any(pl => pl.VoiceChannel.Id == ch.Id))
+                var items = channels.Where(ch => ch.Type == ChannelType.Voice)
+                    .Where(ch => Manager.Main.Any(pl => pl.VoiceChannel.Id == ch.Id))
                     .Select(g => new GuildItem {Id = g.Id + "", Name = g.Name}).ToList();
                 return JsonSerializer.Serialize(items);
             }
@@ -305,7 +308,7 @@ namespace BatToshoRESTApp.Controllers
                 }
 
                 var player = Manager.Main.First(ch => ch.VoiceChannel.Id == channelId);
-                IPlayableItem search;
+                PlayableItem search;
 
                 if (!spotify) search = await new Video().SearchById(id);
                 else search = await Track.Get(id, true);
@@ -537,7 +540,7 @@ namespace BatToshoRESTApp.Controllers
             public string ThumbnailUrl { get; init; }
             public bool IsSpotify { get; init; }
 
-            public long Index { get; init; }
+            public long Index { get; set; }
             public int VoiceUsers { get; init; }
             public string Id { get; init; }
         }
@@ -561,7 +564,6 @@ namespace BatToshoRESTApp.Controllers
             public string Loop { get; set; }
             public string ThumbnailUrl { get; set; }
             public bool Paused { get; set; }
-
             public long Index { get; set; }
         }
 

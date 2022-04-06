@@ -3,9 +3,8 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
-using BatToshoRESTApp.Audio.Objects;
+using BatToshoRESTApp.Abstract;
 using BatToshoRESTApp.Enums;
-using BatToshoRESTApp.Interfaces;
 using DSharpPlus;
 using DSharpPlus.Entities;
 using Debug = BatToshoRESTApp.Methods.Debug;
@@ -14,6 +13,10 @@ namespace BatToshoRESTApp.Audio
 {
     public class Statusbar : IBaseStatusbar
     {
+        //private const string DefaultMessage = "One can use the web interface with the command: \"-webui\"";
+        private const string DefaultMessage = "Мисля да преименувам главния бот на \"Слави Трифонов\" и заради това правя петиция, " +
+                                              "ако искате да гласувате може да използвате /vote или -vote (slavi или tosho) и да изберете между новото и старото име. " +
+                                              "Резултатите ще бъдат обявени на 14 Април 2022, на същото място като това съобщение.";
         private const char EmptyBlock = '□', FullBlock = '■';
         private int _pl0, _pl1 = 1, _pl2 = 2, _pl3 = 3, _pl4 = 4;
         private bool Stopped { get; set; }
@@ -23,7 +26,6 @@ namespace BatToshoRESTApp.Audio
         public DiscordClient Client { get; set; }
         public DiscordMessage Message { get; set; }
         private StatusbarMode Mode { get; set; } = StatusbarMode.Stopped;
-
         private int UpdateDelay { get; set; } = Bot.UpdateDelay;
 
         public async Task UpdateStatusbar()
@@ -70,7 +72,8 @@ namespace BatToshoRESTApp.Audio
             {
                 try
                 {
-                    if (Stopped) continue; // Why do I have to add this, this doesn't make fucking sense, but it fixes a bug. Come on
+                    if (Stopped)
+                        continue; // Why do I have to add this, this doesn't make fucking sense, but it fixes a bug. Come on
                     if (Bot.DebugMode)
                     {
                         var stopwatch = new Stopwatch();
@@ -79,7 +82,10 @@ namespace BatToshoRESTApp.Audio
                         stopwatch.Stop();
                         await Debug.WriteAsync($"Updating statusbar took: {stopwatch.Elapsed:c}");
                     }
-                    else await UpdateStatusbar();
+                    else
+                    {
+                        await UpdateStatusbar();
+                    }
                 }
                 catch (Exception e)
                 {
@@ -88,6 +94,7 @@ namespace BatToshoRESTApp.Audio
                         Message = await Client.Guilds[Guild.Id].Channels[Channel.Id]
                             .SendMessageAsync("```Hello! This message will update shortly.```");
                 }
+
                 if (UpdateDelay > Bot.UpdateDelay) UpdateDelay -= 2000;
                 if (UpdateDelay < Bot.UpdateDelay) UpdateDelay = Bot.UpdateDelay;
                 await Task.Delay(UpdateDelay);
@@ -127,7 +134,7 @@ namespace BatToshoRESTApp.Audio
 
         public string GenerateStatusbar()
         {
-            IPlayableItem next;
+            PlayableItem next;
             try
             {
                 next = Player.Queue.GetNext();
@@ -141,8 +148,12 @@ namespace BatToshoRESTApp.Audio
             var length = Player.CurrentItem.GetLength();
             var time = Player.Stopwatch.ElapsedMilliseconds;
             var progress = GenerateProgressbar(Player);
-            var message = string.IsNullOrEmpty(Player.StatusbarMessage) ? "\n\nOne can use the web interface with the command: \"-webui\"" : $"\n\n{Player.StatusbarMessage}";
-            if (Bot.DebugMode) Debug.Write($"Updated Statusbar in guild \"{Player.CurrentGuild.Name}\": Track: \"{Player.CurrentItem.GetName()}\", Time: {Time(Player.Stopwatch.Elapsed)} - {Time(TimeSpan.FromMilliseconds(length))}");
+            var message = string.IsNullOrEmpty(Player.StatusbarMessage)
+                ? $"\n\n{DefaultMessage}"
+                : $"\n\n{Player.StatusbarMessage}";
+            if (Bot.DebugMode)
+                Debug.Write(
+                    $"Updated Statusbar in guild \"{Player.CurrentGuild.Name}\": Track: \"{Player.CurrentItem.GetName()}\", Time: {Time(Player.Stopwatch.Elapsed)} - {Time(TimeSpan.FromMilliseconds(length))}");
 
             return
                 $"```Playing {Player.CurrentItem.GetTypeOf()}:\n" +

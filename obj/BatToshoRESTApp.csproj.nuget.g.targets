@@ -6,6 +6,6 @@
     <Import Project="$(NuGetPackageRoot)selenium.webdriver.chromedriver/99.0.4844.1700-beta/build/Selenium.WebDriver.ChromeDriver.targets" Condition="Exists('$(NuGetPackageRoot)selenium.webdriver.chromedriver/99.0.4844.1700-beta/build/Selenium.WebDriver.ChromeDriver.targets')" />
     <Import Project="$(NuGetPackageRoot)microsoft.extensions.logging.abstractions/6.0.2-mauipre.1.22054.8/build/Microsoft.Extensions.Logging.Abstractions.targets" Condition="Exists('$(NuGetPackageRoot)microsoft.extensions.logging.abstractions/6.0.2-mauipre.1.22054.8/build/Microsoft.Extensions.Logging.Abstractions.targets')" />
     <Import Project="$(NuGetPackageRoot)microsoft.codeanalysis.analyzers/3.3.3/build/Microsoft.CodeAnalysis.Analyzers.targets" Condition="Exists('$(NuGetPackageRoot)microsoft.codeanalysis.analyzers/3.3.3/build/Microsoft.CodeAnalysis.Analyzers.targets')" />
-    <Import Project="$(NuGetPackageRoot)magick.net-q16-anycpu/9.1.2/build/netstandard20/Magick.NET-Q16-AnyCPU.targets" Condition="Exists('$(NuGetPackageRoot)magick.net-q16-anycpu/9.1.2/build/netstandard20/Magick.NET-Q16-AnyCPU.targets')" />
+    <Import Project="$(NuGetPackageRoot)magick.net-q16-anycpu/11.0.0/build/netstandard20/Magick.NET-Q16-AnyCPU.targets" Condition="Exists('$(NuGetPackageRoot)magick.net-q16-anycpu/11.0.0/build/netstandard20/Magick.NET-Q16-AnyCPU.targets')" />
   </ImportGroup>
 </Project>

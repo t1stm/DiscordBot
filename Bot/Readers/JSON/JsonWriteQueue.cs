@@ -11,7 +11,10 @@ namespace BatToshoRESTApp.Readers
 
         public static void Add(string term, string videoId)
         {
-            lock (AddQueue) AddQueue.Add(new Tuple<string, string>(term, videoId));
+            lock (AddQueue)
+            {
+                AddQueue.Add(new Tuple<string, string>(term, videoId));
+            }
         }
 
         public static void Update()
@@ -20,12 +23,10 @@ namespace BatToshoRESTApp.Readers
             _updateRunning = true;
             lock (AddQueue)
             {
-                foreach (var (item1, item2) in AddQueue)
-                {
-                    JsonReader.AddVideo(item1, item2).Wait();
-                }
+                foreach (var (item1, item2) in AddQueue) JsonReader.AddVideo(item1, item2).Wait();
                 AddQueue = new List<Tuple<string, string>>();
             }
+
             _updateRunning = false;
         }
     }

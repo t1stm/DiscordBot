@@ -10,13 +10,6 @@ namespace BatToshoRESTApp.Miscellaneous
 {
     public class Vrutkane
     {
-        private DiscordClient Client { get; }
-        private DiscordGuild Guild { get; }
-        private DiscordChannel Channel { get; }
-
-        private Timer Timer { get; } = new();
-        private bool Running { get; set; }
-        
         public Vrutkane(DiscordClient client, DiscordGuild guild, DiscordChannel channel)
         {
             Client = client;
@@ -24,12 +17,19 @@ namespace BatToshoRESTApp.Miscellaneous
             Channel = channel;
         }
 
+        private DiscordClient Client { get; }
+        private DiscordGuild Guild { get; }
+        private DiscordChannel Channel { get; }
+
+        private Timer Timer { get; } = new();
+        private bool Running { get; set; }
+
         public void Toggle()
         {
             if (Client == null || Guild == null || Channel == null) return;
             if (Running) return;
             Running = true;
-            Timer.Elapsed += TimerOnElapsed; 
+            Timer.Elapsed += TimerOnElapsed;
         }
 
         private void TimerOnElapsed(object sender, ElapsedEventArgs e)
@@ -49,6 +49,7 @@ namespace BatToshoRESTApp.Miscellaneous
                     message = (List<DiscordMessage>) await Channel.GetMessagesAfterAsync(old.Id);
                     message = message.Where(mess => mess.Author.IsBot).ToList();
                 }
+
                 list.AddRange(message);
             }
 

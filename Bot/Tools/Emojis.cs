@@ -59,7 +59,8 @@ namespace BatToshoRESTApp.Tools
                     {
                         DiscordEmoji.FromGuildEmote(Bot.Clients[0], 807689824513425439)
                     },
-                "video0_95.mp4" => new List<DiscordEmoji> {DiscordEmoji.FromGuildEmote(Bot.Clients[0], 830157542491422790)},
+                "video0_95.mp4" => new List<DiscordEmoji>
+                    {DiscordEmoji.FromGuildEmote(Bot.Clients[0], 830157542491422790)},
                 "prayers.mp4" or "image0_1.jpg" or "video0_319.mov" => new List<DiscordEmoji>
                 {
                     DiscordEmoji.FromName(Bot.Clients[0], ":cross:")

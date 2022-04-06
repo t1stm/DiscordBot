@@ -16,11 +16,42 @@ namespace BatToshoRESTApp
     // ReSharper disable once ClassNeverInstantiated.Global
     public class CommandsSlash : ApplicationCommandModule
     {
+        public enum HelpCommandCategories
+        {
+            [ChoiceName("Home")] Home,
+            [ChoiceName("Play")] Play,
+            [ChoiceName("Play Next")] PlayNext,
+            [ChoiceName("Play Select")] PlaySelect,
+            [ChoiceName("Skip")] Skip,
+            [ChoiceName("Leave")] Leave,
+            [ChoiceName("Back")] Back,
+            [ChoiceName("Shuffle")] Shuffle,
+            [ChoiceName("Loop")] Loop,
+            [ChoiceName("Pause")] Pause,
+            [ChoiceName("Remove")] Remove,
+            [ChoiceName("Move")] Move,
+            [ChoiceName("List")] List,
+            [ChoiceName("Clear")] Clear,
+            [ChoiceName("WebUi")] WebUi,
+            [ChoiceName("GoTo")] GoTo,
+            [ChoiceName("Save Playlist")] SavePlaylist,
+            [ChoiceName("Lyrics")] Lyrics,
+            [ChoiceName("Get Avatar")] GetAvatar,
+            [ChoiceName("Meme")] Meme
+        }
+
+        public enum LoopStatus
+        {
+            [ChoiceName("Disable looping")] None,
+            [ChoiceName("Loop whole queue")] LoopQueue,
+            [ChoiceName("Loop one item")] LoopOne
+        }
+
         [SlashCommand("play", "This is the play command. It plays music.")]
         public async Task PlayCommand(InteractionContext ctx, [Option("searchterm", "Search Term")] string term)
         {
             await ctx.CreateResponseAsync("Hello!");
-            var userVoiceS = ctx.Member.VoiceState.Channel;
+            var userVoiceS = ctx.Member?.VoiceState?.Channel;
             if (userVoiceS == null)
             {
                 await ctx.EditResponseAsync(new DiscordWebhookBuilder
@@ -44,14 +75,14 @@ namespace BatToshoRESTApp
             {
                 Content = $"```Running play command with search term: \"{term}\".```"
             });
-            await Manager.Play(term, false, player, ctx.Member.VoiceState.Channel, ctx.Member, null, ctx.Channel);
+            await Manager.Play(term, false, player, ctx.Member?.VoiceState?.Channel, ctx.Member, null, ctx.Channel);
         }
 
         [SlashCommand("leave", "This is the leave command. It makes the bot leave.")]
         public async Task LeaveCommand(InteractionContext ctx)
         {
             await ctx.CreateResponseAsync("Hello!");
-            var userVoiceS = ctx.Member.VoiceState.Channel;
+            var userVoiceS = ctx.Member?.VoiceState?.Channel;
             if (userVoiceS == null)
             {
                 await ctx.EditResponseAsync(new DiscordWebhookBuilder
@@ -82,62 +113,10 @@ namespace BatToshoRESTApp
             Manager.Main.Remove(player);
         }
 
-        public enum LoopStatus
-        {
-            [ChoiceName("Disable looping")]
-            None,
-            [ChoiceName("Loop whole queue")]
-            LoopQueue,
-            [ChoiceName("Loop one item")]
-            LoopOne
-        }
-        
-        public enum HelpCommandCategories
-        {
-            [ChoiceName("Home")]
-            Home,
-            [ChoiceName("Play")]
-            Play,
-            [ChoiceName("Play Next")] 
-            PlayNext,
-            [ChoiceName("Play Select")] 
-            PlaySelect,
-            [ChoiceName("Skip")] 
-            Skip,
-            [ChoiceName("Leave")] 
-            Leave,
-            [ChoiceName("Back")] 
-            Back,
-            [ChoiceName("Shuffle")] 
-            Shuffle,
-            [ChoiceName("Loop")] 
-            Loop,
-            [ChoiceName("Pause")] 
-            Pause,
-            [ChoiceName("Remove")] 
-            Remove,
-            [ChoiceName("Move")] 
-            Move,
-            [ChoiceName("List")] 
-            List,
-            [ChoiceName("Clear")] 
-            Clear,
-            [ChoiceName("WebUi")] 
-            WebUi,
-            [ChoiceName("GoTo")] 
-            GoTo,
-            [ChoiceName("Save Playlist")] 
-            SavePlaylist,
-            [ChoiceName("Lyrics")] 
-            Lyrics,
-            [ChoiceName("Get Avatar")] 
-            GetAvatar,
-            [ChoiceName("Meme")] 
-            Meme
-        }
-        
-        [SlashCommand("help", "This command lists all the commands, a brief explaination of what they do and how to use them.")]
-        public async Task SendHelpMessage(InteractionContext ctx, [Option("command", "Command to recieve help")] HelpCommandCategories cat = HelpCommandCategories.Home)
+        [SlashCommand("help",
+            "This command lists all the commands, a brief explaination of what they do and how to use them.")]
+        public async Task SendHelpMessage(InteractionContext ctx, [Option("command", "Command to recieve help")]
+            HelpCommandCategories cat = HelpCommandCategories.Home)
         {
             try
             {
@@ -166,7 +145,8 @@ namespace BatToshoRESTApp
                     _ => "home"
                 };
                 if (string.IsNullOrEmpty(command)) command = "home";
-                if (command.StartsWith("-") || command.StartsWith("=") || command.StartsWith("/")) command = command[1..];
+                if (command.StartsWith("-") || command.StartsWith("=") || command.StartsWith("/"))
+                    command = command[1..];
                 var get = HelpMessages.GetMessage(command);
                 if (get == null)
                 {
@@ -186,51 +166,7 @@ namespace BatToshoRESTApp
         public async Task LoopCommand(InteractionContext ctx, [Option("looptype", "The type of looping you want")]
             LoopStatus status)
         {
-            var userVoiceS = ctx.Member.VoiceState.Channel;
-            if (userVoiceS == null)
-            {
-                await ctx.CreateResponseAsync( "```You cannot use this command while not being in a channel.```");
-                return;
-            }
-            var player = Manager.GetPlayer(userVoiceS, ctx.Client);
-            if (player == null)
-            {
-                await ctx.CreateResponseAsync("```The bot isn't in the channel.```");
-                return;
-            }
-            player.LoopStatus = status switch
-            {
-                LoopStatus.None => Loop.None, LoopStatus.LoopOne => Loop.One,
-                LoopStatus.LoopQueue => Loop.WholeQueue,
-                _ => Loop.None
-            };
-            await ctx.CreateResponseAsync($"```Loop status is now: {player.LoopStatus switch {Loop.None => "Disabling loop", Loop.One => "Looping one item", Loop.WholeQueue => "Looping whole queue", _ => "Some other option that doesn't have a type"}}.```");
-        }
-
-        public async Task MoveCommand(InteractionContext ctx, [Option("item", "The item which you want to move")]
-            long x, [Option("place", "The place you want to place the item")]
-            long y)
-        {
-            var userVoiceS = ctx.Member.VoiceState.Channel;
-            if (userVoiceS == null)
-            {
-                await ctx.CreateResponseAsync( "```You cannot use this command while not being in a channel.```");
-                return;
-            }
-            var player = Manager.GetPlayer(userVoiceS, ctx.Client);
-            if (player == null)
-            {
-                await ctx.CreateResponseAsync( "```The bot isn't in the channel.```");
-                return;
-            }
-            player.Queue.Move((int) x - 1, (int) y - 1, out var item);
-            await ctx.CreateResponseAsync($"Moved ({x}) - \"{item.GetName()}\" to ({y})");
-        }
-        
-        [SlashCommand("skip", "This is the skip command. It makes the bot skip an item.")]
-        public async Task SkipCommand(InteractionContext ctx, [Option("times", "Times to skip")] long times = 1)
-        {
-            var userVoiceS = ctx.Member.VoiceState.Channel;
+            var userVoiceS = ctx.Member?.VoiceState?.Channel;
             if (userVoiceS == null)
             {
                 await ctx.CreateResponseAsync("```You cannot use this command while not being in a channel.```");
@@ -240,11 +176,60 @@ namespace BatToshoRESTApp
             var player = Manager.GetPlayer(userVoiceS, ctx.Client);
             if (player == null)
             {
-                await ctx.CreateResponseAsync( "```The bot isn't in the channel.```");
+                await ctx.CreateResponseAsync("```The bot isn't in the channel.```");
                 return;
             }
 
-            await ctx.CreateResponseAsync( $"```Skipping {(times == 1 ? "one times" : $"{times} times")}.```"
+            player.LoopStatus = status switch
+            {
+                LoopStatus.None => Loop.None, LoopStatus.LoopOne => Loop.One,
+                LoopStatus.LoopQueue => Loop.WholeQueue,
+                _ => Loop.None
+            };
+            await ctx.CreateResponseAsync(
+                $"```Loop status is now: {player.LoopStatus switch {Loop.None => "Disabling loop", Loop.One => "Looping one item", Loop.WholeQueue => "Looping whole queue", _ => "Some other option that doesn't have a type"}}.```");
+        }
+
+        public async Task MoveCommand(InteractionContext ctx, [Option("item", "The item which you want to move")]
+            long x, [Option("place", "The place you want to place the item")]
+            long y)
+        {
+            var userVoiceS = ctx.Member?.VoiceState?.Channel;
+            if (userVoiceS == null)
+            {
+                await ctx.CreateResponseAsync("```You cannot use this command while not being in a channel.```");
+                return;
+            }
+
+            var player = Manager.GetPlayer(userVoiceS, ctx.Client);
+            if (player == null)
+            {
+                await ctx.CreateResponseAsync("```The bot isn't in the channel.```");
+                return;
+            }
+
+            player.Queue.Move((int) x - 1, (int) y - 1, out var item);
+            await ctx.CreateResponseAsync($"Moved ({x}) - \"{item.GetName()}\" to ({y})");
+        }
+
+        [SlashCommand("skip", "This is the skip command. It makes the bot skip an item.")]
+        public async Task SkipCommand(InteractionContext ctx, [Option("times", "Times to skip")] long times = 1)
+        {
+            var userVoiceS = ctx.Member?.VoiceState?.Channel;
+            if (userVoiceS == null)
+            {
+                await ctx.CreateResponseAsync("```You cannot use this command while not being in a channel.```");
+                return;
+            }
+
+            var player = Manager.GetPlayer(userVoiceS, ctx.Client);
+            if (player == null)
+            {
+                await ctx.CreateResponseAsync("```The bot isn't in the channel.```");
+                return;
+            }
+
+            await ctx.CreateResponseAsync($"```Skipping {(times == 1 ? "one times" : $"{times} times")}.```"
             );
 
             await player.Skip((int) times);
@@ -253,7 +238,7 @@ namespace BatToshoRESTApp
         [SlashCommand("pause", "This is the pause command. It pauses the current item.")]
         public async Task PauseCommand(InteractionContext ctx)
         {
-            var userVoiceS = ctx.Member.VoiceState.Channel;
+            var userVoiceS = ctx.Member?.VoiceState?.Channel;
             if (userVoiceS == null)
             {
                 await ctx.CreateResponseAsync("```You cannot use this command while not being in a channel.```");
@@ -276,7 +261,7 @@ namespace BatToshoRESTApp
         {
             try
             {
-                var userVoiceS = ctx.Member.VoiceState.Channel;
+                var userVoiceS = ctx.Member?.VoiceState?.Channel;
                 if (userVoiceS == null)
                 {
                     await ctx.CreateResponseAsync("```You cannot use this command while not being in a channel.```");
@@ -289,14 +274,16 @@ namespace BatToshoRESTApp
                     await ctx.CreateResponseAsync("```The bot isn't in the channel.```");
                     return;
                 }
+
                 player.Shuffle();
                 await ctx.CreateResponseAsync("```Shuffling the queue.```");
             }
             catch (Exception e)
             {
                 await Debug.WriteAsync($"Slash Command Shuffle failed. {e}");
-            }            
+            }
         }
+
         [SlashCommand("getwebui", "This command gives you the code for the web interface of the bot.")]
         public async Task GetWebUi(InteractionContext ctx)
         {
@@ -349,10 +336,25 @@ namespace BatToshoRESTApp
             }
         }
 
+        [SlashCommand("vote", "С тази команда гласувате как да продължи бота.")]
+        public async Task VoteCommand(InteractionContext ctx, [Option("choice", "Избор")] string choice)
+        {
+            try
+            {
+                await Debug.WriteAsync($"Vote added: {ctx.User.Username}#{ctx.User.Discriminator} - \"{choice}\"", true, Debug.DebugColor.Warning);
+                Event.Add($"{ctx.User.Username}#{ctx.User.Discriminator}", choice);
+                await ctx.CreateResponseAsync("```Благодаря за вашия глас.```");
+            }
+            catch (Exception e)
+            {
+                await Debug.WriteAsync($"Error in vote slash command: \"{e}\"");
+            }
+        }
+
         [SlashCommand("remove", "This command removes an item from the queue.")]
         public async Task Remove(InteractionContext ctx, [Option("num", "Index to remove")] long num)
         {
-            var userVoiceS = ctx.Member.VoiceState.Channel;
+            var userVoiceS = ctx.Member?.VoiceState?.Channel;
             if (userVoiceS == null)
             {
                 await ctx.CreateResponseAsync("```You cannot use this command while not being in a channel.```");
@@ -365,7 +367,8 @@ namespace BatToshoRESTApp
                 await ctx.CreateResponseAsync("```The bot isn't in the channel.```");
                 return;
             }
-            var item = player.Queue.RemoveFromQueue((int)num - 1);
+
+            var item = player.Queue.RemoveFromQueue((int) num - 1);
             await ctx.CreateResponseAsync($"Removing {item.GetName()}");
         }
 
@@ -374,7 +377,7 @@ namespace BatToshoRESTApp
         {
             try
             {
-                var userVoiceS = ctx.Member.VoiceState.Channel;
+                var userVoiceS = ctx.Member?.VoiceState?.Channel;
                 if (userVoiceS == null)
                 {
                     await ctx.CreateResponseAsync("```You cannot use this command while not being in a channel.```");
@@ -391,8 +394,9 @@ namespace BatToshoRESTApp
                 var token = $"{ctx.Guild.Id}-{ctx.Channel.Id}-{Bot.RandomString(6)}";
                 var fs = SharePlaylist.Write(token, player.Queue.Items);
                 fs.Position = 0;
-                await ctx.CreateResponseAsync(new DiscordInteractionResponseBuilder().WithContent($"```Queue saved sucessfully. \n\nYou can play it again with this command\"-p pl:{token}\", " +
-                    "or by sending the attached file and using the play command```").AddFile($"{token}.batp",fs));
+                await ctx.CreateResponseAsync(new DiscordInteractionResponseBuilder().WithContent(
+                    $"```Queue saved sucessfully. \n\nYou can play it again with this command\"-p pl:{token}\", " +
+                    "or by sending the attached file and using the play command```").AddFile($"{token}.batp", fs));
             }
             catch (Exception e)
             {
@@ -407,49 +411,56 @@ namespace BatToshoRESTApp
             {
                 DiscordMessage respond = null;
                 var du = ctx.TargetMember;
-                await ctx.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, new DiscordInteractionResponseBuilder().WithContent("```Sending request```"));
+                await ctx.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource,
+                    new DiscordInteractionResponseBuilder().WithContent("```Sending request```"));
                 if (du.Mention != null)
                 {
-                    var str = await Methods.ImageMagick.DiscordUserHandler(ctx.User, du, Enums.ImageTypes.Dick);
+                    var str = await Methods.ImageMagick.DiscordUserHandler(ctx.User, du, ImageTypes.Dick);
                     //await ctx.RespondAsync($"{ctx.User.Mention} хвана {du.Mention} за кура.");
                     str.Position = 0;
-                    await ctx.Member.SendMessageAsync(new DiscordMessageBuilder().WithContent($"```You caught {du.Username}#{du.Discriminator}'s penis.```")
+                    await ctx.Member.SendMessageAsync(new DiscordMessageBuilder()
+                        .WithContent($"```You caught {du.Username}#{du.Discriminator}'s penis.```")
                         .WithFile("hahaha_funny_peepee.jpg", str));
                     str.Position = 0;
-                    if (du != ctx.Client.CurrentUser) respond = await du.SendMessageAsync(new DiscordMessageBuilder().WithContent($"```{ctx.User.Username}#{ctx.User.Discriminator} caught your dick.```")
-                        .WithFile("hahaha_funny_peepee.jpg", str));
+                    if (du != ctx.Client.CurrentUser)
+                        respond = await du.SendMessageAsync(new DiscordMessageBuilder()
+                            .WithContent($"```{ctx.User.Username}#{ctx.User.Discriminator} caught your dick.```")
+                            .WithFile("hahaha_funny_peepee.jpg", str));
                 }
+
                 if (du.IsBot && du.IsCurrent)
-                {
-                    if (respond != null) await respond.CreateReactionAsync(DiscordEmoji.FromName(Bot.Clients[0], ":tired_face:"));
-                }
+                    if (respond != null)
+                        await respond.CreateReactionAsync(DiscordEmoji.FromName(Bot.Clients[0], ":tired_face:"));
             }
             catch (Exception e)
             {
                 await Debug.WriteAsync($"Hvani Za Kura Context Menu failed: {e}");
             }
         }
-        
+
         [ContextMenu(ApplicationCommandType.UserContextMenu, "Send \"Catch Penis\" request.")]
         public async Task CatchDickRequest(ContextMenuContext ctx)
         {
             try
             {
-                 DiscordMessage respond = null;
+                DiscordMessage respond = null;
                 var du = ctx.TargetMember;
                 if (du.Mention != null)
                 {
                     const ulong yesEmoji = 837062162471976982;
                     const ulong noEmoji = 837062173296427028;
                     var message =
-                        await du.SendMessageAsync($"```{ctx.User.Username}#{ctx.User.Discriminator} wants you to catch his penis. Do you agree?```");
-                    await ctx.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, new DiscordInteractionResponseBuilder().WithContent("```Sending request```"));
+                        await du.SendMessageAsync(
+                            $"```{ctx.User.Username}#{ctx.User.Discriminator} wants you to catch his penis. Do you agree?```");
+                    await ctx.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource,
+                        new DiscordInteractionResponseBuilder().WithContent("```Sending request```"));
                     if (du.IsBot && du.IsCurrent)
                     {
                         await Task.Delay(3000);
-                        respond = await ctx.Member.SendMessageAsync(new DiscordMessageBuilder().WithContent($"```You caught \"{du.Username}#{du.Discriminator}\"'s dick.```")
+                        respond = await ctx.Member.SendMessageAsync(new DiscordMessageBuilder()
+                            .WithContent($"```You caught \"{du.Username}#{du.Discriminator}\"'s dick.```")
                             .WithFile("hahaha_funny_dick.jpg", await Methods.ImageMagick.DiscordUserHandler
-                                (du, ctx.User, Enums.ImageTypes.Dick)));
+                                (du, ctx.User, ImageTypes.Dick)));
                     }
                     else
                     {
@@ -458,55 +469,57 @@ namespace BatToshoRESTApp
                         //var response = await message.WaitForReactionAsync(du);
                         var timedOut = false;
                         var em = 2;
-                        for (int i = 0; i < 38; i++)
+                        for (var i = 0; i < 38; i++)
                         {
-                            var yRec = await message.GetReactionsAsync(DiscordEmoji.FromGuildEmote(Bot.Clients[0], yesEmoji));
-                            var nRec = await message.GetReactionsAsync(DiscordEmoji.FromGuildEmote(Bot.Clients[0], noEmoji));
+                            var yRec = await message.GetReactionsAsync(
+                                DiscordEmoji.FromGuildEmote(Bot.Clients[0], yesEmoji));
+                            var nRec = await message.GetReactionsAsync(
+                                DiscordEmoji.FromGuildEmote(Bot.Clients[0], noEmoji));
                             if (yRec.Contains(du))
                             {
                                 em = 0;
                                 break;
                             }
+
                             if (nRec.Contains(du))
                             {
                                 em = 1;
                                 break;
                             }
+
                             await Task.Delay(1200);
                         }
 
-                        if (em == 2)
-                        {
-                            timedOut = true;
-                        }
-                        
+                        if (em == 2) timedOut = true;
+
                         switch (timedOut)
                         {
                             case false when em is 0:
-                                var str = await Methods.ImageMagick.DiscordUserHandler(du, ctx.User, Enums.ImageTypes.Dick);
+                                var str = await Methods.ImageMagick.DiscordUserHandler(du, ctx.User, ImageTypes.Dick);
                                 str.Position = 0;
-                                await ctx.Member.SendMessageAsync(new DiscordMessageBuilder().WithContent($"```You caught \"{du.Username}#{du.Discriminator}\"'s penis.```")
+                                await ctx.Member.SendMessageAsync(new DiscordMessageBuilder()
+                                    .WithContent($"```You caught \"{du.Username}#{du.Discriminator}\"'s penis.```")
                                     .WithFile("hahaha_funny_peepee.jpg", str));
                                 str.Position = 0;
-                                respond = await du.SendMessageAsync(new DiscordMessageBuilder().WithContent($"```{ctx.Member.Username}#{ctx.Member.Discriminator} caught your penis.```")
+                                respond = await du.SendMessageAsync(new DiscordMessageBuilder()
+                                    .WithContent(
+                                        $"```{ctx.Member.Username}#{ctx.Member.Discriminator} caught your penis.```")
                                     .WithFile("hahaha_funny_peepee.jpg", str));
                                 break;
                             case true or false when em is 1:
-                                await ctx.Member.SendMessageAsync($"```You didn't recieve consent from {du.Username}#{du.Discriminator}```");
+                                await ctx.Member.SendMessageAsync(
+                                    $"```You didn't recieve consent from {du.Username}#{du.Discriminator}```");
                                 await du.SendMessageAsync("```You didn't give consent```");
                                 break;
                             default:
                                 return;
                         }
                     }
-                    
                 }
 
                 if (du.IsBot && du.IsCurrent)
-                {
                     if (respond != null)
                         await respond.CreateReactionAsync(DiscordEmoji.FromName(Bot.Clients[0], ":tired_face:"));
-                }
             }
             catch (Exception e)
             {

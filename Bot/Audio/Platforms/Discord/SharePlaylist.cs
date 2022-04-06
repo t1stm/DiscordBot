@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using BatToshoRESTApp.Abstract;
 using BatToshoRESTApp.Audio.Objects;
 using BatToshoRESTApp.Methods;
 using BatToshoRESTApp.Readers;
@@ -13,7 +14,7 @@ namespace BatToshoRESTApp.Audio.Platforms.Discord
 {
     public static class SharePlaylist
     {
-        public static async Task<List<IPlayableItem>> Get(DiscordAttachment att)
+        public static async Task<List<PlayableItem>> Get(DiscordAttachment att)
         {
             var location = $"{Bot.WorkingDirectory}/Playlists/{att.FileName}";
             if (File.Exists(location)) File.Delete(location);
@@ -21,7 +22,7 @@ namespace BatToshoRESTApp.Audio.Platforms.Discord
             return Get(att.FileName[..^5]);
         }
 
-        public static List<IPlayableItem> Get(string token)
+        public static List<PlayableItem> Get(string token)
         {
             try
             {
@@ -30,7 +31,8 @@ namespace BatToshoRESTApp.Audio.Platforms.Discord
                     var str = HttpClient.DownloadStream(token).Result;
                     token = Encoding.UTF8.GetString(str.ToArray());
                 }
-                var list = new List<IPlayableItem>();
+
+                var list = new List<PlayableItem>();
                 var listDeserialized = Deserialize(token);
                 foreach (var info in listDeserialized)
                 {
@@ -103,7 +105,7 @@ namespace BatToshoRESTApp.Audio.Platforms.Discord
             }
         }
 
-        public static FileStream Write(string token, IEnumerable<IPlayableItem> list)
+        public static FileStream Write(string token, IEnumerable<PlayableItem> list)
         {
             var bytes = new List<byte> {84, 7, 70, 60};
             foreach (var item in list)

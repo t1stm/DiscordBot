@@ -9,27 +9,27 @@
       "BatToshoRESTApp/1.0.0": {
         "dependencies": {
           "AngleSharp": "1.0.0-alpha-844",
-          "Azure.Core": "1.22.0",
+          "Azure.Core": "1.23.0",
           "Azure.Identity": "1.6.0-beta.1",
           "BouncyCastle.NetCore": "1.8.10",
           "ConcurrentHashSet": "1.3.0",
-          "DSharpPlus": "4.2.0-nightly-01062",
-          "DSharpPlus.CommandsNext": "4.2.0-nightly-01062",
-          "DSharpPlus.Interactivity": "4.2.0-nightly-01062",
-          "DSharpPlus.Rest": "4.2.0-nightly-01062",
-          "DSharpPlus.SlashCommands": "4.2.0-nightly-01062",
-          "DSharpPlus.VoiceNext": "4.2.0-nightly-01062",
-          "DSharpPlus.VoiceNext.Natives": "1.0.0",
+          "DSharpPlus": "4.2.0-nightly-01091",
+          "DSharpPlus.CommandsNext": "4.2.0-nightly-01091",
+          "DSharpPlus.Interactivity": "4.2.0-nightly-01091",
+          "DSharpPlus.Lavalink": "4.2.0-nightly-01091",
+          "DSharpPlus.Rest": "4.2.0-nightly-01091",
+          "DSharpPlus.SlashCommands": "4.2.0-nightly-01091",
+          "DSharpPlus.VoiceNext": "4.2.0-nightly-01091",
           "EmbedIO": "3.4.3",
           "Emzi0767.Common": "2.6.2",
-          "Google.Protobuf": "3.19.4",
+          "Google.Protobuf": "3.20.0",
           "HtmlAgilityPack": "1.11.42",
           "Humanizer.Core": "2.14.1",
           "K4os.Compression.LZ4": "1.2.16",
           "K4os.Compression.LZ4.Streams": "1.2.16",
           "K4os.Hash.xxHash": "1.0.7",
-          "Magick.NET-Q16-AnyCPU": "9.1.2",
-          "Magick.NET.Core": "9.1.2",
+          "Magick.NET-Q16-AnyCPU": "11.0.0",
+          "Magick.NET.Core": "11.0.0",
           "MessagePack": "2.3.85",
           "MessagePack.Annotations": "2.3.85",
           "MessagePackAnalyzer": "2.3.85",
@@ -221,10 +221,11 @@
           "Unosquare.Swan.Lite": "3.1.0",
           "WebSocketSharp": "1.0.3-rc11",
           "YouTubeApiSharp": "0.0.5",
-          "YoutubeExplode": "6.0.8",
+          "YoutubeExplode": "6.1.0",
           "YoutubeSearchApi.Net": "2021.8.24",
           "ZXing.Net": "0.16.8",
           "ZXing.Net.Bindings.CoreCompat.System.Drawing": "0.16.7-beta",
+          "deniszykov.WebSocketListener": "4.2.14",
           "runtime.debian.8-x64.runtime.native.System.Security.Cryptography.OpenSsl": "4.3.3",
           "runtime.debian.9-x64.runtime.native.System.Security.Cryptography.OpenSsl": "4.3.3",
           "runtime.fedora.23-x64.runtime.native.System.Security.Cryptography.OpenSsl": "4.3.3",
@@ -263,7 +264,7 @@
           }
         }
       },
-      "Azure.Core/1.22.0": {
+      "Azure.Core/1.23.0": {
         "dependencies": {
           "Microsoft.Bcl.AsyncInterfaces": "6.0.2-mauipre.1.22054.8",
           "System.Diagnostics.DiagnosticSource": "6.0.2-mauipre.1.22054.8",
@@ -275,14 +276,14 @@
         },
         "runtime": {
           "lib/net5.0/Azure.Core.dll": {
-            "assemblyVersion": "1.22.0.0",
-            "fileVersion": "1.2200.22.6212"
+            "assemblyVersion": "1.23.0.0",
+            "fileVersion": "1.2300.22.17109"
           }
         }
       },
       "Azure.Identity/1.6.0-beta.1": {
         "dependencies": {
-          "Azure.Core": "1.22.0",
+          "Azure.Core": "1.23.0",
           "Microsoft.Identity.Client": "4.41.0",
           "Microsoft.Identity.Client.Extensions.Msal": "2.19.5",
           "System.Memory": "4.5.4",
@@ -324,7 +325,18 @@
           }
         }
       },
-      "DSharpPlus/4.2.0-nightly-01062": {
+      "deniszykov.WebSocketListener/4.2.14": {
+        "dependencies": {
+          "NETStandard.Library": "2.0.3"
+        },
+        "runtime": {
+          "lib/netstandard1.3/deniszykov.WebSocketListener.dll": {
+            "assemblyVersion": "4.2.14.0",
+            "fileVersion": "4.2.14.0"
+          }
+        }
+      },
+      "DSharpPlus/4.2.0-nightly-01091": {
         "dependencies": {
           "Emzi0767.Common": "2.6.2",
           "Microsoft.Extensions.Logging.Abstractions": "6.0.2-mauipre.1.22054.8",
@@ -338,68 +350,79 @@
         },
         "runtime": {
           "lib/netstandard2.0/DSharpPlus.dll": {
-            "assemblyVersion": "4.2.0.1062",
-            "fileVersion": "4.2.0.1062"
+            "assemblyVersion": "4.2.0.1091",
+            "fileVersion": "4.2.0.1091"
           }
         }
       },
-      "DSharpPlus.CommandsNext/4.2.0-nightly-01062": {
+      "DSharpPlus.CommandsNext/4.2.0-nightly-01091": {
         "dependencies": {
-          "DSharpPlus": "4.2.0-nightly-01062",
+          "DSharpPlus": "4.2.0-nightly-01091",
           "Microsoft.Extensions.DependencyInjection": "6.0.2-mauipre.1.22054.8"
         },
         "runtime": {
           "lib/netstandard2.0/DSharpPlus.CommandsNext.dll": {
-            "assemblyVersion": "4.2.0.1062",
-            "fileVersion": "4.2.0.1062"
+            "assemblyVersion": "4.2.0.1091",
+            "fileVersion": "4.2.0.1091"
           }
         }
       },
-      "DSharpPlus.Interactivity/4.2.0-nightly-01062": {
+      "DSharpPlus.Interactivity/4.2.0-nightly-01091": {
         "dependencies": {
           "ConcurrentHashSet": "1.3.0",
-          "DSharpPlus": "4.2.0-nightly-01062"
+          "DSharpPlus": "4.2.0-nightly-01091"
         },
         "runtime": {
           "lib/netstandard2.0/DSharpPlus.Interactivity.dll": {
-            "assemblyVersion": "4.2.0.1062",
-            "fileVersion": "4.2.0.1062"
+            "assemblyVersion": "4.2.0.1091",
+            "fileVersion": "4.2.0.1091"
           }
         }
       },
-      "DSharpPlus.Rest/4.2.0-nightly-01062": {
+      "DSharpPlus.Lavalink/4.2.0-nightly-01091": {
         "dependencies": {
-          "DSharpPlus": "4.2.0-nightly-01062"
+          "DSharpPlus": "4.2.0-nightly-01091"
+        },
+        "runtime": {
+          "lib/netstandard2.0/DSharpPlus.Lavalink.dll": {
+            "assemblyVersion": "4.2.0.1091",
+            "fileVersion": "4.2.0.1091"
+          }
+        }
+      },
+      "DSharpPlus.Rest/4.2.0-nightly-01091": {
+        "dependencies": {
+          "DSharpPlus": "4.2.0-nightly-01091"
         },
         "runtime": {
           "lib/netstandard2.0/DSharpPlus.Rest.dll": {
-            "assemblyVersion": "4.2.0.1062",
-            "fileVersion": "4.2.0.1062"
+            "assemblyVersion": "4.2.0.1091",
+            "fileVersion": "4.2.0.1091"
           }
         }
       },
-      "DSharpPlus.SlashCommands/4.2.0-nightly-01062": {
+      "DSharpPlus.SlashCommands/4.2.0-nightly-01091": {
         "dependencies": {
-          "DSharpPlus": "4.2.0-nightly-01062",
+          "DSharpPlus": "4.2.0-nightly-01091",
           "Microsoft.Extensions.DependencyInjection": "6.0.2-mauipre.1.22054.8"
         },
         "runtime": {
           "lib/netstandard2.0/DSharpPlus.SlashCommands.dll": {
-            "assemblyVersion": "4.2.0.1062",
-            "fileVersion": "4.2.0.1062"
+            "assemblyVersion": "4.2.0.1091",
+            "fileVersion": "4.2.0.1091"
           }
         }
       },
-      "DSharpPlus.VoiceNext/4.2.0-nightly-01062": {
+      "DSharpPlus.VoiceNext/4.2.0-nightly-01091": {
         "dependencies": {
-          "DSharpPlus": "4.2.0-nightly-01062",
+          "DSharpPlus": "4.2.0-nightly-01091",
           "DSharpPlus.VoiceNext.Natives": "1.0.0",
           "System.Threading.Channels": "6.0.2-mauipre.1.22054.8"
         },
         "runtime": {
           "lib/netstandard2.0/DSharpPlus.VoiceNext.dll": {
-            "assemblyVersion": "4.2.0.1062",
-            "fileVersion": "4.2.0.1062"
+            "assemblyVersion": "4.2.0.1091",
+            "fileVersion": "4.2.0.1091"
           }
         }
       },
@@ -452,11 +475,11 @@
           }
         }
       },
-      "Google.Protobuf/3.19.4": {
+      "Google.Protobuf/3.20.0": {
         "runtime": {
           "lib/net5.0/Google.Protobuf.dll": {
-            "assemblyVersion": "3.19.4.0",
-            "fileVersion": "3.19.4.0"
+            "assemblyVersion": "3.20.0.0",
+            "fileVersion": "3.20.0.0"
           }
         }
       },
@@ -504,17 +527,22 @@
           }
         }
       },
-      "Magick.NET-Q16-AnyCPU/9.1.2": {
+      "Magick.NET-Q16-AnyCPU/11.0.0": {
         "dependencies": {
-          "Magick.NET.Core": "9.1.2"
+          "Magick.NET.Core": "11.0.0"
         },
         "runtime": {
           "lib/netstandard21/Magick.NET-Q16-AnyCPU.dll": {
-            "assemblyVersion": "9.1.0.0",
-            "fileVersion": "9.1.2.0"
+            "assemblyVersion": "11.0.0.0",
+            "fileVersion": "11.0.0.0"
           }
         },
         "runtimeTargets": {
+          "runtimes/linux-arm64/native/Magick.Native-Q16-arm64.dll.so": {
+            "rid": "linux-arm64",
+            "assetType": "native",
+            "fileVersion": "0.0.0.0"
+          },
           "runtimes/linux-musl-x64/native/Magick.Native-Q16-x64.dll.so": {
             "rid": "linux-musl-x64",
             "assetType": "native",
@@ -547,11 +575,11 @@
           }
         }
       },
-      "Magick.NET.Core/9.1.2": {
+      "Magick.NET.Core/11.0.0": {
         "runtime": {
           "lib/netstandard21/Magick.NET.Core.dll": {
-            "assemblyVersion": "9.1.0.0",
-            "fileVersion": "9.1.2.0"
+            "assemblyVersion": "11.0.0.0",
+            "fileVersion": "11.0.0.0"
           }
         }
       },
@@ -2005,7 +2033,7 @@
       "MySql.Data/8.0.28": {
         "dependencies": {
           "BouncyCastle.NetCore": "1.8.10",
-          "Google.Protobuf": "3.19.4",
+          "Google.Protobuf": "3.20.0",
           "K4os.Compression.LZ4.Streams": "1.2.16",
           "System.Buffers": "4.5.1",
           "System.Configuration.ConfigurationManager": "6.0.2-mauipre.1.22054.8",
@@ -3335,14 +3363,14 @@
           }
         }
       },
-      "YoutubeExplode/6.0.8": {
+      "YoutubeExplode/6.1.0": {
         "dependencies": {
           "AngleSharp": "1.0.0-alpha-844"
         },
         "runtime": {
           "lib/net5.0/YoutubeExplode.dll": {
-            "assemblyVersion": "6.0.8.0",
-            "fileVersion": "6.0.8.0"
+            "assemblyVersion": "6.1.0.0",
+            "fileVersion": "6.1.0.0"
           }
         }
       },
@@ -3394,12 +3422,12 @@
       "path": "anglesharp/1.0.0-alpha-844",
       "hashPath": "anglesharp.1.0.0-alpha-844.nupkg.sha512"
     },
-    "Azure.Core/1.22.0": {
+    "Azure.Core/1.23.0": {
       "type": "package",
       "serviceable": true,
-      "sha512": "sha512-ze/xRCHSSDe5TIk5vBDbVrauW1EN7UIbnBvIBfMH8KSt/I9+/7yPAjTBDgNBk0IwG6WBV+BBHp4IUtS/PGAQwQ==",
-      "path": "azure.core/1.22.0",
-      "hashPath": "azure.core.1.22.0.nupkg.sha512"
+      "sha512": "sha512-myulcGStD89NN7BUhAjkcfDhIvRj2UUwZHEgjB50pL3vb0LEunrtinxKqUGUuOheQVCHlILKLNoUeCThQ1iCOg==",
+      "path": "azure.core/1.23.0",
+      "hashPath": "azure.core.1.23.0.nupkg.sha512"
     },
     "Azure.Identity/1.6.0-beta.1": {
       "type": "package",
@@ -3429,47 +3457,61 @@
       "path": "corecompat.system.drawing.v2/5.2.0-preview1-r131",
       "hashPath": "corecompat.system.drawing.v2.5.2.0-preview1-r131.nupkg.sha512"
     },
-    "DSharpPlus/4.2.0-nightly-01062": {
+    "deniszykov.WebSocketListener/4.2.14": {
       "type": "package",
       "serviceable": true,
-      "sha512": "sha512-I8uBbnlmeLH23nlJJSw0h1VMEtD9O/iQZTuI61E9HkHcqB9CmWQWmRdKd9yBtZBQ7VddX7sgFQDE2Gv202NYgw==",
-      "path": "dsharpplus/4.2.0-nightly-01062",
-      "hashPath": "dsharpplus.4.2.0-nightly-01062.nupkg.sha512"
+      "sha512": "sha512-LM+YyEnOBD6/91iz9OoTTzRRkRpjkIQTSFwNxMHAc5cPO/QchiaNNBNtAetTp/DGaXI5/8WGLUm6g57MB68GMA==",
+      "path": "deniszykov.websocketlistener/4.2.14",
+      "hashPath": "deniszykov.websocketlistener.4.2.14.nupkg.sha512"
     },
-    "DSharpPlus.CommandsNext/4.2.0-nightly-01062": {
+    "DSharpPlus/4.2.0-nightly-01091": {
       "type": "package",
       "serviceable": true,
-      "sha512": "sha512-ELss31vdumAG7UsVFFA15jBCI5XcncTfqovimgY40RueGE0qgiOXJnqkk1qR2lX7TXc1WtQy97qSEDX0k3L9wg==",
-      "path": "dsharpplus.commandsnext/4.2.0-nightly-01062",
-      "hashPath": "dsharpplus.commandsnext.4.2.0-nightly-01062.nupkg.sha512"
+      "sha512": "sha512-F1cV5xWeNUDKxLbOKCn7acNG796SlcUuyoDW6ELYDsTyQm0e0PBZtWfSsEvHxFH0TG/0fNHgIFQLTv3UQJ/6CQ==",
+      "path": "dsharpplus/4.2.0-nightly-01091",
+      "hashPath": "dsharpplus.4.2.0-nightly-01091.nupkg.sha512"
     },
-    "DSharpPlus.Interactivity/4.2.0-nightly-01062": {
+    "DSharpPlus.CommandsNext/4.2.0-nightly-01091": {
       "type": "package",
       "serviceable": true,
-      "sha512": "sha512-bFWzh5wv73+lKvfwwx599C10wKif5UpZd3F0lsg6Ibj8QMpuF6TphHLQOWEnGfiYTChRpMLxG7nezlacYa42BA==",
-      "path": "dsharpplus.interactivity/4.2.0-nightly-01062",
-      "hashPath": "dsharpplus.interactivity.4.2.0-nightly-01062.nupkg.sha512"
+      "sha512": "sha512-XB4LWPBN7xUfsRtGaf8jkFIEaP/3SuJCcP2R+j0j+1ktwjivVAfq5f+ip2G48Ar31c2i5A1+p/3kVSGWv8tOxg==",
+      "path": "dsharpplus.commandsnext/4.2.0-nightly-01091",
+      "hashPath": "dsharpplus.commandsnext.4.2.0-nightly-01091.nupkg.sha512"
     },
-    "DSharpPlus.Rest/4.2.0-nightly-01062": {
+    "DSharpPlus.Interactivity/4.2.0-nightly-01091": {
       "type": "package",
       "serviceable": true,
-      "sha512": "sha512-J4YwmXmScspOASPtOuzCK+i18SQ2HQuoeClPX4cWb0pWmzMRaifOyh62lRcstT2GKjn8SJmJ3mv/9ZTtuUAsMA==",
-      "path": "dsharpplus.rest/4.2.0-nightly-01062",
-      "hashPath": "dsharpplus.rest.4.2.0-nightly-01062.nupkg.sha512"
+      "sha512": "sha512-bXIGL47AeGMCsbcsrGYzZr/fdPX+zkdBxVCoUc6pcHXR0x/raM5Es5RRD033DOyl7wzIYJnvq8eCH87QlF7Idg==",
+      "path": "dsharpplus.interactivity/4.2.0-nightly-01091",
+      "hashPath": "dsharpplus.interactivity.4.2.0-nightly-01091.nupkg.sha512"
     },
-    "DSharpPlus.SlashCommands/4.2.0-nightly-01062": {
+    "DSharpPlus.Lavalink/4.2.0-nightly-01091": {
       "type": "package",
       "serviceable": true,
-      "sha512": "sha512-T5/tXtIvCXX6wb3FQlvQ7HoUG9La679f8NYLRPv+lqSDWSTS0BQWN154VL9Gbm3VM9NGd2kUbLO95lssugtMTA==",
-      "path": "dsharpplus.slashcommands/4.2.0-nightly-01062",
-      "hashPath": "dsharpplus.slashcommands.4.2.0-nightly-01062.nupkg.sha512"
+      "sha512": "sha512-XNek+xGbrXV4ZPlbcV3YhdFfidqP1Jjbc45INTFwJ9kOMkcp8SSpkLPZMYp/aGLrtAJocrjFb2yGWA0VhksiCQ==",
+      "path": "dsharpplus.lavalink/4.2.0-nightly-01091",
+      "hashPath": "dsharpplus.lavalink.4.2.0-nightly-01091.nupkg.sha512"
     },
-    "DSharpPlus.VoiceNext/4.2.0-nightly-01062": {
+    "DSharpPlus.Rest/4.2.0-nightly-01091": {
       "type": "package",
       "serviceable": true,
-      "sha512": "sha512-NWxGumCiRj8oeN/RGKPwbAWSi2MkQ51kpbyZjgtwNUXZFTOCXY1yiDhWwo2FA3P5lbtgGSZVUG1My7taEx0j4Q==",
-      "path": "dsharpplus.voicenext/4.2.0-nightly-01062",
-      "hashPath": "dsharpplus.voicenext.4.2.0-nightly-01062.nupkg.sha512"
+      "sha512": "sha512-pW+zmRHP8efJYr1AEMeJq+y8tUFE2fAzgvRcmWfx8QXW/smP+NMwzLslVXmTjppUGAcVCONCqHG7LzpREy3E7A==",
+      "path": "dsharpplus.rest/4.2.0-nightly-01091",
+      "hashPath": "dsharpplus.rest.4.2.0-nightly-01091.nupkg.sha512"
+    },
+    "DSharpPlus.SlashCommands/4.2.0-nightly-01091": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-zDk/mz1Y7cVMZ1XzXFqgC/xn+2gUPjsLVD/O7yYohOKZrzUL4m9CeTDPNlBIi61U3xzbDURbmNk7XHpT3DeWbg==",
+      "path": "dsharpplus.slashcommands/4.2.0-nightly-01091",
+      "hashPath": "dsharpplus.slashcommands.4.2.0-nightly-01091.nupkg.sha512"
+    },
+    "DSharpPlus.VoiceNext/4.2.0-nightly-01091": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-Xm3nlL9ouD7tJghz0sQdQSOH8fu0BrNANiE8x+Wx0CGQ8mbenwaUjoC4TpiIlIAJxSRFzT5UnpkaytP3pdgntg==",
+      "path": "dsharpplus.voicenext/4.2.0-nightly-01091",
+      "hashPath": "dsharpplus.voicenext.4.2.0-nightly-01091.nupkg.sha512"
     },
     "DSharpPlus.VoiceNext.Natives/1.0.0": {
       "type": "package",
@@ -3492,12 +3534,12 @@
       "path": "emzi0767.common/2.6.2",
       "hashPath": "emzi0767.common.2.6.2.nupkg.sha512"
     },
-    "Google.Protobuf/3.19.4": {
+    "Google.Protobuf/3.20.0": {
       "type": "package",
       "serviceable": true,
-      "sha512": "sha512-fd07/ykL4O4FhqrZIELm5lmiyOHfdPg9+o+hWr6tcfRdS7tHXnImg/2wtogLzlW2eEmr0J7j6ZrZvaWOLiJbxQ==",
-      "path": "google.protobuf/3.19.4",
-      "hashPath": "google.protobuf.3.19.4.nupkg.sha512"
+      "sha512": "sha512-dZkpScgy6Lg6mjj+zqQkAZR49Jyoag5zloUw/gnQZvClbAW5lKPkXOoIRoM+3vwS9UNNBDwqiAJ+2KW2ZXOkCQ==",
+      "path": "google.protobuf/3.20.0",
+      "hashPath": "google.protobuf.3.20.0.nupkg.sha512"
     },
     "HtmlAgilityPack/1.11.42": {
       "type": "package",
@@ -3534,19 +3576,19 @@
       "path": "k4os.hash.xxhash/1.0.7",
       "hashPath": "k4os.hash.xxhash.1.0.7.nupkg.sha512"
     },
-    "Magick.NET-Q16-AnyCPU/9.1.2": {
+    "Magick.NET-Q16-AnyCPU/11.0.0": {
       "type": "package",
       "serviceable": true,
-      "sha512": "sha512-SCF+hHlds3SjyKpuE1tNbvaV/0XkB64gHO0TLNFAapodPnnhWNTWQIffg+DUSomzrIJUNhddsvCD2QDISSQ+mw==",
-      "path": "magick.net-q16-anycpu/9.1.2",
-      "hashPath": "magick.net-q16-anycpu.9.1.2.nupkg.sha512"
+      "sha512": "sha512-fX/Ab4SVYcFl6ozIRD7zoSrW+pDbOsaJ9Hl1c1xgJ5HsB2Wl2r61gP4FkxSqYkguxQxmSJJKN48LqoVb+yNiJw==",
+      "path": "magick.net-q16-anycpu/11.0.0",
+      "hashPath": "magick.net-q16-anycpu.11.0.0.nupkg.sha512"
     },
-    "Magick.NET.Core/9.1.2": {
+    "Magick.NET.Core/11.0.0": {
       "type": "package",
       "serviceable": true,
-      "sha512": "sha512-6wU43oekNbfKZ7HZcsfROuwXjMLvKwa2M9ETVtreghmxF2jrxgL3aXK6QUzMIJkdRJeE0p/JcHCDeJLwF5ZJMA==",
-      "path": "magick.net.core/9.1.2",
-      "hashPath": "magick.net.core.9.1.2.nupkg.sha512"
+      "sha512": "sha512-zCRE8N9PtEqTeHuxxadKNcU5FC/UuqJ/LZTunOHX4qECYjESddATK8WPTrauoLYQfnc5SyRLR5SIv/OQJAiLyA==",
+      "path": "magick.net.core/11.0.0",
+      "hashPath": "magick.net.core.11.0.0.nupkg.sha512"
     },
     "MessagePack/2.3.85": {
       "type": "package",
@@ -5102,12 +5144,12 @@
       "path": "youtubeapisharp/0.0.5",
       "hashPath": "youtubeapisharp.0.0.5.nupkg.sha512"
     },
-    "YoutubeExplode/6.0.8": {
+    "YoutubeExplode/6.1.0": {
       "type": "package",
       "serviceable": true,
-      "sha512": "sha512-QWaQ8NCtk+Nsf1wKr5KhI8sLZ5leNpBVq9yeONLwRDtv/UC1LWwToICndVNYhcdbppA1Tr6v+ikXFDNZZRiVmg==",
-      "path": "youtubeexplode/6.0.8",
-      "hashPath": "youtubeexplode.6.0.8.nupkg.sha512"
+      "sha512": "sha512-ZirloBlRv604Cg4ObTRR5mdPnYThe6E1rlkEGUX9O1e4QvoNr8MFhYO/QyCjetByZPICCTT+U/XBJ2Um39CrRQ==",
+      "path": "youtubeexplode/6.1.0",
+      "hashPath": "youtubeexplode.6.1.0.nupkg.sha512"
     },
     "YoutubeSearchApi.Net/2021.8.24": {
       "type": "package",

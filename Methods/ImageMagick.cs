@@ -18,7 +18,7 @@ namespace BatToshoRESTApp.Methods
             //     await client.DownloadFileTaskAsync(image2, "/srv/http/Bat_Tosho_Content/image2.png");
             var im1 = await HttpClient.DownloadStream(image1);
             var im2 = image2 switch {null => Stream.Null, _ => await HttpClient.DownloadStream(image2)};
-            
+
             using var image = new MagickImage($"/srv/http/Bat_Tosho_Content/{baseImage}");
             using var watermark1 = new MagickImage(im1);
             watermark1.Resize(res, res);
@@ -29,6 +29,7 @@ namespace BatToshoRESTApp.Methods
                 watermark2.Resize(res, res);
                 image.Composite(watermark2, x2.Value, y2.Value, CompositeOperator.Over);
             }
+
             await image.WriteAsync(ms);
             ms.Position = 0;
             return ms;

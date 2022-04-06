@@ -3,7 +3,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using BatToshoRESTApp.Audio.Objects;
 using SpotifyAPI.Web;
-using IPlayableItem = SpotifyAPI.Web.IPlayableItem;
 
 namespace BatToshoRESTApp.Audio.Platforms.Spotify
 {
@@ -59,6 +58,7 @@ namespace BatToshoRESTApp.Audio.Platforms.Spotify
                 offset += 100;
                 tempTracks = await Spotify.Albums.GetTracks(albumId, new AlbumTracksRequest {Offset = offset});
             }
+
             return playlistTracks.Select(track => new SpotifyTrack
                 {
                     Title = track.Name,

@@ -3,6 +3,7 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using BatToshoRESTApp.Audio;
+using BatToshoRESTApp.Enums;
 using BatToshoRESTApp.Methods;
 using BatToshoRESTApp.Readers;
 using BatToshoRESTApp.Tools;
@@ -15,8 +16,23 @@ namespace BatToshoRESTApp
 {
     // ReSharper disable once ClassNeverInstantiated.Global
     public class Commands : BaseCommandModule
-    { 
+    {
         private static bool DailySalt { get; set; }
+
+        [Command("vote")]
+        public async Task VoteCommand(CommandContext ctx, [RemainingText] string choice)
+        {
+            try
+            {
+                await Debug.WriteAsync($"Vote added: {ctx.User.Username}#{ctx.User.Discriminator} - \"{choice}\"", true, Debug.DebugColor.Warning);
+                Event.Add($"{ctx.User.Username}#{ctx.User.Discriminator}", choice);
+                await ctx.RespondAsync("```Благодаря за вашия глас.```");
+            }
+            catch (Exception e)
+            {
+                await Debug.WriteAsync($"Error during vote: \"{e}\"");
+            }
+        }
 
         [Command("help")]
         [Aliases("хелп")]
@@ -31,7 +47,7 @@ namespace BatToshoRESTApp
                 Console.WriteLine(e);
             }
         }
-        
+
         [Command("play")]
         [Aliases("p", "плаъ", "п")]
         public async Task PlayCommand(CommandContext ctx, [RemainingText] string search)
@@ -61,7 +77,7 @@ namespace BatToshoRESTApp
                 throw;
             }
         }
-        
+
         [Command("leave")]
         [Aliases("l", "stop", "леаже", "л", "стоп", "с", "s", "die", "дие")]
         public async Task LeaveCommand(CommandContext ctx)
@@ -85,7 +101,7 @@ namespace BatToshoRESTApp
             {
                 if (int.TryParse(seed, out var seedInt))
                 {
-                    await Debug.WriteAsync("Shuffling using custom seed."); 
+                    await Debug.WriteAsync("Shuffling using custom seed.");
                     await Manager.Shuffle(ctx, seedInt);
                 }
 
@@ -172,6 +188,7 @@ namespace BatToshoRESTApp
                 throw;
             }
         }
+
         [Command("remove")]
         [Aliases("r", "rm", "реможе", "рм", "р")]
         public async Task RemoveCommand(CommandContext ctx, [RemainingText] string remove)
@@ -208,7 +225,8 @@ namespace BatToshoRESTApp
         {
             try
             {
-                await Manager.List(ctx, true); //I plan on making it use a custom site made only for listing the queue, but I will implement it when I make the websocket server.
+                await Manager.List(ctx,
+                    true); //I plan on making it use a custom site made only for listing the queue, but I will implement it when I make the websocket server.
             }
             catch (Exception e)
             {
@@ -224,7 +242,8 @@ namespace BatToshoRESTApp
             {
                 //var us = ctx.Message.MentionedUsers;
                 await Bot.Reply(ctx,
-                    new DiscordMessageBuilder().WithContent($"```{user.Username}'s avatar```").WithFile($"{user.Username}.webp", 
+                    new DiscordMessageBuilder().WithContent($"```{user.Username}'s avatar```").WithFile(
+                        $"{user.Username}.webp",
                         await HttpClient.DownloadStream(user.GetAvatarUrl(ImageFormat.WebP))));
             }
             catch (Exception e)
@@ -233,7 +252,7 @@ namespace BatToshoRESTApp
                 throw;
             }
         }
-        
+
         [Command("clear")]
         public async Task ClearCommand(CommandContext ctx)
         {
@@ -292,7 +311,8 @@ namespace BatToshoRESTApp
             }
         }
 
-        [Command("saveplaylist"), Aliases("savequeue", "sq", "sp", "сажеяуеуе", "сажеплаълист")]
+        [Command("saveplaylist")]
+        [Aliases("savequeue", "sq", "sp", "сажеяуеуе", "сажеплаълист")]
         public async Task SavePlaylist(CommandContext ctx)
         {
             try
@@ -319,7 +339,7 @@ namespace BatToshoRESTApp
                 throw;
             }
         }
-        
+
         [Command("meme")]
         [Aliases("memes")]
         public async Task MemeCommand(CommandContext ctx, [RemainingText] string meme = null)
@@ -329,7 +349,7 @@ namespace BatToshoRESTApp
                 var de = new DiscordEmbedBuilder();
                 var rng = new Random();
                 string[] seenMemes = {"index.php", "style.css", "latest date.txt"};
-                string[] memes = Directory.GetFiles("/srv/http/Memes");
+                var memes = Directory.GetFiles("/srv/http/Memes");
                 if (!DailySalt)
                 {
                     DailySalt = true;
@@ -344,10 +364,7 @@ namespace BatToshoRESTApp
                     var i = rng.Next(0, memes.Length - 1);
                     if (seenMemes.Length >= memes.Length)
                         seenMemes = new[] {"index.php", "style.css", "latest date.txt"};
-                    while (seenMemes.Any(m => m == memes[i]))
-                    {
-                        i = rng.Next(0, memes.Length - 1);
-                    }
+                    while (seenMemes.Any(m => m == memes[i])) i = rng.Next(0, memes.Length - 1);
 
                     meme = memes[i];
                     de.Url = $"https://dankest.gq/Memes/{memes[i].Split("/srv/http/Memes/")[1]}";
@@ -355,13 +372,11 @@ namespace BatToshoRESTApp
 
                 var message = await ctx.RespondAsync(de.Url.Replace(" ", "%20"));
                 if (Emojis.CheckIfEmoji(meme, out var emojis))
-                {
                     foreach (var emoji in emojis)
                     {
                         await message.CreateReactionAsync(emoji);
                         await Task.Delay(333);
                     }
-                }
             }
             catch (Exception e)
             {
@@ -369,6 +384,7 @@ namespace BatToshoRESTApp
                 throw;
             }
         }
+
         [Command("hvanizakura")]
         [Aliases("хванизакура")]
         public async Task HvaniZaKura(CommandContext ctx, DiscordUser du)
@@ -380,16 +396,19 @@ namespace BatToshoRESTApp
                 if (du.Mention != null)
                 {
                     var pic = await Methods.ImageMagick.DiscordUserHandler
-                        (ctx.User, du, Enums.ImageTypes.Dick);
+                        (ctx.User, du, ImageTypes.Dick);
                     pic.Position = 0;
                     //await ctx.RespondAsync($"{ctx.User.Mention} хвана {du.Mention} за кура.");
-                    respond = await ctx.RespondAsync(new DiscordMessageBuilder().WithContent($"{ctx.User.Mention} хвана {du.Mention} за кура.")
+                    respond = await ctx.RespondAsync(new DiscordMessageBuilder()
+                        .WithContent($"{ctx.User.Mention} хвана {du.Mention} за кура.")
                         .WithFile("hahaha_funny_peepee.jpg", pic));
                 }
+
                 if (du.IsBot && du.IsCurrent)
                 {
                     await ctx.RespondAsync("ohh spicy");
-                    if (respond != null) await respond.CreateReactionAsync(DiscordEmoji.FromName(Bot.Clients[0], ":tired_face:"));
+                    if (respond != null)
+                        await respond.CreateReactionAsync(DiscordEmoji.FromName(Bot.Clients[0], ":tired_face:"));
                 }
             }
             catch (Exception e)
@@ -419,45 +438,48 @@ namespace BatToshoRESTApp
                         await message.CreateReactionAsync(DiscordEmoji.FromGuildEmote(Bot.Clients[0], yesEmoji));
                         await Task.Delay(1000);
                         var pic = await Methods.ImageMagick.DiscordUserHandler
-                            (du, ctx.User, Enums.ImageTypes.Dick);
+                            (du, ctx.User, ImageTypes.Dick);
                         pic.Position = 0;
-                        respond = await ctx.RespondAsync(new DiscordMessageBuilder().WithContent($"{ctx.User.Mention} беше хванат от {du.Mention} за кура.")
+                        respond = await ctx.RespondAsync(new DiscordMessageBuilder()
+                            .WithContent($"{ctx.User.Mention} беше хванат от {du.Mention} за кура.")
                             .WithFile("hahaha_funny_dick.jpg", pic));
                     }
                     else
                     {
                         var timedOut = false;
                         var em = 2;
-                        for (int i = 0; i < 38; i++)
+                        for (var i = 0; i < 38; i++)
                         {
-                            var yRec = await message.GetReactionsAsync(DiscordEmoji.FromGuildEmote(Bot.Clients[0], yesEmoji));
-                            var nRec = await message.GetReactionsAsync(DiscordEmoji.FromGuildEmote(Bot.Clients[0], noEmoji));
+                            var yRec = await message.GetReactionsAsync(
+                                DiscordEmoji.FromGuildEmote(Bot.Clients[0], yesEmoji));
+                            var nRec = await message.GetReactionsAsync(
+                                DiscordEmoji.FromGuildEmote(Bot.Clients[0], noEmoji));
                             if (yRec.Contains(du))
                             {
                                 em = 0;
                                 break;
                             }
+
                             if (yRec.Contains(du))
                             {
                                 em = 1;
                                 break;
                             }
+
                             await Task.Delay(1200);
                         }
 
-                        if (em == 2)
-                        {
-                            timedOut = true;
-                        }
-                        
+                        if (em == 2) timedOut = true;
+
                         switch (timedOut)
                         {
                             case false when em is 0:
-                                var str = await Methods.ImageMagick.DiscordUserHandler(du, ctx.User, Enums.ImageTypes.Dick);
+                                var str = await Methods.ImageMagick.DiscordUserHandler(du, ctx.User, ImageTypes.Dick);
                                 str.Position = 0;
-                                respond = await ctx.RespondAsync(new DiscordMessageBuilder().WithContent($"{ctx.User.Mention} беше хванат от {du.Mention} за кура.")
+                                respond = await ctx.RespondAsync(new DiscordMessageBuilder()
+                                    .WithContent($"{ctx.User.Mention} беше хванат от {du.Mention} за кура.")
                                     .WithFile("hahaha_funny_peepee.jpg", await Methods.ImageMagick.DiscordUserHandler
-                                        (du, ctx.User, Enums.ImageTypes.Dick)));
+                                        (du, ctx.User, ImageTypes.Dick)));
                                 break;
                             case true or false when em is 1:
                                 await ctx.RespondAsync($"Не бе получен consent от {du.Mention}");
@@ -494,11 +516,10 @@ namespace BatToshoRESTApp
                     _ => du
                 };
                 if (du.Mention != null)
-                {
-                  respond = await ctx.RespondAsync(new DiscordMessageBuilder().WithContent($"{du.Mention} is now monke.")
-                      .WithFile("haha_funny_monke.jpg", await Methods.ImageMagick.DiscordUserHandler
-                        (du, null, Enums.ImageTypes.Monke)));
-                }
+                    respond = await ctx.RespondAsync(new DiscordMessageBuilder()
+                        .WithContent($"{du.Mention} is now monke.")
+                        .WithFile("haha_funny_monke.jpg", await Methods.ImageMagick.DiscordUserHandler
+                            (du, null, ImageTypes.Monke)));
 
                 if (du.IsBot && du.IsCurrent)
                 {

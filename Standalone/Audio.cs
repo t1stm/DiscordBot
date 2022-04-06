@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-using BatToshoRESTApp.Audio.Objects;
 using BatToshoRESTApp.Audio.Platforms;
 using BatToshoRESTApp.Audio.Platforms.Discord;
 using BatToshoRESTApp.Audio.Platforms.Youtube;
@@ -20,7 +19,8 @@ namespace BatToshoRESTApp.Standalone
 {
     public class Audio : Controller
     {
-        public async Task<FileStreamResult> DownloadTrack(string id, bool getRaw = true, int bitrate = 96, bool useOpus = true)
+        public async Task<FileStreamResult> DownloadTrack(string id, bool getRaw = true, int bitrate = 96,
+            bool useOpus = true)
         {
             await Debug.WriteAsync("Using Audio Controller");
             FfMpeg2 ff = new();
@@ -36,7 +36,7 @@ namespace BatToshoRESTApp.Standalone
             file = res[0].GetLocation();
             return File((!getRaw || !useOpus) switch
             {
-                true => ff.Convert(file, "-f ogg", useOpus ? "-c:a libopus" : "-c:a libvorbis",  $"-b:a {bitrate}k"),
+                true => ff.Convert(file, "-f ogg", useOpus ? "-c:a libopus" : "-c:a libvorbis", $"-b:a {bitrate}k"),
                 false => ff.Convert(file)
             }, "audio/ogg", "audio.ogg", true);
         }
@@ -59,6 +59,7 @@ namespace BatToshoRESTApp.Standalone
                 }).ToList();
                 return Json(items);
             }
+
             if (term.Contains("https://open.spotify.com/playlist"))
             {
                 var sp = await Playlist.Get(term.Split("/playlist/").Last().Split("?si")
@@ -143,6 +144,7 @@ namespace BatToshoRESTApp.Standalone
                     })
                     .ToList();
             }
+
             return Json(items.ToList());
         }
 

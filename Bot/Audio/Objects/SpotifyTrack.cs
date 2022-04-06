@@ -1,78 +1,33 @@
 using System.Threading.Tasks;
-using DSharpPlus.Entities;
+using BatToshoRESTApp.Abstract;
 
 namespace BatToshoRESTApp.Audio.Objects
 {
-    public class SpotifyTrack : IPlayableItem
+    public class SpotifyTrack : PlayableItem
     {
-        public string Title { get; init; }
-        public string Author { get; init; }
         public string TrackId { get; init; }
-        public ulong Length { get; init; }
         public string Album { get; init; }
 
-        public bool Explicit { get; init; } = false;
+        public bool Explicit { get; init; }
 
-        private DiscordMember Requester { get; set; }
-
-        public string GetTitle()
-        {
-            return Title;
-        }
-
-        public string GetAuthor()
-        {
-            return Author;
-        }
-
-        public string GetThumbnailUrl()
-        {
-            return null;
-        }
-
-        public bool GetIfErrored()
-        {
-            return false;
-        }
-
-        public string GetName()
-        {
-            return $"{Title}{string.IsNullOrEmpty(Author) switch {false => $" - {Author}", true => ""}}";
-        }
-
-        public ulong GetLength()
-        {
-            return Length;
-        }
-
-        public string GetLocation()
-        {
-            return null;
-        }
-
-        public Task Download()
+        public override Task Download()
         {
             return Task.CompletedTask;
         }
 
-        public void SetRequester(DiscordMember user)
-        {
-            Requester = user;
-        }
-
-        public DiscordMember GetRequester()
-        {
-            return Requester;
-        }
-
-        public string GetId()
+        public override string GetId()
         {
             return "";
         }
 
-        public string GetTypeOf()
+        public override string GetTypeOf()
         {
             return "Spotify Track";
+        }
+
+        public override string GetThumbnailUrl()
+        {
+            return "";
         }
     }
 }

@@ -1,6 +1,5 @@
 using System.Diagnostics;
 using System.IO;
-using System.Threading.Tasks;
 
 namespace BatToshoRESTApp.Standalone
 {
@@ -8,7 +7,8 @@ namespace BatToshoRESTApp.Standalone
     {
         private Process FfMpegProcess { get; set; }
 
-        public Stream Convert(string path, string format = "-f ogg", string codec = "-c:a copy", string addParameters = " ")
+        public Stream Convert(string path, string format = "-f ogg", string codec = "-c:a copy",
+            string addParameters = " ")
         {
             var ffmpegStartInfo = new ProcessStartInfo
             {

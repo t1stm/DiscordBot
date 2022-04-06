@@ -1,17 +1,17 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using BatToshoRESTApp.Audio.Objects;
+using BatToshoRESTApp.Abstract;
 
 namespace BatToshoRESTApp.Audio.Platforms.Local
 {
     public static class Files
     {
-        public static List<IPlayableItem> Get(string path)
+        public static List<PlayableItem> Get(string path)
         {
-            var list = new List<IPlayableItem>();
+            var list = new List<PlayableItem>();
             if (!Directory.Exists(path))
-                return new List<IPlayableItem>
+                return new List<PlayableItem>
                 {
                     File.GetInfo(path)
                 };

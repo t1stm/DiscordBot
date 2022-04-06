@@ -3,8 +3,8 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using BatToshoRESTApp.Abstract;
 using BatToshoRESTApp.Readers;
-using DSharpPlus.Entities;
 using YouTubeApiSharp;
 using YoutubeExplode;
 using YoutubeExplode.Videos.Streams;
@@ -12,59 +12,37 @@ using Debug = BatToshoRESTApp.Methods.Debug;
 
 namespace BatToshoRESTApp.Audio.Objects
 {
-    public class YoutubeVideoInformation : IPlayableItem
+    public class YoutubeVideoInformation : PlayableItem
     {
         private const string DownloadDirectory = $"{Bot.WorkingDirectory}/dll/audio";
         private bool Downloading { get; set; }
-        private bool Errored { get; set; }
         private bool IsLiveStream { get; set; }
         public string SearchTerm { get; init; }
-        public bool IsId { get; init; }
         public string YoutubeId { get; set; }
         public SpotifyTrack OriginTrack { get; set; }
-        private string Location { get; set; }
-        public string Title { get; init; }
-        public string Author { get; init; }
         public string ThumbnailUrl { get; init; }
         private int TriesToDownload { get; set; }
-        public ulong Length { get; init; }
-        public DiscordMember Requester { get; set; }
 
-        public bool GetIfErrored()
-        {
-            return Errored;
-        }
-
-        public string GetTitle()
-        {
-            return Title;
-        }
-
-        public string GetAuthor()
-        {
-            return Author;
-        }
-
-        public string GetThumbnailUrl()
+        public override string GetThumbnailUrl()
         {
             return ThumbnailUrl;
         }
 
-        public bool GetIfLiveStream() => IsLiveStream;
+        public bool GetIfLiveStream()
+        {
+            return IsLiveStream;
+        }
 
-        public string GetLocation()
+        public new string GetLocation()
         {
             if (!IsLiveStream) return Location;
-            var updateTask = Task.Run(async () =>
-            {
-                await DownloadYtDlp(YoutubeId, true);
-            });
+            var updateTask = Task.Run(async () => { await DownloadYtDlp(YoutubeId, true); });
             updateTask.Wait();
             return Location;
         }
 
         //This is a bad way to implement this feature, but I cannot currently implement it in a better way... Well, too bad!
-        public async Task Download()
+        public override async Task Download()
         {
             TriesToDownload++;
             Errored = TriesToDownload > 3;
@@ -97,6 +75,7 @@ namespace BatToshoRESTApp.Audio.Objects
                             }
                         }
                     }
+
                     Downloading = false;
                 }
                 catch (Exception e)
@@ -105,32 +84,12 @@ namespace BatToshoRESTApp.Audio.Objects
                 }
         }
 
-        public string GetName()
-        {
-            return $"{Title}{string.IsNullOrEmpty(Author) switch {false => $" - {Author}", true => ""}}";
-        }
-
-        public ulong GetLength()
-        {
-            return Length;
-        }
-
-        public void SetRequester(DiscordMember member)
-        {
-            Requester = member;
-        }
-
-        public DiscordMember GetRequester()
-        {
-            return Requester;
-        }
-
-        public string GetId()
+        public override string GetId()
         {
             return YoutubeId;
         }
 
-        public string GetTypeOf()
+        public override string GetTypeOf()
         {
             return IsLiveStream ? "Youtube Live Stream" : "Youtube Video";
         }
@@ -155,7 +114,8 @@ namespace BatToshoRESTApp.Audio.Objects
             {
                 RedirectStandardOutput = true,
                 RedirectStandardError = true,
-                Arguments = $"-g {live switch {true => "", false => "-f bestaudio "}}--cookies \"{HttpClient.CookieDestination}\" {id}",
+                Arguments =
+                    $"-g {live switch {true => "", false => "-f bestaudio "}}--cookies \"{HttpClient.CookieDestination}\" {id}",
                 FileName = "yt-dlp"
             };
             var pr = Process.Start(sett);
@@ -169,11 +129,13 @@ namespace BatToshoRESTApp.Audio.Objects
                 Location = url;
                 return;
             }
+
             if (!string.IsNullOrEmpty(err) && err.Contains("Requested format is not available"))
             {
                 await DownloadYtDlp(id, true);
                 return;
             }
+
             if (url == null) throw new NullReferenceException();
             var dll = new Task(async () =>
             {

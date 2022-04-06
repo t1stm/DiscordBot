@@ -2,17 +2,17 @@ using System;
 using System.Diagnostics;
 using System.IO;
 using System.Threading.Tasks;
+using BatToshoRESTApp.Readers;
 using Debug = BatToshoRESTApp.Methods.Debug;
 
 namespace BatToshoRESTApp.Audio.Objects
 {
     public class FfMpeg
     {
-        private Process FfMpegProcess { get; set; }
-
         private bool _finishedDownloading = true;
 
-        private int Random = new Random().Next(0, int.MaxValue / 32);
+        private readonly int Random = new Random().Next(0, int.MaxValue / 32);
+        private Process FfMpegProcess { get; set; }
 
         public Stream PathToPcm(string videoPath, string startingTime = "00:00:00.000", bool normalize = false)
         {
@@ -59,23 +59,15 @@ namespace BatToshoRESTApp.Audio.Objects
                 try
                 {
                     var ms = new MemoryStream();
-                    var downloadAsync = new Task(async () =>
-                    {
-                        await CreateDownloadAsync(new Uri(url), ms);
-                    });
+                    var downloadAsync = new Task(async () => { await CreateDownloadAsync(new Uri(url), ms); });
                     downloadAsync.Start();
                     var copyTask = new Task(async () =>
                     {
-                        while (ms.Length < 20)
-                        {
-                            await Task.Delay(3);
-                        }
+                        while (ms.Length < 20) await Task.Delay(3);
                         for (var i = 0; i < ms.Length; i++)
                         {
                             while (i == ms.Length - 1 && !_finishedDownloading)
-                            {
                                 await Task.Delay(3); // These are the spaghetti code fixes I adore.
-                            }
                             var by = ms.GetBuffer()[i]; // I am starting to think that this method is quite slow.
                             try
                             {
@@ -88,6 +80,7 @@ namespace BatToshoRESTApp.Audio.Objects
                                 break;
                             }
                         }
+
                         try
                         {
                             FfMpegProcess.StandardInput.Close();
@@ -115,7 +108,7 @@ namespace BatToshoRESTApp.Audio.Objects
             {
                 await Debug.WriteAsync($"Caching of \'{Random}\' starting.");
                 _finishedDownloading = false;
-                await Readers.HttpClient.ChunkedDownloaderToStream(Readers.HttpClient.WithCookies(), uri, streams);
+                await HttpClient.ChunkedDownloaderToStream(HttpClient.WithCookies(), uri, streams);
                 _finishedDownloading = true;
                 await Debug.WriteAsync($"Caching of \'{Random}\' completed.");
             }

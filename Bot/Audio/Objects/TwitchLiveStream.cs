@@ -1,33 +1,35 @@
 using System;
 using System.Diagnostics;
 using System.Threading.Tasks;
-using DSharpPlus.Entities;
+using BatToshoRESTApp.Abstract;
 using Debug = BatToshoRESTApp.Methods.Debug;
 
 namespace BatToshoRESTApp.Audio.Objects
 {
-    public class TwitchLiveStream : IPlayableItem
+    public class TwitchLiveStream : PlayableItem
     {
-        private string Title { get; set; } = "";
+        private new string Title { get; set; } = "";
 
         private string Description { get; set; } = "";
-        private string Location { get; set; }
-        
+        private new string Location { get; set; }
+
         private bool Running { get; set; }
-        
+
         public string Url { get; set; }
 
-        private bool Errored { get; set; }
+        private new bool Errored { get; set; }
 
-        private DiscordMember Requester { get; set; }
-        public string GetName() => Title == "" ? Url : Title;
+        public new string GetName()
+        {
+            return Title == "" ? Url : Title;
+        }
 
-        public ulong GetLength()
+        public new ulong GetLength()
         {
             return 0;
         }
 
-        public string GetLocation()
+        public new string GetLocation()
         {
             if (!string.IsNullOrEmpty(Location)) return Location;
             var task = new Task(async () => await Download());
@@ -36,16 +38,13 @@ namespace BatToshoRESTApp.Audio.Objects
             return Location;
         }
 
-        public async Task Download()
+        public override async Task Download()
         {
             try
             {
                 if (Running)
                 {
-                    while (Running)
-                    {
-                        await Task.Delay(166);
-                    }
+                    while (Running) await Task.Delay(166);
                     return;
                 }
 
@@ -64,6 +63,7 @@ namespace BatToshoRESTApp.Audio.Objects
                     Errored = true;
                     return;
                 }
+
                 await pr.WaitForExitAsync();
                 await Debug.WriteAsync($"Url: \"{Url}\"");
                 var text = await pr.StandardOutput.ReadToEndAsync();
@@ -71,7 +71,7 @@ namespace BatToshoRESTApp.Audio.Objects
                 Description = spl[0];
                 Location = spl[1];
                 Title = spl[2];
-                
+
                 Running = false;
             }
             catch (Exception e)
@@ -81,26 +81,19 @@ namespace BatToshoRESTApp.Audio.Objects
             }
         }
 
-        public void SetRequester(DiscordMember user)
+        public override string GetId()
         {
-            Requester = user;
+            return "";
         }
 
-        public DiscordMember GetRequester() => Requester;
-
-        public string GetId() => "";
-
-        public string GetTypeOf()
+        public override string GetTypeOf()
         {
             return "Twitch Content";
         }
 
-        public bool GetIfErrored() => Errored;
-
-        public string GetTitle() => Title;
-
-        public string GetAuthor() => Description;
-
-        public string GetThumbnailUrl() => null;
+        public override string GetThumbnailUrl()
+        {
+            return null;
+        }
     }
 }

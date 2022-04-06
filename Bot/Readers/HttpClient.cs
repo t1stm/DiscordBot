@@ -23,14 +23,16 @@ namespace BatToshoRESTApp.Readers
             container.Add(collection);
             var handler = new HttpClientHandler {UseCookies = true, CookieContainer = container};
             var client = new System.Net.Http.HttpClient(handler);
-            client.DefaultRequestHeaders.UserAgent.ParseAdd("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/71.0.3554.0 Safari/537.36");
+            client.DefaultRequestHeaders.UserAgent.ParseAdd(
+                "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/71.0.3554.0 Safari/537.36");
             return client;
         }
 
-        public static async Task<string> DownloadFile(string url, string location, bool withCookies = true, bool chunked = true)
+        public static async Task<string> DownloadFile(string url, string location, bool withCookies = true,
+            bool chunked = true)
         {
             var client = withCookies ? WithCookies() : new System.Net.Http.HttpClient();
-            var response = new MemoryStream(); 
+            var response = new MemoryStream();
             switch (chunked)
             {
                 case false:
@@ -49,6 +51,7 @@ namespace BatToshoRESTApp.Readers
             await response.CopyToAsync(fs);
             return location;
         }
+
         public static async Task<MemoryStream> DownloadStream(string url, bool withCookies = true)
         {
             var client = withCookies ? WithCookies() : new System.Net.Http.HttpClient();
@@ -116,7 +119,8 @@ namespace BatToshoRESTApp.Readers
             return source;
         }
 
-        private static async Task<long?> GetContentLengthAsync(System.Net.Http.HttpClient httpClient, string requestUri, bool ensureSuccess = true)
+        private static async Task<long?> GetContentLengthAsync(System.Net.Http.HttpClient httpClient, string requestUri,
+            bool ensureSuccess = true)
         {
             using var request = new HttpRequestMessage(HttpMethod.Head, requestUri);
             var response = await httpClient.SendAsync(request, HttpCompletionOption.ResponseHeadersRead);
@@ -124,8 +128,9 @@ namespace BatToshoRESTApp.Readers
                 response.EnsureSuccessStatusCode();
             return response.Content.Headers.ContentLength;
         }
-        
-        public static async Task ChunkedDownloaderToStream(System.Net.Http.HttpClient httpClient, Uri uri, params Stream[] streams)
+
+        public static async Task ChunkedDownloaderToStream(System.Net.Http.HttpClient httpClient, Uri uri,
+            params Stream[] streams)
         {
             var fileSize = await GetContentLengthAsync(httpClient, uri.AbsoluteUri) ?? 0;
             const long chunkSize = 10_485_760;
@@ -148,10 +153,7 @@ namespace BatToshoRESTApp.Readers
                 do
                 {
                     bytesCopied = await stream.ReadAsync(buffer.AsMemory(0, buffer.Length));
-                    foreach (var output in streams)
-                    {
-                        await output.WriteAsync(buffer.AsMemory(0, bytesCopied));
-                    }
+                    foreach (var output in streams) await output.WriteAsync(buffer.AsMemory(0, bytesCopied));
                 } while (bytesCopied > 0);
             }
         }

@@ -365,3 +365,6 @@
 /home/kris/RiderProjects/BatTosho2/bin/Debug/net6.0/QRCoder.dll
 /home/kris/RiderProjects/BatTosho2/bin/Debug/net6.0/zxing.dll
 /home/kris/RiderProjects/BatTosho2/bin/Debug/net6.0/ZXing.CoreCompat.System.Drawing.v2.dll
+/home/kris/RiderProjects/BatTosho2/bin/Debug/net6.0/deniszykov.WebSocketListener.dll
+/home/kris/RiderProjects/BatTosho2/bin/Debug/net6.0/runtimes/linux-arm64/native/Magick.Native-Q16-arm64.dll.so
+/home/kris/RiderProjects/BatTosho2/bin/Debug/net6.0/DSharpPlus.Lavalink.dll

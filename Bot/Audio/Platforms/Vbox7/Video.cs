@@ -1,5 +1,6 @@
 using System;
 using System.Threading.Tasks;
+using BatToshoRESTApp.Abstract;
 using BatToshoRESTApp.Audio.Objects;
 using BatToshoRESTApp.Methods;
 using BatToshoRESTApp.Readers;
@@ -9,8 +10,9 @@ namespace BatToshoRESTApp.Audio.Platforms.Vbox7
 {
     public class Video
     {
-        [Obsolete("This method of getting the Vbox7 video information is slow and very brain damaged. Please use the other methods.")]
-        public async Task<IPlayableItem> Search(string searchTerm)
+        [Obsolete(
+            "This method of getting the Vbox7 video information is slow and very brain damaged. Please use the other methods.")]
+        public async Task<PlayableItem> Search(string searchTerm)
         {
             try
             {
@@ -32,9 +34,10 @@ namespace BatToshoRESTApp.Audio.Platforms.Vbox7
                 return null;
             }
         }
-        
-        [Obsolete("This method of getting the Vbox7 video information is slow and very brain damaged. Please use the other methods.")]
-        public async Task<IPlayableItem> GetVideoByUri(string reqUri)
+
+        [Obsolete(
+            "This method of getting the Vbox7 video information is slow and very brain damaged. Please use the other methods.")]
+        public async Task<PlayableItem> GetVideoByUri(string reqUri)
         {
             var response = await HttpClient.GetSourceCodeAfterLoadingPage($"https://vbox7.com{reqUri}");
             Vbox7Video item = new();
