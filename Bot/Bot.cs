@@ -62,19 +62,19 @@ namespace BatToshoRESTApp
                 case RunType.Release:
                     Clients.Add(MakeClient(BotRelease, new[] {"=", "-"}, useSlashCommands: true,
                         useDefaultHelpCommand: false));
-                    Clients.Add(MakeClient(BotBeta, null));
-                    Clients.Add(MakeClient(SecondaryBot, null));
-                    Clients.Add(MakeClient("OTA2MDc2NTM2Nzk5NjI1MjU3.YYTXiA.8GU3WJRqU_kWW7lhQ_upcH_mfGI", null));
-                    Clients.Add(MakeClient("OTA2MDc2ODA2Njg2MzMwOTQw.YYTXyA.uFzpZH2q3-XPIv5fXoqhMDEFD5g", null));
-                    Clients.Add(MakeClient("OTA2MDc3MjAxMzg3MTEwNDEy.YYTYJg.DDYabJ6mCuI9pjidgkTFPAMVtWg", null));
+                    Clients.Add(MakeClient(BotBeta, Array.Empty<string>()));
+                    Clients.Add(MakeClient(SecondaryBot, Array.Empty<string>()));
+                    Clients.Add(MakeClient("OTA2MDc2NTM2Nzk5NjI1MjU3.YYTXiA.8GU3WJRqU_kWW7lhQ_upcH_mfGI", Array.Empty<string>()));
+                    Clients.Add(MakeClient("OTA2MDc2ODA2Njg2MzMwOTQw.YYTXyA.uFzpZH2q3-XPIv5fXoqhMDEFD5g", Array.Empty<string>()));
+                    Clients.Add(MakeClient("OTA2MDc3MjAxMzg3MTEwNDEy.YYTYJg.DDYabJ6mCuI9pjidgkTFPAMVtWg", Array.Empty<string>()));
                     await Debug.WriteAsync($"Bat Tosho E Veche Velik! RunType = {token}, Token is: \"{BotRelease}\"");
                     break;
                 case RunType.Beta:
                     Clients.Add(MakeClient(BotBeta, new[] {";"}, useSlashCommands: false));
-                    Clients.Add(MakeClient(SecondaryBot, null));
-                    Clients.Add(MakeClient("OTA2MDc2NTM2Nzk5NjI1MjU3.YYTXiA.8GU3WJRqU_kWW7lhQ_upcH_mfGI", null));
-                    Clients.Add(MakeClient("OTA2MDc2ODA2Njg2MzMwOTQw.YYTXyA.uFzpZH2q3-XPIv5fXoqhMDEFD5g", null));
-                    Clients.Add(MakeClient("OTA2MDc3MjAxMzg3MTEwNDEy.YYTYJg.DDYabJ6mCuI9pjidgkTFPAMVtWg", null));
+                    Clients.Add(MakeClient(SecondaryBot, Array.Empty<string>()));
+                    Clients.Add(MakeClient("OTA2MDc2NTM2Nzk5NjI1MjU3.YYTXiA.8GU3WJRqU_kWW7lhQ_upcH_mfGI", Array.Empty<string>()));
+                    Clients.Add(MakeClient("OTA2MDc2ODA2Njg2MzMwOTQw.YYTXyA.uFzpZH2q3-XPIv5fXoqhMDEFD5g", Array.Empty<string>()));
+                    Clients.Add(MakeClient("OTA2MDc3MjAxMzg3MTEwNDEy.YYTYJg.DDYabJ6mCuI9pjidgkTFPAMVtWg", Array.Empty<string>()));
                     await Debug.WriteAsync($"Bat Tosho E Veche Velik! RunType = {token}, Token is: \"{BotBeta}\"");
                     break;
                 default:

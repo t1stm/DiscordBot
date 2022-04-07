@@ -61,31 +61,31 @@
             },
             "DSharpPlus": {
               "target": "Package",
-              "version": "[4.2.0-nightly-01091, )"
+              "version": "[4.2.0-nightly-01107, )"
             },
             "DSharpPlus.CommandsNext": {
               "target": "Package",
-              "version": "[4.2.0-nightly-01091, )"
+              "version": "[4.2.0-nightly-01107, )"
             },
             "DSharpPlus.Interactivity": {
               "target": "Package",
-              "version": "[4.2.0-nightly-01091, )"
+              "version": "[4.2.0-nightly-01107, )"
             },
             "DSharpPlus.Lavalink": {
               "target": "Package",
-              "version": "[4.2.0-nightly-01091, )"
+              "version": "[4.2.0-nightly-01107, )"
             },
             "DSharpPlus.Rest": {
               "target": "Package",
-              "version": "[4.2.0-nightly-01091, )"
+              "version": "[4.2.0-nightly-01107, )"
             },
             "DSharpPlus.SlashCommands": {
               "target": "Package",
-              "version": "[4.2.0-nightly-01091, )"
+              "version": "[4.2.0-nightly-01107, )"
             },
             "DSharpPlus.VoiceNext": {
               "target": "Package",
-              "version": "[4.2.0-nightly-01091, )"
+              "version": "[4.2.0-nightly-01107, )"
             },
             "EmbedIO": {
               "target": "Package",

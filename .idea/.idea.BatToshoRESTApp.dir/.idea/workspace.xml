@@ -7,90 +7,27 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="7a9b8107-2bcf-4377-b48b-ea9c3518aaf9" name="Default Changelist" comment="Added new WebSocketServer poggers!!!">
-      <change afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Abstract/PlayableItem.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Bot/Audio/WebSocketManager.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Bot/WebSocketServer.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Methods/Event.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net6.0/DSharpPlus.Lavalink.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net6.0/deniszykov.WebSocketListener.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bin/Debug/net6.0/runtimes/linux-arm64/native/Magick.Native-Q16-arm64.dll.so" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bugs.md" afterDir="false" />
+    <list default="true" id="7a9b8107-2bcf-4377-b48b-ea9c3518aaf9" name="Default Changelist" comment="Rework of the Abstract objects.">
       <change beforePath="$PROJECT_DIR$/.idea/.idea.BatToshoRESTApp.dir/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.BatToshoRESTApp.dir/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/BatToshoRESTApp.csproj" beforeDir="false" afterPath="$PROJECT_DIR$/BatToshoRESTApp.csproj" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Bot/Audio/Manager.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Bot/Audio/Manager.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Bot/Audio/Objects/FfMpeg.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Bot/Audio/Objects/FfMpeg.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Bot/Audio/Objects/OnlineFile.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Bot/Audio/Objects/OnlineFile.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Bot/Audio/Objects/Queue.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Bot/Audio/Objects/Queue.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Bot/Audio/Objects/SpotifyTrack.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Bot/Audio/Objects/SpotifyTrack.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Bot/Audio/Objects/SystemFile.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Bot/Audio/Objects/SystemFile.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Bot/Audio/Objects/TwitchLiveStream.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Bot/Audio/Objects/TwitchLiveStream.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Bot/Audio/Objects/Vbox7Video.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Bot/Audio/Objects/Vbox7Video.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Bot/Audio/Objects/YoutubeVideoInformation.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Bot/Audio/Objects/YoutubeVideoInformation.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Bot/Audio/Platforms/Discord/Attachments.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Bot/Audio/Platforms/Discord/Attachments.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Bot/Audio/Platforms/Discord/SharePlaylist.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Bot/Audio/Platforms/Discord/SharePlaylist.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Bot/Audio/Platforms/Local/Files.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Bot/Audio/Platforms/Local/Files.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Bot/Audio/Platforms/Search.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Bot/Audio/Platforms/Search.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Bot/Audio/Platforms/Spotify/Playlist.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Bot/Audio/Platforms/Spotify/Playlist.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Bot/Audio/Platforms/Vbox7/SearchClient.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Bot/Audio/Platforms/Vbox7/SearchClient.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Bot/Audio/Platforms/Vbox7/Video.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Bot/Audio/Platforms/Vbox7/Video.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Bot/Audio/Platforms/Youtube/Video.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Bot/Audio/Platforms/Youtube/Video.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Bot/Audio/Player.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Bot/Audio/Player.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Bot/Audio/WebSocketManager.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Bot/Audio/WebSocketManager.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Bot/Bot.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Bot/Bot.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Bot/Commands.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Bot/Commands.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Bot/CommandsSlash.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Bot/CommandsSlash.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Bot/CommandsSpecific.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Bot/CommandsSpecific.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Bot/Messages/Statusbar.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Bot/Messages/Statusbar.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Bot/Miscellaneous/HelpMessages.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Bot/Miscellaneous/HelpMessages.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Bot/Miscellaneous/Vrutkane.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Bot/Miscellaneous/Vrutkane.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Bot/Readers/HttpClient.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Bot/Readers/HttpClient.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Bot/Readers/JSON/JsonWriteQueue.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Bot/Readers/JSON/JsonWriteQueue.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Bot/Readers/JSON/SearchJsonReader.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Bot/Readers/JSON/SearchJsonReader.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Bot/Readers/MariaDB/ExistingVideoInfoGetter.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Bot/Readers/MariaDB/ExistingVideoInfoGetter.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Bot/Tools/Emojis.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Bot/Tools/Emojis.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Controllers/BatTosho.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Controllers/BatTosho.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Controllers/Chat.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Controllers/Objects/WebSock.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Interfaces/IBaseJson.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Abstract/IBaseJson.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Interfaces/IBaseMariaDatabase.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Abstract/IBaseMariaDatabase.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Interfaces/IBaseStatusbar.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Abstract/IBaseStatusbar.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Interfaces/IPlayableItem.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Methods/Debug.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Methods/Debug.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Methods/ImageMagick.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Methods/ImageMagick.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Program.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Program.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Standalone/Audio.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Standalone/Audio.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Standalone/FfMpeg2.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Standalone/FfMpeg2.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Startup.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Startup.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/bin/Debug/net6.0/Azure.Core.dll" beforeDir="false" afterPath="$PROJECT_DIR$/bin/Debug/net6.0/Azure.Core.dll" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/bin/Debug/net6.0/BatToshoRESTApp.deps.json" beforeDir="false" afterPath="$PROJECT_DIR$/bin/Debug/net6.0/BatToshoRESTApp.deps.json" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/bin/Debug/net6.0/BatToshoRESTApp.dll" beforeDir="false" afterPath="$PROJECT_DIR$/bin/Debug/net6.0/BatToshoRESTApp.dll" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/bin/Debug/net6.0/BatToshoRESTApp.pdb" beforeDir="false" afterPath="$PROJECT_DIR$/bin/Debug/net6.0/BatToshoRESTApp.pdb" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/bin/Debug/net6.0/DSharpPlus.CommandsNext.dll" beforeDir="false" afterPath="$PROJECT_DIR$/bin/Debug/net6.0/DSharpPlus.CommandsNext.dll" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/bin/Debug/net6.0/DSharpPlus.Interactivity.dll" beforeDir="false" afterPath="$PROJECT_DIR$/bin/Debug/net6.0/DSharpPlus.Interactivity.dll" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bin/Debug/net6.0/DSharpPlus.Lavalink.dll" beforeDir="false" afterPath="$PROJECT_DIR$/bin/Debug/net6.0/DSharpPlus.Lavalink.dll" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/bin/Debug/net6.0/DSharpPlus.Rest.dll" beforeDir="false" afterPath="$PROJECT_DIR$/bin/Debug/net6.0/DSharpPlus.Rest.dll" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/bin/Debug/net6.0/DSharpPlus.SlashCommands.dll" beforeDir="false" afterPath="$PROJECT_DIR$/bin/Debug/net6.0/DSharpPlus.SlashCommands.dll" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/bin/Debug/net6.0/DSharpPlus.VoiceNext.dll" beforeDir="false" afterPath="$PROJECT_DIR$/bin/Debug/net6.0/DSharpPlus.VoiceNext.dll" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/bin/Debug/net6.0/DSharpPlus.dll" beforeDir="false" afterPath="$PROJECT_DIR$/bin/Debug/net6.0/DSharpPlus.dll" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/bin/Debug/net6.0/Google.Protobuf.dll" beforeDir="false" afterPath="$PROJECT_DIR$/bin/Debug/net6.0/Google.Protobuf.dll" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/bin/Debug/net6.0/Magick.NET-Q16-AnyCPU.dll" beforeDir="false" afterPath="$PROJECT_DIR$/bin/Debug/net6.0/Magick.NET-Q16-AnyCPU.dll" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/bin/Debug/net6.0/Magick.NET.Core.dll" beforeDir="false" afterPath="$PROJECT_DIR$/bin/Debug/net6.0/Magick.NET.Core.dll" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/bin/Debug/net6.0/YoutubeExplode.dll" beforeDir="false" afterPath="$PROJECT_DIR$/bin/Debug/net6.0/YoutubeExplode.dll" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/bin/Debug/net6.0/ref/BatToshoRESTApp.dll" beforeDir="false" afterPath="$PROJECT_DIR$/bin/Debug/net6.0/ref/BatToshoRESTApp.dll" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/bin/Debug/net6.0/runtimes/linux-musl-x64/native/Magick.Native-Q16-x64.dll.so" beforeDir="false" afterPath="$PROJECT_DIR$/bin/Debug/net6.0/runtimes/linux-musl-x64/native/Magick.Native-Q16-x64.dll.so" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/bin/Debug/net6.0/runtimes/linux-x64/native/Magick.Native-Q16-x64.dll.so" beforeDir="false" afterPath="$PROJECT_DIR$/bin/Debug/net6.0/runtimes/linux-x64/native/Magick.Native-Q16-x64.dll.so" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/bin/Debug/net6.0/runtimes/osx-x64/native/Magick.Native-Q16-x64.dll.dylib" beforeDir="false" afterPath="$PROJECT_DIR$/bin/Debug/net6.0/runtimes/osx-x64/native/Magick.Native-Q16-x64.dll.dylib" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/bin/Debug/net6.0/runtimes/win-arm64/native/Magick.Native-Q16-arm64.dll" beforeDir="false" afterPath="$PROJECT_DIR$/bin/Debug/net6.0/runtimes/win-arm64/native/Magick.Native-Q16-arm64.dll" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/bin/Debug/net6.0/runtimes/win-x64/native/Magick.Native-Q16-x64.dll" beforeDir="false" afterPath="$PROJECT_DIR$/bin/Debug/net6.0/runtimes/win-x64/native/Magick.Native-Q16-x64.dll" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/bin/Debug/net6.0/runtimes/win-x86/native/Magick.Native-Q16-x86.dll" beforeDir="false" afterPath="$PROJECT_DIR$/bin/Debug/net6.0/runtimes/win-x86/native/Magick.Native-Q16-x86.dll" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/obj/BatToshoRESTApp.csproj.nuget.dgspec.json" beforeDir="false" afterPath="$PROJECT_DIR$/obj/BatToshoRESTApp.csproj.nuget.dgspec.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/obj/BatToshoRESTApp.csproj.nuget.g.targets" beforeDir="false" afterPath="$PROJECT_DIR$/obj/BatToshoRESTApp.csproj.nuget.g.targets" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/obj/Debug/net5.0/BatToshoRESTApp.assets.cache" beforeDir="false" afterPath="$PROJECT_DIR$/obj/Debug/net5.0/BatToshoRESTApp.assets.cache" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/obj/Debug/net5.0/BatToshoRESTApp.csproj.AssemblyReference.cache" beforeDir="false" afterPath="$PROJECT_DIR$/obj/Debug/net5.0/BatToshoRESTApp.csproj.AssemblyReference.cache" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/obj/Debug/net6.0/BatToshoRESTApp.assets.cache" beforeDir="false" afterPath="$PROJECT_DIR$/obj/Debug/net6.0/BatToshoRESTApp.assets.cache" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/obj/Debug/net6.0/BatToshoRESTApp.csproj.AssemblyReference.cache" beforeDir="false" afterPath="$PROJECT_DIR$/obj/Debug/net6.0/BatToshoRESTApp.csproj.AssemblyReference.cache" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/obj/Debug/net6.0/BatToshoRESTApp.csproj.CoreCompileInputs.cache" beforeDir="false" afterPath="$PROJECT_DIR$/obj/Debug/net6.0/BatToshoRESTApp.csproj.CoreCompileInputs.cache" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/obj/Debug/net6.0/BatToshoRESTApp.csproj.FileListAbsolute.txt" beforeDir="false" afterPath="$PROJECT_DIR$/obj/Debug/net6.0/BatToshoRESTApp.csproj.FileListAbsolute.txt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/obj/Debug/net6.0/BatToshoRESTApp.dll" beforeDir="false" afterPath="$PROJECT_DIR$/obj/Debug/net6.0/BatToshoRESTApp.dll" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/obj/Debug/net6.0/BatToshoRESTApp.pdb" beforeDir="false" afterPath="$PROJECT_DIR$/obj/Debug/net6.0/BatToshoRESTApp.pdb" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/obj/Debug/net6.0/ref/BatToshoRESTApp.dll" beforeDir="false" afterPath="$PROJECT_DIR$/obj/Debug/net6.0/ref/BatToshoRESTApp.dll" afterDir="false" />
@@ -238,8 +175,6 @@
       <option value="$PROJECT_DIR$/Abstract/PlayableItem.cs" />
       <option value="$PROJECT_DIR$/Bot/Miscellaneous/HelpMessages.cs" />
       <option value="$PROJECT_DIR$/Controllers/BatTosho.cs" />
-      <option value="$PROJECT_DIR$/Bot/Audio/Player.cs" />
-      <option value="$PROJECT_DIR$/Bot/Audio/WebSocketManager.cs" />
       <option value="$PROJECT_DIR$/Bot/WebSocketServer.cs" />
       <option value="$PROJECT_DIR$/Bot/Messages/Statusbar.cs" />
       <option value="$PROJECT_DIR$/Methods/Event.cs" />
@@ -247,9 +182,11 @@
       <option value="$PROJECT_DIR$/bugs.md" />
       <option value="$PROJECT_DIR$/Bot/Commands.cs" />
       <option value="$PROJECT_DIR$/Bot/Audio/Platforms/Youtube/Video.cs" />
-      <option value="$PROJECT_DIR$/Bot/Bot.cs" />
       <option value="$PROJECT_DIR$/Bot/Audio/Manager.cs" />
       <option value="$PROJECT_DIR$/Bot/CommandsSlash.cs" />
+      <option value="$PROJECT_DIR$/Bot/Bot.cs" />
+      <option value="$PROJECT_DIR$/Bot/Audio/WebSocketManager.cs" />
+      <option value="$PROJECT_DIR$/Bot/Audio/Player.cs" />
     </changedPaths>
   </component>
   <component name="ProjectId" id="1zHyNpOFsvMsmTOx0jxwruJidi4" />
@@ -621,7 +558,8 @@
       <workItem from="1649096308756" duration="1329000" />
       <workItem from="1649098047226" duration="1505000" />
       <workItem from="1649117636754" duration="599000" />
-      <workItem from="1649268977927" duration="724000" />
+      <workItem from="1649268977927" duration="1742000" />
+      <workItem from="1649290343457" duration="1454000" />
     </task>
     <task id="LOCAL-00001" summary="Bobur Vecher Momcheta I Momicheta">
       <created>1633820044215</created>
@@ -777,7 +715,14 @@
       <option name="project" value="LOCAL" />
       <updated>1648086312473</updated>
     </task>
-    <option name="localTasksCounter" value="23" />
+    <task id="LOCAL-00023" summary="Added new WebSocketServer poggers!!!">
+      <created>1649269721216</created>
+      <option name="number" value="00023" />
+      <option name="presentableId" value="LOCAL-00023" />
+      <option name="project" value="LOCAL" />
+      <updated>1649269721216</updated>
+    </task>
+    <option name="localTasksCounter" value="24" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -1162,7 +1107,7 @@
                   <entry key="branch">
                     <value>
                       <list>
-                        <option value="rock_solid" />
+                        <option value="master" />
                       </list>
                     </value>
                   </entry>
@@ -1201,7 +1146,7 @@
     <MESSAGE value="I honestly cannot remember the changes I've done. So I'll just write the most recent one.&#10;&#10;ahem.&#10;&#10;Fixed the SystemFile.cs class by moving the duration getter up.&#10;Also added some new methods in Queue.cs, fixed Spotify Playlist.cs to have a separate method for albums, added a message when the bot fails to get the item 5 times. Added a cancellation token to the PlayTrack method in Player.cs and also added some methods in it. Added search filters in Video.cs (i haven't tested the speed but i think the search might be 2x slower now). &#10;&#10;Late night coder, bad." />
     <MESSAGE value="Huge new update to the bot. Finally added Youtube Live Stream support, although a little slow to find the location (~1.5 seconds). Added custom help command and help command parser (don't ask how much time it took, please I beg you), and overall polished the code in some places." />
     <MESSAGE value="Fixing some stuff :D, see the other goodies below.&#10;&#10;Added some more spyware - I am kidding, it's only insignificant information, to know if it's safe to restart the bot.&#10;&#10;Changes to CommandsSlash.cs: Fixed some old commands, because they were inefficient and added loop slash command with enum selection, and a move slash command&#10;&#10;Made the GetPlayer Method take a bool to make it generate a new instance. Fixes a bug when a command is used and the bot isn't in the channel, so the method makes a new instance of the Player.cs class even when it doesn't have to. Thank god I noticed this sooner because I have a feeling it would've been a pain in the arse to fix.&#10;&#10;In Player.cs I fixed a bug when Discord closes the audio output sink (for god knows what reason), to make it automatically reconnect when disconnected. Seeing how I mention some bugs, I should make a file containing all the bugs, this bot has had since this commit. This should be interesting.&#10;&#10;Reworked the Vbox7 (added: SearchClient.cs and Vbox7Object.cs) functionality, because I hate Chromium, and the search taking 2 seconds to complete, and at the same time costing ~600MB ram. The new implementation takes 50ms. :D&#10;&#10;Added Twitch Live Stream support (using YT-dlp | in the future I will shamelessly steal their code and port it to C# for maximum performance :D)&#10;&#10;Added a new nD Audio remover because I hate these videos, as you can see by the comments in Youtube/Video.cs" />
-    <MESSAGE value="Added new WebSocketServer poggers!!!" />
-    <option name="LAST_COMMIT_MESSAGE" value="Added new WebSocketServer poggers!!!" />
+    <MESSAGE value="Added new WebSocketServer poggers!!!&#10;Also reworked the Abstract objects." />
+    <option name="LAST_COMMIT_MESSAGE" value="Added new WebSocketServer poggers!!!&#10;Also reworked the Abstract objects." />
   </component>
 </project>

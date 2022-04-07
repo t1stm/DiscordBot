@@ -358,7 +358,11 @@ namespace BatToshoRESTApp.Audio
         public void Disconnect(string message = "Bye! \\(◕ ◡ ◕\\)")
         {
             _timer.Stop();
-            var task = new Task(async () => { await Statusbar.UpdateMessageAndStop(message); });
+            var task = new Task(async () =>
+            {
+                await Statusbar.UpdateMessageAndStop(message);
+                await WebSocketManager.SendDying();
+            });
             task.Start();
             Die = true;
             FfMpeg.KillSync();
@@ -378,6 +382,7 @@ namespace BatToshoRESTApp.Audio
             {
                 _timer.Stop();
                 await Statusbar.UpdateMessageAndStop(message);
+                await WebSocketManager.SendDying();
                 Die = true;
                 FfMpeg.KillSync();
                 CancelSource.Cancel();

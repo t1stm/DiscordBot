@@ -157,6 +157,11 @@ namespace BatToshoRESTApp.Audio
             }
         }
 
+        public async Task SendDying()
+        {
+            await Broadcast("Goodbye:");
+        }
+        
         public async Task BroadcastQueue()
         {
             try
