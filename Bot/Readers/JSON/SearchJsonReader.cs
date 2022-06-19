@@ -1,13 +1,16 @@
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
-using BatToshoRESTApp.Abstract;
-using BatToshoRESTApp.Methods;
+using DiscordBot.Abstract;
+using DiscordBot.Methods;
+using DiscordBot.Readers.Objects;
 
-namespace BatToshoRESTApp.Readers
+namespace DiscordBot.Readers.JSON
 {
+    [Obsolete(" This class is obseleted, by the new Database implementation. Reminder to myself, to not use it.")]
     public class SearchJsonReader : IBaseJson
     {
         public async Task<string> Read()

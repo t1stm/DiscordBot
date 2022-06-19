@@ -1,12 +1,12 @@
 using System;
 using System.Threading.Tasks;
-using BatToshoRESTApp.Abstract;
-using BatToshoRESTApp.Audio.Objects;
-using BatToshoRESTApp.Methods;
-using BatToshoRESTApp.Readers;
-using BatToshoRESTApp.Tools;
+using DiscordBot.Abstract;
+using DiscordBot.Audio.Objects;
+using DiscordBot.Methods;
+using DiscordBot.Readers;
+using DiscordBot.Tools;
 
-namespace BatToshoRESTApp.Audio.Platforms.Vbox7
+namespace DiscordBot.Audio.Platforms.Vbox7
 {
     public class Video
     {

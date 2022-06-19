@@ -1,10 +1,11 @@
 using System.Threading.Tasks;
-using BatToshoRESTApp.Abstract;
+using DiscordBot.Abstract;
 
-namespace BatToshoRESTApp.Audio.Objects
+namespace DiscordBot.Audio.Objects
 {
     public class Vbox7Video : PlayableItem
     {
+        public string Id { get; init; }
         public override Task Download()
         {
             return Task.CompletedTask;
@@ -15,6 +16,11 @@ namespace BatToshoRESTApp.Audio.Objects
             return null;
         }
 
+        protected override string GetAddUrl()
+        {
+            return $"https://www.vbox7.com/play:{Id}";
+        }
+
         public new bool GetIfErrored()
         {
             return false;
@@ -22,7 +28,7 @@ namespace BatToshoRESTApp.Audio.Objects
 
         public override string GetId()
         {
-            return null;
+            return Id;
         }
 
         public override string GetTypeOf()

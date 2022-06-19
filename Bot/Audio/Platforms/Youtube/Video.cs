@@ -3,40 +3,41 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using BatToshoRESTApp.Audio.Objects;
-using BatToshoRESTApp.Methods;
-using BatToshoRESTApp.Readers;
-using BatToshoRESTApp.Readers.MariaDB;
-using BatToshoRESTApp.Tools;
+using DiscordBot.Audio.Objects;
+using DiscordBot.Methods;
+using DiscordBot.Readers;
+using DiscordBot.Readers.MariaDB;
+using DiscordBot.Readers.Objects;
+using DiscordBot.Tools;
 using YoutubeExplode;
-using YoutubeSearchApi.Net;
-using YoutubeSearchApi.Net.Backends;
-using YoutubeSearchApi.Net.Objects;
+using YoutubeSearchApi.Net.Models.Youtube;
+using YoutubeSearchApi.Net.Services;
 
-namespace BatToshoRESTApp.Audio.Platforms.Youtube
+namespace DiscordBot.Audio.Platforms.Youtube
 {
-    public class Video
+    public static class Video
     {
-        public async Task<YoutubeVideoInformation> Search(string term, bool urgent = false,
+        public static async Task<YoutubeVideoInformation> Search(string term, bool urgent = false,
             ulong length = 0, SpotifyTrack track = null)
         {
             YoutubeVideoInformation info;
-            var jsonId = await GetIdFromJson(term);
-            if (jsonId != null && !string.IsNullOrEmpty(jsonId.SearchTerm) && !string.IsNullOrEmpty(jsonId.VideoId))
+            var cachedSearchResult = await GetIdFromCachedTerms(term);
+            if (cachedSearchResult != null && !string.IsNullOrEmpty(cachedSearchResult.SearchTerm) &&
+                !string.IsNullOrEmpty(cachedSearchResult.VideoId))
             {
-                info = await GetCachedVideoFromId(jsonId.VideoId);
+                info = await GetCachedVideoFromId(cachedSearchResult.VideoId);
                 if (info is not null) return info;
-                return await SearchById(jsonId.VideoId);
+                return await SearchById(cachedSearchResult.VideoId);
             }
 
-            var client = new DefaultSearchClient(new YoutubeSearchBackend());
-            var response = await client.SearchAsync(HttpClient.WithCookies(), term, 25);
+            var client = new YoutubeSearchClient(HttpClient.WithCookies());
+            var response = await client.SearchAsync(term);
             var res = response.Results.ToList();
             try
             {
                 RemoveTheFucking18dAudio(ref res,
                     term); // I hate these videos, they add nothing and in my opinion are not even worth existing on YouTube,
-                // but who am I to tell people what to upload and what not, so let's fucking purge the results from even existing.
+                // but who am I to tell people what to upload and what not. In fact let's purge these videos from even existing as a result on my bot (if not searched for).
             }
             catch (Exception e)
             {
@@ -45,20 +46,20 @@ namespace BatToshoRESTApp.Audio.Platforms.Youtube
 
             try
             {
-                RemoveAll(ref res, term, "remix", "karaoke", "instru", "clean", "bass boosted", "bass", "ear rape",
-                    "earrape", "ear", "rape",
-                    "cover", "кавър", "backstage", "live", "version");
+                RemoveAll(ref res, term, "remix", "karaoke", "instru", "clean", 
+                    "bass boosted", "bass", "earrape", "ear", "rape",
+                    "cover", "кавър", "backstage", "live", "version", "guitar", 
+                    "extend", "maxi", "piano", "avi", "vinyl", "mix",
+                    "bonus", "hour");
             }
             catch (Exception e)
             {
                 await Debug.WriteAsync($"Removing specified terms failed: {e}");
             }
+
             if (length != 0)
             {
-                res = res.OrderBy(r =>
-                        Math.Abs(StringToTimeSpan.Generate(((YoutubeVideo) r).Duration).TotalMilliseconds - length))
-                    .ToList();
-                if (track is { })
+                if (track is not null)
                 {
                     /*if (!term.ToLower().Contains("8d") && !term.ToLower().Contains("karaoke") &&
                         !term.ToLower().Contains("remix") && !term.ToLower().Contains("instru") && !term.ToLower().Contains("clean"))
@@ -66,13 +67,28 @@ namespace BatToshoRESTApp.Audio.Platforms.Youtube
                             r.Title.ToLower().Contains("8d") || r.Title.ToLower().Contains("karaoke") ||
                             r.Title.ToLower().Contains("remix") || r.Title.ToLower().Contains("instru") ||
                             r.Title.ToLower().Contains("clean")); */
-                    if (res.Any(r => r.Title.ToLower().Contains("official audio")))
-                        res = res.OrderBy(r => r.Title.ToLower().Contains("official audio")).ToList();
-                    res = res.OrderBy(r => LevenshteinDistance.Compute(r.Title, track.Title) < 3).ToList();
+                    res = res.OrderByDescending(r => r.Author.ToLower().Contains("topic"))
+                        .ThenByDescending(r =>
+                            LevenshteinDistance.Compute(r.Author.Replace("- Topic", "").Trim(),
+                                track.Author) < 3)
+                        .ThenByDescending(r => r.Title.ToLower().Contains("official audio"))
+                        .ThenByDescending(r =>
+                            Math.Abs(StringToTimeSpan.Generate(r.Duration).TotalMilliseconds - length) < 3)
+                        .ThenByDescending(r => LevenshteinDistance.Compute(r.Title, track.Title) < 3).ToList();
+                    foreach (var yt in res.Cast<YoutubeVideo>())
+                    {
+                        await Debug.WriteAsync($"Video Results: \"{yt.Title} - {yt.Author} - {yt.Duration}\"");
+                    }
+                }
+                else
+                {
+                    res = res.OrderBy(r =>
+                            Math.Abs(StringToTimeSpan.Generate(r.Duration).TotalMilliseconds - length))
+                        .ToList();
                 }
             }
 
-            var result = (YoutubeVideo) res.First();
+            var result = res.First();
             if (result == null) return null;
             await Debug.WriteAsync(
                 $"Result Milliseconds are: {StringToTimeSpan.Generate(result.Duration).TotalMilliseconds}");
@@ -90,8 +106,9 @@ namespace BatToshoRESTApp.Audio.Platforms.Youtube
                 try
                 {
                     //await new SearchJsonReader().AddVideo(term, result.Id);
-                    JsonWriteQueue.Add(term, result.Id);
-                    await new ExistingVideoInfoGetter().Add(info);
+                    //JsonWriteQueue.Add(term, result.Id);
+                    await SearchValues.Add(term, result.Id);
+                    await ExistingVideoInfoGetter.Add(info);
                 }
                 catch (Exception e)
                 {
@@ -104,14 +121,17 @@ namespace BatToshoRESTApp.Audio.Platforms.Youtube
             return info;
         }
 
-        private static void RemoveTheFucking18dAudio(ref List<IResponseResult> list, string searchTerm)
+        private static void RemoveTheFucking18dAudio(ref List<YoutubeVideo> list, string searchTerm)
         {
             lock (list)
             {
+                var count = list.Count;
                 searchTerm = searchTerm.ToLower();
                 if (Regex.IsMatch(searchTerm, @"(?<!\.)\d+d")) return;
-                var autisticVideo = list.Where(i => Regex.IsMatch(@"(?<!\.)\d+d", i.Title));
-                foreach (var autism in autisticVideo)
+                var autisticVideo = from i in list where Regex.IsMatch(i.Title, @"(?<!\.)\d+d") select i;
+                var autisticResults = autisticVideo as YoutubeVideo[] ?? autisticVideo.ToArray();
+                if (autisticResults.Length == count) return;
+                foreach (var autism in autisticResults)
                 {
                     list.Remove(autism);
                     Debug.Write($"Removing autistic result: {autism.Title}", false, Debug.DebugColor.Warning);
@@ -119,7 +139,7 @@ namespace BatToshoRESTApp.Audio.Platforms.Youtube
             }
         }
 
-        private static void RemoveAll(ref List<IResponseResult> list, string searchTerm, params string[] terms)
+        private static void RemoveAll(ref List<YoutubeVideo> list, string searchTerm, params string[] terms)
         {
             var li = list;
             lock (list)
@@ -127,7 +147,7 @@ namespace BatToshoRESTApp.Audio.Platforms.Youtube
                 foreach (var term in terms)
                 {
                     if (searchTerm.ToLower().Contains(term.ToLower())) continue;
-                    var source = searchTerm.Split(new[] {'.', '?', '!', ' ', ';', ':', ','},
+                    var source = searchTerm.Split(new[] {'.', '?', '!', ' ', ';', ':', ',', '(', ')'},
                         StringSplitOptions.RemoveEmptyEntries);
                     var times = from word in source
                         where string.Equals(word, term, StringComparison.CurrentCultureIgnoreCase)
@@ -145,25 +165,25 @@ namespace BatToshoRESTApp.Audio.Platforms.Youtube
             list = li;
         }
 
-        public async Task<List<YoutubeVideoInformation>> SearchAllResults(string term, bool urgent = false,
-            ulong length = 0)
+        public static async Task<List<YoutubeVideoInformation>> SearchAllResults(string term, ulong length = 0)
         {
-            var client = new DefaultSearchClient(new YoutubeSearchBackend());
-            var response = await client.SearchAsync(HttpClient.WithCookies(), term, 25);
+            var client = new YoutubeSearchClient(HttpClient.WithCookies());
+            var response = await client.SearchAsync(term);
             var res = response.Results.ToList();
             if (length != 0)
                 res = res.OrderBy(r =>
-                        Math.Abs(StringToTimeSpan.Generate(((YoutubeVideo) r).Duration).TotalMilliseconds - length))
+                        Math.Abs(StringToTimeSpan.Generate(r.Duration).TotalMilliseconds - length))
                     .ToList();
             return (from YoutubeVideo video in res
                 select new YoutubeVideoInformation
                 {
                     Title = video.Title, Author = video.Author,
-                    Length = (ulong) StringToTimeSpan.Generate(video.Duration).TotalMilliseconds, YoutubeId = video.Id
+                    Length = (ulong) StringToTimeSpan.Generate(video.Duration).TotalMilliseconds, YoutubeId = video.Id,
+                    ThumbnailUrl = video.ThumbnailUrl
                 }).ToList();
         }
 
-        public async Task<YoutubeVideoInformation> SearchById(string id, bool urgent = false)
+        public static async Task<YoutubeVideoInformation> SearchById(string id, bool urgent = false)
         {
             try
             {
@@ -175,7 +195,7 @@ namespace BatToshoRESTApp.Audio.Platforms.Youtube
                 var vid = new YoutubeVideoInformation
                 {
                     Title = video.Title,
-                    Author = video.Author.Title,
+                    Author = video.Author.ChannelTitle,
                     Length = (ulong) video.Duration?.TotalMilliseconds,
                     YoutubeId = id,
                     ThumbnailUrl = video.Thumbnails[0].Url
@@ -185,7 +205,7 @@ namespace BatToshoRESTApp.Audio.Platforms.Youtube
                 {
                     try
                     {
-                        await new ExistingVideoInfoGetter().Add(vid);
+                        await ExistingVideoInfoGetter.Add(vid);
                     }
                     catch (Exception e)
                     {
@@ -203,23 +223,24 @@ namespace BatToshoRESTApp.Audio.Platforms.Youtube
             }
         }
 
-        private static async Task<PreviousSearchResult> GetIdFromJson(string term)
+        private static async Task<PreviousSearchResult> GetIdFromCachedTerms(string term)
         {
-            return await new SearchJsonReader().GetVideo(term);
+            //return await new SearchJsonReader().GetVideo(term);
+            return await SearchValues.ReadSearchResult(term);
         }
 
         private static async Task<YoutubeVideoInformation> GetCachedVideoFromId(string id)
         {
-            return await new ExistingVideoInfoGetter().Read(id);
+            return await ExistingVideoInfoGetter.Read(id);
         }
 
-        public async Task<YoutubeVideoInformation> Search(SpotifyTrack track, bool urgent = false)
+        public static async Task<YoutubeVideoInformation> Search(SpotifyTrack track, bool urgent = false)
         {
-            await Debug.WriteAsync($"Track: {track.GetName()}, Length: {track.GetLength()}");
+            await Debug.WriteAsync($"Spotify Track: {track.GetName()}, Length: {track.GetLength()}");
             var result =
                 await Search(
                     $"{track.Title} - {track.Author} {track.Explicit switch {true => "Explicit Version ", false => ""}}- Topic",
-                    urgent, track.Length);
+                    urgent, track.Length, track);
             result.OriginTrack = track;
             result.Requester = track.GetRequester();
             if (urgent) await result.Download();

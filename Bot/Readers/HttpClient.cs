@@ -5,20 +5,20 @@ using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Threading.Tasks;
-using BatToshoRESTApp.Methods;
+using DiscordBot.Methods;
 using PuppeteerSharp;
 
-namespace BatToshoRESTApp.Readers
+namespace DiscordBot.Readers
 {
     public static class HttpClient
     {
-        public const string CookieDestination = $"{Bot.WorkingDirectory}/cookies.txt";
+        public static readonly string[] CookieDestinations = {$"{Bot.WorkingDirectory}/cookies.txt"};
 
         public static System.Net.Http.HttpClient WithCookies()
         {
             var container = new CookieContainer();
             var collection = new CookieCollection();
-            var cl = ParseFileAsCookies(CookieDestination);
+            var cl = ParseFileAsCookies(CookieDestinations.GetRandom());
             foreach (var cook in cl) collection.Add(cook);
             container.Add(collection);
             var handler = new HttpClientHandler {UseCookies = true, CookieContainer = container};
@@ -133,7 +133,7 @@ namespace BatToshoRESTApp.Readers
             params Stream[] streams)
         {
             var fileSize = await GetContentLengthAsync(httpClient, uri.AbsoluteUri) ?? 0;
-            const long chunkSize = 10_485_760;
+            const long chunkSize = 10485760;
             if (fileSize == 0) throw new Exception("File has no content");
             var segmentCount = (int) Math.Ceiling(1.0 * fileSize / chunkSize);
             for (var i = 0; i < segmentCount; i++)

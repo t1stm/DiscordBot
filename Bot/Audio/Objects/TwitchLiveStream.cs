@@ -1,10 +1,10 @@
 using System;
 using System.Diagnostics;
 using System.Threading.Tasks;
-using BatToshoRESTApp.Abstract;
-using Debug = BatToshoRESTApp.Methods.Debug;
+using DiscordBot.Abstract;
+using Debug = DiscordBot.Methods.Debug;
 
-namespace BatToshoRESTApp.Audio.Objects
+namespace DiscordBot.Audio.Objects
 {
     public class TwitchLiveStream : PlayableItem
     {
@@ -94,6 +94,11 @@ namespace BatToshoRESTApp.Audio.Objects
         public override string GetThumbnailUrl()
         {
             return null;
+        }
+
+        protected override string GetAddUrl()
+        {
+            return Url;
         }
     }
 }

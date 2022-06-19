@@ -1,14 +1,14 @@
 using System.Text.Encodings.Web;
 using Microsoft.AspNetCore.Mvc;
 
-namespace BatToshoRESTApp.Controllers
+namespace DiscordBot.Controllers
 {
     public class HelloWorld : Controller
     {
         // GET
-        public string Index()
+        public IActionResult Index()
         {
-            return HtmlEncoder.Default.Encode("Hello World!");
+            return Ok(HtmlEncoder.Default.Encode("Hello World!"));
         }
     }
 }

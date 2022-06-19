@@ -1,7 +1,7 @@
 using System.Threading.Tasks;
-using BatToshoRESTApp.Abstract;
+using DiscordBot.Abstract;
 
-namespace BatToshoRESTApp.Audio.Objects
+namespace DiscordBot.Audio.Objects
 {
     public class SpotifyTrack : PlayableItem
     {
@@ -28,6 +28,11 @@ namespace BatToshoRESTApp.Audio.Objects
         public override string GetThumbnailUrl()
         {
             return "";
+        }
+
+        protected override string GetAddUrl()
+        {
+            return $"https://open.spotify.com/track/{TrackId}";
         }
     }
 }

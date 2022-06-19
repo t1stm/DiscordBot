@@ -1,22 +1,19 @@
 using System;
 using System.Linq;
 using System.Threading.Tasks;
-using BatToshoRESTApp.Abstract;
-using BatToshoRESTApp.Audio.Objects;
-using BatToshoRESTApp.Methods;
+using DiscordBot.Audio.Objects;
+using DiscordBot.Methods;
 using MySql.Data.MySqlClient;
 
-namespace BatToshoRESTApp.Readers.MariaDB
+namespace DiscordBot.Readers.MariaDB
 {
-    public class ExistingVideoInfoGetter : IBaseMariaDatabase
+    public static class ExistingVideoInfoGetter
     {
-        private const string Database = "SERVER=localhost;DATABASE=data;UID=root;PASSWORD=123;SSL Mode=None;Port=3306;";
-
-        public async Task<YoutubeVideoInformation> Read(string id)
+        public static async Task<YoutubeVideoInformation> Read(string id)
         {
             try
             {
-                var connection = new MySqlConnection(Database);
+                var connection = new MySqlConnection(Bot.SqlConnectionQuery);
                 await connection.OpenAsync();
                 var cmd = new MySqlCommand(
                     $"SELECT * FROM videoinformation WHERE videoid = \"{id}\"", connection);
@@ -44,20 +41,20 @@ namespace BatToshoRESTApp.Readers.MariaDB
             return null;
         }
 
-        public async Task Add(YoutubeVideoInformation videoInfo)
+        public static async Task Add(YoutubeVideoInformation videoInfo)
         {
             try
             {
                 var read = await Read(videoInfo.YoutubeId);
                 if (read != null) return;
 
-                MySqlConnection connection = new(Database);
+                MySqlConnection connection = new(Bot.SqlConnectionQuery);
                 await connection.OpenAsync();
                 var cmd = new MySqlCommand(
                     "INSERT INTO videoinformation (videoid,title,author,length,thumbnail) " +
                     $"VALUES (\"{videoInfo.YoutubeId}\", " +
-                    $"\"{videoInfo.Title.Replace("\"", "\"\"")}\", " +
-                    $"\"{videoInfo.Author.Replace("\"", "\"\"")}\", " +
+                    $"\"{videoInfo.Title.Replace("\"", "\"\"").Replace("\\", "\\\\")}\", " +
+                    $"\"{videoInfo.Author.Replace("\"", "\"\"").Replace("\\", "\\\\")}\", " +
                     $"\"{videoInfo.Length}\"," +
                     $"\"{videoInfo.ThumbnailUrl.Split("?").First()}\")", connection);
                 cmd.ExecuteNonQuery();

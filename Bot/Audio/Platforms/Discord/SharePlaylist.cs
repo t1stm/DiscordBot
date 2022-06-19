@@ -4,13 +4,13 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using BatToshoRESTApp.Abstract;
-using BatToshoRESTApp.Audio.Objects;
-using BatToshoRESTApp.Methods;
-using BatToshoRESTApp.Readers;
+using DiscordBot.Abstract;
+using DiscordBot.Audio.Objects;
+using DiscordBot.Methods;
+using DiscordBot.Readers;
 using DSharpPlus.Entities;
 
-namespace BatToshoRESTApp.Audio.Platforms.Discord
+namespace DiscordBot.Audio.Platforms.Discord
 {
     public static class SharePlaylist
     {
@@ -37,7 +37,11 @@ namespace BatToshoRESTApp.Audio.Platforms.Discord
                 foreach (var info in listDeserialized)
                 {
                     var split = info.Information.Split("&//");
-                    if (split.Length <= 3) Debug.Write("Deserializing Playlist Format failed. Split not long enough.");
+                    if (split.Length <= 3)
+                    {
+                        Debug.Write("Deserializing Playlist Format failed. Split not long enough.");
+                        throw new Exception("Split not long enough.");
+                    }
                     switch (info.Id)
                     {
                         case 01:
@@ -90,7 +94,7 @@ namespace BatToshoRESTApp.Audio.Platforms.Discord
                         case 06:
                             list.Add(new OnlineFile
                             {
-                                Url = split[0]
+                                Location = split[0]
                             });
                             break;
                     }
@@ -109,32 +113,35 @@ namespace BatToshoRESTApp.Audio.Platforms.Discord
         {
             var bytes = new List<byte> {84, 7, 70, 60};
             foreach (var item in list)
-                switch (item.GetTypeOf())
+                switch (item)
                 {
-                    case "Youtube Video":
+                    case YoutubeVideoInformation:
                         Serialize(bytes,
                             $"{item.GetId()}&//{item.GetTitle()}&//{item.GetAuthor()}&//{item.GetLength()}&//{item.GetThumbnailUrl()}",
                             01);
                         break;
-                    case "Spotify Track":
+                    case SpotifyTrack:
                         Serialize(bytes,
                             $"{item.GetId()}&//{item.GetTitle()}&//{item.GetAuthor()}&//{item.GetLength()}", 02);
                         break;
-                    case "Discord Attachment":
+                    case SystemFile when item.GetTypeOf() == "Discord Attachment":
                         Serialize(bytes,
                             $"{item.GetLocation()}&//{item.GetTitle()}&//{item.GetAuthor()}&//{item.GetLength()}", 03);
                         break;
-                    case "Local File":
+                    case SystemFile:
                         Serialize(bytes,
                             $"{item.GetLocation()}&//{item.GetTitle()}&//{item.GetAuthor()}&//{item.GetLength()}", 04);
                         break;
-                    case "Vbox7 Video":
+                    case Vbox7Video:
                         Serialize(bytes,
                             $"{item.GetLocation()}&//{item.GetTitle()}&//{item.GetAuthor()}&//{item.GetLength()}", 05);
                         break;
-                    case "Online File":
+                    case OnlineFile:
                         Serialize(bytes,
                             $"{item.GetLocation()}&//{item.GetTitle()}&//{item.GetAuthor()}&//{item.GetLength()}", 06);
+                        break;
+                    case TtsText:
+
                         break;
                 }
 
@@ -240,7 +247,7 @@ namespace BatToshoRESTApp.Audio.Platforms.Discord
 
         private static IEnumerable<Info> OldFormat(string token)
         {
-            Console.WriteLine("Using old format");
+            Debug.Write("Using old format");
             var bytes = File.ReadAllBytes($"{Bot.WorkingDirectory}/Playlists/{token}.batp");
             List<Info> infos = new();
             if (bytes[0] != 84 || bytes[1] != 7 || bytes[2] != 70 || bytes[3] != 50) throw new Exception("Bad");

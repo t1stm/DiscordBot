@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using DSharpPlus.Entities;
 
-namespace BatToshoRESTApp.Tools
+namespace DiscordBot.Tools
 {
     public static class Emojis
     {

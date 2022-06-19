@@ -2,16 +2,15 @@ using System;
 using System.Diagnostics;
 using System.IO;
 using System.Threading.Tasks;
-using BatToshoRESTApp.Readers;
-using Debug = BatToshoRESTApp.Methods.Debug;
+using DiscordBot.Readers;
+using Debug = DiscordBot.Methods.Debug;
 
-namespace BatToshoRESTApp.Audio.Objects
+namespace DiscordBot.Audio.Objects
 {
     public class FfMpeg
     {
+        private readonly int _random = new Random().Next(0, int.MaxValue / 32);
         private bool _finishedDownloading = true;
-
-        private readonly int Random = new Random().Next(0, int.MaxValue / 32);
         private Process FfMpegProcess { get; set; }
 
         public Stream PathToPcm(string videoPath, string startingTime = "00:00:00.000", bool normalize = false)
@@ -32,6 +31,60 @@ namespace BatToshoRESTApp.Audio.Objects
                 UseShellExecute = false
             };
             FfMpegProcess = Process.Start(ffmpegStartInfo);
+            return FfMpegProcess?.StandardOutput.BaseStream;
+        }
+
+        public Stream TtsToPcm(TtsText item, string startingTime = "00:00:00.000", bool normalize = false)
+        {
+            var ffmpegStartInfo = new ProcessStartInfo
+            {
+                FileName = "ffmpeg",
+                Arguments = @"-nostats " +
+                            "-v error " + //This line is going to be changed very often, I fucking know it.
+                            "-hide_banner " +
+                            $@"-i - -ss {startingTime.Trim()} " +
+                            "-user_agent \"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/71.0.3554.0 Safari/537.36\" " +
+                            "-reconnect_on_network_error true " +
+                            "-multiple_requests true " +
+                            @$"-c:a pcm_s16le {normalize switch {true => "-af loudnorm=I=-16:LRA=11:TP=-1.5 ", false => ""}}-ac 2 -f s16le -ar 48000 pipe:1",
+                RedirectStandardOutput = true,
+                RedirectStandardInput = true,
+                UseShellExecute = false
+            };
+            FfMpegProcess = Process.Start(ffmpegStartInfo);
+            var task = new Task(async () =>
+            {
+                try
+                {
+                    await item.Download();
+                    //await item.DataStream.CopyToAsync(FfMpegProcess.StandardInput.BaseStream);
+                    while (item.DataStream.Length < 20) await Task.Delay(3);
+                    for (var i = 0; i < item.DataStream.Length; i++)
+                    {
+                        while (i == item.DataStream.Length - 1 && !item.Exited)
+                            await Task.Delay(3); // These are the spaghetti code fixes I adore.
+                        var by = item.DataStream
+                            .GetBuffer()[i]; // I am starting to think that this method is quite slow.
+                        try
+                        {
+                            FfMpegProcess.StandardInput.BaseStream.WriteByte(by);
+                        }
+                        catch (Exception e)
+                        {
+                            if (e.Message.ToLower().Contains("broken pipe")) break;
+                            await Debug.WriteAsync($"Writing byte falure: {e}");
+                            break;
+                        }
+                    }
+
+                    FfMpegProcess.StandardInput.Close();
+                }
+                catch (Exception)
+                {
+                    // Ignored
+                }
+            });
+            task.Start();
             return FfMpegProcess?.StandardOutput.BaseStream;
         }
 
@@ -106,15 +159,15 @@ namespace BatToshoRESTApp.Audio.Objects
         {
             try
             {
-                await Debug.WriteAsync($"Caching of \'{Random}\' starting.");
+                await Debug.WriteAsync($"Caching of \'{_random}\' starting.");
                 _finishedDownloading = false;
                 await HttpClient.ChunkedDownloaderToStream(HttpClient.WithCookies(), uri, streams);
                 _finishedDownloading = true;
-                await Debug.WriteAsync($"Caching of \'{Random}\' completed.");
+                await Debug.WriteAsync($"Caching of \'{_random}\' completed.");
             }
             catch (Exception e)
             {
-                await Debug.WriteAsync($"Creating Download Failed: {e}");
+                await Debug.WriteAsync($"Creating Download Failed: {e}", true, Debug.DebugColor.Error);
                 KillSync();
             }
         }

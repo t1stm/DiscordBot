@@ -2,35 +2,34 @@ using System;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-using BatToshoRESTApp.Audio;
-using BatToshoRESTApp.Enums;
-using BatToshoRESTApp.Methods;
-using BatToshoRESTApp.Readers;
-using BatToshoRESTApp.Tools;
+using DiscordBot.Audio;
+using DiscordBot.Enums;
+using DiscordBot.Methods;
+using DiscordBot.Readers;
+using DiscordBot.Tools;
 using DSharpPlus;
 using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Attributes;
 using DSharpPlus.Entities;
 
-namespace BatToshoRESTApp
+namespace DiscordBot
 {
     // ReSharper disable once ClassNeverInstantiated.Global
     public class Commands : BaseCommandModule
     {
         private static bool DailySalt { get; set; }
 
-        [Command("vote")]
-        public async Task VoteCommand(CommandContext ctx, [RemainingText] string choice)
+        [Command("plsfix")]
+        public async Task PlsFixCommand(CommandContext ctx) // Pray to the RNG gods to fix the bot.
         {
             try
             {
-                await Debug.WriteAsync($"Vote added: {ctx.User.Username}#{ctx.User.Discriminator} - \"{choice}\"", true, Debug.DebugColor.Warning);
-                Event.Add($"{ctx.User.Username}#{ctx.User.Discriminator}", choice);
-                await ctx.RespondAsync("```Благодаря за вашия глас.```");
+                await Manager.PlsFix(ctx);
             }
             catch (Exception e)
             {
-                await Debug.WriteAsync($"Error during vote: \"{e}\"");
+                await Debug.WriteAsync($"Play PlsFix command threw exception: {e}");
+                throw;
             }
         }
 
@@ -44,7 +43,8 @@ namespace BatToshoRESTApp
             }
             catch (Exception e)
             {
-                Console.WriteLine(e);
+                await Debug.WriteAsync($"Help command threw exception: {e}");
+                throw;
             }
         }
 
@@ -225,8 +225,7 @@ namespace BatToshoRESTApp
         {
             try
             {
-                await Manager.List(ctx,
-                    true); //I plan on making it use a custom site made only for listing the queue, but I will implement it when I make the websocket server.
+                await Manager.List(ctx);
             }
             catch (Exception e)
             {
@@ -303,6 +302,21 @@ namespace BatToshoRESTApp
             try
             {
                 await Manager.GoTo(ctx, index);
+            }
+            catch (Exception e)
+            {
+                await Debug.WriteAsync($"Go To command threw exception: {e}");
+                throw;
+            }
+        }
+
+        [Command("volume")]
+        [Aliases("vol", "v", "волуме", "вол", "в")]
+        public async Task VolumeCommand(CommandContext ctx, double volume)
+        {
+            try
+            {
+                await Manager.Volume(ctx, volume);
             }
             catch (Exception e)
             {

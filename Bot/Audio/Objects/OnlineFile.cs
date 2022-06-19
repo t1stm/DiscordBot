@@ -1,21 +1,14 @@
 using System.Threading.Tasks;
-using BatToshoRESTApp.Abstract;
+using DiscordBot.Abstract;
 
-namespace BatToshoRESTApp.Audio.Objects
+namespace DiscordBot.Audio.Objects
 {
     public class OnlineFile : PlayableItem
     {
-        public string Url { private get; init; }
-
         public new string GetName()
         {
             var loc = GetLocation();
             return loc.Length > 40 ? $"{loc[..40]}..." : loc;
-        }
-
-        public new string GetLocation()
-        {
-            return Url;
         }
 
         public override Task Download()
@@ -46,6 +39,11 @@ namespace BatToshoRESTApp.Audio.Objects
         public override string GetThumbnailUrl()
         {
             return null;
+        }
+
+        protected override string GetAddUrl()
+        {
+            return GetLocation();
         }
     }
 }

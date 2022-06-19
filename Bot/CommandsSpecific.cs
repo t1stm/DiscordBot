@@ -5,12 +5,12 @@ using System.Linq;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
-using BatToshoRESTApp.Methods;
-using BatToshoRESTApp.Readers;
+using DiscordBot.Methods;
+using DiscordBot.Readers;
 using DSharpPlus.Entities;
 using DSharpPlus.SlashCommands;
 
-namespace BatToshoRESTApp
+namespace DiscordBot
 {
     public class CommandsSpecific : ApplicationCommandModule
     {
@@ -31,7 +31,6 @@ namespace BatToshoRESTApp
                 }).ToArray();
                 var json = JsonSerializer.Deserialize<JsonStructure>(
                     await File.ReadAllTextAsync($"/hdd0/fakku/{id}/info.json"));
-                await Debug.WriteAsync(files.Length - 1 + "");
                 var dic = new Dictionary<string, Stream>();
                 await ctx.FollowUpAsync(new DiscordFollowupMessageBuilder().WithContent(
                     $"```{json.Title} - {json.Author} - {json.Event}\nLength: {json.Length} pages | Id: {id}```"));
@@ -67,7 +66,6 @@ namespace BatToshoRESTApp
         {
             try
             {
-                await ctx.DeferAsync(true);
                 //https://api.rule34.xxx/index.php?page=dapi&s=post&q=index&json=1&tags=term_here_without_spaces&limit=20 Example Url Request
                 //https://rule34.xxx/index.php?page=post&s=view&id=5553819 Example Page Url
                 await ctx.CreateResponseAsync("```Hello!```");

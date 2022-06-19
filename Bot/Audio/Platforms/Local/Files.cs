@@ -1,9 +1,9 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using BatToshoRESTApp.Abstract;
+using DiscordBot.Abstract;
 
-namespace BatToshoRESTApp.Audio.Platforms.Local
+namespace DiscordBot.Audio.Platforms.Local
 {
     public static class Files
     {

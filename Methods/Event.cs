@@ -4,7 +4,7 @@ using System.IO;
 using System.Text.Json;
 using System.Threading.Tasks;
 
-namespace BatToshoRESTApp.Methods
+namespace DiscordBot.Methods
 {
     public static class Event
     {
@@ -35,13 +35,11 @@ namespace BatToshoRESTApp.Methods
 
     public static class Answers
     {
-        private static bool _writing = false;
+        private static bool _writing;
+
         public static void AddAnswer(string user, string message)
         {
-            while (_writing)
-            {
-                Task.Delay(66).Wait();
-            }
+            while (_writing) Task.Delay(66).Wait();
             _writing = true;
             var file = File.Open($"{Bot.WorkingDirectory}/Votes.json", FileMode.OpenOrCreate);
             try

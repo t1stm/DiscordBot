@@ -5,10 +5,10 @@ using System.Security.Authentication;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
-using BatToshoRESTApp.Methods;
-using BatToshoRESTApp.Readers;
+using DiscordBot.Methods;
+using DiscordBot.Readers;
 
-namespace BatToshoRESTApp.Audio.Platforms.Vbox7
+namespace DiscordBot.Audio.Platforms.Vbox7
 {
     public static class SearchClient
     {
@@ -34,9 +34,9 @@ namespace BatToshoRESTApp.Audio.Platforms.Vbox7
         public static async Task<Vbox7Object> SearchUrl(string url)
         {
             if (url.Length < 7) throw new InvalidCredentialException(nameof(url));
-            url = url.StartsWith("http://") ? url[7..] : 
-                url.StartsWith("https://") ? url[8..] : "";
-            await Debug.WriteAsync(url);
+            await Debug.WriteAsync($"Vbox SearchUrl: {url}");
+            url = url.StartsWith("http://") ? url[7..] :
+                url.StartsWith("https://") ? url[8..] : url;
             if (url == "") throw new InvalidCredentialException(nameof(url));
             string id;
             if (!url.StartsWith("vbox7.com/play:"))

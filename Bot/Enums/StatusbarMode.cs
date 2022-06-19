@@ -1,4 +1,4 @@
-namespace BatToshoRESTApp.Enums
+namespace DiscordBot.Enums
 {
     public enum StatusbarMode
     {

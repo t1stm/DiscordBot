@@ -1,13 +1,14 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Text;
 using System.Threading.Tasks;
-using BatToshoRESTApp.Abstract;
-using BatToshoRESTApp.Audio.Objects;
-using BatToshoRESTApp.Readers;
+using DiscordBot.Abstract;
+using DiscordBot.Audio.Objects;
+using DiscordBot.Readers;
 using DSharpPlus.Entities;
 
-namespace BatToshoRESTApp.Audio.Platforms.Discord
+namespace DiscordBot.Audio.Platforms.Discord
 {
     public static class Attachments
     {
@@ -19,9 +20,20 @@ namespace BatToshoRESTApp.Audio.Platforms.Discord
             var list = new List<PlayableItem>();
             foreach (var at in attachments)
                 if (at.FileName.EndsWith(".batp"))
+                {
                     list.AddRange(await SharePlaylist.Get(at));
+                }
+                else if (at.FileName.EndsWith(".txt"))
+                {
+                    var stream = await HttpClient.DownloadStream(at.Url);
+                    var text = Encoding.UTF8.GetString(stream.GetBuffer());
+                    list.Add(new TtsText(text));
+                }
                 else
+                {
                     list.Add(await GetAttachment(at, guild));
+                }
+
             return list;
         }
 
@@ -34,10 +46,17 @@ namespace BatToshoRESTApp.Audio.Platforms.Discord
                 Directory.CreateDirectory(DownloadDirectory + $"{guild}/");
             if (File.Exists(location)) File.Delete(location);
             await HttpClient.DownloadFile(url, location);
-            var tags = TagLib.File.Create(location);
-            SystemFile file;
+            var file = new SystemFile
+            {
+                Title = attachment.FileName,
+                Author = "",
+                Length = 0,
+                Location = location,
+                IsDiscordAttachment = true
+            };
             try
             {
+                var tags = TagLib.File.Create(location);
                 file = new SystemFile
                 {
                     Title = tags.Tag.Title,
@@ -49,14 +68,7 @@ namespace BatToshoRESTApp.Audio.Platforms.Discord
             }
             catch (Exception)
             {
-                file = new SystemFile
-                {
-                    Title = attachment.FileName,
-                    Author = "",
-                    Length = 0,
-                    Location = location,
-                    IsDiscordAttachment = true
-                };
+                // Ignored
             }
 
             return file;

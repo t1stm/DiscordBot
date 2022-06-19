@@ -1,11 +1,11 @@
 using System.IO;
 using System.Threading.Tasks;
-using BatToshoRESTApp.Enums;
-using BatToshoRESTApp.Readers;
+using DiscordBot.Enums;
+using DiscordBot.Readers;
 using DSharpPlus.Entities;
 using ImageMagick;
 
-namespace BatToshoRESTApp.Methods
+namespace DiscordBot.Methods
 {
     public class ImageMagick
     {

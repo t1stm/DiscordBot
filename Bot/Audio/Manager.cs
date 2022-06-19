@@ -8,23 +8,22 @@ using System.Text.Json;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
-using BatToshoRESTApp.Abstract;
-using BatToshoRESTApp.Audio.Objects;
-using BatToshoRESTApp.Audio.Platforms;
-using BatToshoRESTApp.Audio.Platforms.Discord;
-using BatToshoRESTApp.Audio.Platforms.Youtube;
-using BatToshoRESTApp.Controllers;
-using BatToshoRESTApp.Methods;
-using BatToshoRESTApp.Miscellaneous;
+using DiscordBot.Abstract;
+using DiscordBot.Audio.Objects;
+using DiscordBot.Audio.Platforms;
+using DiscordBot.Audio.Platforms.Discord;
+using DiscordBot.Audio.Platforms.Youtube;
+using DiscordBot.Methods;
+using DiscordBot.Miscellaneous;
 using DSharpPlus;
 using DSharpPlus.CommandsNext;
 using DSharpPlus.Entities;
 using DSharpPlus.Interactivity.Extensions;
 using DSharpPlus.VoiceNext;
 using QRCoder;
-using HttpClient = BatToshoRESTApp.Readers.HttpClient;
+using HttpClient = DiscordBot.Readers.HttpClient;
 
-namespace BatToshoRESTApp.Audio
+namespace DiscordBot.Audio
 {
     public static class Manager
     {
@@ -138,7 +137,7 @@ namespace BatToshoRESTApp.Audio
                     if (attachments is {Count: > 0})
                     {
                         await Debug.WriteAsync($"Play message contains attachments: {attachments.Count}");
-                        items = await new Search().Get(term, attachments, user.Guild.Id);
+                        items = await Search.Get(term, attachments, user.Guild.Id);
                         var builder =
                             new DiscordMessageBuilder().WithContent("```Hello! This message will update shortly.```");
                         player.Channel = player.CurrentClient.Guilds[userVoiceS.Guild.Id].Channels[messageChannel.Id];
@@ -148,9 +147,9 @@ namespace BatToshoRESTApp.Audio
                     {
                         if (string.IsNullOrEmpty(term)) return;
                         player.Channel = player.CurrentClient.Guilds[userVoiceS.Guild.Id].Channels[messageChannel.Id];
-                        if (select && !term.Contains("http"))
+                        if (select && !term.StartsWith("http"))
                         {
-                            var results = await new Video().SearchAllResults(term);
+                            var results = await Video.SearchAllResults(term);
                             var options = results.Select(result =>
                                 new DiscordSelectComponentOption(result.Title, result.GetId(), result.Author)).ToList();
                             var dropdown = new DiscordSelectComponent("dropdown", null, options);
@@ -167,7 +166,7 @@ namespace BatToshoRESTApp.Audio
                             var interaction = response.Result.Values;
                             items = new List<PlayableItem>
                             {
-                                await new Video().SearchById(interaction.First())
+                                await Video.SearchById(interaction.First())
                             };
                             player.Statusbar.Message = await message.ModifyAsync(
                                 new DiscordMessageBuilder().WithContent(
@@ -175,7 +174,7 @@ namespace BatToshoRESTApp.Audio
                         }
                         else
                         {
-                            items = await new Search().Get(term);
+                            items = await Search.Get(term);
                         }
                     }
 
@@ -205,7 +204,7 @@ namespace BatToshoRESTApp.Audio
                     if (attachments is {Count: > 0})
                     {
                         await Debug.WriteAsync($"Play message contains attachments: {attachments.Count}");
-                        items = await new Search().Get(term, attachments, user.Guild.Id);
+                        items = await Search.Get(term, attachments, user.Guild.Id);
                     }
                     else
                     {
@@ -217,7 +216,7 @@ namespace BatToshoRESTApp.Audio
 
                         if (select && !term.Contains("http"))
                         {
-                            var results = await new Video().SearchAllResults(term);
+                            var results = await Video.SearchAllResults(term);
                             var options = results.Select(result =>
                                 new DiscordSelectComponentOption(result.Title, result.GetId(), result.Author)).ToList();
                             var dropdown = new DiscordSelectComponent("dropdown", null, options);
@@ -229,13 +228,13 @@ namespace BatToshoRESTApp.Audio
                             var interaction = response.Result.Values;
                             items = new List<PlayableItem>
                             {
-                                await new Video().SearchById(interaction.First())
+                                await Video.SearchById(interaction.First())
                             };
                             await message.DeleteAsync();
                         }
                         else
                         {
-                            items = await new Search().Get(term);
+                            items = await Search.Get(term);
                         }
                     }
 
@@ -409,7 +408,7 @@ namespace BatToshoRESTApp.Audio
             List<PlayableItem> item;
             if (ctx.Message.Attachments.Count > 0)
             {
-                item = await new Search().Get(term, ctx.Message.Attachments.ToList(), ctx.Guild.Id);
+                item = await Search.Get(term, ctx.Message.Attachments.ToList(), ctx.Guild.Id);
                 term = ctx.Message.Attachments.Count switch
                 {
                     1 => ctx.Message.Attachments.ToList()[0].FileName, _ => "Discord Attachments"
@@ -417,7 +416,7 @@ namespace BatToshoRESTApp.Audio
             }
             else
             {
-                item = await new Search().Get(term);
+                item = await Search.Get(term);
             }
 
             item.ForEach(it => it.SetRequester(ctx.Member));
@@ -463,12 +462,13 @@ namespace BatToshoRESTApp.Audio
             var qrCodeAsPngByteArr = qrCode.GetGraphic(4);
             return new MemoryStream(qrCodeAsPngByteArr);
         }
-
+        
         public static async Task GetWebUi(CommandContext ctx)
         {
-            if (BatTosho.WebUiUsers.ContainsKey(ctx.Member.Id))
+            if (ctx.Member is null) return;
+            if (Controllers.Bot.WebUiUsers.ContainsKey(ctx.Member.Id))
             {
-                var key = BatTosho.WebUiUsers[ctx.Member.Id];
+                var key = Controllers.Bot.WebUiUsers[ctx.Member.Id];
 
                 await ctx.Member.SendMessageAsync(new DiscordMessageBuilder()
                     .WithContent($"```You have already generated a Web UI code: {key}```")
@@ -484,11 +484,12 @@ namespace BatToshoRESTApp.Audio
                         }
                     })
                 );
+                await Bot.Reply(ctx, "Sending a Direct Message containing the information.");
                 return;
             }
 
             var randomString = Bot.RandomString(96);
-            BatTosho.AddUser(ctx.Member.Id, randomString);
+            await Controllers.Bot.AddUser(ctx.Member.Id, randomString);
             await ctx.Member.SendMessageAsync(new DiscordMessageBuilder()
                 .WithContent($"```Your Web UI Code is: {randomString}```")
                 .WithFile("qr_code.jpg", GetQrCodeForWebUi(randomString))
@@ -502,6 +503,7 @@ namespace BatToshoRESTApp.Audio
                         Url = "https://dankest.gq/BaiToshoBeta/tosho.png"
                     }
                 }));
+            await Bot.Reply(ctx, "Sending a Direct Message containing the information.");
         }
 
         public static async Task Move(CommandContext ctx, string move)
@@ -584,7 +586,7 @@ namespace BatToshoRESTApp.Audio
                 seed switch {0 => "This queue hasn't been shuffled.", _ => $"The queue's seed is: \"{seed}\""});
         }
 
-        public static async Task List(CommandContext ctx, bool inDiscord)
+        public static async Task List(CommandContext ctx)
         {
             var userVoiceS = ctx.Member?.VoiceState?.Channel;
             if (userVoiceS == null)
@@ -600,21 +602,14 @@ namespace BatToshoRESTApp.Audio
                 return;
             }
 
-            switch (inDiscord)
-            {
-                case true:
-                    await Bot.Reply(ctx,
-                        new DiscordMessageBuilder().WithContent("```Current Queue:```").WithFile("queue.txt",
-                            new MemoryStream(Encoding.UTF8.GetBytes(player.Queue
-                                                                    + "\n\nHere's a tech tip. " +
-                                                                    "\nYou can use the bot web interface which displays the list automatically. " +
-                                                                    "\nYou can add, remove and overall control the bot using a spicy looking interface. " +
-                                                                    "\nYou can use it with the -webui command. " +
-                                                                    "\nThe bot will DM you a link which you can use to login, and a token for authentication."))));
-                    break;
-                case false:
-                    break;
-            }
+            await Bot.Reply(ctx,
+                new DiscordMessageBuilder().WithContent("```Current Queue:```").WithFile("queue.txt",
+                    new MemoryStream(Encoding.UTF8.GetBytes(player.Queue
+                                                            + "\n\nHere's a tech tip. " +
+                                                            "\nYou can use the bot web interface which displays the list automatically. " +
+                                                            "\nYou can add, remove and overall control the bot using a spicy looking interface. " +
+                                                            "\nYou can use it with the -webui command. " +
+                                                            "\nThe bot will DM you a link which you can use to login, and a token for authentication."))));
         }
 
         public static async Task GoTo(CommandContext ctx, int index)
@@ -635,6 +630,34 @@ namespace BatToshoRESTApp.Audio
 
             var thing = player.GoToIndex(index - 1);
             await Bot.Reply(ctx, $"Going to ({index}) - \"{thing?.GetName()}\"");
+        }
+        
+        public static async Task Volume(CommandContext ctx, double volume)
+        {
+            var userVoiceS = ctx.Member?.VoiceState?.Channel;
+            if (userVoiceS == null)
+            {
+                await Bot.SendDirectMessage(ctx, "Enter a channel before using the shuffle command.");
+                return;
+            }
+
+            var player = GetPlayer(userVoiceS, ctx.Client);
+            if (player == null)
+            {
+                await Bot.Reply(ctx, "The bot isn't in the channel");
+                return;
+            }
+
+            var val = player.UpdateVolume(volume);
+            switch (val)
+            {
+                case true:
+                    await Bot.Reply(ctx, $"```Set the volume to {volume}%```");
+                    break;
+                case false:
+                    await Bot.Reply(ctx, "```Invalid volume range. Must be between 0 and 200%.```");
+                    break;
+            }
         }
 
         public static async Task Clear(CommandContext ctx)
@@ -678,9 +701,30 @@ namespace BatToshoRESTApp.Audio
             fs.Position = 0;
             await ctx.RespondAsync(
                 new DiscordMessageBuilder().WithContent(
-                        $"```Queue saved sucessfully. \n\nYou can play it again with this command\"-p pl:{token}\", " +
-                        "or by sending the attached file and using the play command```")
+                        $"```Queue saved sucessfully. \n\nYou can play it again with this command: \"-p pl:{token}\", " +
+                        "or by sending the attached file and using the play command.```")
                     .WithFile($"{token}.batp", fs));
+        }
+
+        public static async Task PlsFix(CommandContext ctx)
+        {
+            var userVoiceS = ctx.Member?.VoiceState?.Channel;
+            if (userVoiceS == null)
+            {
+                await Bot.SendDirectMessage(ctx,
+                    "One cannot recieve the blessing of playback if they're not in a channel.");
+                return;
+            }
+
+            var player = GetPlayer(userVoiceS, ctx.Client);
+            if (player == null)
+            {
+                await Bot.SendDirectMessage(ctx,
+                    "One cannot recieve the blessing of playback if there's nothing to play.");
+                return;
+            }
+
+            player.PlsFix();
         }
 
         public static async Task SendLyrics(CommandContext ctx, string text)

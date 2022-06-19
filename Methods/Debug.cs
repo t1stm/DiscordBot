@@ -3,7 +3,7 @@ using System.IO;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace BatToshoRESTApp.Methods
+namespace DiscordBot.Methods
 {
     public static class Debug
     {

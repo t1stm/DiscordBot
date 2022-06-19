@@ -3,20 +3,21 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
-using BatToshoRESTApp.Abstract;
-using BatToshoRESTApp.Enums;
+using DiscordBot.Abstract;
+using DiscordBot.Audio;
+using DiscordBot.Enums;
 using DSharpPlus;
 using DSharpPlus.Entities;
-using Debug = BatToshoRESTApp.Methods.Debug;
+using Debug = DiscordBot.Methods.Debug;
 
-namespace BatToshoRESTApp.Audio
+namespace DiscordBot.Messages
 {
     public class Statusbar : IBaseStatusbar
     {
-        //private const string DefaultMessage = "One can use the web interface with the command: \"-webui\"";
-        private const string DefaultMessage = "Мисля да преименувам главния бот на \"Слави Трифонов\" и заради това правя петиция, " +
-                                              "ако искате да гласувате може да използвате /vote или -vote (slavi или tosho) и да изберете между новото и старото име. " +
-                                              "Резултатите ще бъдат обявени на 14 Април 2022, на същото място като това съобщение.";
+        private const string DefaultMessage = "One can use the web interface with the command: \"-webui\"";
+
+        //private const string DefaultMessage =
+        //    "След пресмятането на резултатите, новото име бие с 86.5% от гласовето. На 20 Април, този бот вече ще се казва \"Слави Трифонов\". Благодаря на всички които гласуваха.";
         private const char EmptyBlock = '□', FullBlock = '■';
         private int _pl0, _pl1 = 1, _pl2 = 2, _pl3 = 3, _pl4 = 4;
         private bool Stopped { get; set; }
@@ -30,7 +31,8 @@ namespace BatToshoRESTApp.Audio
 
         public async Task UpdateStatusbar()
         {
-            Player.VoiceUsers = Player?.VoiceChannel?.Users?.Count ?? 0;
+            var users = Player?.VoiceChannel?.Users;
+            if (Player != null) Player.VoiceUsers = (List<DiscordMember>) users;
             switch (Mode)
             {
                 case StatusbarMode.Stopped:
@@ -68,23 +70,20 @@ namespace BatToshoRESTApp.Audio
 
             Stopped = false;
             Mode = StatusbarMode.Playing;
+            var stopwatch = new Stopwatch();
             while (!Stopped)
             {
                 try
                 {
                     if (Stopped)
-                        continue; // Why do I have to add this, this doesn't make fucking sense, but it fixes a bug. Come on
+                        continue;
+                    stopwatch.Restart();
+                    await UpdateStatusbar();
+                    UpdateDelay += (int) stopwatch.ElapsedMilliseconds / 2;
                     if (Bot.DebugMode)
                     {
-                        var stopwatch = new Stopwatch();
-                        stopwatch.Start();
-                        await UpdateStatusbar();
                         stopwatch.Stop();
-                        await Debug.WriteAsync($"Updating statusbar took: {stopwatch.Elapsed:c}");
-                    }
-                    else
-                    {
-                        await UpdateStatusbar();
+                        await Debug.WriteAsync($"Updating statusbar took: {stopwatch.Elapsed:c} / Update Delay is: {UpdateDelay}ms");
                     }
                 }
                 catch (Exception e)
@@ -95,7 +94,7 @@ namespace BatToshoRESTApp.Audio
                             .SendMessageAsync("```Hello! This message will update shortly.```");
                 }
 
-                if (UpdateDelay > Bot.UpdateDelay) UpdateDelay -= 2000;
+                if (UpdateDelay > Bot.UpdateDelay) UpdateDelay -= Bot.UpdateDelay / 3;
                 if (UpdateDelay < Bot.UpdateDelay) UpdateDelay = Bot.UpdateDelay;
                 await Task.Delay(UpdateDelay);
             }
@@ -161,7 +160,7 @@ namespace BatToshoRESTApp.Audio
                 $"{progress} ( {Player.Paused switch {false => "▶️", true => "⏸️"}} {Time(TimeSpan.FromMilliseconds(time))} - {length switch {0 => "∞", _ => Time(TimeSpan.FromMilliseconds(length))}} )" +
                 $"{Player.Sink switch {null => "", _ => Player.Sink.VolumeModifier switch {0 => " (🔇", >0 and <.33 => " (🔈", >=.33 and <=.66 => " (🔉", >.66 => " (🔊", _ => " (🔊"} + $" {(int) (Player.Sink.VolumeModifier * 100)}%)"}}" +
                 $"{Player.LoopStatus switch {Loop.One => " ( 🔂 )", Loop.WholeQueue => " ( 🔁 )", _ => ""}}" +
-                $"{req switch {null => "", not null => $"\nRequested by: {req.Username} #{req.Discriminator}"}}" +
+                $"{req switch {null => "", _ => $"\nRequested by: {req.Username} #{req.Discriminator}"}}" +
                 $"{next switch {null => "", _ => $"\n\nNext: ({Player.Queue.Current + 2}) {next.GetName()}"}}" +
                 $"{message}```";
         }
@@ -193,52 +192,41 @@ namespace BatToshoRESTApp.Audio
             return GenerateProgressbar(current, total);
         }
 
-        private string GenerateProgressbar(long current, long total)
+        private string GenerateProgressbar(long current, long total, int length = 32)
         {
-            var progress = "";
+            Span<char> prg = stackalloc char[length];
             if (total != 0)
             {
-                var time = current;
-                var increment = total / 32f;
-                var display = time / increment;
-                var remaining = 0f;
-                for (float i = 0; i < (display > 32 ? 32 : display); i++)
-                {
-                    progress += FullBlock;
-                    remaining++;
-                }
+                var increment = total / length;
+                var display = (int) (current / increment);
+                display = display > length ? length : display;
+                for (var i = 0; i < display; i++) prg[i] = FullBlock;
 
-                for (float i = 0; i < total / increment - remaining; i++) progress += EmptyBlock;
+                for (var i = display; i < length; i++) prg[i] = EmptyBlock;
+
+                return prg.ToString();
             }
-            else
+
+            length = length < 4 ? 32 : length;
+            prg = stackalloc char[length];
+            for (var i = 0; i < length; i++) prg[i] = EmptyBlock;
+            for (var i = 0; i < 2; i++)
             {
-                var prg = new char[32];
-                for (var i = 0; i <= prg.GetUpperBound(0); i++) prg[i] = EmptyBlock;
-
-                prg[_pl0] = prg[_pl1] = prg[_pl2] = prg[_pl3] = prg[_pl4] = FullBlock;
-                for (var i = 0; i < 2; i++)
-                {
-                    if (++_pl0 > 31)
-                        _pl0 = 0;
-                    if (++_pl1 > 31)
-                        _pl1 = 0;
-                    if (++_pl2 > 31)
-                        _pl2 = 0;
-                    if (++_pl3 > 31)
-                        _pl3 = 0;
-                    if (++_pl4 > 31)
-                        _pl4 = 0;
-                }
-
-                progress = prg.Aggregate(progress, (current1, ch) => current1 + ch);
+                _pl0 = _pl0 > length - 2 ? 0 : _pl0 + 1;
+                _pl1 = _pl1 > length - 2 ? 0 : _pl1 + 1;
+                _pl2 = _pl2 > length - 2 ? 0 : _pl2 + 1;
+                _pl3 = _pl3 > length - 2 ? 0 : _pl3 + 1;
+                _pl4 = _pl4 > length - 2 ? 0 : _pl4 + 1;
             }
 
-            return progress;
+            prg[_pl0] = prg[_pl1] = prg[_pl2] = prg[_pl3] = prg[_pl4] = FullBlock;
+
+            return prg.ToString();
         }
 
-        public static string Time(TimeSpan span)
+        public static string Time(TimeSpan timeSpan)
         {
-            return span.ToString("hh\\:mm\\:ss");
+            return timeSpan.ToString("hh\\:mm\\:ss");
         }
 
         ~Statusbar()

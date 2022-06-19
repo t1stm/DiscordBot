@@ -3,14 +3,14 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-using BatToshoRESTApp.Abstract;
-using BatToshoRESTApp.Readers;
+using DiscordBot.Abstract;
+using DiscordBot.Readers;
 using YouTubeApiSharp;
 using YoutubeExplode;
 using YoutubeExplode.Videos.Streams;
-using Debug = BatToshoRESTApp.Methods.Debug;
+using Debug = DiscordBot.Methods.Debug;
 
-namespace BatToshoRESTApp.Audio.Objects
+namespace DiscordBot.Audio.Objects
 {
     public class YoutubeVideoInformation : PlayableItem
     {
@@ -20,12 +20,17 @@ namespace BatToshoRESTApp.Audio.Objects
         public string SearchTerm { get; init; }
         public string YoutubeId { get; set; }
         public SpotifyTrack OriginTrack { get; set; }
-        public string ThumbnailUrl { get; init; }
+        public string ThumbnailUrl { get; init; } = "";
         private int TriesToDownload { get; set; }
 
         public override string GetThumbnailUrl()
         {
             return ThumbnailUrl;
+        }
+
+        protected override string GetAddUrl()
+        {
+            return $"https://youtu.be/{YoutubeId}";
         }
 
         public bool GetIfLiveStream()
@@ -86,7 +91,7 @@ namespace BatToshoRESTApp.Audio.Objects
 
         public override string GetId()
         {
-            return YoutubeId;
+            return YoutubeId ?? "";
         }
 
         public override string GetTypeOf()
@@ -115,7 +120,7 @@ namespace BatToshoRESTApp.Audio.Objects
                 RedirectStandardOutput = true,
                 RedirectStandardError = true,
                 Arguments =
-                    $"-g {live switch {true => "", false => "-f bestaudio "}}--cookies \"{HttpClient.CookieDestination}\" {id}",
+                    $"-g {live switch {true => "", false => "-f bestaudio "}}--cookies \"{HttpClient.CookieDestinations.GetRandom()}\" {id}",
                 FileName = "yt-dlp"
             };
             var pr = Process.Start(sett);
@@ -145,7 +150,8 @@ namespace BatToshoRESTApp.Audio.Objects
                         File.Delete($"{DownloadDirectory}/{id}.webm");
                     //await webClient.DownloadFileTaskAsync(url, $"{DownloadDirectory}/{id}.webm"); // Updating to HttpClient down below
                     //Update 30 Dec 2021: Moved the HTTP Client Downloader to it's own class.
-                    Location = await HttpClient.DownloadFile(url, $"{DownloadDirectory}/{id}.webm");
+                    if (Length < 1800000)
+                        Location = await HttpClient.DownloadFile(url, $"{DownloadDirectory}/{id}.webm");
                 }
                 catch (Exception e)
                 {
@@ -174,6 +180,7 @@ namespace BatToshoRESTApp.Audio.Objects
                 try
                 {
                     //await new WebClient().DownloadFileTaskAsync(new Uri(audioInfo.DownloadUrl), audioPath); // 30 Dec 2021: Migrated to new HttpClient
+                    if (Length > 1800000) return;
                     await HttpClient.DownloadFile(audioInfo.DownloadUrl, audioPath);
                     Location = audioPath;
                 }
@@ -197,6 +204,7 @@ namespace BatToshoRESTApp.Audio.Objects
             {
                 try
                 {
+                    if (Length > 1800000) return;
                     await client.Videos.Streams.DownloadAsync(streamInfo, filepath);
                     Location = filepath;
                 }

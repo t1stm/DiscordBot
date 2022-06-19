@@ -1,4 +1,4 @@
-namespace BatToshoRESTApp.Readers
+namespace DiscordBot.Readers.Objects
 {
     public class PreviousSearchResult
     {

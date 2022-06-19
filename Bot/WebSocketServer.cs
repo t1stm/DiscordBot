@@ -3,13 +3,12 @@ using System.Linq;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
-using BatToshoRESTApp.Audio;
-using BatToshoRESTApp.Controllers;
-using BatToshoRESTApp.Methods;
+using DiscordBot.Audio;
+using DiscordBot.Methods;
 using vtortola.WebSockets;
 using vtortola.WebSockets.Rfc6455;
 
-namespace BatToshoRESTApp
+namespace DiscordBot
 {
     public static class WebSocketServer
     {
@@ -47,6 +46,7 @@ namespace BatToshoRESTApp
                 var req = ws.HttpRequest.RequestUri.ToString();
                 await Debug.WriteAsync($"WebSocket connection with request: {req}");
                 if (req.StartsWith("/ToshoWS/")) req = req[9..];
+                if (req.StartsWith("/BotWebSocket/")) req = req[14..];
 
                 var split = req.Split('/');
                 if (split.Length != 3)
@@ -55,8 +55,8 @@ namespace BatToshoRESTApp
                     return;
                 }
 
-                var clientSecret = split[0];
-                if (!BatTosho.WebUiUsers.ContainsValue(clientSecret))
+                var clientToken = split[0];
+                if (!Controllers.Bot.WebUiUsers.ContainsValue(clientToken))
                 {
                     await Fail(ws, "Not a user");
                     return;
@@ -90,12 +90,19 @@ namespace BatToshoRESTApp
                     }
                 }
 
-                player.WebSocketManager.Add(ws);
+                player.WebSocketManager.Add(ws, clientToken);
 
                 while (ws.IsConnected)
                 {
-                    var message = await ws.ReadStringAsync(CancellationToken.None);
-                    await player.WebSocketManager.OnWrite(ws, message);
+                    try
+                    {
+                        var message = await ws.ReadStringAsync(CancellationToken.None);
+                        await player.WebSocketManager.OnWrite(ws, message);
+                    }
+                    catch (Exception e)
+                    {
+                        await Debug.WriteAsync($"Exception reading WebSocket message: \"{e}\"");
+                    }
                 }
 
                 var ta = new Task(async () => { await player.WebSocketManager.Remove(ws); });
@@ -109,7 +116,7 @@ namespace BatToshoRESTApp
 
         private static async Task Fail(WebSocket ws, string info = "No information specified")
         {
-            await ws.WriteStringAsync($"Fail: \"{info}\"");
+            await ws.WriteStringAsync($"Fail:{info}");
             await ws.CloseAsync();
             ws.Dispose();
         }

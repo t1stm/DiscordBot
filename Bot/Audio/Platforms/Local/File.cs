@@ -1,7 +1,7 @@
 using System.Linq;
-using BatToshoRESTApp.Audio.Objects;
+using DiscordBot.Audio.Objects;
 
-namespace BatToshoRESTApp.Audio.Platforms.Local
+namespace DiscordBot.Audio.Platforms.Local
 {
     public static class File
     {

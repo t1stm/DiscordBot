@@ -1,8 +1,8 @@
 using System.Threading.Tasks;
-using BatToshoRESTApp.Audio.Objects;
+using DiscordBot.Audio.Objects;
 using SpotifyAPI.Web;
 
-namespace BatToshoRESTApp.Audio.Platforms.Spotify
+namespace DiscordBot.Audio.Platforms.Spotify
 {
     public static class Track
     {

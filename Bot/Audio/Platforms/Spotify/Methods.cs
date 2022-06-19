@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using SpotifyAPI.Web;
 
-namespace BatToshoRESTApp.Audio.Platforms.Spotify
+namespace DiscordBot.Audio.Platforms.Spotify
 {
     public static class Methods
     {

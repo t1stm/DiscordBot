@@ -1,8 +1,9 @@
 using System;
 using System.Collections.Generic;
 
-namespace BatToshoRESTApp.Readers
+namespace DiscordBot.Readers.JSON
 {
+    [Obsolete(" This class is obseleted, by the new Database implementation. Reminder to myself, to not use it.")]
     public static class JsonWriteQueue
     {
         private static readonly SearchJsonReader JsonReader = new();

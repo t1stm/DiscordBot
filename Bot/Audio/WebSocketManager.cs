@@ -1,14 +1,14 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
-using BatToshoRESTApp.Abstract;
-using BatToshoRESTApp.Audio.Objects;
-using BatToshoRESTApp.Controllers;
-using BatToshoRESTApp.Methods;
+using DiscordBot.Abstract;
+using DiscordBot.Methods;
+using DiscordBot.Readers.MariaDB;
 using vtortola.WebSockets;
 
-namespace BatToshoRESTApp.Audio
+namespace DiscordBot.Audio
 {
     public class WebSocketManager
     {
@@ -18,7 +18,7 @@ namespace BatToshoRESTApp.Audio
             Player = player;
         }
 
-        private List<WebSocket> WebSockets { get; } = new();
+        private Dictionary<WebSocket, string> WebSockets { get; } = new();
         private Queue Queue { get; }
         private Player Player { get; }
 
@@ -26,11 +26,13 @@ namespace BatToshoRESTApp.Audio
         {
             if (Bot.DebugMode) await Debug.WriteAsync($"Web Socket Message is \"{message}\"");
             var command = message.Split(':');
-            if (command.Length != 2)
+            if (command.Length < 2)
             {
                 await Send(ws, $"Invalid command: \"{message}\"");
                 return;
             }
+            if (!WebSockets.ContainsKey(ws)) return;
+
             switch (command[0].ToLower())
             {
                 case "queue":
@@ -40,7 +42,22 @@ namespace BatToshoRESTApp.Audio
                     await SendCurrentItem(ws);
                     return;
                 case "search":
+                    var results = await Platforms.Search.Get(string.Join(':', command[1..]), returnAllResults: true);
+                    await Send(ws, $"Search:{JsonSerializer.Serialize(results.Select(r => r.ToSearchResult()))}");
                     return;
+                case "set":
+                    await SettingsParser(WebSockets[ws], string.Join(":", command[1..]));
+                    return;
+            }
+            
+            if (!await IsInChannel(WebSockets[ws]))
+            {
+                await Send(ws, "Fail:Not in voice channel");
+                return;
+            }
+            
+            switch (command[0].ToLower())
+            {
                 case "skip" when string.IsNullOrEmpty(command[1]):
                     await Player.Skip();
                     return;
@@ -58,8 +75,24 @@ namespace BatToshoRESTApp.Audio
                     Player.Shuffle();
                     return;
                 case "play":
+                    var searchTerm = string.Join(':', command[1..]);
+                    if (string.IsNullOrEmpty(searchTerm))
+                    {
+                        await Send(ws, "Fail:Empty Search Term");
+                        return;
+                    }
+                    var search = await Platforms.Search.Get(searchTerm);
+                    Queue.AddToQueue(search);
                     return;
                 case "playnext":
+                    var searchTerm2 = string.Join(':', command[1..]);
+                    if (string.IsNullOrEmpty(searchTerm2))
+                    {
+                        await Send(ws, "Fail:Empty Search Term");
+                        return;
+                    }
+                    var resulted = await Platforms.Search.Get(searchTerm2);
+                    Queue.AddToQueueNext(resulted);
                     return;
                 case "goto":
                     if (int.TryParse(command[1], out var place))
@@ -72,26 +105,37 @@ namespace BatToshoRESTApp.Audio
                 case "loop":
                     Player.ToggleLoop();
                     return;
+                case "volume":
+                    if (double.TryParse(command[1], out var volume))
+                    {
+                        if (Player.UpdateVolume(volume)) return;
+                        await Send(ws, "Fail:Volume out of range");
+                        return;
+                    }
+                    await Send(ws, "Fail:Invalid volume string");
+                    return;
                 case "leave":
-                    await Player.DisconnectAsync();
+                    Player.Disconnect();
                     return;
             }
+
             await Send(ws, $"Invalid command: \"{message}\"");
         }
 
-        public void Add(WebSocket ws)
+        public void Add(WebSocket ws, string token)
         {
             try
             {
                 lock (WebSockets)
                 {
-                    WebSockets.Add(ws);
+                    WebSockets.Add(ws, token);
                 }
 
                 var task = new Task(async () =>
                 {
                     await Task.Delay(500);
                     await SendStarterData(ws);
+                    await SendSettings(ws, token);
                 });
                 task.Start();
             }
@@ -100,14 +144,14 @@ namespace BatToshoRESTApp.Audio
                 // Ignored
             }
         }
-
+        
         public async Task Remove(WebSocket ws)
         {
             try
             {
                 lock (WebSockets)
                 {
-                    if (!WebSockets.Contains(ws)) return;
+                    if (!WebSockets.ContainsKey(ws)) return;
                     WebSockets.Remove(ws);
                 }
 
@@ -120,10 +164,24 @@ namespace BatToshoRESTApp.Audio
             }
         }
 
+        public async Task BroadcastUpdateItem(int index, Controllers.Bot.SearchResult result)
+        {
+            try
+            {
+                var json = JsonSerializer.Serialize(result);
+                await Broadcast($"Update:{index}:{json}");
+            }
+            catch (Exception)
+            {
+                // Ignored
+            }
+        }
+
         private async Task SendStarterData(WebSocket ws)
         {
             await SendQueue(ws);
             await SendCurrentItem(ws);
+            await Send(ws, $"Time:{Player.Stopwatch.ElapsedMilliseconds}");
         }
 
         public async Task BroadcastCurrentTime()
@@ -132,6 +190,8 @@ namespace BatToshoRESTApp.Audio
             {
                 if (Player.Paused) return;
                 await Broadcast($"Time:{Player.Stopwatch.ElapsedMilliseconds}");
+                if (Bot.DebugMode)
+                    await Debug.WriteAsync($"Broadcasting time to: {WebSockets.Count} web sockets.");
             }
             catch (Exception e)
             {
@@ -159,9 +219,16 @@ namespace BatToshoRESTApp.Audio
 
         public async Task SendDying()
         {
-            await Broadcast("Goodbye:");
+            try
+            {
+                await Broadcast("Goodbye:");
+            }
+            catch (Exception e)
+            {
+                await Debug.WriteAsync($"Sending death web socket failed: {e}");
+            }
         }
-        
+
         public async Task BroadcastQueue()
         {
             try
@@ -173,6 +240,8 @@ namespace BatToshoRESTApp.Audio
                 }
 
                 await Broadcast($"Queue:{SerializeQueue(queue)}");
+                if (Bot.DebugMode)
+                    await Debug.WriteAsync($"Broadcasting queue to: {WebSockets.Count} web sockets.");
             }
             catch (Exception e)
             {
@@ -185,6 +254,8 @@ namespace BatToshoRESTApp.Audio
             try
             {
                 await Broadcast($"Item:{SerializeCurrent()}");
+                if (Bot.DebugMode)
+                    await Debug.WriteAsync($"Broadcasting current item to: {WebSockets.Count} web sockets.");
             }
             catch (Exception e)
             {
@@ -194,22 +265,34 @@ namespace BatToshoRESTApp.Audio
 
         private async Task SendCurrentItem(WebSocket ws)
         {
-            await Send(ws, $"Item:{SerializeCurrent()}");
+            try
+            {
+                await Send(ws, $"Item:{SerializeCurrent()}");
+            }
+            catch (Exception e)
+            {
+                await Debug.WriteAsync($"Web Socket - Sending current item failed: \"{e}\"");
+            }
         }
 
         private async Task Broadcast(string message)
         {
-            List<WebSocket> webSockets;
+            Dictionary<WebSocket, string> webSockets;
             lock (WebSockets)
             {
                 webSockets = WebSockets;
             }
-            foreach (var sock in webSockets)
+
+            // ReSharper disable once ForCanBeConvertedToForeach
+            // No exception threading fix, don't use foreach loop. Big brain.
+            for (var i = 0; i < webSockets.Count; i++)
+            {
+                var sock = webSockets.Keys.ToList()[i];
                 try
                 {
                     if (sock.IsConnected)
                     {
-                        await sock.WriteStringAsync(message);
+                        await Send(sock, message);
                     }
                     else
                     {
@@ -223,6 +306,13 @@ namespace BatToshoRESTApp.Audio
                     var task = new Task(async () => { await Remove(sock); });
                     task.Start();
                 }
+            }
+        }
+
+        private async Task<bool> IsInChannel(string token)
+        {
+            var call = await ClientTokens.ReadAll();
+            return Player.VoiceUsers.Any(user => call.ContainsKey(user.Id) && call[user.Id] == token);
         }
         
         private string SerializeCurrent()
@@ -237,20 +327,25 @@ namespace BatToshoRESTApp.Audio
 
         private static string SerializeIPlayableItem(PlayableItem item)
         {
-            return JsonSerializer.Serialize(item.ToSearchResult());
+            return JsonSerializer.Serialize(item.ToSearchResult(), new JsonSerializerOptions
+            {
+                WriteIndented = false
+            });
+        }
+        
+        private static async Task SendSettings(WebSocket ws, string token)
+        {
+            
+        }
+        
+        private static async Task SettingsParser(string token, string setting)
+        {
+            
         }
 
-        private static string SerializeQueue(Queue queue)
+        private static string SerializeQueue(Queue queue) => JsonSerializer.Serialize(queue.Items.Select(r => r.ToSearchResult()).ToList(), new JsonSerializerOptions
         {
-            var list = new List<BatTosho.SearchResult>();
-            for (var index = 0; index < queue.Items.Count; index++)
-            {
-                var item = queue.Items[index];
-                var listItem = item.ToSearchResult();
-                listItem.Index = index;
-                list.Add(listItem);
-            }
-            return JsonSerializer.Serialize(list);
-        }
+            WriteIndented = false
+        });
     }
 }

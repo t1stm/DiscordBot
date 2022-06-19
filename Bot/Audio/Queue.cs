@@ -2,12 +2,13 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using BatToshoRESTApp.Abstract;
-using BatToshoRESTApp.Audio.Platforms.Youtube;
-using BatToshoRESTApp.Methods;
-using BatToshoRESTApp.Tools;
+using DiscordBot.Abstract;
+using DiscordBot.Audio.Objects;
+using DiscordBot.Audio.Platforms.Youtube;
+using DiscordBot.Methods;
+using DiscordBot.Tools;
 
-namespace BatToshoRESTApp.Audio.Objects
+namespace DiscordBot.Audio
 {
     public class Queue
     {
@@ -42,6 +43,26 @@ namespace BatToshoRESTApp.Audio.Objects
                 catch (Exception e)
                 {
                     await Debug.WriteAsync($"Broadcasting queue failed: \"{e}\"", false, Debug.DebugColor.Error);
+                }
+            });
+            task.Start();
+        }
+
+        private void Update(int index)
+        {
+            var task = new Task(async () =>
+            {
+                try
+                {
+                    PlayableItem item;
+                    lock (Items) item = Items[index];
+                    if (Manager != null)
+                        await Manager.BroadcastUpdateItem(index, item.ToSearchResult());
+                    else throw new Exception("The WebSocketManager is null.");
+                }
+                catch (Exception e)
+                {
+                    await Debug.WriteAsync($"Broadcasting new item failed: \"{e}\"", false, Debug.DebugColor.Error);
                 }
             });
             task.Start();
@@ -141,6 +162,7 @@ namespace BatToshoRESTApp.Audio.Objects
 
                 var playableItems = dll.ToArray();
                 // ReSharper disable once ForCanBeConvertedToForeach
+                // This is so it doesn't throw when the Items' count is changed.
                 for (var i = 0; i < playableItems.Length; i++)
                 {
                     var pl = playableItems[i];
@@ -152,13 +174,14 @@ namespace BatToshoRESTApp.Audio.Objects
                             index = Items.IndexOf(pl);
                         }
 
-                        var newI = await new Video().Search(tr);
+                        var newI = await Video.Search(tr);
                         lock (Items)
                         {
                             Items[index] = newI;
                         }
 
                         await newI.Download();
+                        Update(index);
                         continue;
                     }
 
@@ -230,7 +253,7 @@ namespace BatToshoRESTApp.Audio.Objects
         {
             lock (Items)
             {
-                return Items[Current + 1];
+                return Current == Items.Count - 1 ? null : Items[Current + 1];
             }
         }
 

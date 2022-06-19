@@ -1,8 +1,8 @@
-namespace BatToshoRESTApp.Audio.Objects
+namespace DiscordBot.Audio.Objects
 {
     public static class LyricsApiStuff
     {
-        public class HappiApiResponseMusic
+        public record HappiApiResponseMusic
         {
             public string album { get; set; }
             public string api_album { get; set; }

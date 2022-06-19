@@ -6,7 +6,7 @@ using DSharpPlus;
 using DSharpPlus.Entities;
 using Swan;
 
-namespace BatToshoRESTApp.Miscellaneous
+namespace DiscordBot.Miscellaneous
 {
     public class Vrutkane
     {

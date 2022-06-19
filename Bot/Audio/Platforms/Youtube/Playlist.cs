@@ -1,15 +1,15 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using BatToshoRESTApp.Audio.Objects;
+using DiscordBot.Audio.Objects;
 using YoutubeExplode;
 using YoutubeExplode.Common;
 
-namespace BatToshoRESTApp.Audio.Platforms.Youtube
+namespace DiscordBot.Audio.Platforms.Youtube
 {
-    public class Playlist
+    public static class Playlist
     {
-        public async Task<List<YoutubeVideoInformation>> Get(string url)
+        public static async Task<List<YoutubeVideoInformation>> Get(string url)
         {
             var playlist = await new YoutubeClient().Playlists.GetVideosAsync(FixPlaylistUrl(url));
             return playlist.Where(vi => vi.Duration != null).Select(video =>

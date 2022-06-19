@@ -1,6 +1,6 @@
 using System.Threading.Tasks;
 
-namespace BatToshoRESTApp.Abstract
+namespace DiscordBot.Abstract
 {
     public interface IBaseJson
     {

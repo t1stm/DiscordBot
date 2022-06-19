@@ -1,7 +1,7 @@
 using System.Diagnostics;
 using System.IO;
 
-namespace BatToshoRESTApp.Standalone
+namespace DiscordBot.Standalone
 {
     public class FfMpeg2
     {

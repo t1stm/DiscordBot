@@ -1,9 +1,9 @@
 using System;
 using System.Threading.Tasks;
-using BatToshoRESTApp.Abstract;
+using DiscordBot.Abstract;
 using TagLib;
 
-namespace BatToshoRESTApp.Audio.Objects
+namespace DiscordBot.Audio.Objects
 {
     public class SystemFile : PlayableItem
     {
@@ -13,6 +13,11 @@ namespace BatToshoRESTApp.Audio.Objects
         public override string GetThumbnailUrl()
         {
             return "";
+        }
+
+        protected override string GetAddUrl()
+        {
+            return $"file://{Location}";
         }
 
         public new ulong GetLength()

@@ -1,6 +1,6 @@
-using BatToshoRESTApp.Audio.Objects;
+using DiscordBot.Audio.Objects;
 
-namespace BatToshoRESTApp.Audio.Platforms.Vbox7
+namespace DiscordBot.Audio.Platforms.Vbox7
 {
     public class Vbox7Object
     {
@@ -14,7 +14,8 @@ namespace BatToshoRESTApp.Audio.Platforms.Vbox7
                 Title = Options?.Title,
                 Author = Options?.Uploader,
                 Length = Options?.Duration * 1000 ?? 0,
-                Location = Options?.Src
+                Location = Options?.Src,
+                Id = Options?.Vid
             };
         }
     }

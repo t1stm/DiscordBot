@@ -1,7 +1,7 @@
 using System.Threading.Tasks;
-using BatToshoRESTApp.Enums;
+using DiscordBot.Enums;
 
-namespace BatToshoRESTApp.Abstract
+namespace DiscordBot.Abstract
 {
     public interface IBaseStatusbar
     {

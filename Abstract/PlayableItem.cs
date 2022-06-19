@@ -1,8 +1,7 @@
 using System.Threading.Tasks;
-using BatToshoRESTApp.Controllers;
 using DSharpPlus.Entities;
 
-namespace BatToshoRESTApp.Abstract
+namespace DiscordBot.Abstract
 {
     public abstract class PlayableItem
     {
@@ -13,11 +12,21 @@ namespace BatToshoRESTApp.Abstract
         public DiscordMember Requester { get; set; }
         protected bool Errored { get; set; }
 
-        public string GetName() =>
-            $"{Title}{string.IsNullOrEmpty(Author) switch {false => $" - {Author}", true => ""}}";
+        public string GetName()
+        {
+            return $"{Title}{string.IsNullOrEmpty(Author) switch {false => $" - {Author}", true => ""}}";
+        }
 
-        public ulong GetLength() => Length;
-        public string GetLocation() => Location;
+        public ulong GetLength()
+        {
+            return Length;
+        }
+
+        public string GetLocation()
+        {
+            return Location;
+        }
+
         public abstract Task Download();
 
         public void SetRequester(DiscordMember user)
@@ -25,19 +34,34 @@ namespace BatToshoRESTApp.Abstract
             Requester = user;
         }
 
-        public DiscordMember GetRequester() => Requester;
+        public DiscordMember GetRequester()
+        {
+            return Requester;
+        }
+
         public abstract string GetId();
         public abstract string GetTypeOf();
 
-        public bool GetIfErrored() => Errored;
+        public bool GetIfErrored()
+        {
+            return Errored;
+        }
 
-        public string GetTitle() => Title;
+        public string GetTitle()
+        {
+            return Title;
+        }
 
-        public string GetAuthor() => Author;
+        public string GetAuthor()
+        {
+            return Author;
+        }
 
         public abstract string GetThumbnailUrl();
 
-        public BatTosho.SearchResult ToSearchResult()
+        protected abstract string GetAddUrl();
+
+        public Controllers.Bot.SearchResult ToSearchResult()
         {
             return new()
             {
@@ -46,9 +70,9 @@ namespace BatToshoRESTApp.Abstract
                 IsSpotify = false,
                 Length = Length + "",
                 ThumbnailUrl = GetThumbnailUrl(),
-                Url = "",
-                Index = 0,
-                VoiceUsers = 0,
+                Url = GetAddUrl(),
+                //Index = 0,
+                //VoiceUsers = 0,
                 Id = GetId()
             };
         }

@@ -1,7 +1,7 @@
 using System;
 using System.Linq;
 
-namespace BatToshoRESTApp.Tools
+namespace DiscordBot.Tools
 {
     public static class StringToTimeSpan
     {

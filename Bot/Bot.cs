@@ -5,10 +5,10 @@ using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
 using System.Timers;
-using BatToshoRESTApp.Audio;
-using BatToshoRESTApp.Controllers;
-using BatToshoRESTApp.Methods;
-using BatToshoRESTApp.Readers;
+using DiscordBot.Audio;
+using DiscordBot.Messages;
+using DiscordBot.Methods;
+using DiscordBot.Readers;
 using DSharpPlus;
 using DSharpPlus.CommandsNext;
 using DSharpPlus.Entities;
@@ -19,7 +19,7 @@ using DSharpPlus.SlashCommands;
 using DSharpPlus.VoiceNext;
 using Microsoft.Extensions.Logging;
 
-namespace BatToshoRESTApp
+namespace DiscordBot
 {
     public static class Bot
     {
@@ -34,26 +34,25 @@ namespace BatToshoRESTApp
             SecondaryBot = "OTAzMjg3NzM3Nzc4NTg5NzA2.YXqyQg.F3cDKz-icUbYYMUJXwLxT-BX574";
 
         public const string WorkingDirectory = "/home/kris/BatTosho";
+        public const string SiteDomain = "https://dankest.gq";
+        public const string WebApiPage = "BaiToshoBeta";
 
-        //private static Timer GarbageCollectTimer { get; } = new(60000);
+        public const string SqlConnectionQuery =
+            "SERVER=localhost;DATABASE=data;UID=root;PASSWORD=123;SSL Mode=None;Port=3306;";
+
         public const int UpdateDelay = 3200; //Milliseconds
 
         private static readonly Random Rng = new();
         private static Timer UpdateLoop { get; } = new(UpdateDelay);
         public static List<DiscordClient> Clients { get; } = new();
         public static bool DebugMode { get; private set; }
-
         private static List<DiscordMessage> BotMessages { get; } = new();
-
-        //public static readonly HttpServer WebSocketServer = new (8000); //This is a server by the WebSocketSharp lib.
 
         public static async Task Initialize(RunType token)
         {
-            //GarbageCollectTimer.Elapsed += (_, _) => { GC.Collect(); }; // I've removed this because it was a bad idea to call the GC manually. 
-            //GarbageCollectTimer.Start();                                // Please if you're reading this don't do it.
             UpdateLoop.Elapsed += (_, _) => OnUpdate();
             UpdateLoop.Start();
-            BatTosho.LoadUsers();
+            await Controllers.Bot.LoadUsers(true);
             HttpClient.WithCookies();
             if (!File.Exists($"{WorkingDirectory}/Status.json"))
                 await UpdateStatus(null, "Chalga", ActivityType.ListeningTo);
@@ -64,17 +63,23 @@ namespace BatToshoRESTApp
                         useDefaultHelpCommand: false));
                     Clients.Add(MakeClient(BotBeta, Array.Empty<string>()));
                     Clients.Add(MakeClient(SecondaryBot, Array.Empty<string>()));
-                    Clients.Add(MakeClient("OTA2MDc2NTM2Nzk5NjI1MjU3.YYTXiA.8GU3WJRqU_kWW7lhQ_upcH_mfGI", Array.Empty<string>()));
-                    Clients.Add(MakeClient("OTA2MDc2ODA2Njg2MzMwOTQw.YYTXyA.uFzpZH2q3-XPIv5fXoqhMDEFD5g", Array.Empty<string>()));
-                    Clients.Add(MakeClient("OTA2MDc3MjAxMzg3MTEwNDEy.YYTYJg.DDYabJ6mCuI9pjidgkTFPAMVtWg", Array.Empty<string>()));
+                    Clients.Add(MakeClient("OTA2MDc2NTM2Nzk5NjI1MjU3.YYTXiA.8GU3WJRqU_kWW7lhQ_upcH_mfGI",
+                        Array.Empty<string>()));
+                    Clients.Add(MakeClient("OTA2MDc2ODA2Njg2MzMwOTQw.YYTXyA.uFzpZH2q3-XPIv5fXoqhMDEFD5g",
+                        Array.Empty<string>()));
+                    Clients.Add(MakeClient("OTA2MDc3MjAxMzg3MTEwNDEy.YYTYJg.DDYabJ6mCuI9pjidgkTFPAMVtWg",
+                        Array.Empty<string>()));
                     await Debug.WriteAsync($"Bat Tosho E Veche Velik! RunType = {token}, Token is: \"{BotRelease}\"");
                     break;
                 case RunType.Beta:
                     Clients.Add(MakeClient(BotBeta, new[] {";"}, useSlashCommands: false));
                     Clients.Add(MakeClient(SecondaryBot, Array.Empty<string>()));
-                    Clients.Add(MakeClient("OTA2MDc2NTM2Nzk5NjI1MjU3.YYTXiA.8GU3WJRqU_kWW7lhQ_upcH_mfGI", Array.Empty<string>()));
-                    Clients.Add(MakeClient("OTA2MDc2ODA2Njg2MzMwOTQw.YYTXyA.uFzpZH2q3-XPIv5fXoqhMDEFD5g", Array.Empty<string>()));
-                    Clients.Add(MakeClient("OTA2MDc3MjAxMzg3MTEwNDEy.YYTYJg.DDYabJ6mCuI9pjidgkTFPAMVtWg", Array.Empty<string>()));
+                    Clients.Add(MakeClient("OTA2MDc2NTM2Nzk5NjI1MjU3.YYTXiA.8GU3WJRqU_kWW7lhQ_upcH_mfGI",
+                        Array.Empty<string>()));
+                    Clients.Add(MakeClient("OTA2MDc2ODA2Njg2MzMwOTQw.YYTXyA.uFzpZH2q3-XPIv5fXoqhMDEFD5g",
+                        Array.Empty<string>()));
+                    Clients.Add(MakeClient("OTA2MDc3MjAxMzg3MTEwNDEy.YYTYJg.DDYabJ6mCuI9pjidgkTFPAMVtWg",
+                        Array.Empty<string>()));
                     await Debug.WriteAsync($"Bat Tosho E Veche Velik! RunType = {token}, Token is: \"{BotBeta}\"");
                     break;
                 default:
@@ -140,7 +145,7 @@ namespace BatToshoRESTApp
                                         $"- Waiting Stopwatch: {Statusbar.Time(pl.WaitingStopwatch.Elapsed)} " +
                                         $"- Time: {Statusbar.Time(pl.Stopwatch.Elapsed)} " +
                                         $"- {Statusbar.Time(TimeSpan.FromMilliseconds(pl.CurrentItem.GetLength()))} " +
-                                        $"- Paused: {pl.Paused} - Voice Users: {pl.VoiceUsers}");
+                                        $"- Paused: {pl.Paused} - Voice Users: {pl.VoiceUsers.Count}");
                                 await Task.Delay(1000);
                             }
 
@@ -173,7 +178,7 @@ namespace BatToshoRESTApp
                             continue;
                         case "wusers":
                             await Debug.WriteAsync("Listing all Web Ui users:");
-                            BatTosho.PrintUsers();
+                            Controllers.Bot.PrintUsers();
                             continue;
                         case "guilds":
                             await Debug.WriteAsync("Listing all guilds:");
@@ -272,8 +277,6 @@ namespace BatToshoRESTApp
             // And for the sake of not crashing the bot when the spaghetti code acts up, I've enclosed it with try catch blocks.
             try // Genius. Insert head blown guy GIF here.
             {
-                JsonWriteQueue.Update();
-                Event.Update();
             }
             catch (Exception e)
             {
@@ -344,14 +347,14 @@ namespace BatToshoRESTApp
                 BotMessages.Add(args.Message);
                 await Debug.WriteAsync(
                     $"Bot account: \"{sender.CurrentUser.Username}\" with id: \"{sender.CurrentUser.Id}\" recieved private message from " +
-                    $"\"{args.Author.Username}#{args.Author.Discriminator}\": \"{args.Message.Content}\" in channel id \"{args.Channel.Id}\" - Message id is: {id}",
+                    $"\"{args.Author.Username}#{args.Author.Discriminator}\": \n\"{args.Message.Content}\" \nin channel id \"{args.Channel.Id}\" - Message id is: {id}",
                     true, Debug.DebugColor.Warning);
             };
             if (!useSlashCommands) return client;
             var ext = client.UseSlashCommands();
             ext.RegisterCommands<CommandsSlash>();
             //ext.RegisterCommands<CommandsSlash>(933977766284652594);
-            //// Same as the message on line 335, but I don't think I'll need to debug this anymore. Let's hope I didn't just jinx this just now.
+            //Same as the message on line 335, but I don't think I'll need to debug this anymore. Let's hope I didn't just jinx this just now.
             Debug.Write("Using Slash Commands.");
 
             return client;
@@ -394,7 +397,7 @@ namespace BatToshoRESTApp
 
         public static async Task SendDirectMessage(CommandContext ctx, string text, bool formatted = true)
         {
-            await ctx.Member.SendMessageAsync(formatted ? $"```{text}```" : text);
+            if (ctx.Member is not null) await ctx.Member.SendMessageAsync(formatted ? $"```{text}```" : text);
         }
 
         public static string RandomString(int length, bool includeBadSymbols = false)
@@ -405,10 +408,10 @@ namespace BatToshoRESTApp
                     length).Select(s => s[new Random(Rng.Next(int.MaxValue)).Next(s.Length)]).ToArray());
         }
 
-        public record BotActivity
+        private record BotActivity
         {
-            public string Status { get; set; }
-            public ActivityType ActivityType { get; set; }
+            public string Status { get; init; }
+            public ActivityType ActivityType { get; init; }
         }
     }
 }

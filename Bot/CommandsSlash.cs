@@ -1,17 +1,16 @@
 using System;
 using System.Linq;
 using System.Threading.Tasks;
-using BatToshoRESTApp.Audio;
-using BatToshoRESTApp.Audio.Platforms.Discord;
-using BatToshoRESTApp.Controllers;
-using BatToshoRESTApp.Enums;
-using BatToshoRESTApp.Methods;
-using BatToshoRESTApp.Miscellaneous;
+using DiscordBot.Audio;
+using DiscordBot.Audio.Platforms.Discord;
+using DiscordBot.Enums;
+using DiscordBot.Methods;
+using DiscordBot.Miscellaneous;
 using DSharpPlus;
 using DSharpPlus.Entities;
 using DSharpPlus.SlashCommands;
 
-namespace BatToshoRESTApp
+namespace DiscordBot
 {
     // ReSharper disable once ClassNeverInstantiated.Global
     public class CommandsSlash : ApplicationCommandModule
@@ -37,7 +36,8 @@ namespace BatToshoRESTApp
             [ChoiceName("Save Playlist")] SavePlaylist,
             [ChoiceName("Lyrics")] Lyrics,
             [ChoiceName("Get Avatar")] GetAvatar,
-            [ChoiceName("Meme")] Meme
+            [ChoiceName("Meme")] Meme,
+            [ChoiceName("PlsFix")] PlsFix
         }
 
         public enum LoopStatus
@@ -142,6 +142,7 @@ namespace BatToshoRESTApp
                     HelpCommandCategories.Lyrics => "lyrics",
                     HelpCommandCategories.GetAvatar => "getavatar",
                     HelpCommandCategories.Meme => "meme",
+                    HelpCommandCategories.PlsFix => "plsfix",
                     _ => "home"
                 };
                 if (string.IsNullOrEmpty(command)) command = "home";
@@ -229,7 +230,7 @@ namespace BatToshoRESTApp
                 return;
             }
 
-            await ctx.CreateResponseAsync($"```Skipping {(times == 1 ? "one times" : $"{times} times")}.```"
+            await ctx.CreateResponseAsync($"```Skipping {(times == 1 ? "one time" : $"{times} times")}.```"
             );
 
             await player.Skip((int) times);
@@ -294,9 +295,9 @@ namespace BatToshoRESTApp
                     {
                         Content = "```Sending a Direct Message containing the required information.```"
                     });
-                if (BatTosho.WebUiUsers.ContainsKey(ctx.Member.Id))
+                if (Controllers.Bot.WebUiUsers.ContainsKey(ctx.Member.Id))
                 {
-                    var key = BatTosho.WebUiUsers[ctx.Member.Id];
+                    var key = Controllers.Bot.WebUiUsers[ctx.Member.Id];
                     //await ctx.Member.SendMessageAsync($"```You have already generated a Web UI code: {key}```");
                     await ctx.Member.SendMessageAsync(new DiscordMessageBuilder()
                         .WithContent($"```Your Web UI Code is: {key}```")
@@ -315,7 +316,7 @@ namespace BatToshoRESTApp
                 }
 
                 var randomString = Bot.RandomString(96);
-                BatTosho.AddUser(ctx.Member.Id, randomString);
+                await Controllers.Bot.AddUser(ctx.Member.Id, randomString);
                 await ctx.Member.SendMessageAsync(new DiscordMessageBuilder()
                     .WithContent($"```Your Web UI Code is: {randomString}```")
                     .WithFile("qr_code.jpg", Manager.GetQrCodeForWebUi(randomString))
@@ -336,18 +337,39 @@ namespace BatToshoRESTApp
             }
         }
 
-        [SlashCommand("vote", "С тази команда гласувате как да продължи бота.")]
-        public async Task VoteCommand(InteractionContext ctx, [Option("choice", "Избор")] string choice)
+        [SlashCommand("volume", "This command changes the volume of the bot. Must be between 0 and 200%")]
+        public async Task Volume(InteractionContext ctx, [Option("volume", "Volume percent number")] double volume)
         {
             try
             {
-                await Debug.WriteAsync($"Vote added: {ctx.User.Username}#{ctx.User.Discriminator} - \"{choice}\"", true, Debug.DebugColor.Warning);
-                Event.Add($"{ctx.User.Username}#{ctx.User.Discriminator}", choice);
-                await ctx.CreateResponseAsync("```Благодаря за вашия глас.```");
+                var userVoiceS = ctx.Member?.VoiceState?.Channel;
+                if (userVoiceS == null)
+                {
+                    await ctx.CreateResponseAsync("```You cannot use this command while not being in a channel.```");
+                    return;
+                }
+
+                var player = Manager.GetPlayer(userVoiceS, ctx.Client);
+                if (player == null)
+                {
+                    await ctx.CreateResponseAsync("```The bot isn't in the channel.```");
+                    return;
+                }
+
+                var val = player.UpdateVolume(volume);
+                switch (val)
+                {
+                    case true:
+                        await ctx.CreateResponseAsync($"```Set the volume to {volume}%```");
+                        break;
+                    case false:
+                        await ctx.CreateResponseAsync("```Invalid volume range. Must be between 0 and 200%.```");
+                        break;
+                }
             }
             catch (Exception e)
             {
-                await Debug.WriteAsync($"Error in vote slash command: \"{e}\"");
+                await Debug.WriteAsync($"Slash Command Shuffle failed. {e}");
             }
         }
 
@@ -404,7 +426,36 @@ namespace BatToshoRESTApp
             }
         }
 
-        [ContextMenu(ApplicationCommandType.UserContextMenu, "Catch penis.")]
+        [SlashCommand("plsfix", "This command makes you pray to the RNG gods.")]
+        public async Task PlsFix(InteractionContext ctx)
+        {
+            try
+            {
+                var userVoiceS = ctx.Member?.VoiceState?.Channel;
+                if (userVoiceS == null)
+                {
+                    await ctx.CreateResponseAsync(
+                        "```One cannot recieve the blessing of playback if they're not in a channel.```");
+                    return;
+                }
+
+                var player = Manager.GetPlayer(userVoiceS, ctx.Client);
+                if (player == null)
+                {
+                    await ctx.CreateResponseAsync(
+                        "```One cannot recieve the blessing of playback if there's nothing to play.```");
+                    return;
+                }
+
+                player.PlsFix();
+            }
+            catch (Exception e)
+            {
+                await Debug.WriteAsync($"Pls Fix Slash Command failed: {e}");
+            }
+        }
+
+        [ContextMenu(ApplicationCommandType.UserContextMenu, "Хвани за кура")]
         public async Task CatchDick(ContextMenuContext ctx)
         {
             try
@@ -438,7 +489,7 @@ namespace BatToshoRESTApp
             }
         }
 
-        [ContextMenu(ApplicationCommandType.UserContextMenu, "Send \"Catch Penis\" request.")]
+        [ContextMenu(ApplicationCommandType.UserContextMenu, "Send \"Хвани за кура\" request.")]
         public async Task CatchDickRequest(ContextMenuContext ctx)
         {
             try

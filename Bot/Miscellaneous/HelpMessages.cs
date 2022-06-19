@@ -1,4 +1,4 @@
-namespace BatToshoRESTApp.Miscellaneous
+namespace DiscordBot.Miscellaneous
 {
     public static class HelpMessages
     {
@@ -73,6 +73,7 @@ This command saves a playlist which you can use to resume your session.
                 "lyrics" => LyricsCommand,
                 "getavatar" => GetAvatarCommand,
                 "meme" => MemeCommand,
+                "plsfix" => PlsFixCommand,
                 _ => null
             };
         }
@@ -164,8 +165,11 @@ After that until the next padding bytes (00,02) , it's pure data.
 For more information you can DM the developer on Discord. You can find him in the bot's support Discord Guild.
 ";
 
-        private const string LyricsCommand = @"`lyrics` `-lyrics Song - Author`
+        private const string LyricsCommand = @"`-lyrics` `-lyrics Song - Author`
 This command is pretty well explained in the home page of the help command. It uses an API to search the lyrics, so it may not be as accurate as you're going to be when you search for them yourself.";
+
+        private const string PlsFixCommand = @"`-plsfix`
+This command makes you pray to the RNG gods, and if you recieve a blessing, the bot will restart the current item.";
 
         #endregion
     }
