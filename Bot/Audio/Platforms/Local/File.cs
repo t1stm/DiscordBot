@@ -19,5 +19,21 @@ namespace DiscordBot.Audio.Platforms.Local
             };
             return file;
         }
+        
+        public static SystemFile GetInfo(string path, ulong guild) //This is for the Discord Attachments
+        {
+            if (path.Split("/").Last().Length < 4) return null;
+            var filename = path.Split("/").Last();
+            var file = new SystemFile
+            {
+                Title = filename,
+                Author = path[..^filename.Length],
+                Location = path,
+                Length = 0,
+                IsDiscordAttachment = true,
+                Guild = guild
+            };
+            return file;
+        }
     }
 }

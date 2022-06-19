@@ -16,9 +16,9 @@ namespace DiscordBot.Audio.Objects
             return null;
         }
 
-        protected override string GetAddUrl()
+        public override string GetAddUrl()
         {
-            return $"https://www.vbox7.com/play:{Id}";
+            return $"vb7://{Id}";
         }
 
         public new bool GetIfErrored()

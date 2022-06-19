@@ -5,7 +5,7 @@ namespace DiscordBot.Audio.Objects
 {
     public class OnlineFile : PlayableItem
     {
-        public new string GetName()
+        public override string GetName()
         {
             var loc = GetLocation();
             return loc.Length > 40 ? $"{loc[..40]}..." : loc;
@@ -26,12 +26,12 @@ namespace DiscordBot.Audio.Objects
             return "Online File";
         }
 
-        public new string GetTitle()
+        public override string GetTitle()
         {
             return GetLocation().Length <= 40 ? GetLocation() : GetLocation()[..40] + "...";
         }
 
-        public new string GetAuthor()
+        public override string GetAuthor()
         {
             return "";
         }
@@ -41,7 +41,7 @@ namespace DiscordBot.Audio.Objects
             return null;
         }
 
-        protected override string GetAddUrl()
+        public override string GetAddUrl()
         {
             return GetLocation();
         }

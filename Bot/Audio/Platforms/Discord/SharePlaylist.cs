@@ -19,141 +19,127 @@ namespace DiscordBot.Audio.Platforms.Discord
             var location = $"{Bot.WorkingDirectory}/Playlists/{att.FileName}";
             if (File.Exists(location)) File.Delete(location);
             await HttpClient.DownloadFile(att.Url, location);
-            return Get(att.FileName[..^5]);
-        }
-
-        public static List<PlayableItem> Get(string token)
-        {
-            try
-            {
-                if (token.StartsWith("http"))
-                {
-                    var str = HttpClient.DownloadStream(token).Result;
-                    token = Encoding.UTF8.GetString(str.ToArray());
-                }
-
-                var list = new List<PlayableItem>();
-                var listDeserialized = Deserialize(token);
-                foreach (var info in listDeserialized)
-                {
-                    var split = info.Information.Split("&//");
-                    if (split.Length <= 3)
-                    {
-                        Debug.Write("Deserializing Playlist Format failed. Split not long enough.");
-                        throw new Exception("Split not long enough.");
-                    }
-                    switch (info.Id)
-                    {
-                        case 01:
-                            list.Add(new YoutubeVideoInformation
-                            {
-                                YoutubeId = split[0],
-                                Title = split[1],
-                                Author = split[2],
-                                Length = ulong.Parse(split[3]),
-                                ThumbnailUrl = split[4]
-                            });
-                            break;
-                        case 02:
-                            list.Add(new SpotifyTrack
-                            {
-                                TrackId = split[0],
-                                Title = split[1],
-                                Author = split[2],
-                                Length = ulong.Parse(split[3])
-                            });
-                            break;
-                        case 03:
-                            list.Add(new SystemFile
-                            {
-                                Location = split[0],
-                                Title = split[1],
-                                Author = split[2],
-                                Length = ulong.Parse(split[3]),
-                                IsDiscordAttachment = true
-                            });
-                            break;
-                        case 04:
-                            list.Add(new SystemFile
-                            {
-                                Location = split[0],
-                                Title = split[1],
-                                Author = split[2],
-                                Length = ulong.Parse(split[3])
-                            });
-                            break;
-                        case 05:
-                            list.Add(new Vbox7Video
-                            {
-                                Location = split[0],
-                                Title = split[1],
-                                Author = split[2],
-                                Length = ulong.Parse(split[3])
-                            });
-                            break;
-                        case 06:
-                            list.Add(new OnlineFile
-                            {
-                                Location = split[0]
-                            });
-                            break;
-                    }
-                }
-
-                return list;
-            }
-            catch (Exception e)
-            {
-                Debug.Write($"Loading old playlist failed: {e}");
-                return null;
-            }
+            return await Get(att.FileName[..^5]);
         }
 
         public static FileStream Write(string token, IEnumerable<PlayableItem> list)
         {
-            var bytes = new List<byte> {84, 7, 70, 60};
+            var bytes = new List<byte> {84, 7, 70, 60, 5, 34};
             foreach (var item in list)
-                switch (item)
+            {
+                var urlSplit = item.GetAddUrl().Split("://");
+                var text = string.Join("://", urlSplit[1..]);
+                byte acc = item switch
                 {
-                    case YoutubeVideoInformation:
-                        Serialize(bytes,
-                            $"{item.GetId()}&//{item.GetTitle()}&//{item.GetAuthor()}&//{item.GetLength()}&//{item.GetThumbnailUrl()}",
-                            01);
-                        break;
-                    case SpotifyTrack:
-                        Serialize(bytes,
-                            $"{item.GetId()}&//{item.GetTitle()}&//{item.GetAuthor()}&//{item.GetLength()}", 02);
-                        break;
-                    case SystemFile when item.GetTypeOf() == "Discord Attachment":
-                        Serialize(bytes,
-                            $"{item.GetLocation()}&//{item.GetTitle()}&//{item.GetAuthor()}&//{item.GetLength()}", 03);
-                        break;
-                    case SystemFile:
-                        Serialize(bytes,
-                            $"{item.GetLocation()}&//{item.GetTitle()}&//{item.GetAuthor()}&//{item.GetLength()}", 04);
-                        break;
-                    case Vbox7Video:
-                        Serialize(bytes,
-                            $"{item.GetLocation()}&//{item.GetTitle()}&//{item.GetAuthor()}&//{item.GetLength()}", 05);
-                        break;
-                    case OnlineFile:
-                        Serialize(bytes,
-                            $"{item.GetLocation()}&//{item.GetTitle()}&//{item.GetAuthor()}&//{item.GetLength()}", 06);
-                        break;
-                    case TtsText:
-
-                        break;
-                }
+                    YoutubeVideoInformation => 01,
+                    SpotifyTrack => 02,
+                    SystemFile => 03,
+                    Vbox7Video => 05,
+                    OnlineFile => 06,
+                    TtsText => 07,
+                    TwitchLiveStream => 08,
+                    _ => throw new ArgumentOutOfRangeException($"Item is not supported in: \"{nameof(list)}\"")
+                };
+                if (acc == 03 && urlSplit[0] == "dis-att") acc = 04;
+                Encode(bytes, text, acc);
+            }
 
             var fs = new FileStream($"{Bot.WorkingDirectory}/Playlists/{token}.batp", FileMode.Create);
             fs.Write(bytes.ToArray());
             return fs;
         }
 
-        private static void Serialize(List<byte> bytes, string text, byte accessor)
+        public static async Task<List<PlayableItem>> Get(string token)
+        {
+            try
+            {
+                var list = new List<PlayableItem>();
+                var listDeserialized = Decode(token);
+                foreach (var info in listDeserialized)
+                {
+                    if (info.OldFormat)
+                    {
+                        var item = OldFormatItem(info);
+                        if (item == null) continue;
+                        list.Add(item);
+                        continue;
+                    }
+                    var add = await Search.Get(NewFormatSearch(info));
+                    list.AddRange(add);
+                }
+
+                return list;
+            }
+            catch (Exception e)
+            {
+                await Debug.WriteAsync($"Loading old playlist failed: {e}");
+                return null;
+            }
+        }
+
+        private static string NewFormatSearch(Info info)
+        {
+            return info.Id switch
+            {
+                01 => "yt://",
+                02 => "spt://",
+                03 => "file://",
+                04 => "dis-att://",
+                05 => "vb7://",
+                06 => "onl://",
+                07 => "tts://",
+                08 => "twitch://",
+                _ => ""
+            } + info.Information;
+        }
+        
+        private static PlayableItem? OldFormatItem(Info info)
+        {
+            var split = info.Information.Split("&//");
+            if (split.Length > 3)
+                return info.Id switch
+                {
+                    01 => new YoutubeVideoInformation
+                    {
+                        YoutubeId = split[0],
+                        Title = split[1],
+                        Author = split[2],
+                        Length = ulong.Parse(split[3]),
+                        ThumbnailUrl = split[4]
+                    },
+                    02 => new SpotifyTrack
+                    {
+                        TrackId = split[0], Title = split[1], Author = split[2], Length = ulong.Parse(split[3])
+                    },
+                    03 => new SystemFile
+                    {
+                        Location = split[0],
+                        Title = split[1],
+                        Author = split[2],
+                        Length = ulong.Parse(split[3]),
+                        IsDiscordAttachment = true
+                    },
+                    04 => new SystemFile
+                    {
+                        Location = split[0], Title = split[1], Author = split[2], Length = ulong.Parse(split[3])
+                    },
+                    05 => new Vbox7Video
+                    {
+                        Location = split[0], Title = split[1], Author = split[2], Length = ulong.Parse(split[3])
+                    },
+                    06 => new OnlineFile {Location = split[0]},
+                    _ => null
+                };
+            
+            Debug.Write("Deserializing Playlist Format failed. Split not long enough.");
+            throw new Exception("Split not long enough.");
+
+        }
+
+        private static void Encode(List<byte> bytes, string text, byte accessor)
         {
             List<byte> data = new();
-            var encoding = text.All(IsBulgarianCharacter) ? (byte) 02 : text.All(IsAscii) ? (byte) 01 : (byte) 00;
+            var encoding = text.All(IsAscii) ? (byte) 01 : text.All(IsBulgarianCharacter) ? (byte) 02: (byte) 00;
             foreach (var ch in text)
             {
                 if (encoding == 02)
@@ -163,7 +149,11 @@ namespace DiscordBot.Audio.Platforms.Discord
                 }
 
                 var utf = Convert.ToUInt16(ch);
-                if (encoding == 01) data.Add((byte) utf);
+                if (encoding == 01)
+                {
+                    data.Add((byte) utf);
+                    continue;
+                }
                 data.Add((byte) utf);
                 data.Add((byte) (utf >> 8));
             }
@@ -177,14 +167,18 @@ namespace DiscordBot.Audio.Platforms.Discord
             }
         }
 
-        private static IEnumerable<Info> Deserialize(string token)
+        private static IEnumerable<Info> Decode(string token)
         {
             var bytes = File.ReadAllBytes($"{Bot.WorkingDirectory}/Playlists/{token}.batp");
+            var oldFormat = false;
             List<Info> infos = new();
-            if (bytes[0] != 84 || bytes[1] != 7 || bytes[2] != 70 || bytes[3] != 60) return OldFormat(token);
-            for (var i = 4; i < bytes.Length; i++)
+            if (bytes.Length < 5) throw new Exception("Empty or Corrupted File.");
+            if (bytes[0] != 84 || bytes[1] != 7 || bytes[2] != 70 || bytes[3] != 60) return OldFormat(bytes);
+            if (bytes[0] != 84 || bytes[1] != 7 || bytes[2] != 70 || bytes[3] != 60 || bytes[4] != 5 || bytes[5] != 34)
+                oldFormat = true;
+            for (var i = oldFormat ? 4 : 6; i < bytes.Length; i++)
             {
-                if (bytes[i] != 00 || bytes[i + 1] != 02) throw new Exception("Bad2");
+                if (bytes[i] != 00 || bytes[i + 1] != 02) throw new Exception("Invalid or Corrupted File: Seperator check failed.");
                 //Console.WriteLine($"Id is: {bytes[i+3]}");
                 var encoding = bytes[i + 2];
                 var index = bytes[i + 3];
@@ -228,7 +222,6 @@ namespace DiscordBot.Audio.Platforms.Discord
 
                             data += DecodeBulgarian(bytes[j]);
                         }
-
                         break;
                 }
 
@@ -237,7 +230,8 @@ namespace DiscordBot.Audio.Platforms.Discord
                     infos.Add(new Info
                     {
                         Id = index,
-                        Information = data
+                        Information = data,
+                        OldFormat = oldFormat
                     });
                 }
             }
@@ -245,20 +239,19 @@ namespace DiscordBot.Audio.Platforms.Discord
             return infos;
         }
 
-        private static IEnumerable<Info> OldFormat(string token)
+        private static IEnumerable<Info> OldFormat(IReadOnlyList<byte> bytes)
         {
             Debug.Write("Using old format");
-            var bytes = File.ReadAllBytes($"{Bot.WorkingDirectory}/Playlists/{token}.batp");
             List<Info> infos = new();
             if (bytes[0] != 84 || bytes[1] != 7 || bytes[2] != 70 || bytes[3] != 50) throw new Exception("Bad");
-            for (var i = 4; i < bytes.Length; i++)
+            for (var i = 4; i < bytes.Count; i++)
             {
                 if (bytes[i] != 00 || bytes[i + 1] != 00) throw new Exception("Bad2");
                 var index = bytes[i + 3];
                 var data = "";
-                for (var j = i + 4; j < bytes.Length; j += 2)
+                for (var j = i + 4; j < bytes.Count; j += 2)
                 {
-                    if (j + 2 == bytes.Length || bytes[j] == 00 && bytes[j + 1] == 02)
+                    if (j + 2 == bytes.Count || bytes[j] == 00 && bytes[j + 1] == 02)
                     {
                         i = j + 1;
                         break;
@@ -431,10 +424,11 @@ namespace DiscordBot.Audio.Platforms.Discord
             };
         }
 
-        private struct Info
+        public struct Info
         {
             public byte Id;
             public string Information;
+            public bool OldFormat;
         }
     }
 }

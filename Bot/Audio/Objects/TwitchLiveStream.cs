@@ -96,9 +96,9 @@ namespace DiscordBot.Audio.Objects
             return null;
         }
 
-        protected override string GetAddUrl()
+        public override string GetAddUrl()
         {
-            return Url;
+            return $"twitch://{Url}";
         }
     }
 }

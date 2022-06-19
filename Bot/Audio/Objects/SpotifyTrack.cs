@@ -30,9 +30,9 @@ namespace DiscordBot.Audio.Objects
             return "";
         }
 
-        protected override string GetAddUrl()
+        public override string GetAddUrl()
         {
-            return $"https://open.spotify.com/track/{TrackId}";
+            return $"spt://{TrackId}";
         }
     }
 }

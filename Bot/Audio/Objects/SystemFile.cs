@@ -7,7 +7,8 @@ namespace DiscordBot.Audio.Objects
 {
     public class SystemFile : PlayableItem
     {
-        public bool IsDiscordAttachment { get; init; } = true;
+        public bool IsDiscordAttachment { get; init; }
+        public ulong Guild { get; set; }
         private bool Checked { get; set; }
 
         public override string GetThumbnailUrl()
@@ -15,12 +16,21 @@ namespace DiscordBot.Audio.Objects
             return "";
         }
 
-        protected override string GetAddUrl()
+        public override string GetLocation()
         {
-            return $"file://{Location}";
+            return IsDiscordAttachment ? base.GetLocation() : $"{Bot.WorkingDirectory}/dll/Discord Attachments/{Guild}/{Location}";
         }
 
-        public new ulong GetLength()
+        public override string GetAddUrl()
+        {
+            return IsDiscordAttachment switch
+            {
+                true => $"dis-att://{Guild}-{Location}",
+                false => $"file://{Location}"
+            };
+        }
+
+        public override ulong GetLength()
         {
             return Length == default ? 0 : Length;
         }

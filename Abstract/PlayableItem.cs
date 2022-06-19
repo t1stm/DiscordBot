@@ -12,17 +12,17 @@ namespace DiscordBot.Abstract
         public DiscordMember Requester { get; set; }
         protected bool Errored { get; set; }
 
-        public string GetName()
+        public virtual string GetName()
         {
             return $"{Title}{string.IsNullOrEmpty(Author) switch {false => $" - {Author}", true => ""}}";
         }
 
-        public ulong GetLength()
+        public virtual ulong GetLength()
         {
             return Length;
         }
 
-        public string GetLocation()
+        public virtual string GetLocation()
         {
             return Location;
         }
@@ -47,19 +47,19 @@ namespace DiscordBot.Abstract
             return Errored;
         }
 
-        public string GetTitle()
+        public virtual string GetTitle()
         {
             return Title;
         }
 
-        public string GetAuthor()
+        public virtual string GetAuthor()
         {
             return Author;
         }
 
         public abstract string GetThumbnailUrl();
 
-        protected abstract string GetAddUrl();
+        public abstract string GetAddUrl();
 
         public Controllers.Bot.SearchResult ToSearchResult()
         {

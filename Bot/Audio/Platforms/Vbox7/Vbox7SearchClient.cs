@@ -10,7 +10,7 @@ using DiscordBot.Readers;
 
 namespace DiscordBot.Audio.Platforms.Vbox7
 {
-    public static class SearchClient
+    public static class Vbox7SearchClient
     {
         // I TAKA NEKA SLEDVASHTIQ MUZIKALEN POZDRAV ZVUCHI SPECIALNO, ZA MOQ BRAT SASHO....SKORPIONA,
         // ZA RUSI SHAMPIONA, ZA IHTI DRAKONA, ZA MOITE PRIQTELI ANDI BAR I DOLNA METROPOLIA, ZA GALI,

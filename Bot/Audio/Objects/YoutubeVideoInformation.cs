@@ -28,9 +28,9 @@ namespace DiscordBot.Audio.Objects
             return ThumbnailUrl;
         }
 
-        protected override string GetAddUrl()
+        public override string GetAddUrl()
         {
-            return $"https://youtu.be/{YoutubeId}";
+            return $"yt://{YoutubeId}";
         }
 
         public bool GetIfLiveStream()

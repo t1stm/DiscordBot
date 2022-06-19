@@ -1,3 +1,5 @@
+#nullable enable
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -61,7 +63,7 @@ namespace DiscordBot.Audio.Platforms
                 };
             if (searchTerm.Contains("http") && searchTerm.Contains("vbox7.com"))
             {
-                var ser = await SearchClient.SearchUrl(searchTerm);
+                var ser = await Vbox7SearchClient.SearchUrl(searchTerm);
                 var obj = ser.ToVbox7Video();
                 return new List<PlayableItem>
                 {
@@ -86,25 +88,14 @@ namespace DiscordBot.Audio.Platforms
                     }
                 };
 
-            if (searchTerm.StartsWith("file://"))
-                return Files.Get(searchTerm[7..]);
-            if (searchTerm.StartsWith("vb7:"))
+            var res = await HandleBotProtocols(searchTerm);
+            if (res != null)
             {
-                var res = await SearchClient.GetResultsFromSearch(searchTerm[4..]);
-                await Debug.WriteAsync($"Objects are: {res.Count}");
-                foreach (var el in res) await Debug.WriteAsync($"Element is: {el.Options}");
-                return returnAllResults switch
-                {
-                    false => new List<PlayableItem>
-                    {
-                        res.First().ToVbox7Video()
-                    },
-                    true => new List<PlayableItem>(res.Select(r => r.ToVbox7Video()))
-                };
+                return new List<PlayableItem>{res};
             }
 
             if (searchTerm.StartsWith("pl:"))
-                return SharePlaylist.Get(searchTerm[3..]);
+                return await SharePlaylist.Get(searchTerm[3..]);
 
             return returnAllResults switch
             {
@@ -114,6 +105,41 @@ namespace DiscordBot.Audio.Platforms
                 },
                 true => new List<PlayableItem>(await Video.SearchAllResults(searchTerm, length))
             };
+        }
+
+        private static async Task<PlayableItem?> HandleBotProtocols(string search)
+        {
+            var split = search.Split("://");
+            if (split.Length < 2) return null;
+            switch (split[0])
+            {
+                case "yt":
+                    return await Video.SearchById(split[1]);
+                case "spt":
+                    return await Track.Get(split[1]);
+                case "file":
+                    return File.GetInfo(split[1]);
+                case "dis-att":
+                    var splitted = split[1].Split("-");
+                    return File.GetInfo(string.Join('-', splitted[1..]), ulong.Parse(splitted[0]));
+                case "vb7":
+                    var result = await Vbox7SearchClient.SearchUrl($"https://vbox7.com/play:{split[1]}");
+                    return result.ToVbox7Video();
+                case "onl":
+                    return new OnlineFile
+                    {
+                        Location = split[1]
+                    };
+                case "tts":
+                    return new TtsText(string.Join("://", split[1..]));
+                case "twitch":
+                    return new TwitchLiveStream
+                    {
+                        Url = $"https://twitch.tv/{split[1..]}"
+                    };
+            }
+            
+            return null;
         }
 
         public static async Task<List<PlayableItem>> Get(string searchTerm, List<DiscordAttachment> attachments,

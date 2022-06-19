@@ -52,19 +52,17 @@ namespace DiscordBot.Audio.Platforms.Discord
                 Author = "",
                 Length = 0,
                 Location = location,
-                IsDiscordAttachment = true
+                IsDiscordAttachment = true,
+                Guild = guild
             };
             try
             {
                 var tags = TagLib.File.Create(location);
-                file = new SystemFile
-                {
-                    Title = tags.Tag.Title,
-                    Author = tags.Tag.JoinedPerformers,
-                    Length = (ulong) tags.Properties.Duration.TotalMilliseconds,
-                    Location = location,
-                    IsDiscordAttachment = true
-                };
+                file.Length = (ulong) tags.Properties.Duration.TotalMilliseconds;
+                file.Title = tags.Tag.Title;
+                file.Author = tags.Tag.JoinedPerformers;
+                file.Location = attachment.FileName;
+                file.Guild = guild;
             }
             catch (Exception)
             {

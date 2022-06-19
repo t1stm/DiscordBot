@@ -103,9 +103,9 @@ namespace DiscordBot.Audio.Objects
             return null;
         }
 
-        protected override string GetAddUrl()
+        public override string GetAddUrl()
         {
-            return string.Empty;
+            return $"tts://{_textToSay}";
         }
     }
 }
