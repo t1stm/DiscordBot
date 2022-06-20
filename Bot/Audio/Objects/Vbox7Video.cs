@@ -21,7 +21,7 @@ namespace DiscordBot.Audio.Objects
             return $"vb7://{Id}";
         }
 
-        public new bool GetIfErrored()
+        public override bool GetIfErrored()
         {
             return false;
         }

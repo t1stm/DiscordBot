@@ -130,7 +130,7 @@ namespace DiscordBot.Audio
         {
             try
             {
-                if (player.Started == false)
+                if (!player.Started)
                 {
                     player.Started = true;
                     List<PlayableItem> items;
@@ -150,6 +150,12 @@ namespace DiscordBot.Audio
                         if (select && !term.StartsWith("http"))
                         {
                             var results = await Video.SearchAllResults(term);
+                            if (results.Count < 1)
+                            {
+                                await messageChannel.SendMessageAsync(
+                                    $"```No results could be found for the search term: \"{term}\"```");
+                                return;
+                            }
                             var options = results.Select(result =>
                                 new DiscordSelectComponentOption(result.Title, result.GetId(), result.Author)).ToList();
                             var dropdown = new DiscordSelectComponent("dropdown", null, options);
@@ -177,9 +183,18 @@ namespace DiscordBot.Audio
                             items = await Search.Get(term);
                         }
                     }
-
-                    items.ForEach(it => it.SetRequester(user));
-                    player.Queue.AddToQueue(items);
+                    
+                    if (items.Count < 1)
+                    {
+                        await messageChannel.SendMessageAsync(
+                            $"```No results could be found for the search term: \"{term}\"```");
+                    }
+                    else
+                    {
+                        items.ForEach(it => it.SetRequester(user));
+                        player.Queue.AddToQueue(items);
+                    }
+                    
                     player.Connection = await player.CurrentClient.GetVoiceNext()
                         .ConnectAsync(player.CurrentClient.Guilds[userVoiceS.Guild.Id].Channels[userVoiceS.Id]);
                     player.VoiceChannel = userVoiceS;
@@ -217,6 +232,12 @@ namespace DiscordBot.Audio
                         if (select && !term.Contains("http"))
                         {
                             var results = await Video.SearchAllResults(term);
+                            if (results.Count < 1)
+                            {
+                                await messageChannel.SendMessageAsync(
+                                    $"```No results could be found for the search term: \"{term}\"```");
+                                return;
+                            }
                             var options = results.Select(result =>
                                 new DiscordSelectComponentOption(result.Title, result.GetId(), result.Author)).ToList();
                             var dropdown = new DiscordSelectComponent("dropdown", null, options);
@@ -237,7 +258,12 @@ namespace DiscordBot.Audio
                             items = await Search.Get(term);
                         }
                     }
-
+                    if (items.Count < 1)
+                    {
+                        await messageChannel.SendMessageAsync(
+                            $"```No results could be found for the search term: \"{term}\"```");
+                        return;
+                    }
                     items.ForEach(it => it.SetRequester(user));
                     player.Queue.AddToQueue(items);
                     if (items.Count > 1)
@@ -291,7 +317,7 @@ namespace DiscordBot.Audio
             var player = GetPlayer(userVoiceS, ctx.Client);
             if (player == null)
             {
-                await Bot.Reply(ctx, "The bot isn't in the channel");
+                await Bot.Reply(ctx, "The bot isn't in the channel.");
                 return;
             }
 
@@ -322,7 +348,7 @@ namespace DiscordBot.Audio
             var player = GetPlayer(userVoiceS, ctx.Client);
             if (player == null)
             {
-                await Bot.Reply(ctx, "The bot isn't in the channel");
+                await Bot.Reply(ctx, "The bot isn't in the channel.");
                 return;
             }
 
@@ -355,7 +381,7 @@ namespace DiscordBot.Audio
             var player = GetPlayer(userVoiceS, ctx.Client);
             if (player == null)
             {
-                await Bot.Reply(ctx, "The bot isn't in the channel");
+                await Bot.Reply(ctx, "The bot isn't in the channel.");
                 return;
             }
 
@@ -376,7 +402,13 @@ namespace DiscordBot.Audio
             }
 
             var player = GetPlayer(userVoiceS, ctx.Client);
-            player?.Pause();
+            if (player == null)
+            {
+                await Bot.Reply(ctx, "The bot isn't in the channel.");
+                return;
+            }
+            
+            player.Pause();
         }
 
         public static async Task PlayNext(CommandContext ctx, string term)
@@ -388,8 +420,8 @@ namespace DiscordBot.Audio
                 return;
             }
 
-            var player = GetPlayer(userVoiceS, ctx.Client, generateNew: true);
-            if (player.Connection == null)
+            var player = GetPlayer(userVoiceS, ctx.Client);
+            if (player?.Connection == null)
             {
                 await PlayCommand(ctx, term);
                 return;
@@ -397,13 +429,23 @@ namespace DiscordBot.Audio
 
             if (int.TryParse(term, out var nextSong))
             {
-                var thing = player.Queue.Items[nextSong - 1];
-                player.Queue.RemoveFromQueue(thing);
-                player.Queue.AddToQueueNext(thing);
-                await Bot.Reply(player.CurrentClient, ctx.Channel,
-                    $"Playing: ({player.Queue.Items.IndexOf(thing) + 1}) - \"{thing.GetName()}\" after this.");
-                return;
+                do
+                {
+                    if (nextSong > player.Queue.Count)
+                    {
+                        await Bot.Reply(ctx, $"Specified number: {nextSong} is bigger than the Queue's Length. Searching the number instead.");
+                        break;
+                    }
+                    var thing = player.Queue.Items[nextSong - 1];
+                    player.Queue.RemoveFromQueue(thing);
+                    player.Queue.AddToQueueNext(thing);
+                    await Bot.Reply(player.CurrentClient, ctx.Channel,
+                        $"Playing: ({player.Queue.Items.IndexOf(thing) + 1}) - \"{thing.GetName()}\" after this.");
+                    return;
+                } while (false); // This error is tilting me but I can't do anything about it, because it's technically true. Rider cannot contain my intelligence.
             }
+
+            term += ""; // Clear any possible null warnings.
 
             List<PlayableItem> item;
             if (ctx.Message.Attachments.Count > 0)
@@ -417,6 +459,12 @@ namespace DiscordBot.Audio
             else
             {
                 item = await Search.Get(term);
+            }
+
+            if (item.Count < 1)
+            {
+                await Bot.Reply(ctx, $"No results could be found for the search term: \"{term}\"");
+                return;
             }
 
             item.ForEach(it => it.SetRequester(ctx.Member));
@@ -437,7 +485,7 @@ namespace DiscordBot.Audio
             var player = GetPlayer(userVoiceS, ctx.Client);
             if (player == null)
             {
-                await Bot.Reply(ctx, "The bot isn't in the channel");
+                await Bot.Reply(ctx, "The bot isn't in the channel.");
                 return;
             }
 
@@ -518,7 +566,7 @@ namespace DiscordBot.Audio
             var player = GetPlayer(userVoiceS, ctx.Client);
             if (player == null)
             {
-                await Bot.Reply(ctx, "The bot isn't in the channel");
+                await Bot.Reply(ctx, "The bot isn't in the channel.");
                 return;
             }
 
@@ -558,7 +606,7 @@ namespace DiscordBot.Audio
             var player = GetPlayer(userVoiceS, ctx.Client);
             if (player == null)
             {
-                await Bot.Reply(ctx, "The bot isn't in the channel");
+                await Bot.Reply(ctx, "The bot isn't in the channel.");
                 return;
             }
 
@@ -577,7 +625,7 @@ namespace DiscordBot.Audio
             var player = GetPlayer(userVoiceS, ctx.Client);
             if (player == null)
             {
-                await Bot.Reply(ctx, "The bot isn't in the channel");
+                await Bot.Reply(ctx, "The bot isn't in the channel.");
                 return;
             }
 
@@ -598,7 +646,7 @@ namespace DiscordBot.Audio
             var player = GetPlayer(userVoiceS, ctx.Client);
             if (player == null)
             {
-                await Bot.Reply(ctx, "The bot isn't in the channel");
+                await Bot.Reply(ctx, "The bot isn't in the channel.");
                 return;
             }
 
@@ -624,7 +672,7 @@ namespace DiscordBot.Audio
             var player = GetPlayer(userVoiceS, ctx.Client);
             if (player == null)
             {
-                await Bot.Reply(ctx, "The bot isn't in the channel");
+                await Bot.Reply(ctx, "The bot isn't in the channel.");
                 return;
             }
 
@@ -644,7 +692,7 @@ namespace DiscordBot.Audio
             var player = GetPlayer(userVoiceS, ctx.Client);
             if (player == null)
             {
-                await Bot.Reply(ctx, "The bot isn't in the channel");
+                await Bot.Reply(ctx, "The bot isn't in the channel.");
                 return;
             }
 
@@ -672,7 +720,7 @@ namespace DiscordBot.Audio
             var player = GetPlayer(userVoiceS, ctx.Client);
             if (player == null)
             {
-                await Bot.Reply(ctx, "The bot isn't in the channel");
+                await Bot.Reply(ctx, "The bot isn't in the channel.");
                 return;
             }
 
@@ -762,7 +810,7 @@ namespace DiscordBot.Audio
             var lyrics = await GetLyrics(query);
             if (lyrics == null)
             {
-                await Bot.Reply(ctx, "No results found for this song");
+                await Bot.Reply(ctx, "No results found for this song.");
                 return;
             }
 

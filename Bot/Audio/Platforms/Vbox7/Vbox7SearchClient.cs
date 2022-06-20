@@ -12,9 +12,17 @@ namespace DiscordBot.Audio.Platforms.Vbox7
 {
     public static class Vbox7SearchClient
     {
-        // I TAKA NEKA SLEDVASHTIQ MUZIKALEN POZDRAV ZVUCHI SPECIALNO, ZA MOQ BRAT SASHO....SKORPIONA,
-        // ZA RUSI SHAMPIONA, ZA IHTI DRAKONA, ZA MOITE PRIQTELI ANDI BAR I DOLNA METROPOLIA, ZA GALI,
-        // ZA SHUREKA, ZA KALI, ZA CQLATA KOMPANIA, ZA NASHIQ ZAPISVACH, D.. ZA DJ MECHO TESKIQ, HA HA HA ha
+        // I TAKA NEKA SLEDVASHTIQ MUZIKALEN POZDRAV ZVUCHI SPECIALNO,
+        // ZA MOQ BRAT SASHO.... SKORPIONA,
+        // ZA RUSI SHAMPIONA,
+        // ZA IHTI DRAKONA,
+        // ZA MOITE PRIQTELI ANDI BAR I DOLNA METROPOLIA,
+        // ZA GALI, ZA SHUREKA,
+        // ZA KALI,
+        // ZA CQLATA KOMPANIA,
+        // ZA NASHIQ... ZAPISVACH,
+        // D.. ZA DJ MECHO TESKIQ,
+        // HA HA HA Ha ha ha
         // https://www.vbox7.com/play:a3769b5b6b - Suraikata 2014 mix
         public static async Task<List<Vbox7Object>> GetResultsFromSearch(string term)
         {
@@ -67,6 +75,7 @@ namespace DiscordBot.Audio.Platforms.Vbox7
         {
             try
             {
+                if (string.IsNullOrEmpty(id)) return null;
                 await Debug.WriteAsync($"Vbox Url is: https://www.vbox7.com/ajax/video/nextvideo.php?vid={id}");
                 var call = await HttpClient.DownloadStream($"https://www.vbox7.com/ajax/video/nextvideo.php?vid={id}");
                 var text = Encoding.UTF8.GetString(call.GetBuffer());

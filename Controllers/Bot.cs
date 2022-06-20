@@ -17,7 +17,7 @@ using YoutubePlaylist = DiscordBot.Audio.Platforms.Youtube.Playlist;
 
 namespace DiscordBot.Controllers
 {
-    public class Bot : Controller
+    public partial class Bot : Controller
     {
         public static Dictionary<ulong, string> WebUiUsers = new();
 
@@ -368,17 +368,6 @@ namespace DiscordBot.Controllers
             return !WebUiUsers.ContainsValue(clientSecret) ? "404" : "200";
         } // ReSharper disable UnusedAutoPropertyAccessor.Local
 
-        public struct SearchResult
-        {
-            public string Title { get; init; }
-            public string Author { get; init; }
-            public string Length { get; init; }
-            public string Url { get; init; }
-            public string ThumbnailUrl { get; init; }
-            public bool IsSpotify { get; init; }
-            public string Id { get; init; }
-        }
-
         private struct GuildItem
         {
             public string Name { get; init; }
@@ -386,21 +375,7 @@ namespace DiscordBot.Controllers
 
             public string IconUrl { get; init; }
         }
-
-        public struct PlayerInfo
-        {
-            public string Title { get; set; }
-            public string Author { get; set; }
-            public ulong CurrentDuration { get; set; }
-            public string Current { get; set; }
-            public ulong TotalDuration { get; set; }
-            public string Total { get; set; }
-            public string Loop { get; set; }
-            public string ThumbnailUrl { get; set; }
-            public bool Paused { get; set; }
-            public long Index { get; set; }
-        }
-
+        
         private struct UserInfo
         {
             public string Username { get; init; }

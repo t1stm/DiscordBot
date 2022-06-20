@@ -71,7 +71,7 @@ namespace DiscordBot.Audio
                 Connection.VoiceSocketErrored += async (_, args) =>
                 {
                     await Debug.WriteAsync(
-                        $"VoiceSocket Errored in Guild: \"{CurrentGuild.Name}\" with arguments \"{args.Exception}\"\nAttempting to reconnect.",
+                        $"VoiceSocket Errored in Guild: \"{CurrentGuild.Name}\" with arguments \"{args.Exception}\"\n\nAttempting to reconnect.",
                         true, Debug.DebugColor.Urgent);
                     UpdateChannel(VoiceChannel);
                     await CurrentClient.SendMessageAsync(Channel,
@@ -83,52 +83,62 @@ namespace DiscordBot.Audio
                 Handler = TimerEvent;
                 _timer.Elapsed += Handler;
                 _timer.Start();
-
-                for (Queue.Current = current; Queue.Current < Queue.Count; Queue.Current++)
+                Queue.Current = current;
+                
+                do
                 {
-                    if (Queue.Current < 0) continue;
-                    if (Die) return;
-                    CurrentItem = Queue.GetCurrent();
-                    Statusbar.ChangeMode(StatusbarMode.Playing);
-                    while (Paused)
+                    if (Queue.Current < 0)
                     {
-                        await Task.Delay(10);
-                        if (!BreakNow) continue;
-                        BreakNow = false;
-                        break;
+                        Queue.Current++;
+                        continue;
                     }
-
-                    switch (CurrentItem)
+                    
+                    if (Die) break;
+                    CurrentItem = Queue.GetCurrent();
+                    
+                    if (CurrentItem != null)
                     {
-                        case SpotifyTrack tr:
-                            var list = await Search.Get(tr);
-                            var track = list.First();
-                            await track.Download();
-                            Queue.Current -= 1;
-                            continue;
-
-                        case YoutubeVideoInformation vi:
-
-                            var tries = 1;
-                            while (string.IsNullOrEmpty(vi.GetLocation()) && tries < 5)
-                            {
-                                await vi.Download();
-                                await Task.Delay(33);
-                                tries++;
-                            }
-
-                            StatusbarMessage = tries > 5
-                                ? $"Failed to get item: ({Queue.Current}) \"{vi.GetName()}\", skipping it."
-                                : StatusbarMessage;
-                            if (!vi.GetIfLiveStream())
-                                await PlayTrack(vi, Stopwatch.Elapsed.ToString(@"c"), true);
-                            else await PlayTrack(vi, Stopwatch.Elapsed.ToString(@"c"));
+                        
+                        Statusbar.ChangeMode(StatusbarMode.Playing);
+                        while (Paused)
+                        {
+                            await Task.Delay(10);
+                            if (!BreakNow) continue;
+                            BreakNow = false;
                             break;
+                        }
 
-                        default:
-                            //await CurrentItem.Download();
-                            await PlayTrack(CurrentItem, Stopwatch.Elapsed.ToString(@"c"));
-                            break;
+                        switch (CurrentItem)
+                        {
+                            case SpotifyTrack tr:
+                                var list = await Search.Get(tr);
+                                var track = list.First();
+                                await track.Download();
+                                Queue.Current -= 1;
+                                continue;
+
+                            case YoutubeVideoInformation vi:
+                                var tries = 1;
+                                while (string.IsNullOrEmpty(vi.GetLocation()) && tries < 5)
+                                {
+                                    await vi.Download();
+                                    await Task.Delay(33);
+                                    tries++;
+                                }
+
+                                StatusbarMessage = tries > 5
+                                    ? $"Failed to get item: ({Queue.Current}) \"{vi.GetName()}\", skipping it."
+                                    : StatusbarMessage;
+                                if (!vi.GetIfLiveStream())
+                                    await PlayTrack(vi, Stopwatch.Elapsed.ToString(@"c"), true);
+                                else await PlayTrack(vi, Stopwatch.Elapsed.ToString(@"c"));
+                                break;
+
+                            default:
+                                //await CurrentItem.Download();
+                                await PlayTrack(CurrentItem, Stopwatch.Elapsed.ToString(@"c"));
+                                break;
+                        }
                     }
 
                     if (BreakNow)
@@ -141,18 +151,28 @@ namespace DiscordBot.Audio
                     if (!Paused && !UpdatedChannel) Stopwatch.Reset();
                     if (LoopStatus == Loop.One) Queue.Current--;
                     if (Queue.Current + 1 == Queue.Count && LoopStatus == Loop.WholeQueue) Queue.Current = -1;
-                    if (Queue.Current + 1 < Queue.Count) continue;
+                    if (!Queue.EndOfQueue)
+                    {
+                        Queue.Current++;
+                        continue;
+                    }
                     WaitingToLeave = true;
                     WaitingStopwatch.Start();
                     while (WaitingToLeave)
                     {
                         Statusbar.ChangeMode(StatusbarMode.Waiting);
                         await Task.Delay(166);
-                        if (Queue.Current + 1 >= Queue.Count && WaitingStopwatch.Elapsed.TotalMinutes < 15) continue;
-                        WaitingToLeave = false;
+                        if (Queue.EndOfQueue) continue;
+                        if (WaitingStopwatch.Elapsed.TotalMinutes < 15)
+                        {
+                            WaitingToLeave = false;
+                            WaitingStopwatch.Reset();
+                            continue;
+                        }
+                        Die = true;
                         WaitingStopwatch.Reset();
                     }
-                }
+                } while (!Die);
 
                 await DisconnectAsync();
                 _timer.Stop();
@@ -472,9 +492,9 @@ namespace DiscordBot.Audio
             Stopwatch.Stop();
         }
 
-        public Controllers.Bot.PlayerInfo ToPlayerInfo()
+        public PlayerInfo ToPlayerInfo()
         {
-            var stats = new Controllers.Bot.PlayerInfo();
+            var stats = new PlayerInfo();
             try
             {
                 stats.Title = CurrentItem.GetTitle();
@@ -496,7 +516,7 @@ namespace DiscordBot.Audio
             catch
             {
                 Debug.Write("Failed to serialize Player.cs stats.");
-                return new Controllers.Bot.PlayerInfo();
+                return new PlayerInfo();
             }
 
             return stats;

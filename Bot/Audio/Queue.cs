@@ -28,6 +28,8 @@ namespace DiscordBot.Audio
             }
         }
 
+        public bool EndOfQueue => Current >= Count;
+
         public int RandomSeed { get; private set; }
 
         private void Broadcast()
@@ -245,7 +247,7 @@ namespace DiscordBot.Audio
         {
             lock (Items)
             {
-                return Items[Current];
+                return Items.Count == 0 ? null : Current >= Items.Count ? null : Items[Current];
             }
         }
 

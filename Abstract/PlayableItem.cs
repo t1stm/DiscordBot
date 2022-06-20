@@ -1,4 +1,5 @@
 using System.Threading.Tasks;
+using DiscordBot.Audio.Objects;
 using DSharpPlus.Entities;
 
 namespace DiscordBot.Abstract
@@ -42,7 +43,7 @@ namespace DiscordBot.Abstract
         public abstract string GetId();
         public abstract string GetTypeOf();
 
-        public bool GetIfErrored()
+        public virtual bool GetIfErrored()
         {
             return Errored;
         }
@@ -61,7 +62,7 @@ namespace DiscordBot.Abstract
 
         public abstract string GetAddUrl();
 
-        public Controllers.Bot.SearchResult ToSearchResult()
+        public SearchResult ToSearchResult()
         {
             return new()
             {

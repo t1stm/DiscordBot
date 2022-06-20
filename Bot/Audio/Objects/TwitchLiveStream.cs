@@ -15,21 +15,21 @@ namespace DiscordBot.Audio.Objects
 
         private bool Running { get; set; }
 
-        public string Url { get; set; }
+        public string Url { get; init; }
 
         private new bool Errored { get; set; }
 
-        public new string GetName()
+        public override string GetName()
         {
             return Title == "" ? Url : Title;
         }
 
-        public new ulong GetLength()
+        public override ulong GetLength()
         {
             return 0;
         }
 
-        public new string GetLocation()
+        public override string GetLocation()
         {
             if (!string.IsNullOrEmpty(Location)) return Location;
             var task = new Task(async () => await Download());

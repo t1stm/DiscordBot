@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
 using DiscordBot.Abstract;
+using DiscordBot.Audio.Objects;
 using DiscordBot.Methods;
 using DiscordBot.Readers.MariaDB;
 using vtortola.WebSockets;
@@ -164,7 +165,7 @@ namespace DiscordBot.Audio
             }
         }
 
-        public async Task BroadcastUpdateItem(int index, Controllers.Bot.SearchResult result)
+        public async Task BroadcastUpdateItem(int index, SearchResult result)
         {
             try
             {
