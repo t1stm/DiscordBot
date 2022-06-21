@@ -313,7 +313,7 @@ namespace DiscordBot.Audio
         private async Task<bool> IsInChannel(string token)
         {
             var call = await ClientTokens.ReadAll();
-            return Player.VoiceUsers.Any(user => call.ContainsKey(user.Id) && call[user.Id] == token);
+            return Player.VoiceUsers.Any(user => call.ContainsKey(user.Id) && call.GetValue(user.Id) == token);
         }
         
         private string SerializeCurrent()

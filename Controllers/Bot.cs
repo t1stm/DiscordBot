@@ -19,13 +19,13 @@ namespace DiscordBot.Controllers
 {
     public partial class Bot : Controller
     {
-        public static Dictionary<ulong, string> WebUiUsers = new();
+        public static List<User> WebUiUsers { get; set; } = new();
 
         public static async Task LoadUsers(bool display = false)
         {
             try
             {
-                var users = await ClientTokens.ReadAll()!;
+                var users = await ClientTokens.ReadAll();
                 lock (WebUiUsers)
                 {
                     WebUiUsers = users;
@@ -41,17 +41,21 @@ namespace DiscordBot.Controllers
 
         public static void PrintUsers()
         {
-            foreach (var (id, secret) in WebUiUsers) Debug.Write($"Id: {id}, Secret: {secret}");
+            foreach (var user in WebUiUsers) Debug.Write($"Id: {user.Id}, Secret: {user.Token}");
         }
 
         public static async Task AddUser(ulong userId, string clientSecret)
         {
             lock (WebUiUsers)
             {
-                WebUiUsers.Add(userId, clientSecret);
+                WebUiUsers.Add(new User
+                {
+                    Id = userId,
+                    Token = clientSecret
+                });
             }
 
-            await ClientTokens.Add(userId, clientSecret);
+            await ClientTokens.AddToken(userId, clientSecret);
         }
 
         public async Task<IActionResult> Search(string searchTerm)
@@ -72,21 +76,13 @@ namespace DiscordBot.Controllers
         public IActionResult GetAvailableGuilds(string clientSecret)
         {
             if (!WebUiUsers.ContainsValue(clientSecret)) return Ok("404");
-            var userIndex = -1;
-            try
-            {
-                userIndex = WebUiUsers.Values.ToList().IndexOf(clientSecret);
-            }
-            catch (Exception)
-            {
-                return Ok("403");
-            }
+            var search = WebUiUsers.Get(clientSecret);
+            if (search == null) return Ok("403");
 
             try
             {
-                if (userIndex == -1) return StatusCode(418); //Teapot
                 var guilds = DiscordBot.Bot.Clients[0].Guilds.Values
-                    .Where(gi => gi.Members.ContainsKey(WebUiUsers.Keys.ElementAt(userIndex)));
+                    .Where(gi => gi.Members.ContainsKey(search.Id));
                 var items = guilds.Select(g => new GuildItem {Id = g.Id + "", Name = g.Name, IconUrl = g.IconUrl})
                     .ToList();
                 return Json(items);
@@ -103,7 +99,7 @@ namespace DiscordBot.Controllers
             var userIndex = -1;
             try
             {
-                userIndex = WebUiUsers.Values.ToList().IndexOf(clientSecret);
+                userIndex = WebUiUsers.Values().ToList().IndexOf(clientSecret);
             }
             catch (Exception)
             {
@@ -132,17 +128,10 @@ namespace DiscordBot.Controllers
             try
             {
                 if (!WebUiUsers.ContainsValue(clientSecret)) return Ok("404");
-                var userIndex = -1;
-                try
-                {
-                    userIndex = WebUiUsers.Values.ToList().IndexOf(clientSecret);
-                }
-                catch (Exception)
-                {
-                    return Ok("403");
-                }
+                var search = WebUiUsers.Get(clientSecret);
+                if (search == null) return Ok("403");
 
-                var user = await DiscordBot.Bot.Clients[0].GetUserAsync(WebUiUsers.Keys.ToList()[userIndex], true);
+                var user = await DiscordBot.Bot.Clients[0].GetUserAsync(search.Id, true);
                 var info = new UserInfo
                 {
                     Username = user.Username,
@@ -205,7 +194,7 @@ namespace DiscordBot.Controllers
                 var userIndex = -1;
                 try
                 {
-                    userIndex = WebUiUsers.Values.ToList().IndexOf(clientSecret);
+                    userIndex = WebUiUsers.Values().ToList().IndexOf(clientSecret);
                 }
                 catch (Exception)
                 {
@@ -218,7 +207,7 @@ namespace DiscordBot.Controllers
                 if (!spotify) search = await Video.SearchById(id);
                 else search = await Track.Get(id, true);
                 if (search == null) return Ok("410");
-                var req = player.CurrentGuild.Members[WebUiUsers.Keys.ToList()[userIndex]];
+                var req = player.CurrentGuild.Members[WebUiUsers.Keys().ToList()[userIndex]];
                 search.SetRequester(req);
                 if (!next) player.Queue.AddToQueue(search);
                 else player.Queue.AddToQueueNext(search);

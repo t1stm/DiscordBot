@@ -297,7 +297,7 @@ namespace DiscordBot
                     });
                 if (Controllers.Bot.WebUiUsers.ContainsKey(ctx.Member.Id))
                 {
-                    var key = Controllers.Bot.WebUiUsers[ctx.Member.Id];
+                    var key = Controllers.Bot.WebUiUsers.GetValue(ctx.Member.Id);
                     //await ctx.Member.SendMessageAsync($"```You have already generated a Web UI code: {key}```");
                     await ctx.Member.SendMessageAsync(new DiscordMessageBuilder()
                         .WithContent($"```Your Web UI Code is: {key}```")

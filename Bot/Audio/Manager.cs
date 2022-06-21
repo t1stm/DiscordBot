@@ -516,7 +516,7 @@ namespace DiscordBot.Audio
             if (ctx.Member is null) return;
             if (Controllers.Bot.WebUiUsers.ContainsKey(ctx.Member.Id))
             {
-                var key = Controllers.Bot.WebUiUsers[ctx.Member.Id];
+                var key = Controllers.Bot.WebUiUsers.GetValue(ctx.Member.Id);
 
                 await ctx.Member.SendMessageAsync(new DiscordMessageBuilder()
                     .WithContent($"```You have already generated a Web UI code: {key}```")

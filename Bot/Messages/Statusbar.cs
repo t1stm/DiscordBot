@@ -14,7 +14,9 @@ namespace DiscordBot.Messages
 {
     public class Statusbar : IBaseStatusbar
     {
-        private const string DefaultMessage = "One can use the web interface with the command: \"-webui\"";
+        //private const string DefaultMessage = "One can use the web interface with the command: \"-webui\"";
+        private const string DefaultMessage =
+            "The bot is currently being reworked majorly, so please note that there may be many bugs.";
 
         //private const string DefaultMessage =
         //    "След пресмятането на резултатите, новото име бие с 86.5% от гласовето. На 20 Април, този бот вече ще се казва \"Слави Трифонов\". Благодаря на всички които гласуваха.";
@@ -168,7 +170,7 @@ namespace DiscordBot.Messages
         private async Task UpdateWaiting()
         {
             await Message.ModifyAsync(
-                $"```Waiting:\nFor 15 minutes and then leaving.\n{GenerateProgressbar(Player.WaitingStopwatch.ElapsedMilliseconds, 900000)} ( {Player.WaitingStopwatch.Elapsed:mm\\:ss} - 15:00 )```");
+                $"```Waiting:\nFor 15 minutes and then leaving.\n{GenerateProgressbar(Player.WaitingStopwatch.ElapsedMilliseconds, 900000)} ( {Player.WaitingStopwatch.Elapsed:mm\\:ss} - 15:00 )\n\n{DefaultMessage}```");
         }
 
         public async Task UpdateMessageAndStop(string message, bool formatted = true)

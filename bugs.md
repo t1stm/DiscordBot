@@ -29,8 +29,13 @@ Add .torrent file support and magnet link support (and play audio and video file
 
 Add new Statusbar render mode using Discord's elements and buttons.
 
-~~Change player for loop, to a do-while loop. (It'll help me make the player be able to join the channel without any items.)~~ Probably done, haven't checked thoroughly for bugs. 20 Jun 2022
+~~Change player for loop, to a do-while loop. (It'll help me make the player be able to join the channel without any items.)~~ 
+Probably done, haven't checked thoroughly for bugs. 20 Jun 2022
 
 Add per guild settings.
 
 Add per user settings. (for Web UI)
+
+21 Jun 2022: 
+
+Add changing languages as an option. Make them be selectable in the per guild options.

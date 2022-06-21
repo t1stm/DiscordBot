@@ -9,6 +9,7 @@ using DiscordBot.Audio;
 using DiscordBot.Messages;
 using DiscordBot.Methods;
 using DiscordBot.Readers;
+using DiscordBot.Readers.MariaDB;
 using DSharpPlus;
 using DSharpPlus.CommandsNext;
 using DSharpPlus.Entities;
@@ -342,6 +343,7 @@ namespace DiscordBot
                 });
             client.MessageCreated += async (sender, args) =>
             {
+                await ClientTokens.UserSettings(args.Author.Id);
                 if (!args.Channel.IsPrivate && args.Channel.Guild != null) return;
                 var id = BotMessages.Count;
                 BotMessages.Add(args.Message);

@@ -15,7 +15,7 @@ namespace DiscordBot.Readers.MariaDB
                 var connection = new MySqlConnection(Bot.SqlConnectionQuery);
                 await connection.OpenAsync();
                 var cmd = new MySqlCommand(
-                    $"SELECT * FROM clienttokens WHERE id = \"{key}\"", connection);
+                    $"SELECT * FROM users WHERE id = \"{key}\"", connection);
                 var dataReader = cmd.ExecuteReader();
                 string token = null;
                 while (await dataReader.ReadAsync())
@@ -31,18 +31,22 @@ namespace DiscordBot.Readers.MariaDB
             }
         }
 
-        public static async Task<Dictionary<ulong, string>> ReadAll()
+        public static async Task<List<User>> ReadAll()
         {
-            var dict = new Dictionary<ulong, string>();
+            var dict = new List<User>();
 
             try
             {
                 var connection = new MySqlConnection(Bot.SqlConnectionQuery);
                 await connection.OpenAsync();
-                var cmd = new MySqlCommand("SELECT * FROM clienttokens", connection);
+                var cmd = new MySqlCommand("SELECT * FROM users", connection);
                 var dataReader = cmd.ExecuteReader();
                 while (await dataReader.ReadAsync())
-                    dict.Add((ulong) dataReader["id"], dataReader["token"] + "");
+                    dict.Add(new User
+                    {
+                        Id =  (ulong) dataReader["id"],
+                        Token = (dataReader["token"] ?? "") + ""
+                    });
                 await dataReader.CloseAsync();
                 await connection.CloseAsync();
                 return dict;
@@ -54,28 +58,51 @@ namespace DiscordBot.Readers.MariaDB
             }
         }
 
-        public static async Task<bool> Add(ulong key, string value)
+        public static async Task AddToken(ulong key, string value)
         {
             try
             {
                 var read = await Read(key);
-                if (read != null) return false;
+                if (read != null) return;
 
                 MySqlConnection connection = new(Bot.SqlConnectionQuery);
                 await connection.OpenAsync();
                 var cmd = new MySqlCommand(
-                    "INSERT INTO clienttokens (id,token) " +
+                    "INSERT INTO users (id,token) " +
                     $"VALUES (\"{key}\", \"{value}\")", connection);
                 cmd.ExecuteNonQuery();
                 await connection.CloseAsync();
                 await Controllers.Bot.LoadUsers();
-                return true;
             }
             catch (Exception e)
             {
                 await Debug.WriteAsync($"MariaDB Write error: {e}", true, Debug.DebugColor.Error);
-                return false;
             }
         }
+
+        public static async Task UserSettings(ulong authorId)
+        {
+            var user = await Read(authorId);
+            if (user is "offline" or { }) return;
+            await Add(authorId);
+        }
+
+        private static async Task Add(ulong authorId)
+        {
+            MySqlConnection connection = new(Bot.SqlConnectionQuery);
+            await connection.OpenAsync();
+            var cmd = new MySqlCommand($"INSERT INTO users (id) VALUES (\"{authorId}\"", connection);
+            cmd.ExecuteNonQuery();
+            await connection.CloseAsync();
+            await Controllers.Bot.LoadUsers();
+        }
+    }
+
+    public class User
+    {
+        public ulong Id { get; init; }
+        public string Token { get; init; }
+        
+        
     }
 }

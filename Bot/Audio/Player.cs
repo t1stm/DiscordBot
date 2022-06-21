@@ -151,27 +151,25 @@ namespace DiscordBot.Audio
                     if (!Paused && !UpdatedChannel) Stopwatch.Reset();
                     if (LoopStatus == Loop.One) Queue.Current--;
                     if (Queue.Current + 1 == Queue.Count && LoopStatus == Loop.WholeQueue) Queue.Current = -1;
-                    if (!Queue.EndOfQueue)
+                    if (Queue.EndOfQueue)
                     {
-                        Queue.Current++;
+                        await Task.Delay(166);
+                        Statusbar.ChangeMode(StatusbarMode.Waiting);
+                        if (!WaitingToLeave)
+                        {
+                            WaitingToLeave = true;
+                            WaitingStopwatch.Start();
+                        }
+
+                        if (WaitingStopwatch.Elapsed.TotalMinutes > 15)
+                        {
+                            Die = true;
+                        }
                         continue;
                     }
-                    WaitingToLeave = true;
-                    WaitingStopwatch.Start();
-                    while (WaitingToLeave)
-                    {
-                        Statusbar.ChangeMode(StatusbarMode.Waiting);
-                        await Task.Delay(166);
-                        if (Queue.EndOfQueue) continue;
-                        if (WaitingStopwatch.Elapsed.TotalMinutes < 15)
-                        {
-                            WaitingToLeave = false;
-                            WaitingStopwatch.Reset();
-                            continue;
-                        }
-                        Die = true;
-                        WaitingStopwatch.Reset();
-                    }
+                    Queue.Current++;
+                    WaitingStopwatch.Reset();
+                    WaitingToLeave = false;
                 } while (!Die);
 
                 await DisconnectAsync();
