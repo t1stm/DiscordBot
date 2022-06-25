@@ -510,6 +510,23 @@ namespace DiscordBot.Audio
             var qrCodeAsPngByteArr = qrCode.GetGraphic(4);
             return new MemoryStream(qrCodeAsPngByteArr);
         }
+
+        public static DiscordMessageBuilder GetWebUiMessage(string key, string text = "You have already generated a Web UI code")
+        {
+            return new DiscordMessageBuilder()
+                .WithContent($"```{text}: {key}```")
+                .WithFile("qr_code.jpg", GetQrCodeForWebUi(key))
+                .WithEmbed(new DiscordEmbedBuilder
+                {
+                    Title = $"{Bot.Name} Web Interface",
+                    Url = $"{Bot.SiteDomain}/{Bot.WebUiPage}?clientSecret={key}",
+                    Description = "Control the bot using a fancy interface.",
+                    Thumbnail = new DiscordEmbedBuilder.EmbedThumbnail
+                    {
+                        Url = $"{Bot.SiteDomain}/{Bot.WebUiPage}/tosho.png"
+                    }
+                });
+        }
         
         public static async Task GetWebUi(CommandContext ctx)
         {
@@ -518,39 +535,14 @@ namespace DiscordBot.Audio
             {
                 var key = Controllers.Bot.WebUiUsers.GetValue(ctx.Member.Id);
 
-                await ctx.Member.SendMessageAsync(new DiscordMessageBuilder()
-                    .WithContent($"```You have already generated a Web UI code: {key}```")
-                    .WithFile("qr_code.jpg", GetQrCodeForWebUi(key))
-                    .WithEmbed(new DiscordEmbedBuilder
-                    {
-                        Title = "Bai Tosho Web Interface",
-                        Url = $"https://dankest.gq/BaiToshoBeta?clientSecret={key}",
-                        Description = "Control the bot using a fancy interface.",
-                        Thumbnail = new DiscordEmbedBuilder.EmbedThumbnail
-                        {
-                            Url = "https://dankest.gq/BaiToshoBeta/tosho.png"
-                        }
-                    })
-                );
+                await ctx.Member.SendMessageAsync(GetWebUiMessage(key));
                 await Bot.Reply(ctx, "Sending a Direct Message containing the information.");
                 return;
             }
 
             var randomString = Bot.RandomString(96);
             await Controllers.Bot.AddUser(ctx.Member.Id, randomString);
-            await ctx.Member.SendMessageAsync(new DiscordMessageBuilder()
-                .WithContent($"```Your Web UI Code is: {randomString}```")
-                .WithFile("qr_code.jpg", GetQrCodeForWebUi(randomString))
-                .WithEmbed(new DiscordEmbedBuilder
-                {
-                    Title = "Bai Tosho Web Interface",
-                    Url = $"https://dankest.gq/BaiToshoBeta?clientSecret={randomString}",
-                    Description = "Control the bot using a fancy interface.",
-                    Thumbnail = new DiscordEmbedBuilder.EmbedThumbnail
-                    {
-                        Url = "https://dankest.gq/BaiToshoBeta/tosho.png"
-                    }
-                }));
+            await ctx.Member.SendMessageAsync(GetWebUiMessage(randomString, "Your Web UI Code is"));
             await Bot.Reply(ctx, "Sending a Direct Message containing the information.");
         }
 

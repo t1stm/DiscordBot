@@ -298,38 +298,13 @@ namespace DiscordBot
                 if (Controllers.Bot.WebUiUsers.ContainsKey(ctx.Member.Id))
                 {
                     var key = Controllers.Bot.WebUiUsers.GetValue(ctx.Member.Id);
-                    //await ctx.Member.SendMessageAsync($"```You have already generated a Web UI code: {key}```");
-                    await ctx.Member.SendMessageAsync(new DiscordMessageBuilder()
-                        .WithContent($"```Your Web UI Code is: {key}```")
-                        .WithFile("qr_code.jpg", Manager.GetQrCodeForWebUi(key))
-                        .WithEmbed(new DiscordEmbedBuilder
-                        {
-                            Title = "Bai Tosho Web Interface",
-                            Url = $"https://dankest.gq/BaiToshoBeta?clientSecret={key}",
-                            Description = "Control the bot using a fancy interface.",
-                            Thumbnail = new DiscordEmbedBuilder.EmbedThumbnail
-                            {
-                                Url = "https://dankest.gq/BaiToshoBeta/tosho.png"
-                            }
-                        }));
+                    await ctx.Member.SendMessageAsync(Manager.GetWebUiMessage(key));
                     return;
                 }
 
                 var randomString = Bot.RandomString(96);
                 await Controllers.Bot.AddUser(ctx.Member.Id, randomString);
-                await ctx.Member.SendMessageAsync(new DiscordMessageBuilder()
-                    .WithContent($"```Your Web UI Code is: {randomString}```")
-                    .WithFile("qr_code.jpg", Manager.GetQrCodeForWebUi(randomString))
-                    .WithEmbed(new DiscordEmbedBuilder
-                    {
-                        Title = "Bai Tosho Web Interface",
-                        Url = $"https://dankest.gq/BaiToshoBeta?clientSecret={randomString}",
-                        Description = "Control the bot using a fancy interface.",
-                        Thumbnail = new DiscordEmbedBuilder.EmbedThumbnail
-                        {
-                            Url = "https://dankest.gq/BaiToshoBeta/tosho.png"
-                        }
-                    }));
+                await ctx.Member.SendMessageAsync(Manager.GetWebUiMessage(randomString, "Your Web UI Code is"));
             }
             catch (Exception e)
             {

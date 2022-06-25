@@ -17,11 +17,11 @@ namespace DiscordBot.Messages
         //private const string DefaultMessage = "One can use the web interface with the command: \"-webui\"";
         private const string DefaultMessage =
             "The bot is currently being reworked majorly, so please note that there may be many bugs.";
-
-        //private const string DefaultMessage =
-        //    "След пресмятането на резултатите, новото име бие с 86.5% от гласовето. На 20 Април, този бот вече ще се казва \"Слави Трифонов\". Благодаря на всички които гласуваха.";
+        
         private const char EmptyBlock = '□', FullBlock = '■';
         private int _pl0, _pl1 = 1, _pl2 = 2, _pl3 = 3, _pl4 = 4;
+        public bool NewStatusbar => true; // I plan on making this generate a whole new statusbar, but for now I am going to leave it be.
+        public bool HasButtons => NewStatusbar;
         private bool Stopped { get; set; }
         public Player Player { get; set; }
         public DiscordGuild Guild { get; set; }
@@ -41,11 +41,7 @@ namespace DiscordBot.Messages
                     break;
                 case StatusbarMode.Playing:
                     await UpdatePlacement();
-                    if (Message == null)
-                        Message = await Client.Guilds[Guild.Id].Channels[Channel.Id]
-                            .SendMessageAsync(GenerateStatusbar());
-                    else
-                        Message = await Message.ModifyAsync(GenerateStatusbar());
+                    await UpdateMessage();
                     break;
                 case StatusbarMode.Waiting:
                     await UpdateWaiting();
@@ -57,6 +53,38 @@ namespace DiscordBot.Messages
             }
         }
 
+        private async Task UpdateMessage()
+        {
+            if (!NewStatusbar)
+            {
+                if (Message == null)
+                    Message = await Client.Guilds[Guild.Id].Channels[Channel.Id]
+                        .SendMessageAsync(GenerateStatusbar());
+                else
+                    Message = await Message.ModifyAsync(GenerateStatusbar());
+                return;
+            }
+            
+            if (Message == null)
+                Message = await Client.Guilds[Guild.Id].Channels[Channel.Id]
+                    .SendMessageAsync(GenerateNewStatusbar());
+            else
+                Message = await Message.ModifyAsync(GenerateNewStatusbar());
+        }
+
+        private DiscordMessageBuilder GenerateNewStatusbar()
+        {
+            var builder = new DiscordMessageBuilder();
+            builder.AddComponents(
+                new DiscordButtonComponent(ButtonStyle.Secondary, "shuffle", "Shuffle"),
+                new DiscordButtonComponent(ButtonStyle.Success, "back", "Previous"),
+                new DiscordButtonComponent(ButtonStyle.Primary, "pause", "Play / Pause"),
+                new DiscordButtonComponent(ButtonStyle.Success, "skip", "Next"),
+                new DiscordButtonComponent(ButtonStyle.Secondary, "webui", "Web UI")
+            );
+            return builder.WithContent(GenerateStatusbar());
+        }
+        
         public async Task Start()
         {
             if (Message == null)
@@ -179,7 +207,9 @@ namespace DiscordBot.Messages
             {
                 Stop();
                 await Task.Delay(Bot.UpdateDelay);
-                await Message.ModifyAsync(formatted ? $"```{message}```" : message);
+                var builder = new DiscordMessageBuilder().WithContent(formatted ? $"```{message}```" : message);
+                builder.ClearComponents();
+                await Message.ModifyAsync(builder);
             }
             catch (Exception e)
             {

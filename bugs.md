@@ -27,15 +27,17 @@ Add .torrent file support and magnet link support (and play audio and video file
 
 ~~Change the dumb way I've implemented the fix for Vbox7 (Remove the roots of the old implementation).~~ Done 20 Jun 2022
 
-Add new Statusbar render mode using Discord's elements and buttons.
+Add new Statusbar render mode using Discord's elements and ~~buttons~~. Half Done: 25 Jun 2022
 
 ~~Change player for loop, to a do-while loop. (It'll help me make the player be able to join the channel without any items.)~~ 
 Probably done, haven't checked thoroughly for bugs. 20 Jun 2022
 
-Add per guild settings.
+~~Add per guild settings.~~ 25 Jun 2022
 
-Add per user settings. (for Web UI)
+~~Add per user settings.~~ 25 Jun 2022
 
 21 Jun 2022: 
 
-Add changing languages as an option. Make them be selectable in the per guild options.
+~~Add changing languages as an option.~~ Done 25 Jun 2022
+
+Make them be selectable in the per guild options.

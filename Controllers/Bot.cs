@@ -9,6 +9,7 @@ using DiscordBot.Audio.Platforms.Spotify;
 using DiscordBot.Audio.Platforms.Youtube;
 using DiscordBot.Enums;
 using DiscordBot.Methods;
+using DiscordBot.Objects;
 using DiscordBot.Readers.MariaDB;
 using DSharpPlus;
 using Microsoft.AspNetCore.Mvc;
@@ -17,7 +18,7 @@ using YoutubePlaylist = DiscordBot.Audio.Platforms.Youtube.Playlist;
 
 namespace DiscordBot.Controllers
 {
-    public partial class Bot : Controller
+    public class Bot : Controller
     {
         public static List<User> WebUiUsers { get; set; } = new();
 
@@ -96,19 +97,11 @@ namespace DiscordBot.Controllers
         public async Task<IActionResult> GetChannelsInGuild(ulong id, string clientSecret)
         {
             if (!WebUiUsers.ContainsValue(clientSecret)) return Ok("404");
-            var userIndex = -1;
-            try
-            {
-                userIndex = WebUiUsers.Values().ToList().IndexOf(clientSecret);
-            }
-            catch (Exception)
-            {
-                return Ok("403");
-            }
+            var search = WebUiUsers.Get(clientSecret);
+            if (search == null) return Ok("403");
 
             try
             {
-                if (userIndex == -1) return Ok("418 I'm a teapot");
                 var guild = DiscordBot.Bot.Clients[0].Guilds.First(g => g.Value.Id == id).Value;
                 var channels = await guild.GetChannelsAsync();
                 var items = channels.Where(ch => ch.Type == ChannelType.Voice)
@@ -191,15 +184,9 @@ namespace DiscordBot.Controllers
             {
                 if (!WebUiUsers.ContainsValue(clientSecret)) return Ok("404");
                 if (Manager.Main.All(ch => ch.VoiceChannel.Id != channelId)) return Ok("403");
-                var userIndex = -1;
-                try
-                {
-                    userIndex = WebUiUsers.Values().ToList().IndexOf(clientSecret);
-                }
-                catch (Exception)
-                {
-                    return Ok("403");
-                }
+                if (!WebUiUsers.ContainsValue(clientSecret)) return Ok("404");
+                var user = WebUiUsers.Get(clientSecret);
+                if (user == null) return Ok("403");
 
                 var player = Manager.Main.First(ch => ch.VoiceChannel.Id == channelId);
                 PlayableItem search;
@@ -207,7 +194,7 @@ namespace DiscordBot.Controllers
                 if (!spotify) search = await Video.SearchById(id);
                 else search = await Track.Get(id, true);
                 if (search == null) return Ok("410");
-                var req = player.CurrentGuild.Members[WebUiUsers.Keys().ToList()[userIndex]];
+                var req = player.CurrentGuild.Members[user.Id];
                 search.SetRequester(req);
                 if (!next) player.Queue.AddToQueue(search);
                 else player.Queue.AddToQueueNext(search);

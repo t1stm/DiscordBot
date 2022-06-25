@@ -88,10 +88,16 @@ namespace DiscordBot.Audio.Platforms
                     }
                 };
 
-            var res = await HandleBotProtocols(searchTerm);
+            var res = await HandleBotProtocols(searchTerm); 
             if (res != null)
             {
-                return new List<PlayableItem>{res};
+                switch (res) // "Work smart, not hard."
+                {
+                    case List<PlayableItem> list:
+                        return list;
+                    case PlayableItem item:
+                        return new List<PlayableItem> {item};
+                }
             }
 
             if (searchTerm.StartsWith("pl:"))
@@ -107,7 +113,7 @@ namespace DiscordBot.Audio.Platforms
             };
         }
 
-        private static async Task<PlayableItem?> HandleBotProtocols(string search)
+        private static async Task<object?> HandleBotProtocols(string search)
         {
             var split = search.Split("://");
             if (split.Length < 2) return null;
@@ -118,10 +124,10 @@ namespace DiscordBot.Audio.Platforms
                 case "spt":
                     return await Track.Get(split[1]);
                 case "file":
-                    return File.GetInfo(split[1]);
+                    return Files.Get(split[1]);
                 case "dis-att":
                     var splitted = split[1].Split("-");
-                    return File.GetInfo(string.Join('-', splitted[1..]), ulong.Parse(splitted[0]));
+                    return File.GetInfo(string.Join('-', splitted[1..]), ulong.Parse(splitted[0])); 
                 case "vb7":
                     var result = await Vbox7SearchClient.SearchUrl($"https://vbox7.com/play:{split[1]}");
                     return result.ToVbox7Video();

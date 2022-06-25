@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using DiscordBot.Methods;
+using DiscordBot.Objects;
 using MySql.Data.MySqlClient;
 
 namespace DiscordBot.Readers.MariaDB
@@ -33,8 +34,7 @@ namespace DiscordBot.Readers.MariaDB
 
         public static async Task<List<User>> ReadAll()
         {
-            var dict = new List<User>();
-
+            var users = new List<User>();
             try
             {
                 var connection = new MySqlConnection(Bot.SqlConnectionQuery);
@@ -42,14 +42,16 @@ namespace DiscordBot.Readers.MariaDB
                 var cmd = new MySqlCommand("SELECT * FROM users", connection);
                 var dataReader = cmd.ExecuteReader();
                 while (await dataReader.ReadAsync())
-                    dict.Add(new User
+                    users.Add(new User
                     {
-                        Id =  (ulong) dataReader["id"],
-                        Token = (dataReader["token"] ?? "") + ""
+                        Id = (ulong) dataReader["id"],
+                        Token = (dataReader["token"] ?? "") + "",
+                        VerboseMessages = (bool) dataReader["verboseMessages"],
+                        Language = Languages.FromNumber(ushort.Parse(dataReader["language"] + ""))
                     });
                 await dataReader.CloseAsync();
                 await connection.CloseAsync();
-                return dict;
+                return users;
             }
             catch (Exception e)
             {
@@ -80,14 +82,7 @@ namespace DiscordBot.Readers.MariaDB
             }
         }
 
-        public static async Task UserSettings(ulong authorId)
-        {
-            var user = await Read(authorId);
-            if (user is "offline" or { }) return;
-            await Add(authorId);
-        }
-
-        private static async Task Add(ulong authorId)
+        public static async Task Add(ulong authorId)
         {
             MySqlConnection connection = new(Bot.SqlConnectionQuery);
             await connection.OpenAsync();
@@ -96,13 +91,5 @@ namespace DiscordBot.Readers.MariaDB
             await connection.CloseAsync();
             await Controllers.Bot.LoadUsers();
         }
-    }
-
-    public class User
-    {
-        public ulong Id { get; init; }
-        public string Token { get; init; }
-        
-        
     }
 }

@@ -1,8 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using DiscordBot.Readers.MariaDB;
-using DSharpPlus.Entities;
+using DiscordBot.Objects;
 
 namespace DiscordBot
 {
