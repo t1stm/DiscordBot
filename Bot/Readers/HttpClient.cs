@@ -5,8 +5,6 @@ using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Threading.Tasks;
-using DiscordBot.Methods;
-using PuppeteerSharp;
 
 namespace DiscordBot.Readers
 {
@@ -91,32 +89,6 @@ namespace DiscordBot.Readers
             }
 
             return cookies;
-        }
-
-        public static async Task<string> GetSourceCodeAfterLoadingPage(string uri)
-        {
-            await Debug.WriteAsync($"URI is: {uri}");
-            /*var options = new ChromeOptions
-            {
-                BinaryLocation = "/usr/bin/chromium-dev"
-            };
-            options.AddArguments(new List<string> { "headless", "disable-gpu" });
-            var browser = new ChromeDriver(options);
-            browser.Navigate().GoToUrl($"https://vbox7.com{uri}"); // Excellent url usage.
-            return browser.PageSource;*/
-            //24.11.2021, 19:34: Old code that was supposed to work but didn't. Yes that's how the world works. I should probably delete the other api.... Fuck it I am too lazy to open nuget now.
-            //Update 19:36: After some thinking that lasted for at least three whole seconds, I decided to move this method from the Vbox7Video class, here.
-            var options = new LaunchOptions
-            {
-                Headless = true,
-                ExecutablePath = "/usr/bin/chromium-dev"
-            };
-            var browser = await Puppeteer.LaunchAsync(options);
-            var page = await browser.NewPageAsync();
-            await page.GoToAsync(uri);
-            var source = await page.GetContentAsync();
-            await browser.CloseAsync();
-            return source;
         }
 
         private static async Task<long?> GetContentLengthAsync(System.Net.Http.HttpClient httpClient, string requestUri,

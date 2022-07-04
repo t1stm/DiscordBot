@@ -116,12 +116,12 @@ namespace DiscordBot.Audio.Platforms.Discord
                         Location = split[0],
                         Title = split[1],
                         Author = split[2],
-                        Length = ulong.Parse(split[3]),
-                        IsDiscordAttachment = true
+                        Length = ulong.Parse(split[3])
                     },
                     04 => new SystemFile
                     {
-                        Location = split[0], Title = split[1], Author = split[2], Length = ulong.Parse(split[3])
+                        Location = split[0], Title = split[1], Author = split[2], Length = ulong.Parse(split[3]),
+                        IsDiscordAttachment = true
                     },
                     05 => new Vbox7Video
                     {

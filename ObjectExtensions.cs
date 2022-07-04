@@ -7,9 +7,11 @@ namespace DiscordBot
 {
     public static class ObjectExtensions
     {
+        private static readonly Random Random = new();
+        public static string CodeBlocked(this string str) => $"```{str}```";
         public static string GetRandom(this string[] array)
         {
-            return array[new Random().Next(0, array.Length)];
+            return array[Random.Next(0, array.Length)];
         }
 
         // Man I am so lazy, you won't fucking believe it. These next few methods are prime examples of that.

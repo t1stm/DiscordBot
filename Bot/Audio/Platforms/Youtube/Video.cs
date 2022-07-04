@@ -67,14 +67,12 @@ namespace DiscordBot.Audio.Platforms.Youtube
                             r.Title.ToLower().Contains("8d") || r.Title.ToLower().Contains("karaoke") ||
                             r.Title.ToLower().Contains("remix") || r.Title.ToLower().Contains("instru") ||
                             r.Title.ToLower().Contains("clean")); */
-                    res = res.OrderByDescending(r => r.Author.ToLower().Contains("topic"))
-                        .ThenByDescending(r =>
-                            LevenshteinDistance.Compute(r.Author.Replace("- Topic", "").Trim(),
-                                track.Author) < 3)
+                    res = res.AsParallel().OrderByDescending(r => r.Author.ToLower().Contains("topic"))
                         .ThenByDescending(r => r.Title.ToLower().Contains("official audio"))
-                        .ThenByDescending(r =>
-                            Math.Abs(StringToTimeSpan.Generate(r.Duration).TotalMilliseconds - length) < 3)
-                        .ThenByDescending(r => LevenshteinDistance.Compute(r.Title, track.Title) < 3).ToList();
+                        .ThenByDescending(r => Math.Abs(StringToTimeSpan.Generate(r.Duration).TotalMilliseconds - length) < 3)
+                        .ThenBy(r => LevenshteinDistance.Compute(r.Author.ToLower().Replace("- topic", "").Replace("vevo", ""), track.Author.ToLower()))
+                        .ThenByDescending(r => LevenshteinDistance.Compute(r.Title, track.Title) < 3)
+                        .ToList();
                     foreach (var yt in res.Cast<YoutubeVideo>())
                     {
                         await Debug.WriteAsync($"Video Results: \"{yt.Title} - {yt.Author} - {yt.Duration}\"");

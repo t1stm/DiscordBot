@@ -12,7 +12,17 @@ namespace DiscordBot.Readers.MariaDB
         public ulong Id { get; init; }
         public ushort Statusbar { get; init; }
         public bool VerboseMessages { get; init; } = true;
-        public Languages.Language Language { get; init; }
+        public ILanguage Language { get; init; }
+        public bool Normalize { get; private init; } = true;
+
+        public async Task ModifySettings(string target, string value) // I am not going to bother making this method safe.
+        {
+            var connection = new MySqlConnection(Bot.SqlConnectionQuery);
+            await connection.OpenAsync();
+            var cmd = new MySqlCommand($"UPDATE `guilds` SET `{target}` = '{value}' WHERE `guilds`.`id` = '{Id}'", connection);
+            await cmd.ExecuteNonQueryAsync();
+            await connection.CloseAsync();
+        }
 
         private static async Task<List<GuildSettings>> ReadAll()
         {
@@ -28,7 +38,9 @@ namespace DiscordBot.Readers.MariaDB
                 {
                     Id = (ulong) dataReader["id"],
                     Statusbar = (ushort) dataReader["statusbar"],
-                    Language = Languages.FromNumber((ushort) dataReader["language"])
+                    Language = Parser.FromNumber((ushort) dataReader["language"]),
+                    VerboseMessages = (bool) dataReader["verboseMessages"],
+                    Normalize = (bool) dataReader["normalize"]
                 });    
             } 
             await dataReader.CloseAsync(); 

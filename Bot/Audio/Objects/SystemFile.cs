@@ -18,7 +18,7 @@ namespace DiscordBot.Audio.Objects
 
         public override string GetLocation()
         {
-            return IsDiscordAttachment ? base.GetLocation() : $"{Bot.WorkingDirectory}/dll/Discord Attachments/{Guild}/{Location}";
+            return IsDiscordAttachment ? $"{Bot.WorkingDirectory}/dll/Discord Attachments/{Guild}/{Location}" : base.GetLocation();
         }
 
         public override string GetAddUrl()

@@ -2,6 +2,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using DiscordBot.Methods;
 using DiscordBot.Readers.MariaDB;
+using MySql.Data.MySqlClient;
 
 namespace DiscordBot.Objects
 {
@@ -10,7 +11,16 @@ namespace DiscordBot.Objects
         public ulong Id { get; init; }
         public string Token { get; init; }
         public bool VerboseMessages { get; init; } = true;
-        public Languages.Language Language { get; init; }
+        public ILanguage Language { get; init; }
+
+        public async Task ModifySettings(string target, string value)
+        {
+            var connection = new MySqlConnection(Bot.SqlConnectionQuery);
+            await connection.OpenAsync();
+            var cmd = new MySqlCommand($"UPDATE `users` SET `{target}` = '{value} WHERE `users`.`id` = '{Id}'", connection);
+            await cmd.ExecuteNonQueryAsync();
+            await connection.CloseAsync();
+        }
         
         public static async Task<User> FromId(ulong id)
         {

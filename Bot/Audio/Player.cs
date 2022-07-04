@@ -10,6 +10,7 @@ using DiscordBot.Audio.Objects;
 using DiscordBot.Audio.Platforms;
 using DiscordBot.Enums;
 using DiscordBot.Messages;
+using DiscordBot.Readers.MariaDB;
 using DSharpPlus;
 using DSharpPlus.Entities;
 using DSharpPlus.VoiceNext;
@@ -36,10 +37,11 @@ namespace DiscordBot.Audio
         private ElapsedEventHandler Handler { get; set; }
         private bool WaitingToLeave { get; set; }
         public bool Started { get; set; }
-        public WebSocketManager WebSocketManager { get; set; }
+        public WebSocketManager WebSocketManager { get; }
         public DiscordChannel VoiceChannel { get; set; }
         public bool Paused { get; set; }
-        public bool Normalize { get; init; } = true;
+        public GuildSettings Settings { get; set; }
+        public bool Normalize => Settings.Normalize;
         private CancellationTokenSource CancelSource { get; set; } = new();
         public Queue Queue { get; }
         public Statusbar Statusbar { get; } = new();

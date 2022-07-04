@@ -97,16 +97,18 @@ namespace DiscordBot
                     try
                     {
                         var message = await ws.ReadStringAsync(CancellationToken.None);
+                        if (message == null)
+                        {
+                            await player.WebSocketManager.Remove(ws);
+                            return;
+                        }
                         await player.WebSocketManager.OnWrite(ws, message);
                     }
                     catch (Exception e)
-                    {
+                    { 
                         await Debug.WriteAsync($"Exception reading WebSocket message: \"{e}\"");
                     }
                 }
-
-                var ta = new Task(async () => { await player.WebSocketManager.Remove(ws); });
-                ta.Start();
             }
             catch (Exception)
             {

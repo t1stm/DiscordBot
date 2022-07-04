@@ -1,5 +1,4 @@
 #nullable enable
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -16,7 +15,7 @@ using Video = DiscordBot.Audio.Platforms.Youtube.Video;
 
 namespace DiscordBot.Audio.Platforms
 {
-    public class Search
+    public static class Search
     {
         public static async Task<List<PlayableItem>> Get(string searchTerm, ulong length = 0,
             bool returnAllResults = false)

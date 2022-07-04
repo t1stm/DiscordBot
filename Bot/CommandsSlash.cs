@@ -6,7 +6,10 @@ using DiscordBot.Audio.Platforms.Discord;
 using DiscordBot.Enums;
 using DiscordBot.Methods;
 using DiscordBot.Miscellaneous;
+using DiscordBot.Objects;
+using DiscordBot.Readers.MariaDB;
 using DSharpPlus;
+using DSharpPlus.CommandsNext.Attributes;
 using DSharpPlus.Entities;
 using DSharpPlus.SlashCommands;
 
@@ -298,13 +301,13 @@ namespace DiscordBot
                 if (Controllers.Bot.WebUiUsers.ContainsKey(ctx.Member.Id))
                 {
                     var key = Controllers.Bot.WebUiUsers.GetValue(ctx.Member.Id);
-                    await ctx.Member.SendMessageAsync(Manager.GetWebUiMessage(key));
+                    await ctx.Member.SendMessageAsync(Manager.GetWebUiMessage(key, "You've already generated a Web UI code.", "Control the bot using a fancy interface."));
                     return;
                 }
 
                 var randomString = Bot.RandomString(96);
                 await Controllers.Bot.AddUser(ctx.Member.Id, randomString);
-                await ctx.Member.SendMessageAsync(Manager.GetWebUiMessage(randomString, "Your Web UI Code is"));
+                await ctx.Member.SendMessageAsync(Manager.GetWebUiMessage(randomString, "Your Web UI Code is", "Control the bot using a fancy interface."));
             }
             catch (Exception e)
             {
@@ -550,6 +553,78 @@ namespace DiscordBot
             catch (Exception e)
             {
                 await Debug.WriteAsync($"Hvani Me Za Kura Context Menu failed: {e}");
+            }
+        }
+        
+        [SlashCommandGroup("settings", "Change the bot's behavior with this command.")]
+        public class CommandsSettings : ApplicationCommandModule
+        {
+            public enum Language
+            {
+                [ChoiceName("English")] English,
+                [ChoiceName("Bulgarian")] Bulgarian
+            }
+
+            public enum Verbosity
+            {
+                [ChoiceName("None")] None,
+                [ChoiceName("All")] All 
+            }
+            
+            public enum Normalization
+            {
+                [ChoiceName("Disabled")] Disabled,
+                [ChoiceName("Enabled")] Enabled
+            }
+            
+            [SlashCommandGroup("user", "Change the bot's behavior for your account only.")]
+            public class UserCommands : ApplicationCommandModule
+            {
+                [SlashCommand("language","Change the bot's response language.")]
+                public async Task UpdateLanguage(InteractionContext ctx, [Option("language", "Choose a language.")] Language lang)
+                {
+                    await ctx.CreateResponseAsync(InteractionResponseType.DeferredMessageUpdate);
+                    var settings = await User.FromId(ctx.User.Id);
+                    await settings.ModifySettings("language", $"{(int) lang}");
+                }
+                
+                [SlashCommand("verboseMessages","Change the bot's verbosity.")]
+                public async Task UpdateVerbosity(InteractionContext ctx, [Option("verbosity", "Choose verbosity level.")] Verbosity verbosity)
+                {
+                    await ctx.CreateResponseAsync(InteractionResponseType.DeferredMessageUpdate);
+                    var settings = await User.FromId(ctx.User.Id);
+                    await settings.ModifySettings("verboseMessages", $"{verbosity switch {Verbosity.None => 0, Verbosity.All => 1, _ => 1}}");
+                }
+                
+                //TODO: Add ability to reset client secret here.
+            }
+
+            [SlashCommandGroup("guild", "Change the bot's behavior for the whole guild."), RequireUserPermissions(Permissions.Administrator), RequireGuild]
+            public class GuildCommands : ApplicationCommandModule
+            {
+                [SlashCommand("language","Change the bot's response language.")]
+                public async Task UpdateLanguage(InteractionContext ctx, [Option("language", "Choose a language.")] Language lang)
+                {
+                    await ctx.CreateResponseAsync(InteractionResponseType.DeferredMessageUpdate);
+                    var settings = await GuildSettings.FromId(ctx.Guild.Id);
+                    await settings.ModifySettings("language", $"{(int) lang}");
+                }
+                
+                [SlashCommand("verboseMessages","Change the bot's verbosity.")]
+                public async Task UpdateVerbosity(InteractionContext ctx, [Option("verbosity", "Choose verbosity level.")] Verbosity verbosity)
+                {
+                    await ctx.CreateResponseAsync(InteractionResponseType.DeferredMessageUpdate);
+                    var settings = await GuildSettings.FromId(ctx.Guild.Id);
+                    await settings.ModifySettings("verboseMessages", $"{verbosity switch {Verbosity.None => 0, Verbosity.All => 1, _ => 1}}");
+                }
+
+                [SlashCommand("normalization", "Change whether the bot should normalize audio.")]
+                public async Task UpdateNormalization(InteractionContext ctx, [Option("normalization", "Change normalization.")] Normalization normalization)
+                {
+                    await ctx.CreateResponseAsync(InteractionResponseType.DeferredMessageUpdate);
+                    var settings = await GuildSettings.FromId(ctx.Guild.Id);
+                    await settings.ModifySettings("verboseMessages", $"{normalization switch {Normalization.Disabled => 0, Normalization.Enabled => 1, _ => 1}}");
+                }
             }
         }
     }

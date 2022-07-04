@@ -10,7 +10,6 @@ using DiscordBot.Messages;
 using DiscordBot.Methods;
 using DiscordBot.Objects;
 using DiscordBot.Readers;
-using DiscordBot.Readers.MariaDB;
 using DSharpPlus;
 using DSharpPlus.CommandsNext;
 using DSharpPlus.Entities;
@@ -99,13 +98,6 @@ namespace DiscordBot
                 await WebSocketServer.Start();
             });
             task.Start();
-            Clients[0].GuildDownloadCompleted += async (_, args) =>
-            {
-                foreach (var guild in args.Guilds)
-                {
-                    await GuildSettings.FromId(guild.Key);
-                }
-            };
             while ((text = Console.ReadLine()) != "null")
                 try
                 {
@@ -271,7 +263,7 @@ namespace DiscordBot
             {
                 if (client != null)
                     await client.UpdateStatusAsync(new DiscordActivity(status, activity));
-                var f = File.OpenWrite($"{WorkingDirectory}/Status.json");
+                var f = File.Open($"{WorkingDirectory}/Status.json", FileMode.Create, FileAccess.ReadWrite, FileShare.ReadWrite);
                 f.Flush();
                 await JsonSerializer.SerializeAsync(f, new BotActivity
                 {
@@ -306,7 +298,8 @@ namespace DiscordBot
             {
                 Token = token,
                 TokenType = TokenType.Bot,
-                MinimumLogLevel = LogLevel.None,
+                MinimumLogLevel = LogLevel.Information,
+                LoggerFactory = new Methods.LoggerFactory(),
                 LogTimestampFormat = Debug.DebugTimeDateFormat
             });
             var commandsExtension = client.UseCommandsNext(new CommandsNextConfiguration
@@ -384,22 +377,22 @@ namespace DiscordBot
             Player pl;
             lock (Manager.Main)
             {
-                pl = Manager.Main.FirstOrDefault(r =>
+                pl = Manager.Main.AsParallel().FirstOrDefault(r =>
                     r.Channel.Id == eventArgs.Channel.Id && r.VoiceUsers.Contains(eventArgs.User));
             }
 
+            var user = await User.FromId(eventArgs.User.Id);
             if (pl == null)
             {
                 await eventArgs.Interaction.CreateFollowupMessageAsync(
                     new DiscordFollowupMessageBuilder {IsEphemeral = true}.WithContent(
-                        "```You're not in the bot's voice channel.```"));
+                        user.Language.YouAreNotInTheChannel()));
                 if (DebugMode)
                     await Debug.WriteAsync(
                         $"The user: \"{eventArgs.User.Username}#{eventArgs.User.Discriminator}\" interacted to a player message without being in the channel.");
                 return;
             }
-
-            var user = await User.FromId(eventArgs.User.Id);
+            
             var verbose = user.VerboseMessages;
 
             switch (eventArgs.Id)
@@ -408,21 +401,21 @@ namespace DiscordBot
                     if (verbose)
                         await eventArgs.Interaction.CreateFollowupMessageAsync(
                             new DiscordFollowupMessageBuilder {IsEphemeral = true}.WithContent(
-                                "```Shuffling the queue.```"));
+                                user.Language.ShufflingTheQueue().CodeBlocked()));
                     pl.Shuffle();
                     break;
                 case "skip":
                     if (verbose)
                         await eventArgs.Interaction.CreateFollowupMessageAsync(
                             new DiscordFollowupMessageBuilder {IsEphemeral = true}.WithContent(
-                                "```Skipping one time.```"));
+                                user.Language.SkippingOneTime().CodeBlocked()));
                     await pl.Skip();
                     break;
                 case "pause":
                     if (verbose)
                         await eventArgs.Interaction.CreateFollowupMessageAsync(
                             new DiscordFollowupMessageBuilder {IsEphemeral = true}.WithContent(
-                                $"```{!pl.Paused switch {true => "Pausing", false => "Unpausing"}} the player.```"));
+                                (!pl.Paused switch {true => user.Language.PausingThePlayer(), false => user.Language.UnpausingThePlayer()}).CodeBlocked()));
                     pl.Pause();
                     break;
                 case "back":
@@ -430,7 +423,7 @@ namespace DiscordBot
                     if (verbose)
                         await eventArgs.Interaction.CreateFollowupMessageAsync(
                             new DiscordFollowupMessageBuilder {IsEphemeral = true}.WithContent(
-                                "```Skipping one time back.```"));
+                                user.Language.SkippingOneTimeBack().CodeBlocked()));
                     break;
                 case "leave":
                     await pl.DisconnectAsync();
@@ -439,18 +432,18 @@ namespace DiscordBot
                     if (verbose)
                         await eventArgs.Interaction.CreateFollowupMessageAsync(
                             new DiscordFollowupMessageBuilder {IsEphemeral = true}.WithContent(
-                                "```Sending you a Direct Message containing the required information.```"));
+                                user.Language.SendingADirectMessageContainingTheInformation().CodeBlocked()));
                     DiscordMessageBuilder message;
                     if (Controllers.Bot.WebUiUsers.ContainsKey(eventArgs.User.Id))
                     {
                         var key = Controllers.Bot.WebUiUsers.GetValue(eventArgs.User.Id);
-                        message = Manager.GetWebUiMessage(key);
+                        message = Manager.GetWebUiMessage(key, user.Language.YouHaveAlreadyGeneratedAWebUiCode(), user.Language.ControlTheBotUsingAFancyInterface());
                     }
                     else
                     {
                         var randomString = RandomString(96);
                         await Controllers.Bot.AddUser(eventArgs.User.Id, randomString);
-                        message = Manager.GetWebUiMessage(randomString, "Your Web UI Code is");
+                        message = Manager.GetWebUiMessage(randomString, user.Language.YourWebUiCodeIs(), user.Language.ControlTheBotUsingAFancyInterface());
                     }
 
                     await eventArgs.Guild.Members[eventArgs.User.Id].SendMessageAsync(message);

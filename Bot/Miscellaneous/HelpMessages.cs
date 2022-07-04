@@ -158,7 +158,7 @@ This command is pretty self explanatory. It goes to the element which place on t
 This command saves the current queue using a file format which I created. When saving, the command will give you the instructions of how to use the playlist again. 
 For the fellow developers these next few lines will explain how the data is stored, if they want to use it for some reason, which I doubt but here I am writing about this.
 
-The file starts with the bytes (0-255) 84,7,70,60 (which is an easter egg that spell BatTo6o)  (6 is read like sh in Bulgarian when used in a word, this is the so called schlokavica - шльокавица)
+The file starts with the bytes (0-255) 84,7,70,60 (which is an easter egg that spells BatTo6o534)  (6 is read like sh in Bulgarian when used in a word, this is the so called schlokavica - шльокавица)
 After these bytes are the padding bytes 00,02 - These two bytes indicate to the decoder where the new string starts.
 After the padding bytes the first byte of the data is the ""encoding byte"" this is a special byte which indicates what type of encoding the current string uses. It's values are 00 - UTF8, 01 - ASCII, and 02 - ASCII but with a twist, I brutally murdered it to allow it to store bulgarian characters in one byte. So in one word it's ASCII and not.
 After that until the next padding bytes (00,02) , it's pure data. 

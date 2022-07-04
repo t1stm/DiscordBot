@@ -6,6 +6,7 @@ using DiscordBot.Audio;
 using DiscordBot.Enums;
 using DiscordBot.Methods;
 using DiscordBot.Readers;
+using DiscordBot.Readers.MariaDB;
 using DiscordBot.Tools;
 using DSharpPlus;
 using DSharpPlus.CommandsNext;
@@ -18,6 +19,19 @@ namespace DiscordBot
     public class Commands : BaseCommandModule
     {
         private static bool DailySalt { get; set; }
+
+        public override async Task BeforeExecutionAsync(CommandContext ctx)
+        {
+            try
+            {
+                if (ctx is not null && ctx.Guild.Id != 0)
+                    await GuildSettings.FromId(ctx.Guild.Id);
+            }
+            catch (Exception e)
+            {
+                await Debug.WriteAsync($"Before execution task failed: \"{e}\"", false, Debug.DebugColor.Urgent);
+            }
+        }
 
         [Command("plsfix")]
         public async Task PlsFixCommand(CommandContext ctx) // Pray to the RNG gods to fix the bot.
@@ -225,7 +239,7 @@ namespace DiscordBot
         {
             try
             {
-                await Manager.List(ctx);
+                await Manager.Queue(ctx);
             }
             catch (Exception e)
             {

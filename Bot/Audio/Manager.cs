@@ -15,6 +15,8 @@ using DiscordBot.Audio.Platforms.Discord;
 using DiscordBot.Audio.Platforms.Youtube;
 using DiscordBot.Methods;
 using DiscordBot.Miscellaneous;
+using DiscordBot.Objects;
+using DiscordBot.Readers.MariaDB;
 using DSharpPlus;
 using DSharpPlus.CommandsNext;
 using DSharpPlus.Entities;
@@ -94,21 +96,22 @@ namespace DiscordBot.Audio
 
         public static async Task PlayCommand(CommandContext ctx, string term, bool select = false)
         {
+            var user = await User.FromId(ctx.User.Id);
+            var languageUser = user.Language;
             var userVoiceS = ctx.Member?.VoiceState?.Channel;
             if (userVoiceS == null)
             {
-                await Bot.SendDirectMessage(ctx, "Enter a channel before using the play command.");
+                await Bot.SendDirectMessage(ctx, languageUser.EnterChannelBeforeCommand("play"));
                 return;
             }
 
             var player = GetPlayer(userVoiceS, ctx.Client, generateNew: true);
             if (player == null)
             {
-                await Bot.SendDirectMessage(ctx,
-                    "No free bot accounts in this guild. You can add more bot accounts from the bot's support server.");
+                await Bot.SendDirectMessage(ctx,languageUser.NoFreeBotAccounts());
                 return;
             }
-
+            player.Settings = await GuildSettings.FromId(ctx.Guild.Id);
             try
             {
                 await Play(term, select, player, userVoiceS, ctx.Member, ctx.Message.Attachments.ToList(), ctx.Channel);
@@ -130,6 +133,7 @@ namespace DiscordBot.Audio
         {
             try
             {
+                var lang = player.Settings.Language;
                 if (!player.Started)
                 {
                     player.Started = true;
@@ -139,7 +143,7 @@ namespace DiscordBot.Audio
                         await Debug.WriteAsync($"Play message contains attachments: {attachments.Count}");
                         items = await Search.Get(term, attachments, user.Guild.Id);
                         var builder =
-                            new DiscordMessageBuilder().WithContent("```Hello! This message will update shortly.```");
+                            new DiscordMessageBuilder().WithContent(lang.ThisMessageWillUpdateShortly().CodeBlocked());
                         player.Channel = player.CurrentClient.Guilds[userVoiceS.Guild.Id].Channels[messageChannel.Id];
                         player.Statusbar.Message = await builder.SendAsync(player.Channel);
                     }
@@ -152,20 +156,19 @@ namespace DiscordBot.Audio
                             var results = await Video.SearchAllResults(term);
                             if (results.Count < 1)
                             {
-                                await messageChannel.SendMessageAsync(
-                                    $"```No results could be found for the search term: \"{term}\"```");
+                                await messageChannel.SendMessageAsync(lang.NoResultsFound(term).CodeBlocked());
                                 return;
                             }
                             var options = results.Select(result =>
                                 new DiscordSelectComponentOption(result.Title, result.GetId(), result.Author)).ToList();
                             var dropdown = new DiscordSelectComponent("dropdown", null, options);
-                            var builder = new DiscordMessageBuilder().WithContent("Select a video.")
+                            var builder = new DiscordMessageBuilder().WithContent(lang.SelectVideo())
                                 .AddComponents(dropdown);
                             var message = await builder.SendAsync(player.Channel);
                             var response = await message.WaitForSelectAsync(user, "dropdown", TimeSpan.FromSeconds(60));
                             if (response.TimedOut)
                             {
-                                await message.ModifyAsync("```Time to select video ran out.```");
+                                await message.ModifyAsync(lang.SelectVideoTimeout().CodeBlocked());
                                 return;
                             }
 
@@ -175,8 +178,7 @@ namespace DiscordBot.Audio
                                 await Video.SearchById(interaction.First())
                             };
                             player.Statusbar.Message = await message.ModifyAsync(
-                                new DiscordMessageBuilder().WithContent(
-                                    "```Hello! This message will update shortly.```"));
+                                new DiscordMessageBuilder().WithContent(lang.ThisMessageWillUpdateShortly().CodeBlocked()));
                         }
                         else
                         {
@@ -186,8 +188,7 @@ namespace DiscordBot.Audio
                     
                     if (items.Count < 1)
                     {
-                        await messageChannel.SendMessageAsync(
-                            $"```No results could be found for the search term: \"{term}\"```");
+                        await messageChannel.SendMessageAsync(lang.NoResultsFound(term).CodeBlocked());
                     }
                     else
                     {
@@ -234,18 +235,21 @@ namespace DiscordBot.Audio
                             var results = await Video.SearchAllResults(term);
                             if (results.Count < 1)
                             {
-                                await messageChannel.SendMessageAsync(
-                                    $"```No results could be found for the search term: \"{term}\"```");
+                                await messageChannel.SendMessageAsync(lang.NoResultsFound(term).CodeBlocked());
                                 return;
                             }
                             var options = results.Select(result =>
                                 new DiscordSelectComponentOption(result.Title, result.GetId(), result.Author)).ToList();
                             var dropdown = new DiscordSelectComponent("dropdown", null, options);
-                            var builder = new DiscordMessageBuilder().WithContent("Select a video.")
+                            var builder = new DiscordMessageBuilder().WithContent(lang.SelectVideo())
                                 .AddComponents(dropdown);
                             var message = await builder.SendAsync(player.Channel);
                             var response = await message.WaitForSelectAsync(user, "dropdown", CancellationToken.None);
-                            if (response.TimedOut) return;
+                            if (response.TimedOut)
+                            {
+                                await message.ModifyAsync(lang.SelectVideoTimeout().CodeBlocked());
+                                return;
+                            }
                             var interaction = response.Result.Values;
                             items = new List<PlayableItem>
                             {
@@ -260,17 +264,16 @@ namespace DiscordBot.Audio
                     }
                     if (items.Count < 1)
                     {
-                        await messageChannel.SendMessageAsync(
-                            $"```No results could be found for the search term: \"{term}\"```");
+                        await messageChannel.SendMessageAsync(lang.NoResultsFound(term).CodeBlocked());
                         return;
                     }
                     items.ForEach(it => it.SetRequester(user));
                     player.Queue.AddToQueue(items);
                     if (items.Count > 1)
-                        await player.CurrentClient.SendMessageAsync(messageChannel, $"```Added: {term}```");
+                        await player.CurrentClient.SendMessageAsync(messageChannel, lang.AddedItem(term));
                     else
-                        await player.CurrentClient.SendMessageAsync(messageChannel,
-                            $"```Added: ({player.Queue.Items.IndexOf(items.First()) + 1}) - {items.First().GetName()}```");
+                        await player.CurrentClient.SendMessageAsync(messageChannel, 
+                            lang.AddedItem($"({player.Queue.Items.IndexOf(items.First()) + 1}) - {items.First().GetName()}").CodeBlocked());
                 }
             }
             catch (Exception e)
@@ -293,9 +296,11 @@ namespace DiscordBot.Audio
         public static async Task Skip(CommandContext ctx, int times = 1)
         {
             var userVoiceS = ctx.Member?.VoiceState?.Channel;
+            var user = await User.FromId(ctx.User.Id);
+            var lang = user.Language;
             if (userVoiceS == null)
             {
-                await Bot.SendDirectMessage(ctx, "Enter a channel before using the play command.");
+                await Bot.SendDirectMessage(ctx, lang.EnterChannelBeforeCommand("skip"));
                 return;
             }
 
@@ -307,17 +312,19 @@ namespace DiscordBot.Audio
 
         public static async Task Leave(CommandContext ctx)
         {
+            var user = await User.FromId(ctx.User.Id);
             var userVoiceS = ctx.Member?.VoiceState?.Channel;
             if (userVoiceS == null)
             {
-                await Bot.SendDirectMessage(ctx, "Enter a channel before using the leave command.");
+                await Bot.SendDirectMessage(ctx, user.Language.EnterChannelBeforeCommand("leave"));  
                 return;
             }
 
             var player = GetPlayer(userVoiceS, ctx.Client);
             if (player == null)
             {
-                await Bot.Reply(ctx, "The bot isn't in the channel.");
+                var guild = await GuildSettings.FromId(ctx.Guild.Id);
+                await Bot.Reply(ctx, guild.Language.BotIsNotInTheChannel());
                 return;
             }
 
@@ -338,17 +345,19 @@ namespace DiscordBot.Audio
 
         public static async Task Shuffle(CommandContext ctx)
         {
+            var user = await User.FromId(ctx.User.Id);
             var userVoiceS = ctx.Member?.VoiceState?.Channel;
             if (userVoiceS == null)
             {
-                await Bot.SendDirectMessage(ctx, "Enter a channel before using the shuffle command.");
+                await Bot.SendDirectMessage(ctx, user.Language.EnterChannelBeforeCommand("shuffle"));  
                 return;
             }
 
             var player = GetPlayer(userVoiceS, ctx.Client);
             if (player == null)
             {
-                await Bot.Reply(ctx, "The bot isn't in the channel.");
+                var guild = await GuildSettings.FromId(ctx.Guild.Id);
+                await Bot.Reply(ctx, guild.Language.BotIsNotInTheChannel());
                 return;
             }
 
@@ -371,40 +380,40 @@ namespace DiscordBot.Audio
 
         public static async Task Loop(CommandContext ctx)
         {
+            var user = await User.FromId(ctx.User.Id);
             var userVoiceS = ctx.Member?.VoiceState?.Channel;
             if (userVoiceS == null)
             {
-                await Bot.SendDirectMessage(ctx, "Enter a channel before using the loop command.");
+                await Bot.SendDirectMessage(ctx, user.Language.EnterChannelBeforeCommand("loop"));  
                 return;
             }
 
             var player = GetPlayer(userVoiceS, ctx.Client);
             if (player == null)
             {
-                await Bot.Reply(ctx, "The bot isn't in the channel.");
+                var guild = await GuildSettings.FromId(ctx.Guild.Id);
+                await Bot.Reply(ctx, guild.Language.BotIsNotInTheChannel());
                 return;
             }
 
-            await ctx.RespondAsync("```Loop status is now: " + player.ToggleLoop() switch
-            {
-                Enums.Loop.None => "None", Enums.Loop.WholeQueue => "Looping whole queue.",
-                Enums.Loop.One => "One Item Only.", _ => "None"
-            } + "```");
+            await ctx.RespondAsync(player.Settings.Language.LoopStatusUpdate(player.ToggleLoop()));
         }
 
         public static async Task Pause(CommandContext ctx)
         {
+            var user = await User.FromId(ctx.User.Id);
             var userVoiceS = ctx.Member?.VoiceState?.Channel;
             if (userVoiceS == null)
             {
-                await Bot.SendDirectMessage(ctx, "Enter a channel before using the pause command.");
+                await Bot.SendDirectMessage(ctx, user.Language.EnterChannelBeforeCommand("pause"));  
                 return;
             }
 
             var player = GetPlayer(userVoiceS, ctx.Client);
             if (player == null)
             {
-                await Bot.Reply(ctx, "The bot isn't in the channel.");
+                var guild = await GuildSettings.FromId(ctx.Guild.Id);
+                await Bot.Reply(ctx, guild.Language.BotIsNotInTheChannel());
                 return;
             }
             
@@ -413,10 +422,11 @@ namespace DiscordBot.Audio
 
         public static async Task PlayNext(CommandContext ctx, string term)
         {
+            var user = await User.FromId(ctx.User.Id);
             var userVoiceS = ctx.Member?.VoiceState?.Channel;
             if (userVoiceS == null)
             {
-                await Bot.SendDirectMessage(ctx, "Enter a channel before using the play command.");
+                await Bot.SendDirectMessage(ctx, user.Language.EnterChannelBeforeCommand("loop"));  
                 return;
             }
 
@@ -433,14 +443,14 @@ namespace DiscordBot.Audio
                 {
                     if (nextSong > player.Queue.Count)
                     {
-                        await Bot.Reply(ctx, $"Specified number: {nextSong} is bigger than the Queue's Length. Searching the number instead.");
+                        await Bot.Reply(ctx, player.Settings.Language.NumberBiggerThanQueueLength(nextSong));
                         break;
                     }
                     var thing = player.Queue.Items[nextSong - 1];
                     player.Queue.RemoveFromQueue(thing);
                     player.Queue.AddToQueueNext(thing);
                     await Bot.Reply(player.CurrentClient, ctx.Channel,
-                        $"Playing: ({player.Queue.Items.IndexOf(thing) + 1}) - \"{thing.GetName()}\" after this.");
+                        player.Settings.Language.PlayingItemAfterThis(player.Queue.Items.IndexOf(thing) + 1, thing.GetName()));
                     return;
                 } while (false); // This error is tilting me but I can't do anything about it, because it's technically true. Rider cannot contain my intelligence.
             }
@@ -463,29 +473,31 @@ namespace DiscordBot.Audio
 
             if (item.Count < 1)
             {
-                await Bot.Reply(ctx, $"No results could be found for the search term: \"{term}\"");
+                await Bot.Reply(ctx, player.Settings.Language.NoResultsFound(term));
                 return;
             }
 
             item.ForEach(it => it.SetRequester(ctx.Member));
             player.Queue.AddToQueueNext(item);
             await Bot.Reply(player.CurrentClient, ctx.Channel,
-                $"Playing: {(item.Count > 1 ? $"\"{term}\"" : $"({player.Queue.Items.IndexOf(item[0]) + 1}) - \"{item[0].GetName()}\"")} after this.");
+                item.Count > 1 ? player.Settings.Language.PlayingItemAfterThis(term) : player.Settings.Language.PlayingItemAfterThis(player.Queue.Items.IndexOf(item[0]) + 1, item[0].GetName()));
         }
 
         public static async Task Remove(CommandContext ctx, string text)
         {
+            var user = await User.FromId(ctx.User.Id);
             var userVoiceS = ctx.Member?.VoiceState?.Channel;
             if (userVoiceS == null)
             {
-                await Bot.SendDirectMessage(ctx, "Enter a channel before using the remove command.");
+                await Bot.SendDirectMessage(ctx, user.Language.EnterChannelBeforeCommand("remove"));  
                 return;
             }
 
             var player = GetPlayer(userVoiceS, ctx.Client);
             if (player == null)
             {
-                await Bot.Reply(ctx, "The bot isn't in the channel.");
+                var guild = await GuildSettings.FromId(ctx.Guild.Id);
+                await Bot.Reply(ctx, guild.Language.BotIsNotInTheChannel());
                 return;
             }
 
@@ -494,24 +506,24 @@ namespace DiscordBot.Audio
                 : await player.RemoveFromQueue(text);
             if (item == null)
             {
-                await Bot.Reply(player.CurrentClient, ctx.Channel, $"Failed to remove: \"{text}\"");
+                await Bot.Reply(player.CurrentClient, ctx.Channel, player.Settings.Language.FailedToRemove(text));
                 return;
             }
 
-            await Bot.Reply(player.CurrentClient, ctx.Channel, $"Removing {item.GetName()}");
+            await Bot.Reply(player.CurrentClient, ctx.Channel, player.Settings.Language.RemovingItem(item.GetName()));
         }
 
         public static MemoryStream GetQrCodeForWebUi(string key)
         {
             var qrGenerator = new QRCodeGenerator();
-            var qrCodeData = qrGenerator.CreateQrCode($"https://dankest.gq/BaiToshoBeta?clientSecret={key}",
+            var qrCodeData = qrGenerator.CreateQrCode($"{Bot.SiteDomain}/{Bot.WebUiPage}?clientSecret={key}",
                 QRCodeGenerator.ECCLevel.Q);
             var qrCode = new PngByteQRCode(qrCodeData);
             var qrCodeAsPngByteArr = qrCode.GetGraphic(4);
             return new MemoryStream(qrCodeAsPngByteArr);
         }
 
-        public static DiscordMessageBuilder GetWebUiMessage(string key, string text = "You have already generated a Web UI code")
+        public static DiscordMessageBuilder GetWebUiMessage(string key, string text , string description)
         {
             return new DiscordMessageBuilder()
                 .WithContent($"```{text}: {key}```")
@@ -530,35 +542,39 @@ namespace DiscordBot.Audio
         
         public static async Task GetWebUi(CommandContext ctx)
         {
+            var guild = await GuildSettings.FromId(ctx.Guild.Id);
+            var user = await User.FromId(ctx.User.Id);
             if (ctx.Member is null) return;
             if (Controllers.Bot.WebUiUsers.ContainsKey(ctx.Member.Id))
             {
                 var key = Controllers.Bot.WebUiUsers.GetValue(ctx.Member.Id);
 
-                await ctx.Member.SendMessageAsync(GetWebUiMessage(key));
-                await Bot.Reply(ctx, "Sending a Direct Message containing the information.");
+                await ctx.Member.SendMessageAsync(GetWebUiMessage(key, user.Language.YouHaveAlreadyGeneratedAWebUiCode(), user.Language.ControlTheBotUsingAFancyInterface()));
+                await Bot.Reply(ctx, guild.Language.SendingADirectMessageContainingTheInformation());
                 return;
             }
 
             var randomString = Bot.RandomString(96);
             await Controllers.Bot.AddUser(ctx.Member.Id, randomString);
-            await ctx.Member.SendMessageAsync(GetWebUiMessage(randomString, "Your Web UI Code is"));
-            await Bot.Reply(ctx, "Sending a Direct Message containing the information.");
+            await ctx.Member.SendMessageAsync(GetWebUiMessage(randomString, user.Language.YourWebUiCodeIs(), user.Language.ControlTheBotUsingAFancyInterface()));
+            await Bot.Reply(ctx, guild.Language.SendingADirectMessageContainingTheInformation());
         }
 
         public static async Task Move(CommandContext ctx, string move)
         {
+            var user = await User.FromId(ctx.User.Id);
             var userVoiceS = ctx.Member?.VoiceState?.Channel;
             if (userVoiceS == null)
             {
-                await Bot.SendDirectMessage(ctx, "Enter a channel before using the move command.");
+                await Bot.SendDirectMessage(ctx, user.Language.EnterChannelBeforeCommand("move"));  
                 return;
             }
 
             var player = GetPlayer(userVoiceS, ctx.Client);
             if (player == null)
             {
-                await Bot.Reply(ctx, "The bot isn't in the channel.");
+                var guild = await GuildSettings.FromId(ctx.Guild.Id);
+                await Bot.Reply(ctx, guild.Language.BotIsNotInTheChannel());
                 return;
             }
 
@@ -568,22 +584,20 @@ namespace DiscordBot.Audio
                 var succ = player.Queue.Move(thing1 - 1, thing2 - 1, out var item);
                 if (succ)
                     await Bot.Reply(player.CurrentClient, ctx.Channel,
-                        $"Moved ({thing1}) \"{item.GetName()}\" to ({thing2})");
-                else await Bot.Reply(player.CurrentClient, ctx.Channel, "Failed to move.");
+                        player.Settings.Language.Moved(thing1, item.GetName(), thing2));
+                else await Bot.Reply(player.CurrentClient, ctx.Channel, player.Settings.Language.FailedToMove());
                 return;
             }
 
             if (!move.Contains("!to"))
-                await player.CurrentClient.SendMessageAsync(ctx.Channel,
-                    "```Invalid move format.\nYou must use two numbers or use the format specified below:\n\n" +
-                    "-mv Exact Name !to Exact Name 2 ```");
+                await player.CurrentClient.SendMessageAsync(ctx.Channel, player.Settings.Language.InvalidMoveFormat());
 
             var tracks = move.Split("!to");
             var success = player.Queue.Move(tracks[0], tracks[1], out var i1, out var i2);
             if (success)
                 await Bot.Reply(player.CurrentClient, ctx.Channel,
-                    $"Switched the places of \"{i1.GetName()}\" and \"{i2.GetName()}\"");
-            else await Bot.Reply(player.CurrentClient, ctx.Channel, "Failed to move.");
+                    player.Settings.Language.SwitchedThePlacesOf(i1.GetName(), i2.GetName()));
+            else await Bot.Reply(player.CurrentClient, ctx.Channel, player.Settings.Language.FailedToMove());
         }
 
         public static async Task Shuffle(CommandContext ctx, int seedInt)
@@ -626,65 +640,66 @@ namespace DiscordBot.Audio
                 seed switch {0 => "This queue hasn't been shuffled.", _ => $"The queue's seed is: \"{seed}\""});
         }
 
-        public static async Task List(CommandContext ctx)
+        public static async Task Queue(CommandContext ctx)
         {
+            var user = await User.FromId(ctx.User.Id);
             var userVoiceS = ctx.Member?.VoiceState?.Channel;
             if (userVoiceS == null)
             {
-                await Bot.SendDirectMessage(ctx, "Enter a channel before using the list command.");
+                await Bot.SendDirectMessage(ctx, user.Language.EnterChannelBeforeCommand("move"));  
                 return;
             }
 
             var player = GetPlayer(userVoiceS, ctx.Client);
             if (player == null)
             {
-                await Bot.Reply(ctx, "The bot isn't in the channel.");
+                var guild = await GuildSettings.FromId(ctx.Guild.Id);
+                await Bot.Reply(ctx, guild.Language.BotIsNotInTheChannel());
                 return;
             }
 
             await Bot.Reply(ctx,
-                new DiscordMessageBuilder().WithContent("```Current Queue:```").WithFile("queue.txt",
-                    new MemoryStream(Encoding.UTF8.GetBytes(player.Queue
-                                                            + "\n\nHere's a tech tip. " +
-                                                            "\nYou can use the bot web interface which displays the list automatically. " +
-                                                            "\nYou can add, remove and overall control the bot using a spicy looking interface. " +
-                                                            "\nYou can use it with the -webui command. " +
-                                                            "\nThe bot will DM you a link which you can use to login, and a token for authentication."))));
+                new DiscordMessageBuilder().WithContent(player.Settings.Language.CurrentQueue().CodeBlocked()).WithFile("queue.txt",
+                    new MemoryStream(Encoding.UTF8.GetBytes(player.Queue + player.Settings.Language.TechTip()))));
         }
 
         public static async Task GoTo(CommandContext ctx, int index)
         {
+            var user = await User.FromId(ctx.User.Id);
             var userVoiceS = ctx.Member?.VoiceState?.Channel;
             if (userVoiceS == null)
             {
-                await Bot.SendDirectMessage(ctx, "Enter a channel before using the GoTo command.");
+                await Bot.SendDirectMessage(ctx, user.Language.EnterChannelBeforeCommand("goto"));  
                 return;
             }
 
             var player = GetPlayer(userVoiceS, ctx.Client);
             if (player == null)
             {
-                await Bot.Reply(ctx, "The bot isn't in the channel.");
+                var guild = await GuildSettings.FromId(ctx.Guild.Id);
+                await Bot.Reply(ctx, guild.Language.BotIsNotInTheChannel());
                 return;
             }
 
             var thing = player.GoToIndex(index - 1);
-            await Bot.Reply(ctx, $"Going to ({index}) - \"{thing?.GetName()}\"");
+            await Bot.Reply(ctx,player.Settings.Language.GoingTo(index, thing?.GetName()));
         }
         
         public static async Task Volume(CommandContext ctx, double volume)
         {
+            var user = await User.FromId(ctx.User.Id);
             var userVoiceS = ctx.Member?.VoiceState?.Channel;
             if (userVoiceS == null)
             {
-                await Bot.SendDirectMessage(ctx, "Enter a channel before using the shuffle command.");
+                await Bot.SendDirectMessage(ctx, user.Language.EnterChannelBeforeCommand("volume"));  
                 return;
             }
 
             var player = GetPlayer(userVoiceS, ctx.Client);
             if (player == null)
             {
-                await Bot.Reply(ctx, "The bot isn't in the channel.");
+                var guild = await GuildSettings.FromId(ctx.Guild.Id);
+                await Bot.Reply(ctx, guild.Language.BotIsNotInTheChannel());
                 return;
             }
 
@@ -692,27 +707,29 @@ namespace DiscordBot.Audio
             switch (val)
             {
                 case true:
-                    await Bot.Reply(ctx, $"```Set the volume to {volume}%```");
+                    await Bot.Reply(ctx, player.Settings.Language.SetVolumeTo(volume));
                     break;
                 case false:
-                    await Bot.Reply(ctx, "```Invalid volume range. Must be between 0 and 200%.```");
+                    await Bot.Reply(ctx, player.Settings.Language.InvalidVolumeRange());
                     break;
             }
         }
 
         public static async Task Clear(CommandContext ctx)
         {
+            var user = await User.FromId(ctx.User.Id);
             var userVoiceS = ctx.Member?.VoiceState?.Channel;
             if (userVoiceS == null)
             {
-                await Bot.SendDirectMessage(ctx, "Enter a channel before using the shuffle command.");
+                await Bot.SendDirectMessage(ctx, user.Language.EnterChannelBeforeCommand("clear"));  
                 return;
             }
 
             var player = GetPlayer(userVoiceS, ctx.Client);
             if (player == null)
             {
-                await Bot.Reply(ctx, "The bot isn't in the channel.");
+                var guild = await GuildSettings.FromId(ctx.Guild.Id);
+                await Bot.Reply(ctx, guild.Language.BotIsNotInTheChannel());
                 return;
             }
 
@@ -721,18 +738,19 @@ namespace DiscordBot.Audio
 
         public static async Task SavePlaylist(CommandContext ctx)
         {
+            var user = await User.FromId(ctx.User.Id);
             var userVoiceS = ctx.Member?.VoiceState?.Channel;
             if (userVoiceS == null)
             {
-                await Bot.SendDirectMessage(ctx,
-                    "Enter a channel before using the continue to another server command.");
+                await Bot.SendDirectMessage(ctx, user.Language.EnterChannelBeforeCommand("saveplaylist"));  
                 return;
             }
 
             var player = GetPlayer(userVoiceS, ctx.Client);
             if (player == null)
             {
-                await Bot.SendDirectMessage(ctx, "The bot isn't in the channel.");
+                var guild = await GuildSettings.FromId(ctx.Guild.Id);
+                await Bot.Reply(ctx, guild.Language.BotIsNotInTheChannel());
                 return;
             }
 
@@ -740,27 +758,25 @@ namespace DiscordBot.Audio
             var fs = SharePlaylist.Write(token, player.Queue.Items);
             fs.Position = 0;
             await ctx.RespondAsync(
-                new DiscordMessageBuilder().WithContent(
-                        $"```Queue saved sucessfully. \n\nYou can play it again with this command: \"-p pl:{token}\", " +
-                        "or by sending the attached file and using the play command.```")
+                new DiscordMessageBuilder().WithContent(player.Settings.Language.QueueSavedSuccessfully(token))
                     .WithFile($"{token}.batp", fs));
         }
 
         public static async Task PlsFix(CommandContext ctx)
         {
+            var user = await User.FromId(ctx.User.Id);
             var userVoiceS = ctx.Member?.VoiceState?.Channel;
             if (userVoiceS == null)
             {
-                await Bot.SendDirectMessage(ctx,
-                    "One cannot recieve the blessing of playback if they're not in a channel.");
+                await Bot.SendDirectMessage(ctx, user.Language.OneCannotRecieveBlessingNotInChannel());  
                 return;
             }
 
             var player = GetPlayer(userVoiceS, ctx.Client);
             if (player == null)
             {
-                await Bot.SendDirectMessage(ctx,
-                    "One cannot recieve the blessing of playback if there's nothing to play.");
+                var guild = await GuildSettings.FromId(ctx.Guild.Id);
+                await Bot.Reply(ctx, guild.Language.OneCannotRecieveBlessingNothingToPlay());
                 return;
             }
 
@@ -770,22 +786,23 @@ namespace DiscordBot.Audio
         public static async Task SendLyrics(CommandContext ctx, string text)
         {
             string query;
+            GuildSettings guild = null;
             switch (string.IsNullOrEmpty(text))
             {
                 case true:
+                    var user = await User.FromId(ctx.User.Id);
                     var userVoiceS = ctx.Member?.VoiceState?.Channel;
                     if (userVoiceS == null)
                     {
-                        await Bot.SendDirectMessage(ctx,
-                            "Enter a channel before using the lyrics command without a search term.");
+                        await Bot.SendDirectMessage(ctx, user.Language.UserNotInChannelLyrics());  
                         return;
                     }
 
                     var player = GetPlayer(userVoiceS, ctx.Client);
                     if (player == null)
                     {
-                        await Bot.SendDirectMessage(ctx,
-                            "The bot isn't in the channel. If you want to know the lyrics of a song add it's name after the command.");
+                        guild = await GuildSettings.FromId(ctx.Guild.Id);
+                        await Bot.Reply(ctx, guild.Language.BotNotInChannelLyrics());
                         return;
                     }
 
@@ -799,10 +816,12 @@ namespace DiscordBot.Audio
                     break;
             }
 
+            guild = await GuildSettings.FromId(ctx.Guild.Id);
+            
             var lyrics = await GetLyrics(query);
             if (lyrics == null)
             {
-                await Bot.Reply(ctx, "No results found for this song.");
+                await Bot.Reply(ctx, guild.Language.NoResultsFoundLyrics(query));
                 return;
             }
 
@@ -810,7 +829,7 @@ namespace DiscordBot.Audio
             {
                 await Bot.Reply(ctx, new DiscordMessageBuilder()
                     .WithContent(
-                        "```The lyrics are longer than 2000 characters, which is Discord's length limit. Too bad. Sending song as a file.```")
+                        guild.Language.LyricsLong().CodeBlocked())
                     .WithFile("lyrics.txt", new MemoryStream(Encoding.UTF8.GetBytes(lyrics)))
                 );
                 return;
