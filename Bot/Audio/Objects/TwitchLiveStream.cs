@@ -2,6 +2,7 @@ using System;
 using System.Diagnostics;
 using System.Threading.Tasks;
 using DiscordBot.Abstract;
+using DiscordBot.Objects;
 using Debug = DiscordBot.Methods.Debug;
 
 namespace DiscordBot.Audio.Objects
@@ -86,9 +87,14 @@ namespace DiscordBot.Audio.Objects
             return "";
         }
 
-        public override string GetTypeOf()
+        public override string GetTypeOf(ILanguage language)
         {
-            return "Twitch Content";
+            return language switch
+            {
+                English => "Twitch Content",
+                Bulgarian => "Съдържание в Twitch",
+                _ => throw new ArgumentOutOfRangeException(nameof(language), language, null)
+            };
         }
 
         public override string GetThumbnailUrl()

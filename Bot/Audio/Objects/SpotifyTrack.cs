@@ -1,5 +1,6 @@
 using System.Threading.Tasks;
 using DiscordBot.Abstract;
+using DiscordBot.Objects;
 
 namespace DiscordBot.Audio.Objects
 {
@@ -20,9 +21,13 @@ namespace DiscordBot.Audio.Objects
             return "";
         }
 
-        public override string GetTypeOf()
+        public override string GetTypeOf(ILanguage language)
         {
-            return "Spotify Track";
+            return language switch
+            {
+                English => "Spotify Track",
+                Bulgarian => "Песен от Spotify"
+            };
         }
 
         public override string GetThumbnailUrl()

@@ -1,5 +1,7 @@
+using System;
 using System.Threading.Tasks;
 using DiscordBot.Abstract;
+using DiscordBot.Objects;
 
 namespace DiscordBot.Audio.Objects
 {
@@ -31,9 +33,14 @@ namespace DiscordBot.Audio.Objects
             return Id;
         }
 
-        public override string GetTypeOf()
+        public override string GetTypeOf(ILanguage language)
         {
-            return "Vbox7 Video";
+            return language switch
+            {
+                English => "Vbox7 Video",
+                Bulgarian => "Vbox7 Видео",
+                _ => throw new ArgumentOutOfRangeException(nameof(language), language, null)
+            };
         }
     }
 }

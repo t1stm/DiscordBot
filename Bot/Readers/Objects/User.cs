@@ -17,7 +17,9 @@ namespace DiscordBot.Objects
         {
             var connection = new MySqlConnection(Bot.SqlConnectionQuery);
             await connection.OpenAsync();
-            var cmd = new MySqlCommand($"UPDATE `users` SET `{target}` = '{value} WHERE `users`.`id` = '{Id}'", connection);
+            var request = $"UPDATE `users` SET `{target}` = '{value}' WHERE `users`.`id` = '{Id}'";
+            if (Bot.DebugMode) await Debug.WriteAsync($"Updating user with id: ({Id}): \"{request}\"");
+            var cmd = new MySqlCommand(request, connection);
             await cmd.ExecuteNonQueryAsync();
             await connection.CloseAsync();
         }

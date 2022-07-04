@@ -1,14 +1,29 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using DiscordBot.Audio;
 using DiscordBot.Methods;
 using DiscordBot.Objects;
+using Microsoft.Build.Tasks;
 using MySql.Data.MySqlClient;
+using Org.BouncyCastle.Crypto.Engines;
 
 namespace DiscordBot.Readers.MariaDB
 {
     public class GuildSettings
     {
+        private GuildSettings Copy()
+        {
+            var settings = new GuildSettings
+            {
+                Id = Id,
+                Statusbar = Statusbar,
+                VerboseMessages = VerboseMessages,
+                Language = Language,
+                Normalize = Normalize
+            };
+            return settings;
+        }
         public ulong Id { get; init; }
         public ushort Statusbar { get; init; }
         public bool VerboseMessages { get; init; } = true;
@@ -22,6 +37,17 @@ namespace DiscordBot.Readers.MariaDB
             var cmd = new MySqlCommand($"UPDATE `guilds` SET `{target}` = '{value}' WHERE `guilds`.`id` = '{Id}'", connection);
             await cmd.ExecuteNonQueryAsync();
             await connection.CloseAsync();
+            
+            var task = new Task(async () =>
+            {
+                var settings = await FromId(Id);
+                lock (Manager.Main)
+                {
+                    var man = Manager.Main.AsParallel().Where(r => r.CurrentGuild.Id == Id);
+                    foreach (var player in man) player.Settings = settings.Copy(); // This is so that each player doesn't share a single settings object.
+                }
+            });
+            task.Start();
         }
 
         private static async Task<List<GuildSettings>> ReadAll()

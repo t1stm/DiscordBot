@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using DiscordBot.Abstract;
 using DiscordBot.Audio;
 using DiscordBot.Enums;
+using DiscordBot.Objects;
 using DSharpPlus;
 using DSharpPlus.Entities;
 using Debug = DiscordBot.Methods.Debug;
@@ -15,8 +16,6 @@ namespace DiscordBot.Messages
     public class Statusbar : IBaseStatusbar
     {
         //private const string DefaultMessage = "One can use the web interface with the command: \"-webui\"";
-        private const string DefaultMessage =
-            "The bot is currently being reworked majorly, so please note that there may be many bugs.";
         
         private const char EmptyBlock = '□', FullBlock = '■';
         private int _pl0, _pl1 = 1, _pl2 = 2, _pl3 = 3, _pl4 = 4;
@@ -24,6 +23,7 @@ namespace DiscordBot.Messages
         public bool HasButtons => NewStatusbar;
         private bool Stopped { get; set; }
         public Player Player { get; set; }
+        public ILanguage Language => Player?.Settings.Language ?? Parser.FromNumber(0); // If null, gets the English Language.
         public DiscordGuild Guild { get; set; }
         public DiscordChannel Channel { get; set; }
         public DiscordClient Client { get; set; }
@@ -178,27 +178,27 @@ namespace DiscordBot.Messages
             var time = Player.Stopwatch.ElapsedMilliseconds;
             var progress = GenerateProgressbar(Player);
             var message = string.IsNullOrEmpty(Player.StatusbarMessage)
-                ? $"\n\n{DefaultMessage}"
+                ? $"\n\n{Language.DefaultStatusbarMessage()}"
                 : $"\n\n{Player.StatusbarMessage}";
             if (Bot.DebugMode)
                 Debug.Write(
                     $"Updated Statusbar in guild \"{Player.CurrentGuild.Name}\": Track: \"{Player.CurrentItem.GetName()}\", Time: {Time(Player.Stopwatch.Elapsed)} - {Time(TimeSpan.FromMilliseconds(length))}");
 
             return
-                $"```Playing {Player.CurrentItem.GetTypeOf()}:\n" +
+                $"```{Language.Playing()}: \"{Player.CurrentItem.GetTypeOf(Language)}\"\n" +
                 $"({Player.Queue.Current + 1} - {Player.Queue.Count}) {Player.CurrentItem.GetName()}\n" +
                 $"{progress} ( {Player.Paused switch {false => "▶️", true => "⏸️"}} {Time(TimeSpan.FromMilliseconds(time))} - {length switch {0 => "∞", _ => Time(TimeSpan.FromMilliseconds(length))}} )" +
                 $"{Player.Sink switch {null => "", _ => Player.Sink.VolumeModifier switch {0 => " (🔇", >0 and <.33 => " (🔈", >=.33 and <=.66 => " (🔉", >.66 => " (🔊", _ => " (🔊"} + $" {(int) (Player.Sink.VolumeModifier * 100)}%)"}}" +
                 $"{Player.LoopStatus switch {Loop.One => " ( 🔂 )", Loop.WholeQueue => " ( 🔁 )", _ => ""}}" +
-                $"{req switch {null => "", _ => $"\nRequested by: {req.Username} #{req.Discriminator}"}}" +
-                $"{next switch {null => "", _ => $"\n\nNext: ({Player.Queue.Current + 2}) {next.GetName()}"}}" +
+                $"{req switch {null => "", _ => $"\n{Language.RequestedBy()}: {req.Username} #{req.Discriminator}"}}" +
+                $"{next switch {null => "", _ => $"\n\n{Language.NextUp()}: ({Player.Queue.Current + 2}) {next.GetName()}"}}" +
                 $"{message}```";
         }
 
         private async Task UpdateWaiting()
         {
             await Message.ModifyAsync(
-                $"```Waiting:\nFor 15 minutes and then leaving.\n{GenerateProgressbar(Player.WaitingStopwatch.ElapsedMilliseconds, 900000)} ( {Player.WaitingStopwatch.Elapsed:mm\\:ss} - 15:00 )\n\n{DefaultMessage}```");
+                $"```Waiting:\nFor 15 minutes and then leaving.\n{GenerateProgressbar(Player.WaitingStopwatch.ElapsedMilliseconds, 900000)} ( {Player.WaitingStopwatch.Elapsed:mm\\:ss} - 15:00 )\n\n{Language.DefaultStatusbarMessage()}```");
         }
 
         public async Task UpdateMessageAndStop(string message, bool formatted = true)

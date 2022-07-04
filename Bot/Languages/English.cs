@@ -221,5 +221,25 @@ namespace DiscordBot.Objects
         {
             return "Skipping one time back.";
         }
+
+        public string Playing()
+        {
+            return "Playing";
+        }
+        
+        public string RequestedBy()
+        {
+            return "Requested by";
+        }
+
+        public string NextUp()
+        {
+            return "Next";
+        }
+
+        public string DefaultStatusbarMessage()
+        {
+            return "The bot is currently being reworked majorly, so please note that there may be many bugs. Sorry for any bugs in advance.";
+        }
     }
 }

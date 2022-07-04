@@ -43,5 +43,9 @@ namespace DiscordBot.Objects
         public string PausingThePlayer();
         public string UnpausingThePlayer();
         public string SkippingOneTimeBack();
+        public string Playing();
+        public string RequestedBy();
+        public string NextUp();
+        public string DefaultStatusbarMessage();
     }
 }

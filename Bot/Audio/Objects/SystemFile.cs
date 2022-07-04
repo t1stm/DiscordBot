@@ -1,6 +1,7 @@
 using System;
 using System.Threading.Tasks;
 using DiscordBot.Abstract;
+using DiscordBot.Objects;
 using TagLib;
 
 namespace DiscordBot.Audio.Objects
@@ -62,9 +63,20 @@ namespace DiscordBot.Audio.Objects
             return "";
         }
 
-        public override string GetTypeOf()
+        public override string GetTypeOf(ILanguage language)
         {
-            return IsDiscordAttachment ? "Discord Attachment" : "Local File";
+            return IsDiscordAttachment ? language switch
+            {
+                English => "Discord Attachment",
+                Bulgarian => "Discord Прикачване",
+                _ => throw new ArgumentOutOfRangeException(nameof(language), language, null)
+            } : 
+            language switch
+            {
+                English => "Local File",
+                Bulgarian => "Локален Файл",
+                _ => throw new ArgumentOutOfRangeException(nameof(language), language, null)
+            };
         }
     }
 }

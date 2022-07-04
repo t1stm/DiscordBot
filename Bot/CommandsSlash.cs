@@ -565,6 +565,13 @@ namespace DiscordBot
                 [ChoiceName("Bulgarian")] Bulgarian
             }
 
+            private static int LanguageParser(Language language) => language switch
+            {
+                Language.English => 0,
+                Language.Bulgarian => 1,
+                _ => throw new ArgumentOutOfRangeException(nameof(language), language, null)
+            };
+
             public enum Verbosity
             {
                 [ChoiceName("None")] None,
@@ -583,17 +590,37 @@ namespace DiscordBot
                 [SlashCommand("language","Change the bot's response language.")]
                 public async Task UpdateLanguage(InteractionContext ctx, [Option("language", "Choose a language.")] Language lang)
                 {
-                    await ctx.CreateResponseAsync(InteractionResponseType.DeferredMessageUpdate);
-                    var settings = await User.FromId(ctx.User.Id);
-                    await settings.ModifySettings("language", $"{(int) lang}");
+                    try
+                    {
+                        var settings = await User.FromId(ctx.User.Id);
+                        await settings.ModifySettings("language", $"{LanguageParser(lang)}");
+                        await ctx.CreateResponseAsync((lang switch {Language.English => "The bot's responses to you are now in English.", 
+                            Language.Bulgarian => "Отговорите на бота към теб са вече на Български.",
+                            _ => throw new ArgumentOutOfRangeException(nameof(lang), lang, null)
+                        }).CodeBlocked(), true);
+                    }
+                    catch (Exception e)
+                    {
+                        await Debug.WriteAsync($"Changing user setting \"language\" failed: {e}");
+                    }
                 }
                 
                 [SlashCommand("verboseMessages","Change the bot's verbosity.")]
                 public async Task UpdateVerbosity(InteractionContext ctx, [Option("verbosity", "Choose verbosity level.")] Verbosity verbosity)
                 {
-                    await ctx.CreateResponseAsync(InteractionResponseType.DeferredMessageUpdate);
-                    var settings = await User.FromId(ctx.User.Id);
-                    await settings.ModifySettings("verboseMessages", $"{verbosity switch {Verbosity.None => 0, Verbosity.All => 1, _ => 1}}");
+                    try
+                    {
+                        var settings = await User.FromId(ctx.User.Id);
+                        await settings.ModifySettings("verboseMessages", $"{verbosity switch {Verbosity.None => 0, Verbosity.All => 1, _ => 1}}");
+                        await ctx.CreateResponseAsync((settings.Language switch {English => $"Changing the verbosity of messages to: \"{verbosity switch {Verbosity.All => "Fully verbose.", Verbosity.None => "Not verbose.", _ => throw new ArgumentOutOfRangeException(nameof(verbosity), verbosity, null)}}\"", 
+                            Bulgarian => $"Видимостта на отговорите на бота е вече: \"{verbosity switch {Verbosity.All => "Видими отговори.", Verbosity.None => "Скрити отговори.", _ => throw new ArgumentOutOfRangeException(nameof(verbosity), verbosity, null)}}\"",
+                            _ => throw new ArgumentOutOfRangeException(nameof(settings.Language), settings.Language, "Somehow this value doesn't exist.")
+                        }).CodeBlocked(), true);
+                    }
+                    catch (Exception e)
+                    {
+                        await Debug.WriteAsync($"Changing user setting \"verboseMessages\" failed: {e}");
+                    }
                 }
                 
                 //TODO: Add ability to reset client secret here.
@@ -605,25 +632,58 @@ namespace DiscordBot
                 [SlashCommand("language","Change the bot's response language.")]
                 public async Task UpdateLanguage(InteractionContext ctx, [Option("language", "Choose a language.")] Language lang)
                 {
-                    await ctx.CreateResponseAsync(InteractionResponseType.DeferredMessageUpdate);
-                    var settings = await GuildSettings.FromId(ctx.Guild.Id);
-                    await settings.ModifySettings("language", $"{(int) lang}");
+                    try
+                    {
+                        var settings = await GuildSettings.FromId(ctx.Guild.Id);
+                        await settings.ModifySettings("language", $"{LanguageParser(lang)}");
+                        await ctx.CreateResponseAsync((lang switch {Language.English => "The bot's responses to the whole guild are now in English.", 
+                            Language.Bulgarian => "Отговорите на бота към целия гилд са вече на Български.",
+                            _ => throw new ArgumentOutOfRangeException(nameof(lang), lang, null)
+                        }).CodeBlocked(), true);
+                    }
+                    catch (Exception e)
+                    {
+                        await Debug.WriteAsync($"Changing guild setting \"language\" failed: {e}");
+                    }
                 }
                 
                 [SlashCommand("verboseMessages","Change the bot's verbosity.")]
                 public async Task UpdateVerbosity(InteractionContext ctx, [Option("verbosity", "Choose verbosity level.")] Verbosity verbosity)
                 {
-                    await ctx.CreateResponseAsync(InteractionResponseType.DeferredMessageUpdate);
-                    var settings = await GuildSettings.FromId(ctx.Guild.Id);
-                    await settings.ModifySettings("verboseMessages", $"{verbosity switch {Verbosity.None => 0, Verbosity.All => 1, _ => 1}}");
+                    try
+                    {
+                        var settings = await GuildSettings.FromId(ctx.Guild.Id);
+                        await settings.ModifySettings("verboseMessages", $"{verbosity switch {Verbosity.None => 0, Verbosity.All => 1, _ => 1}}");
+                        await ctx.CreateResponseAsync((settings.Language switch {
+                            English => $"Changing the verbosity of messages to: \"{verbosity switch {Verbosity.All => "Fully verbose.", Verbosity.None => "Not verbose.", _ => throw new ArgumentOutOfRangeException(nameof(verbosity), verbosity, null)}}\"", 
+                            Bulgarian => $"Промяна на видимостта на отговорите на бота: \"{verbosity switch {Verbosity.All => "Видими отговори.", Verbosity.None => "Скрити отговори.", _ => throw new ArgumentOutOfRangeException(nameof(verbosity), verbosity, null)}}\"",
+                            _ => throw new ArgumentOutOfRangeException(nameof(settings.Language), settings.Language, "Somehow this value doesn't exist.")
+                        }).CodeBlocked(), true);
+                    }
+                    catch (Exception e)
+                    {
+                        await Debug.WriteAsync($"Changing guild setting \"verboseMessages\" failed: {e}");
+                    }
                 }
 
                 [SlashCommand("normalization", "Change whether the bot should normalize audio.")]
                 public async Task UpdateNormalization(InteractionContext ctx, [Option("normalization", "Change normalization.")] Normalization normalization)
                 {
-                    await ctx.CreateResponseAsync(InteractionResponseType.DeferredMessageUpdate);
-                    var settings = await GuildSettings.FromId(ctx.Guild.Id);
-                    await settings.ModifySettings("verboseMessages", $"{normalization switch {Normalization.Disabled => 0, Normalization.Enabled => 1, _ => 1}}");
+                    try
+                    {
+                        var settings = await GuildSettings.FromId(ctx.Guild.Id);
+                        await settings.ModifySettings("verboseMessages", $"{normalization switch {Normalization.Disabled => 0, Normalization.Enabled => 1, _ => 1}}");
+                        await ctx.CreateResponseAsync((settings.Language switch
+                        {
+                            English => $"Changing the normalization of audio to: \"{normalization switch {Normalization.Enabled => "Enabled", Normalization.Disabled => "Disabled", _ => throw new ArgumentOutOfRangeException(nameof(normalization), normalization, null)}}\"", 
+                            Bulgarian => $"Нормализирането на звука на бота е вече: \"{normalization switch {Normalization.Enabled => "Включено", Normalization.Disabled => "Изключено", _ => throw new ArgumentOutOfRangeException(nameof(normalization), normalization, null)}}\"",
+                            _ => throw new ArgumentOutOfRangeException(nameof(settings.Language), settings.Language, "Somehow this value doesn't exist.")
+                        }).CodeBlocked(), true);
+                    }
+                    catch (Exception e)
+                    {
+                        await Debug.WriteAsync($"Changing guild setting \"normalization\" failed: {e}");
+                    }
                 }
             }
         }

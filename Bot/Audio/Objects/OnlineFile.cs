@@ -1,5 +1,7 @@
+using System;
 using System.Threading.Tasks;
 using DiscordBot.Abstract;
+using DiscordBot.Objects;
 
 namespace DiscordBot.Audio.Objects
 {
@@ -21,9 +23,14 @@ namespace DiscordBot.Audio.Objects
             return "";
         }
 
-        public override string GetTypeOf()
+        public override string GetTypeOf(ILanguage language)
         {
-            return "Online File";
+            return language switch
+            {
+                English => "Online File",
+                Bulgarian => "Онлайн Файл",
+                _ => throw new ArgumentOutOfRangeException(nameof(language), language, null)
+            };
         }
 
         public override string GetTitle()

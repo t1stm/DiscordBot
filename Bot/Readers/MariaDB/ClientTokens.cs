@@ -47,7 +47,7 @@ namespace DiscordBot.Readers.MariaDB
                         Id = (ulong) dataReader["id"],
                         Token = (dataReader["token"] ?? "") + "",
                         VerboseMessages = (bool) dataReader["verboseMessages"],
-                        Language = Parser.FromNumber(ushort.Parse(dataReader["language"] + ""))
+                        Language = Parser.FromNumber((ushort) dataReader["language"])
                     });
                 await dataReader.CloseAsync();
                 await connection.CloseAsync();

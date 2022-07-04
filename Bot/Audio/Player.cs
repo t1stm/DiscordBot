@@ -192,7 +192,7 @@ namespace DiscordBot.Audio
             await WebSocketManager.BroadcastCurrentTime();
         }
 
-        private async Task PlayTrack(PlayableItem item, string startingTime, bool isYoutube = false)
+        private async Task PlayTrack(PlayableItem item, string startingTime, bool isStream = false)
         {
             try
             {
@@ -228,7 +228,7 @@ namespace DiscordBot.Audio
                             .CopyToAsync(Sink, null, CancelSource.Token);
                         break;
                     default:
-                        if (location is {Length: > 4} && location[..4] == "http" && isYoutube)
+                        if (location is {Length: > 4} && location[..4] == "http" && isStream)
                             await FfMpeg.UrlToPcm(location, startingTime, Normalize)
                                 .CopyToAsync(Sink, null, CancelSource.Token);
                         else

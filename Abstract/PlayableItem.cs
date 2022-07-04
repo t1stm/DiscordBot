@@ -1,5 +1,6 @@
 using System.Threading.Tasks;
 using DiscordBot.Audio.Objects;
+using DiscordBot.Objects;
 using DSharpPlus.Entities;
 
 namespace DiscordBot.Abstract
@@ -41,7 +42,8 @@ namespace DiscordBot.Abstract
         }
 
         public abstract string GetId();
-        public abstract string GetTypeOf();
+        public abstract string GetTypeOf(ILanguage language);
+        //TODO: Change current implementation.
 
         public virtual bool GetIfErrored()
         {

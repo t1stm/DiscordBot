@@ -1,8 +1,10 @@
 using System;
 using System.Diagnostics;
 using System.IO;
+using System.Resources;
 using System.Threading.Tasks;
 using DiscordBot.Abstract;
+using DiscordBot.Objects;
 
 namespace DiscordBot.Audio.Objects
 {
@@ -93,9 +95,14 @@ namespace DiscordBot.Audio.Objects
             return null;
         }
 
-        public override string GetTypeOf()
+        public override string GetTypeOf(ILanguage language)
         {
-            return "Text To Speech";
+            return language switch
+            {
+                English => "Text To Speech",
+                Bulgarian => "Текст за Говорене",
+                _ => throw new ArgumentOutOfRangeException(nameof(language))
+            };
         }
 
         public override string GetThumbnailUrl()
