@@ -9,9 +9,9 @@ using DiscordBot.Miscellaneous;
 using DiscordBot.Objects;
 using DiscordBot.Readers.MariaDB;
 using DSharpPlus;
-using DSharpPlus.CommandsNext.Attributes;
 using DSharpPlus.Entities;
 using DSharpPlus.SlashCommands;
+using DSharpPlus.SlashCommands.Attributes;
 
 namespace DiscordBot
 {
@@ -626,10 +626,10 @@ namespace DiscordBot
                 //TODO: Add ability to reset client secret here.
             }
 
-            [SlashCommandGroup("guild", "Change the bot's behavior for the whole guild."), RequireUserPermissions(Permissions.Administrator), RequireGuild]
+            [SlashCommandGroup("guild", "Change the bot's behavior for the whole guild.")]
             public class GuildCommands : ApplicationCommandModule
             {
-                [SlashCommand("language","Change the bot's response language.")]
+                [SlashCommand("language","Change the bot's response language."), SlashRequirePermissions(Permissions.Administrator), SlashRequireGuild]
                 public async Task UpdateLanguage(InteractionContext ctx, [Option("language", "Choose a language.")] Language lang)
                 {
                     try
@@ -647,7 +647,7 @@ namespace DiscordBot
                     }
                 }
                 
-                [SlashCommand("verboseMessages","Change the bot's verbosity.")]
+                [SlashCommand("verboseMessages","Change the bot's verbosity."), SlashRequirePermissions(Permissions.Administrator), SlashRequireGuild]
                 public async Task UpdateVerbosity(InteractionContext ctx, [Option("verbosity", "Choose verbosity level.")] Verbosity verbosity)
                 {
                     try
@@ -666,7 +666,7 @@ namespace DiscordBot
                     }
                 }
 
-                [SlashCommand("normalization", "Change whether the bot should normalize audio.")]
+                [SlashCommand("normalization", "Change whether the bot should normalize audio."), SlashRequirePermissions(Permissions.Administrator), SlashRequireGuild]
                 public async Task UpdateNormalization(InteractionContext ctx, [Option("normalization", "Change normalization.")] Normalization normalization)
                 {
                     try

@@ -46,9 +46,10 @@ namespace DiscordBot.Methods
 
         public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception? exception, Func<TState, Exception?, string> formatter)
         {
-            /*if (!IsEnabled(logLevel)) return;
+            if (!Bot.DebugMode) return;
+            if (!IsEnabled(logLevel)) return;
             var task = new Task(async () => await Debug.WriteAsync($"[DSharpPlus] - {formatter(state, exception)}"));
-            task.Start();*/
+            task.Start();
         }
     }
 }

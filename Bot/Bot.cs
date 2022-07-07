@@ -468,7 +468,7 @@ namespace DiscordBot
 
         public static async Task Reply(CommandContext ctx, string text, bool formatted = true)
         {
-            await ctx.RespondAsync(formatted ? $"```{text}```" : text);
+            await ctx.RespondAsync(formatted ? text.CodeBlocked() : text);
         }
 
         public static async Task Reply(CommandContext ctx, DiscordMessageBuilder builder)
@@ -483,12 +483,12 @@ namespace DiscordBot
 
         public static async Task Reply(DiscordClient client, DiscordChannel channel, string text, bool formatted = true)
         {
-            await client.SendMessageAsync(channel, formatted ? $"```{text}```" : text);
+            await client.SendMessageAsync(channel, formatted ? text.CodeBlocked() : text);
         }
 
         public static async Task SendDirectMessage(CommandContext ctx, string text, bool formatted = true)
         {
-            if (ctx.Member is not null) await ctx.Member.SendMessageAsync(formatted ? $"```{text}```" : text);
+            if (ctx.Member is not null) await ctx.Member.SendMessageAsync(formatted ? text.CodeBlocked() : text);
         }
 
         public static string RandomString(int length, bool includeBadSymbols = false)

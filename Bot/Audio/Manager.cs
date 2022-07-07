@@ -270,7 +270,7 @@ namespace DiscordBot.Audio
                     items.ForEach(it => it.SetRequester(user));
                     player.Queue.AddToQueue(items);
                     if (items.Count > 1)
-                        await player.CurrentClient.SendMessageAsync(messageChannel, lang.AddedItem(term));
+                        await player.CurrentClient.SendMessageAsync(messageChannel, lang.AddedItem(term).CodeBlocked());
                     else
                         await player.CurrentClient.SendMessageAsync(messageChannel, 
                             lang.AddedItem($"({player.Queue.Items.IndexOf(items.First()) + 1}) - {items.First().GetName()}").CodeBlocked());
@@ -396,7 +396,7 @@ namespace DiscordBot.Audio
                 return;
             }
 
-            await ctx.RespondAsync(player.Settings.Language.LoopStatusUpdate(player.ToggleLoop()));
+            await ctx.RespondAsync(player.Settings.Language.LoopStatusUpdate(player.ToggleLoop()).CodeBlocked());
         }
 
         public static async Task Pause(CommandContext ctx)
