@@ -12,6 +12,7 @@ using DSharpPlus;
 using DSharpPlus.Entities;
 using DSharpPlus.SlashCommands;
 using DSharpPlus.SlashCommands.Attributes;
+using Microsoft.IdentityModel.Tokens;
 
 namespace DiscordBot
 {
@@ -53,13 +54,15 @@ namespace DiscordBot
         [SlashCommand("play", "This is the play command. It plays music.")]
         public async Task PlayCommand(InteractionContext ctx, [Option("searchterm", "Search Term")] string term)
         {
-            await ctx.CreateResponseAsync("Hello!");
+            var guild = await GuildSettings.FromId(ctx.Guild.Id);
+            await ctx.CreateResponseAsync(guild.Language.SlashHello().CodeBlocked());
             var userVoiceS = ctx.Member?.VoiceState?.Channel;
             if (userVoiceS == null)
             {
                 await ctx.EditResponseAsync(new DiscordWebhookBuilder
                 {
-                    Content = "```You cannot use this command while not being in a channel.```"
+                    Content = //"```You cannot use this command while not being in a channel.```"
+                        guild.Language.SlashNotInChannel().CodeBlocked()
                 });
                 return;
             }
@@ -69,14 +72,14 @@ namespace DiscordBot
             {
                 await ctx.EditResponseAsync(new DiscordWebhookBuilder
                 {
-                    Content = "```No free bot accounts.```"
+                    Content = guild.Language.NoFreeBotAccounts().CodeBlocked()
                 });
                 return;
             }
 
             await ctx.EditResponseAsync(new DiscordWebhookBuilder
             {
-                Content = $"```Running play command with search term: \"{term}\".```"
+                Content = guild.Language.SlashPlayCommand(term).CodeBlocked()
             });
             await Manager.Play(term, false, player, ctx.Member?.VoiceState?.Channel, ctx.Member, null, ctx.Channel);
         }
@@ -84,31 +87,22 @@ namespace DiscordBot
         [SlashCommand("leave", "This is the leave command. It makes the bot leave.")]
         public async Task LeaveCommand(InteractionContext ctx)
         {
-            await ctx.CreateResponseAsync("Hello!");
+            var guild = await GuildSettings.FromId(ctx.Guild.Id);
             var userVoiceS = ctx.Member?.VoiceState?.Channel;
             if (userVoiceS == null)
             {
-                await ctx.EditResponseAsync(new DiscordWebhookBuilder
-                {
-                    Content = "```You cannot use this command while not being in a channel.```"
-                });
+                await ctx.CreateResponseAsync(guild.Language.SlashNotInChannel().CodeBlocked(), true);
                 return;
             }
 
             var player = Manager.GetPlayer(userVoiceS, ctx.Client);
             if (player == null)
             {
-                await ctx.EditResponseAsync(new DiscordWebhookBuilder
-                {
-                    Content = "```The bot isn't in the channel.```"
-                });
+                await ctx.CreateResponseAsync(guild.Language.SlashBotNotInChannel().CodeBlocked(), true);
                 return;
             }
 
-            await ctx.EditResponseAsync(new DiscordWebhookBuilder
-            {
-                Content = "```Leaving.```"
-            });
+            await ctx.CreateResponseAsync(guild.Language.SlashLeaving().CodeBlocked());
 
             player.Disconnect();
             player.Statusbar.Stop();
@@ -170,71 +164,73 @@ namespace DiscordBot
         public async Task LoopCommand(InteractionContext ctx, [Option("looptype", "The type of looping you want")]
             LoopStatus status)
         {
+            var guild = await GuildSettings.FromId(ctx.Guild.Id);
             var userVoiceS = ctx.Member?.VoiceState?.Channel;
             if (userVoiceS == null)
             {
-                await ctx.CreateResponseAsync("```You cannot use this command while not being in a channel.```");
+                await ctx.CreateResponseAsync(guild.Language.SlashNotInChannel().CodeBlocked(), true);
                 return;
             }
 
             var player = Manager.GetPlayer(userVoiceS, ctx.Client);
             if (player == null)
             {
-                await ctx.CreateResponseAsync("```The bot isn't in the channel.```");
+                await ctx.CreateResponseAsync(guild.Language.SlashBotNotInChannel().CodeBlocked(), true);
                 return;
             }
-
+            
             player.LoopStatus = status switch
             {
                 LoopStatus.None => Loop.None, LoopStatus.LoopOne => Loop.One,
                 LoopStatus.LoopQueue => Loop.WholeQueue,
                 _ => Loop.None
             };
-            await ctx.CreateResponseAsync(
-                $"```Loop status is now: {player.LoopStatus switch {Loop.None => "Disabling loop", Loop.One => "Looping one item", Loop.WholeQueue => "Looping whole queue", _ => "Some other option that doesn't have a type"}}.```");
+            
+            await ctx.CreateResponseAsync(guild.Language.LoopStatusUpdate(player.LoopStatus));
         }
 
         public async Task MoveCommand(InteractionContext ctx, [Option("item", "The item which you want to move")]
             long x, [Option("place", "The place you want to place the item")]
             long y)
         {
+            var guild = await GuildSettings.FromId(ctx.Guild.Id);
             var userVoiceS = ctx.Member?.VoiceState?.Channel;
             if (userVoiceS == null)
             {
-                await ctx.CreateResponseAsync("```You cannot use this command while not being in a channel.```");
+                await ctx.CreateResponseAsync(guild.Language.SlashNotInChannel().CodeBlocked(), true);
                 return;
             }
 
             var player = Manager.GetPlayer(userVoiceS, ctx.Client);
             if (player == null)
             {
-                await ctx.CreateResponseAsync("```The bot isn't in the channel.```");
+                await ctx.CreateResponseAsync(guild.Language.SlashBotNotInChannel().CodeBlocked(), true);
                 return;
             }
 
             player.Queue.Move((int) x - 1, (int) y - 1, out var item);
-            await ctx.CreateResponseAsync($"Moved ({x}) - \"{item.GetName()}\" to ({y})");
+            await ctx.CreateResponseAsync(guild.Language.Moved((int) x, item.GetName(), (int) y).CodeBlocked());
         }
 
         [SlashCommand("skip", "This is the skip command. It makes the bot skip an item.")]
         public async Task SkipCommand(InteractionContext ctx, [Option("times", "Times to skip")] long times = 1)
         {
+            var guild = await GuildSettings.FromId(ctx.Guild.Id);
             var userVoiceS = ctx.Member?.VoiceState?.Channel;
             if (userVoiceS == null)
             {
-                await ctx.CreateResponseAsync("```You cannot use this command while not being in a channel.```");
+                await ctx.CreateResponseAsync(guild.Language.SlashNotInChannel().CodeBlocked(), true);
                 return;
             }
 
             var player = Manager.GetPlayer(userVoiceS, ctx.Client);
             if (player == null)
             {
-                await ctx.CreateResponseAsync("```The bot isn't in the channel.```");
+                await ctx.CreateResponseAsync(guild.Language.SlashBotNotInChannel().CodeBlocked(), true);
                 return;
             }
 
-            await ctx.CreateResponseAsync($"```Skipping {(times == 1 ? "one time" : $"{times} times")}.```"
-            );
+            await ctx.CreateResponseAsync(guild.Language.SlashSkipping((int) times).CodeBlocked());
 
             await player.Skip((int) times);
         }
@@ -242,21 +238,22 @@ namespace DiscordBot
         [SlashCommand("pause", "This is the pause command. It pauses the current item.")]
         public async Task PauseCommand(InteractionContext ctx)
         {
+            var guild = await GuildSettings.FromId(ctx.Guild.Id);
             var userVoiceS = ctx.Member?.VoiceState?.Channel;
             if (userVoiceS == null)
             {
-                await ctx.CreateResponseAsync("```You cannot use this command while not being in a channel.```");
+                await ctx.CreateResponseAsync(guild.Language.SlashNotInChannel().CodeBlocked(), true);
                 return;
             }
 
             var player = Manager.GetPlayer(userVoiceS, ctx.Client);
             if (player == null)
             {
-                await ctx.CreateResponseAsync("```The bot isn't in the channel.```");
+                await ctx.CreateResponseAsync(guild.Language.SlashBotNotInChannel().CodeBlocked(), true);
                 return;
             }
 
-            await ctx.CreateResponseAsync("```Pausing the current item.```");
+            await ctx.CreateResponseAsync(guild.Language.SlashPausing().CodeBlocked());
             player.Pause();
         }
 
@@ -265,22 +262,23 @@ namespace DiscordBot
         {
             try
             {
+                var guild = await GuildSettings.FromId(ctx.Guild.Id);
                 var userVoiceS = ctx.Member?.VoiceState?.Channel;
                 if (userVoiceS == null)
                 {
-                    await ctx.CreateResponseAsync("```You cannot use this command while not being in a channel.```");
+                    await ctx.CreateResponseAsync(guild.Language.SlashNotInChannel().CodeBlocked(), true);
                     return;
                 }
 
                 var player = Manager.GetPlayer(userVoiceS, ctx.Client);
                 if (player == null)
                 {
-                    await ctx.CreateResponseAsync("```The bot isn't in the channel.```");
+                    await ctx.CreateResponseAsync(guild.Language.SlashBotNotInChannel().CodeBlocked(), true);
                     return;
                 }
 
                 player.Shuffle();
-                await ctx.CreateResponseAsync("```Shuffling the queue.```");
+                await ctx.CreateResponseAsync(guild.Language.ShufflingTheQueue().CodeBlocked());
             }
             catch (Exception e)
             {
@@ -293,21 +291,19 @@ namespace DiscordBot
         {
             try
             {
-                await ctx.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource,
-                    new DiscordInteractionResponseBuilder
-                    {
-                        Content = "```Sending a Direct Message containing the required information.```"
-                    });
-                if (Controllers.Bot.WebUiUsers.ContainsKey(ctx.Member.Id))
+                var user = await User.FromId(ctx.User.Id);
+                await ctx.CreateResponseAsync(user.Language.SendingADirectMessageContainingTheInformation().CodeBlocked());
+                
+                if (!string.IsNullOrEmpty(user.Token))
                 {
-                    var key = Controllers.Bot.WebUiUsers.GetValue(ctx.Member.Id);
-                    await ctx.Member.SendMessageAsync(Manager.GetWebUiMessage(key, "You've already generated a Web UI code.", "Control the bot using a fancy interface."));
+                    await ctx.Member.SendMessageAsync(Manager.GetWebUiMessage(user.Token, user.Language.YouHaveAlreadyGeneratedAWebUiCode(), 
+                        user.Language.ControlTheBotUsingAFancyInterface()));
                     return;
                 }
 
                 var randomString = Bot.RandomString(96);
                 await Controllers.Bot.AddUser(ctx.Member.Id, randomString);
-                await ctx.Member.SendMessageAsync(Manager.GetWebUiMessage(randomString, "Your Web UI Code is", "Control the bot using a fancy interface."));
+                await ctx.Member.SendMessageAsync(Manager.GetWebUiMessage(randomString, user.Language.YourWebUiCodeIs(), user.Language.ControlTheBotUsingAFancyInterface()));
             }
             catch (Exception e)
             {
@@ -320,17 +316,18 @@ namespace DiscordBot
         {
             try
             {
+                var guild = await GuildSettings.FromId(ctx.Guild.Id);
                 var userVoiceS = ctx.Member?.VoiceState?.Channel;
                 if (userVoiceS == null)
                 {
-                    await ctx.CreateResponseAsync("```You cannot use this command while not being in a channel.```");
+                    await ctx.CreateResponseAsync(guild.Language.SlashNotInChannel().CodeBlocked(), true);
                     return;
                 }
 
                 var player = Manager.GetPlayer(userVoiceS, ctx.Client);
                 if (player == null)
                 {
-                    await ctx.CreateResponseAsync("```The bot isn't in the channel.```");
+                    await ctx.CreateResponseAsync(guild.Language.SlashBotNotInChannel().CodeBlocked(), true);
                     return;
                 }
 
@@ -338,10 +335,10 @@ namespace DiscordBot
                 switch (val)
                 {
                     case true:
-                        await ctx.CreateResponseAsync($"```Set the volume to {volume}%```");
+                        await ctx.CreateResponseAsync(guild.Language.SetVolumeTo(volume).CodeBlocked());
                         break;
                     case false:
-                        await ctx.CreateResponseAsync("```Invalid volume range. Must be between 0 and 200%.```");
+                        await ctx.CreateResponseAsync(guild.Language.InvalidVolumeRange().CodeBlocked());
                         break;
                 }
             }
@@ -354,22 +351,23 @@ namespace DiscordBot
         [SlashCommand("remove", "This command removes an item from the queue.")]
         public async Task Remove(InteractionContext ctx, [Option("num", "Index to remove")] long num)
         {
+            var guild = await GuildSettings.FromId(ctx.Guild.Id);
             var userVoiceS = ctx.Member?.VoiceState?.Channel;
             if (userVoiceS == null)
             {
-                await ctx.CreateResponseAsync("```You cannot use this command while not being in a channel.```");
+                await ctx.CreateResponseAsync(guild.Language.SlashNotInChannel().CodeBlocked(), true);
                 return;
             }
 
             var player = Manager.GetPlayer(userVoiceS, ctx.Client);
             if (player == null)
             {
-                await ctx.CreateResponseAsync("```The bot isn't in the channel.```");
+                await ctx.CreateResponseAsync(guild.Language.SlashBotNotInChannel().CodeBlocked(), true);
                 return;
             }
 
             var item = player.Queue.RemoveFromQueue((int) num - 1);
-            await ctx.CreateResponseAsync($"Removing {item.GetName()}");
+            await ctx.CreateResponseAsync(guild.Language.RemovingItem(item.GetName()).CodeBlocked());
         }
 
         [SlashCommand("saveplaylist", "This command saves the playlist and sends it to the current text channel")]
@@ -377,17 +375,18 @@ namespace DiscordBot
         {
             try
             {
+                var guild = await GuildSettings.FromId(ctx.Guild.Id);
                 var userVoiceS = ctx.Member?.VoiceState?.Channel;
                 if (userVoiceS == null)
                 {
-                    await ctx.CreateResponseAsync("```You cannot use this command while not being in a channel.```");
+                    await ctx.CreateResponseAsync(guild.Language.SlashNotInChannel().CodeBlocked(), true);
                     return;
                 }
 
                 var player = Manager.GetPlayer(userVoiceS, ctx.Client);
                 if (player == null)
                 {
-                    await ctx.CreateResponseAsync("```The bot isn't in the channel.```");
+                    await ctx.CreateResponseAsync(guild.Language.SlashBotNotInChannel().CodeBlocked(), true);
                     return;
                 }
 
@@ -395,8 +394,7 @@ namespace DiscordBot
                 var fs = SharePlaylist.Write(token, player.Queue.Items);
                 fs.Position = 0;
                 await ctx.CreateResponseAsync(new DiscordInteractionResponseBuilder().WithContent(
-                    $"```Queue saved sucessfully. \n\nYou can play it again with this command\"-p pl:{token}\", " +
-                    "or by sending the attached file and using the play command```").AddFile($"{token}.batp", fs));
+                    guild.Language.QueueSavedSuccessfully(token).CodeBlocked()).AddFile($"{token}.batp", fs));
             }
             catch (Exception e)
             {
@@ -409,23 +407,24 @@ namespace DiscordBot
         {
             try
             {
+                var guild = await GuildSettings.FromId(ctx.Guild.Id);
                 var userVoiceS = ctx.Member?.VoiceState?.Channel;
                 if (userVoiceS == null)
                 {
-                    await ctx.CreateResponseAsync(
-                        "```One cannot recieve the blessing of playback if they're not in a channel.```");
+                    await ctx.CreateResponseAsync(guild.Language.OneCannotRecieveBlessingNotInChannel().CodeBlocked(), true);
                     return;
                 }
 
                 var player = Manager.GetPlayer(userVoiceS, ctx.Client);
                 if (player == null)
                 {
-                    await ctx.CreateResponseAsync(
-                        "```One cannot recieve the blessing of playback if there's nothing to play.```");
+                    await ctx.CreateResponseAsync(guild.Language.OneCannotRecieveBlessingNothingToPlay().CodeBlocked(), true);
                     return;
                 }
 
                 player.PlsFix();
+                await ctx.CreateResponseAsync(guild.Language.SlashPrayingToTheRngGods().CodeBlocked());
+
             }
             catch (Exception e)
             {
@@ -623,7 +622,24 @@ namespace DiscordBot
                     }
                 }
                 
-                //TODO: Add ability to reset client secret here.
+                [SlashCommand("resettoken", "This command resets the token the bot gives you.")]
+                public async Task ResetClientToken(InteractionContext ctx)
+                {
+                    try
+                    {
+                        var settings = await User.FromId(ctx.User.Id);
+                        var token = Bot.RandomString(96);
+                        await settings.ModifySettings("token", token);
+                        await ctx.CreateResponseAsync(settings.Language.UpdatingToken().CodeBlocked(), true);
+                        await ctx.Member.SendMessageAsync(Manager.GetWebUiMessage(token,
+                            settings.Language.YourWebUiCodeIs(),
+                            settings.Language.ControlTheBotUsingAFancyInterface()));
+                    }
+                    catch (Exception e)
+                    {
+                        await Debug.WriteAsync($"Resetting Client: \"{ctx.User.Username}#{ctx.User.Discriminator} - {ctx.User.Id}\"'s Token failed: \"{e}\"");
+                    }
+                }
             }
 
             [SlashCommandGroup("guild", "Change the bot's behavior for the whole guild.")]

@@ -76,8 +76,7 @@ namespace DiscordBot.Audio
                         $"VoiceSocket Errored in Guild: \"{CurrentGuild.Name}\" with arguments \"{args.Exception}\"\n\nAttempting to reconnect.",
                         true, Debug.DebugColor.Urgent);
                     UpdateChannel(VoiceChannel);
-                    await CurrentClient.SendMessageAsync(Channel,
-                        "```Discord did the funny, so the bot tried to reconnect. If the playback stopped skip one time back and return to the current item.```");
+                    await CurrentClient.SendMessageAsync(Channel, Settings.Language.DiscordDidTheFunny().CodeBlocked());
                 };
 
                 var statusbar = new Task(async () => { await Statusbar.Start(); });
@@ -300,8 +299,7 @@ namespace DiscordBot.Audio
                             $"VoiceSocket Errored in Guild: \"{CurrentGuild.Name}\" with arguments \"{args.Exception}\" - Attempting to reconnect.",
                             true, Debug.DebugColor.Urgent);
                         UpdateChannel(VoiceChannel);
-                        await CurrentClient.SendMessageAsync(Channel,
-                            "```Discord did the funny, so the bot tried to reconnect. If the playback stopped skip one time back and return to the current item.```");
+                        await CurrentClient.SendMessageAsync(Channel, Settings.Language.DiscordDidTheFunny().CodeBlocked());
                     };
                     Sink = Connection.GetTransmitSink();
                     await Skip(0);

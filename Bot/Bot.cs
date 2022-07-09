@@ -72,7 +72,7 @@ namespace DiscordBot
                         Array.Empty<string>()));
                     Clients.Add(MakeClient("OTA2MDc3MjAxMzg3MTEwNDEy.YYTYJg.DDYabJ6mCuI9pjidgkTFPAMVtWg",
                         Array.Empty<string>()));
-                    await Debug.WriteAsync($"Bat Tosho E Veche Velik! RunType = {token}, Token is: \"{BotRelease}\"");
+                    await Debug.WriteAsync($"{Name} E Veche Velik! RunType = {token}, Token is: \"{BotRelease}\"");
                     break;
                 case RunType.Beta:
                     Clients.Add(MakeClient(BotBeta, new[] {";"}, useSlashCommands: false));
@@ -83,7 +83,7 @@ namespace DiscordBot
                         Array.Empty<string>()));
                     Clients.Add(MakeClient("OTA2MDc3MjAxMzg3MTEwNDEy.YYTYJg.DDYabJ6mCuI9pjidgkTFPAMVtWg",
                         Array.Empty<string>()));
-                    await Debug.WriteAsync($"Bat Tosho E Veche Velik! RunType = {token}, Token is: \"{BotBeta}\"");
+                    await Debug.WriteAsync($"{Name} E Veche Velik! RunType = {token}, Token is: \"{BotBeta}\"");
                     break;
                 default:
                     throw new ArgumentOutOfRangeException(nameof(token), token, null);
@@ -145,13 +145,13 @@ namespace DiscordBot
                                 await Debug.WriteAsync("Active guilds: ");
                                 foreach (var pl in Manager.Main)
                                     await Debug.WriteAsync(
-                                        $"{pl.CurrentGuild} : {pl.VoiceChannel?.Name} " +
-                                        $"- Owner : {pl.CurrentGuild?.Owner?.DisplayName} - {pl.CurrentGuild?.Owner?.Id} " +
-                                        $"- Track: ({pl.Queue?.Current + 1}) \"{pl.CurrentItem?.GetName()}\" - ({pl.Queue?.Count}) " +
-                                        $"- Waiting Stopwatch: {Statusbar.Time(pl.WaitingStopwatch.Elapsed)} " +
-                                        $"- Time: {Statusbar.Time(pl.Stopwatch.Elapsed)} " +
-                                        $"- {Statusbar.Time(TimeSpan.FromMilliseconds(pl.CurrentItem.GetLength()))} " +
-                                        $"- Paused: {pl.Paused} - Voice Users: {pl.VoiceUsers.Count}");
+                                        $"{pl?.CurrentGuild} : {pl.VoiceChannel?.Name} " +
+                                        $"- Owner : {pl?.CurrentGuild?.Owner?.DisplayName} - {pl?.CurrentGuild?.Owner?.Id} " +
+                                        $"- Track: ({pl?.Queue?.Current + 1}) \"{pl?.CurrentItem?.GetName()}\" - ({pl?.Queue?.Count}) " +
+                                        $"- Waiting Stopwatch: {Statusbar.Time(pl?.WaitingStopwatch?.Elapsed ?? TimeSpan.Zero)} " +
+                                        $"- Time: {Statusbar.Time(pl?.Stopwatch?.Elapsed ?? TimeSpan.Zero)} " +
+                                        $"- {Statusbar.Time(TimeSpan.FromMilliseconds(pl?.CurrentItem?.GetLength() ?? 0))} " +
+                                        $"- Paused: {pl?.Paused} - Voice Users: {pl?.VoiceUsers?.Count}");
                                 await Task.Delay(1000);
                             }
 

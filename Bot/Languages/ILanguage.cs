@@ -2,6 +2,8 @@ namespace DiscordBot.Objects
 {
     public interface ILanguage
     {
+        #region Mixed Commands
+        
         public string EnterChannelBeforeCommand(string command);
         public string NoFreeBotAccounts();
         public string ThisMessageWillUpdateShortly();
@@ -37,6 +39,10 @@ namespace DiscordBot.Objects
         public string BotNotInChannelLyrics();
         public string NoResultsFoundLyrics(string search);
         public string LyricsLong();
+        
+        #endregion
+        
+        #region Player Interations
         public string YouAreNotInTheChannel();
         public string ShufflingTheQueue();
         public string SkippingOneTime();
@@ -46,6 +52,30 @@ namespace DiscordBot.Objects
         public string Playing();
         public string RequestedBy();
         public string NextUp();
+        
+        #endregion
+        
+        #region Player Messages
+        
         public string DefaultStatusbarMessage();
+        public string DiscordDidTheFunny();
+        
+        #endregion
+        
+        public string GayRatePercentMessage(int percent);
+        
+        #region Slash Commands
+
+        public string SlashHello();
+        public string SlashNotInChannel();
+        public string SlashPlayCommand(string term);
+        public string SlashBotNotInChannel();
+        public string SlashLeaving();
+        public string SlashSkipping(int times, bool back = false);
+        public string SlashPausing();
+        public string SlashPrayingToTheRngGods();
+        public string UpdatingToken();
+        
+        #endregion
     }
 }

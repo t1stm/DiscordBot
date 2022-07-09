@@ -1,9 +1,12 @@
+using System;
 using DiscordBot.Enums;
 
 namespace DiscordBot.Objects
 {
     public class English : ILanguage
     {
+        #region Mixed Commands
+
         public string EnterChannelBeforeCommand(string command)
         {
             return $"Enter a channel before using the \"{command}\" command.";
@@ -192,6 +195,10 @@ namespace DiscordBot.Objects
                 "The lyrics are longer than 2000 characters, which is Discord's length limit. Too bad. Sending song as a file.";
         }
 
+        #endregion
+
+        #region Player Interations
+
         public string YouAreNotInTheChannel()
         {
             return "You're not in the bot's current channel.";
@@ -237,9 +244,88 @@ namespace DiscordBot.Objects
             return "Next";
         }
 
+        #endregion
+
+        #region Player Messages
+
         public string DefaultStatusbarMessage()
         {
             return "The bot is currently being reworked majorly, so please note that there may be many bugs. Sorry for any bugs in advance.";
         }
+
+        public string DiscordDidTheFunny()
+        {
+            return
+                "Discord did the funny, so the bot tried to reconnect. If the playback stopped skip one time back and return to the current item.";
+        }
+
+        #endregion
+
+        public string GayRatePercentMessage(int percent)
+        {
+            return percent switch
+            {
+                <2 => "You're so straight, that scientists want to study how perfect you are.",
+                >=2 and <10 => "Your gay level is so low, it's basically non-existant.",
+                >=10 and <20 => "You have some gay quirks, but you're still straight.",
+                >=20 and <40 => "You have some subtle gayness but you can still be called straight.",
+                >=40 and <70 => "Your gay level is mediocre, but you can still be saved.",
+                >=70 and <80 => "Your gay level is getting high. This isn't turning out great.",
+                >=80 and <90 => "Your gay level is higher that Mount Everest, may god send you help.",
+                >=90 and <100 => "Your gay level is so high, that you're among the world's greatest gays.",
+                >=100 => "You are omega gay."
+            };
+        }
+        
+        #region Slash Commands
+
+        public string SlashHello()
+        {
+            return "Hello!";
+        }
+
+        public string SlashNotInChannel()
+        {
+            return "You cannot use this command while not being in a channel.";
+        }
+
+        public string SlashPlayCommand(string term)
+        {
+            return $"Running play command with search term: \"{term}\"";
+        }
+
+        public string SlashBotNotInChannel()
+        {
+            return "The bot isn't in the current voice channel.";
+        }
+
+        public string SlashLeaving()
+        {
+            return "Leaving.";
+        }
+
+        public string SlashSkipping(int times, bool back = false)
+        {
+            if (times >= 0) return $"Skipping {(times == 1 ? "one time" : times)}{(back ? " back" : "")}.";
+            times = Math.Abs(times);
+            return $"Skipping {(times == 1 ? "one time" : times)} back.";
+        }
+
+        public string SlashPausing()
+        {
+            return "Pausing the current item.";
+        }
+
+        public string SlashPrayingToTheRngGods()
+        {
+            return "Praying to the RNG gods.";
+        }
+
+        public string UpdatingToken()
+        {
+            return "Resetting your client token. You will recieve a message containing the information.";
+        }
+
+        #endregion
     }
 }

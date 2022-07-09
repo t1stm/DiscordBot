@@ -134,9 +134,16 @@ namespace DiscordBot.Audio
 
                 var task = new Task(async () =>
                 {
-                    await Task.Delay(500);
-                    await SendStarterData(ws);
-                    await SendSettings(ws, token);
+                    try
+                    {
+                        await Task.Delay(500);
+                        await SendStarterData(ws);
+                        await SendSettings(ws, token);
+                    }
+                    catch (Exception e)
+                    {
+                        await Debug.WriteAsync($"Sending Started Data failed: \"{e}\"");
+                    }
                 });
                 task.Start();
             }

@@ -532,7 +532,7 @@ namespace DiscordBot.Audio
                 {
                     Title = $"{Bot.Name} Web Interface",
                     Url = $"{Bot.SiteDomain}/{Bot.WebUiPage}?clientSecret={key}",
-                    Description = "Control the bot using a fancy interface.",
+                    Description = description,
                     Thumbnail = new DiscordEmbedBuilder.EmbedThumbnail
                     {
                         Url = $"{Bot.SiteDomain}/{Bot.WebUiPage}/tosho.png"
@@ -545,11 +545,10 @@ namespace DiscordBot.Audio
             var guild = await GuildSettings.FromId(ctx.Guild.Id);
             var user = await User.FromId(ctx.User.Id);
             if (ctx.Member is null) return;
-            if (Controllers.Bot.WebUiUsers.ContainsKey(ctx.Member.Id))
+            if (!string.IsNullOrEmpty(user.Token))
             {
-                var key = Controllers.Bot.WebUiUsers.GetValue(ctx.Member.Id);
-
-                await ctx.Member.SendMessageAsync(GetWebUiMessage(key, user.Language.YouHaveAlreadyGeneratedAWebUiCode(), user.Language.ControlTheBotUsingAFancyInterface()));
+                await ctx.Member.SendMessageAsync(GetWebUiMessage(user.Token, user.Language.YouHaveAlreadyGeneratedAWebUiCode(), 
+                    user.Language.ControlTheBotUsingAFancyInterface()));
                 await Bot.Reply(ctx, guild.Language.SendingADirectMessageContainingTheInformation());
                 return;
             }
@@ -758,7 +757,7 @@ namespace DiscordBot.Audio
             var fs = SharePlaylist.Write(token, player.Queue.Items);
             fs.Position = 0;
             await ctx.RespondAsync(
-                new DiscordMessageBuilder().WithContent(player.Settings.Language.QueueSavedSuccessfully(token))
+                new DiscordMessageBuilder().WithContent(player.Settings.Language.QueueSavedSuccessfully(token).CodeBlocked())
                     .WithFile($"{token}.batp", fs));
         }
 
@@ -786,7 +785,7 @@ namespace DiscordBot.Audio
         public static async Task SendLyrics(CommandContext ctx, string text)
         {
             string query;
-            GuildSettings guild = null;
+            GuildSettings guild;
             switch (string.IsNullOrEmpty(text))
             {
                 case true:

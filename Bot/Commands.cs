@@ -354,6 +354,31 @@ namespace DiscordBot
             }
         }
 
+        [Command("gayrate")]
+        public async Task GayRate(CommandContext ctx, DiscordMember target = null)
+        {
+            try
+            {
+                switch (target)
+                {
+                    case null: 
+                        target = ctx.Member;
+                        break;
+                    
+                    case not null when target.IsBot && target.Id == ctx.Client.CurrentUser.Id:
+                        await Bot.Reply(ctx, "");
+                        return;
+                } 
+                var random = new Random().Next(0, 100);
+                await Bot.Reply(ctx, $"{target.Mention} is {random}% gay.");
+            }
+            catch (Exception e)
+            {
+                await Debug.WriteAsync($"Gay Rate command threw exception: {e}");
+                throw;
+            }
+        }
+
         [Command("lyrics")]
         public async Task GetLyrics(CommandContext ctx, [RemainingText] string search)
         {

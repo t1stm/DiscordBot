@@ -1,3 +1,4 @@
+using System;
 using DiscordBot.Enums;
 
 namespace DiscordBot.Objects
@@ -163,12 +164,12 @@ namespace DiscordBot.Objects
         public string OneCannotRecieveBlessingNotInChannel()
         {
             //return "One cannot recieve the blessing of playback if they're not in a channel.";
-            return "Даден човешки индивид не може да получи просветлението на звук ако не са в канал.";
+            return "Един даден човешки индивид не може да получи просветлението на звук ако не е в канал.";
         }
 
         public string OneCannotRecieveBlessingNothingToPlay()
         {
-            return "Даден човешки индивид не може да получи просветлението на звук ако няма нищо за пускане.";
+            return "Един даден човешки индивид не може да получи просветлението на звук ако няма нищо за слушане.";
         }
 
         public string UserNotInChannelLyrics()
@@ -242,5 +243,78 @@ namespace DiscordBot.Objects
         {
             return "В момента се добавят много нови екстри на бота и неговите компоненти могат да се държат нестабилно. Извинявам се предварително за бъгове, ако има.";
         }
+        
+        public string DiscordDidTheFunny()
+        {
+            return
+                "Discord направи смешното на бота, и заради това той се опита да се върже отново в канала. Ако е спрял, пропуснете веднъж назад и се върнете.";
+        }
+
+        public string GayRatePercentMessage(int percent)
+        {
+            return percent switch
+            {
+                <2 => "You're so straight, that scientists want to study how perfect you are.",
+                >=2 and <10 => "Your gay level is so low, it's basically non-existant.",
+                >=10 and <20 => "You have some gay quirks, but you're still straight.",
+                >=20 and <40 => "You have some subtle gayness but you can still be called straight.",
+                >=40 and <70 => "Your gay level is mediocre, but you can still be saved.",
+                >=70 and <80 => "Your gay level is getting high. This isn't turning out great.",
+                >=80 and <90 => "Your gay level is higher that Mount Everest, may god send you help.",
+                >=90 and <100 => "Your gay level is so high, that you're among the world's greatest gays.",
+                >=100 => "You are omega gay."
+            };
+        }
+        
+        #region Slash Commands
+
+        public string SlashHello()
+        {
+            return "Здравей!";
+        }
+
+        public string SlashNotInChannel()
+        {
+            return "Не можеш да използваш тази команда, ако не си в гласов канал.";
+        }
+
+        public string SlashPlayCommand(string term)
+        {
+            return $"Търсене на: \"{term}\"";
+        }
+
+        public string SlashBotNotInChannel()
+        {
+            return "Бота не е в сегашния гласов канал.";
+        }
+
+        public string SlashLeaving()
+        {
+            return "Напускане на канала.";
+        }
+
+        public string SlashSkipping(int times, bool back = false)
+        {
+            if (times >= 0) return $"Пропускане {(times == 1 ? "един път" : times)} {(back ? "назад" : "напред")}.";
+            times = Math.Abs(times);
+            return $"Пропускане {(times == 1 ? "един път" : times)} назад.";
+        }
+
+        public string SlashPausing()
+        {
+            return "Спиране на пауза.";
+        }
+
+        public string SlashPrayingToTheRngGods()
+        {
+            return "Ти се помоли на RNG боговете.";
+        }
+        
+        public string UpdatingToken()
+        {
+            return "Старият ти код е изтрит. Ще получиш съобщение съдържащо новия ти код.";
+        }
+        
+        #endregion
     }
 }

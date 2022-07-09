@@ -55,8 +55,9 @@ namespace DiscordBot.Controllers
                     Token = clientSecret
                 });
             }
-
-            await ClientTokens.AddToken(userId, clientSecret);
+            
+            var user = await Objects.User.FromId(userId);
+            await user.ModifySettings("token", clientSecret);
         }
 
         public async Task<IActionResult> Search(string searchTerm)
