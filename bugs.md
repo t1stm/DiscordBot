@@ -40,4 +40,4 @@ Probably done, haven't checked thoroughly for bugs. 20 Jun 2022
 
 ~~Add changing languages as an option.~~ Done 25 Jun 2022
 
-Make them be selectable in the per guild options.
+~~Make them be selectable in the per guild options.~~ Done Sometime in July
