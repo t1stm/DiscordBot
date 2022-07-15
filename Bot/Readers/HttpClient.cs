@@ -55,7 +55,7 @@ namespace DiscordBot.Readers
             var client = withCookies ? WithCookies() : new System.Net.Http.HttpClient();
             var request = new HttpRequestMessage(HttpMethod.Get, url);
             var send = await client.SendAsync(request);
-            var response = await send.Content.ReadAsStreamAsync();
+            await using var response = await send.Content.ReadAsStreamAsync();
             var ms = new MemoryStream();
             await response.CopyToAsync(ms);
             ms.Position = 0;
@@ -72,7 +72,7 @@ namespace DiscordBot.Readers
                 lineCount++;
                 var parts = line.Split('	');
                 if (parts.Length != 7)
-                    throw new FormatException($"Line {lineCount} has {parts.Length} columns. Expected 7");
+                    throw new FormatException($"Line: ({lineCount}) has {parts.Length} columns. Expected 7");
                 var domain = parts[0];
                 var path = parts[2];
                 var secure = parts[3] == "TRUE";

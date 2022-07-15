@@ -11,7 +11,7 @@ namespace DiscordBot.Objects
         public ulong Id { get; init; }
         public string Token { get; init; }
         public bool VerboseMessages { get; init; } = true;
-        public ILanguage Language { get; init; }
+        public ILanguage Language { get; init; } = Parser.FromNumber(0);
 
         public async Task ModifySettings(string target, string value)
         {

@@ -60,33 +60,11 @@ namespace DiscordBot.Readers.MariaDB
             }
         }
 
-        public static async Task AddToken(ulong key, string value)
-        {
-            try
-            {
-                var read = await Read(key);
-                if (read != null) return;
-
-                MySqlConnection connection = new(Bot.SqlConnectionQuery);
-                await connection.OpenAsync();
-                var cmd = new MySqlCommand(
-                    "INSERT INTO users (id,token) " +
-                    $"VALUES (\"{key}\", \"{value}\")", connection);
-                cmd.ExecuteNonQuery();
-                await connection.CloseAsync();
-                await Controllers.Bot.LoadUsers();
-            }
-            catch (Exception e)
-            {
-                await Debug.WriteAsync($"MariaDB Write error: {e}", true, Debug.DebugColor.Error);
-            }
-        }
-
         public static async Task Add(ulong authorId)
         {
             MySqlConnection connection = new(Bot.SqlConnectionQuery);
             await connection.OpenAsync();
-            var cmd = new MySqlCommand($"INSERT INTO users (id) VALUES (\"{authorId}\"", connection);
+            var cmd = new MySqlCommand($"INSERT INTO users (id) VALUES (\"{authorId}\")", connection);
             cmd.ExecuteNonQuery();
             await connection.CloseAsync();
             await Controllers.Bot.LoadUsers();

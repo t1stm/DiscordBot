@@ -366,11 +366,11 @@ namespace DiscordBot
                         break;
                     
                     case not null when target.IsBot && target.Id == ctx.Client.CurrentUser.Id:
-                        await Bot.Reply(ctx, "");
+                        //await Bot.Reply(ctx, "");
                         return;
                 } 
                 var random = new Random().Next(0, 100);
-                await Bot.Reply(ctx, $"{target.Mention} is {random}% gay.");
+                await Bot.Reply(ctx, $"{target?.Mention} is {random}% gay.", false);
             }
             catch (Exception e)
             {
