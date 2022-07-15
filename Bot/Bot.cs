@@ -105,12 +105,12 @@ namespace DiscordBot
                     {
                         case "list":
                         {
-                            await Debug.WriteAsync("Listing all player instances:");
+                            await Debug.WriteAsync("Listing all player instances:");    
                             for (var i = 0; i < Manager.Main.Count; i++)
                             {
                                 var pl = Manager.Main.ToList()[i];
                                 await Debug.WriteAsync(
-                                    $"\"{pl.CurrentGuild.Name}\" : \"{pl.VoiceChannel.Name} - {pl.VoiceChannel.Id}\"");
+                                    $"\"{pl?.CurrentGuild?.Name}\" : \"{pl?.VoiceChannel?.Name} - {pl?.VoiceChannel?.Id}\"");
                             }
 
                             continue;

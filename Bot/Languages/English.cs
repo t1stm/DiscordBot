@@ -250,7 +250,8 @@ namespace DiscordBot.Objects
 
         public string DefaultStatusbarMessage()
         {
-            return "The bot is currently being reworked majorly, so please note that there may be many bugs. Sorry for any bugs in advance.";
+            return "The bot is currently being reworked majorly, so please note that there may be many bugs. Sorry for any bugs in advance.\n\n" +
+                   "By the way, you can now change some settings of the bot (ex. the response language) with the slash command \"/settings\"";
         }
 
         public string DiscordDidTheFunny()

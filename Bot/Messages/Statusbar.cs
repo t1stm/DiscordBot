@@ -15,8 +15,6 @@ namespace DiscordBot.Messages
 {
     public class Statusbar : IBaseStatusbar
     {
-        //private const string DefaultMessage = "One can use the web interface with the command: \"-webui\"";
-        
         private const char EmptyBlock = '□', FullBlock = '■';
         private int _pl0, _pl1 = 1, _pl2 = 2, _pl3 = 3, _pl4 = 4;
         public bool NewStatusbar => true; // I plan on making this generate a whole new statusbar, but for now I am going to leave it be.

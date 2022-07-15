@@ -51,7 +51,7 @@ namespace DiscordBot.Audio.Platforms.Discord
                 Title = attachment.FileName,
                 Author = "",
                 Length = 0,
-                Location = location,
+                Location = attachment.FileName,
                 IsDiscordAttachment = true,
                 Guild = guild
             };
