@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using DiscordBot.Abstract;
 using DiscordBot.Audio.Objects;
 using DiscordBot.Methods;
+using DiscordBot.Objects;
 using DiscordBot.Readers.MariaDB;
 using vtortola.WebSockets;
 
@@ -343,7 +344,13 @@ namespace DiscordBot.Audio
         
         private static async Task SendSettings(WebSocket ws, string token)
         {
-            
+            var user = await User.FromToken(token);
+            if (user == null)
+            {
+                await Debug.WriteAsync("A user is null, despite being logged in the Web UI Sockets.", false, Debug.DebugColor.Error);
+                return;
+            }
+            await Send(ws, $"Settings:{JsonSerializer.Serialize(user.ToWebUISettings())}");
         }
         
         private static async Task SettingsParser(string token, string setting)

@@ -123,7 +123,6 @@ namespace DiscordBot.Audio
                 {
                     if (Main.Contains(player)) Main.Remove(player);
                 }
-
                 throw;
             }
         }

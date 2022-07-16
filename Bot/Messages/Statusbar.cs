@@ -17,11 +17,11 @@ namespace DiscordBot.Messages
     {
         private const char EmptyBlock = '□', FullBlock = '■';
         private int _pl0, _pl1 = 1, _pl2 = 2, _pl3 = 3, _pl4 = 4;
-        public bool NewStatusbar => true; // I plan on making this generate a whole new statusbar, but for now I am going to leave it be.
+        private bool NewStatusbar => true; // I plan on making this generate a whole new statusbar, but for now I am going to leave it be.
         public bool HasButtons => NewStatusbar;
         private bool Stopped { get; set; }
         public Player Player { get; set; }
-        public ILanguage Language => Player?.Settings.Language ?? Parser.FromNumber(0); // If null, gets the English Language.
+        private ILanguage Language => Player?.Settings.Language ?? Parser.FromNumber(0); // If null, gets the English Language.
         public DiscordGuild Guild { get; set; }
         public DiscordChannel Channel { get; set; }
         public DiscordClient Client { get; set; }
