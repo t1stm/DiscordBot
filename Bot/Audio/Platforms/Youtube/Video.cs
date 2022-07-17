@@ -50,7 +50,7 @@ namespace DiscordBot.Audio.Platforms.Youtube
                     "bass boosted", "bass", "earrape", "ear", "rape",
                     "cover", "кавър", "backstage", "live", "version", "guitar", 
                     "extend", "maxi", "piano", "avi", "vinyl", "mix",
-                    "bonus", "hour");
+                    "bonus", "hour", "acapella", "vocal");
             }
             catch (Exception e)
             {
@@ -61,18 +61,7 @@ namespace DiscordBot.Audio.Platforms.Youtube
             {
                 if (track is not null)
                 {
-                    /*if (!term.ToLower().Contains("8d") && !term.ToLower().Contains("karaoke") &&
-                        !term.ToLower().Contains("remix") && !term.ToLower().Contains("instru") && !term.ToLower().Contains("clean"))
-                        res.RemoveAll(r =>
-                            r.Title.ToLower().Contains("8d") || r.Title.ToLower().Contains("karaoke") ||
-                            r.Title.ToLower().Contains("remix") || r.Title.ToLower().Contains("instru") ||
-                            r.Title.ToLower().Contains("clean")); */
-                    res = res.AsParallel().OrderByDescending(r => r.Author.ToLower().Contains("topic"))
-                        .ThenByDescending(r => r.Title.ToLower().Contains("official audio"))
-                        .ThenByDescending(r => Math.Abs(StringToTimeSpan.Generate(r.Duration).TotalMilliseconds - length) < 3)
-                        .ThenBy(r => LevenshteinDistance.Compute(r.Author.ToLower().Replace("- topic", "").Replace("vevo", ""), track.Author.ToLower()))
-                        .ThenByDescending(r => LevenshteinDistance.Compute(r.Title, track.Title) < 3)
-                        .ToList();
+                    res = Sorter.SortResults(track, res);
                     foreach (var yt in res.Cast<YoutubeVideo>())
                     {
                         await Debug.WriteAsync($"Video Results: \"{yt.Title} - {yt.Author} - {yt.Duration}\"");
