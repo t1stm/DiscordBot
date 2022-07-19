@@ -391,6 +391,7 @@ namespace DiscordBot
                 }
 
                 var token = $"{ctx.Guild.Id}-{ctx.Channel.Id}-{Bot.RandomString(6)}";
+                while (SharePlaylist.Exists(token)) token = $"{ctx.Guild.Id}-{ctx.Channel.Id}-{Bot.RandomString(6)}";
                 var fs = SharePlaylist.Write(token, player.Queue.Items);
                 fs.Position = 0;
                 await ctx.CreateResponseAsync(new DiscordInteractionResponseBuilder().WithContent(
@@ -577,7 +578,7 @@ namespace DiscordBot
                 [ChoiceName("All")] All 
             }
             
-            public enum Normalization
+            public enum BooleanEnum
             {
                 [ChoiceName("Disabled")] Disabled,
                 [ChoiceName("Enabled")] Enabled
@@ -683,16 +684,37 @@ namespace DiscordBot
                 }
 
                 [SlashCommand("normalization", "Change whether the bot should normalize audio."), SlashRequirePermissions(Permissions.Administrator), SlashRequireGuild]
-                public async Task UpdateNormalization(InteractionContext ctx, [Option("normalization", "Change normalization.")] Normalization normalization)
+                public async Task UpdateNormalization(InteractionContext ctx, [Option("normalization", "Change normalization.")] BooleanEnum booleanEnum)
                 {
                     try
                     {
                         var settings = await GuildSettings.FromId(ctx.Guild.Id);
-                        await settings.ModifySettings("verboseMessages", $"{normalization switch {Normalization.Disabled => 0, Normalization.Enabled => 1, _ => 1}}");
+                        await settings.ModifySettings("verboseMessages", $"{booleanEnum switch {BooleanEnum.Disabled => 0, BooleanEnum.Enabled => 1, _ => 1}}");
                         await ctx.CreateResponseAsync((settings.Language switch
                         {
-                            English => $"Changing the normalization of audio to: \"{normalization switch {Normalization.Enabled => "Enabled", Normalization.Disabled => "Disabled", _ => throw new ArgumentOutOfRangeException(nameof(normalization), normalization, null)}}\"", 
-                            Bulgarian => $"Нормализирането на звука на бота е вече: \"{normalization switch {Normalization.Enabled => "Включено", Normalization.Disabled => "Изключено", _ => throw new ArgumentOutOfRangeException(nameof(normalization), normalization, null)}}\"",
+                            English => $"Changing the normalization of audio to: \"{booleanEnum switch {BooleanEnum.Enabled => "Enabled", BooleanEnum.Disabled => "Disabled", _ => throw new ArgumentOutOfRangeException(nameof(booleanEnum), booleanEnum, null)}}\"", 
+                            Bulgarian => $"Нормализирането на звука на бота е вече: \"{booleanEnum switch {BooleanEnum.Enabled => "Включено", BooleanEnum.Disabled => "Изключено", _ => throw new ArgumentOutOfRangeException(nameof(booleanEnum), booleanEnum, null)}}\"",
+                            _ => throw new ArgumentOutOfRangeException(nameof(settings.Language), settings.Language, "Somehow this value doesn't exist.")
+                        }).CodeBlocked(), true);
+                    }
+                    catch (Exception e)
+                    {
+                        await Debug.WriteAsync($"Changing guild setting \"normalization\" failed: {e}");
+                    }
+                }
+                
+                [SlashCommand("showOriginalTitles", "Change whether the bot should show the current item information in it's original language."), 
+                 SlashRequirePermissions(Permissions.Administrator), SlashRequireGuild]
+                public async Task ShowOriginalTitles(InteractionContext ctx, [Option("showOriginalTitles", "Change status.")] BooleanEnum booleanEnum)
+                {
+                    try
+                    {
+                        var settings = await GuildSettings.FromId(ctx.Guild.Id);
+                        await settings.ModifySettings("showOriginalInfo", $"{booleanEnum switch {BooleanEnum.Disabled => 0, BooleanEnum.Enabled => 1, _ => 1}}");
+                        await ctx.CreateResponseAsync((settings.Language switch
+                        {
+                            English => $"Showing original information is now: \"{booleanEnum switch {BooleanEnum.Enabled => "Enabled", BooleanEnum.Disabled => "Disabled", _ => throw new ArgumentOutOfRangeException(nameof(booleanEnum), booleanEnum, null)}}\"", 
+                            Bulgarian => $"Показаната информация е вече: \"{booleanEnum switch {BooleanEnum.Enabled => "На оригиналния език", BooleanEnum.Disabled => "На английски език", _ => throw new ArgumentOutOfRangeException(nameof(booleanEnum), booleanEnum, null)}}\"",
                             _ => throw new ArgumentOutOfRangeException(nameof(settings.Language), settings.Language, "Somehow this value doesn't exist.")
                         }).CodeBlocked(), true);
                     }

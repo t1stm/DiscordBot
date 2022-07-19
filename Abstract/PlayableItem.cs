@@ -14,7 +14,7 @@ namespace DiscordBot.Abstract
         public DiscordMember Requester { get; set; }
         protected bool Errored { get; set; }
 
-        public virtual string GetName()
+        public virtual string GetName(bool settingsShowOriginalInfo = false)
         {
             return $"{Title}{string.IsNullOrEmpty(Author) switch {false => $" - {Author}", true => ""}}";
         }
@@ -42,8 +42,10 @@ namespace DiscordBot.Abstract
         }
 
         public abstract string GetId();
-        public abstract string GetTypeOf(ILanguage language);
-        //TODO: Change current implementation.
+        public string GetTypeOf(ILanguage language)
+        {
+            return language.GetTypeOfTrack(this);
+        }
 
         public virtual bool GetIfErrored()
         {

@@ -753,6 +753,7 @@ namespace DiscordBot.Audio
             }
 
             var token = $"{ctx.Guild.Id}-{ctx.Channel.Id}-{Bot.RandomString(6)}";
+            while (SharePlaylist.Exists(token)) token = $"{ctx.Guild.Id}-{ctx.Channel.Id}-{Bot.RandomString(6)}";
             var fs = SharePlaylist.Write(token, player.Queue.Items);
             fs.Position = 0;
             await ctx.RespondAsync(

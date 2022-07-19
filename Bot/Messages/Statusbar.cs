@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using DiscordBot.Abstract;
 using DiscordBot.Audio;
+using DiscordBot.Audio.Objects;
 using DiscordBot.Enums;
 using DiscordBot.Objects;
 using DSharpPlus;
@@ -184,7 +185,7 @@ namespace DiscordBot.Messages
 
             return
                 $"```{Language.Playing()}: \"{Player.CurrentItem.GetTypeOf(Language)}\"\n" +
-                $"({Player.Queue.Current + 1} - {Player.Queue.Count}) {Player.CurrentItem.GetName()}\n" +
+                $"({Player.Queue.Current + 1} - {Player.Queue.Count}) {Player.CurrentItem.GetName(Player.Settings.ShowOriginalInfo)}\n" +
                 $"{progress} ( {Player.Paused switch {false => "▶️", true => "⏸️"}} {Time(TimeSpan.FromMilliseconds(time))} - {length switch {0 => "∞", _ => Time(TimeSpan.FromMilliseconds(length))}} )" +
                 $"{Player.Sink switch {null => "", _ => Player.Sink.VolumeModifier switch {0 => " (🔇", >0 and <.33 => " (🔈", >=.33 and <=.66 => " (🔉", >.66 => " (🔊", _ => " (🔊"} + $" {(int) (Player.Sink.VolumeModifier * 100)}%)"}}" +
                 $"{Player.LoopStatus switch {Loop.One => " ( 🔂 )", Loop.WholeQueue => " ( 🔁 )", _ => ""}}" +

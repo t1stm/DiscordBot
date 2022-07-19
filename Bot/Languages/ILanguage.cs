@@ -1,3 +1,5 @@
+using DiscordBot.Abstract;
+
 namespace DiscordBot.Objects
 {
     public interface ILanguage
@@ -77,5 +79,6 @@ namespace DiscordBot.Objects
         public string UpdatingToken();
         
         #endregion
+        public string GetTypeOfTrack(PlayableItem it);
     }
 }

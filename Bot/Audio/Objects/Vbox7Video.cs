@@ -32,15 +32,5 @@ namespace DiscordBot.Audio.Objects
         {
             return Id;
         }
-
-        public override string GetTypeOf(ILanguage language)
-        {
-            return language switch
-            {
-                English => "Vbox7 Video",
-                Bulgarian => "Vbox7 Видео",
-                _ => throw new ArgumentOutOfRangeException(nameof(language), language, null)
-            };
-        }
     }
 }

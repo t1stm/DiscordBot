@@ -120,6 +120,8 @@ namespace DiscordBot.Audio.Platforms
             {
                 case "yt":
                     return await Video.SearchById(split[1]);
+                case "yt-ov":
+                    return YoutubeOverride.FromId(split[1]);
                 case "spt":
                     return await Track.Get(split[1]);
                 case "file":
@@ -157,7 +159,7 @@ namespace DiscordBot.Audio.Platforms
             return list;
         }
 
-        public static async Task<List<YoutubeVideoInformation>> Get(SpotifyTrack track, bool urgent = false)
+        public static async Task<List<PlayableItem>> Get(SpotifyTrack track, bool urgent = false)
         {
             return new()
             {

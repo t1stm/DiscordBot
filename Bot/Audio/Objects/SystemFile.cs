@@ -62,21 +62,5 @@ namespace DiscordBot.Audio.Objects
         {
             return "";
         }
-
-        public override string GetTypeOf(ILanguage language)
-        {
-            return IsDiscordAttachment ? language switch
-            {
-                English => "Discord Attachment",
-                Bulgarian => "Discord Прикачване",
-                _ => throw new ArgumentOutOfRangeException(nameof(language), language, null)
-            } : 
-            language switch
-            {
-                English => "Local File",
-                Bulgarian => "Локален Файл",
-                _ => throw new ArgumentOutOfRangeException(nameof(language), language, null)
-            };
-        }
     }
 }

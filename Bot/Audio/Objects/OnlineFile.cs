@@ -1,13 +1,11 @@
-using System;
 using System.Threading.Tasks;
 using DiscordBot.Abstract;
-using DiscordBot.Objects;
 
 namespace DiscordBot.Audio.Objects
 {
     public class OnlineFile : PlayableItem
     {
-        public override string GetName()
+        public override string GetName(bool settingsShowOriginalInfo = false)
         {
             var loc = GetLocation();
             return loc.Length > 40 ? $"{loc[..40]}..." : loc;
@@ -21,16 +19,6 @@ namespace DiscordBot.Audio.Objects
         public override string GetId()
         {
             return "";
-        }
-
-        public override string GetTypeOf(ILanguage language)
-        {
-            return language switch
-            {
-                English => "Online File",
-                Bulgarian => "Онлайн Файл",
-                _ => throw new ArgumentOutOfRangeException(nameof(language), language, null)
-            };
         }
 
         public override string GetTitle()

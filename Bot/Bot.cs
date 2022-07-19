@@ -6,6 +6,7 @@ using System.Text.Json;
 using System.Threading.Tasks;
 using System.Timers;
 using DiscordBot.Audio;
+using DiscordBot.Audio.Objects;
 using DiscordBot.Messages;
 using DiscordBot.Methods;
 using DiscordBot.Objects;
@@ -93,6 +94,7 @@ namespace DiscordBot
             foreach (var client in Clients) await client.ConnectAsync();
             string text;
             await ReadStatus(Clients[0]);
+            YoutubeOverride.UpdateOverrides();
             var task = new Task(async () =>
             {
                 await WebSocketServer.Start();
@@ -178,6 +180,9 @@ namespace DiscordBot
 
                             Environment.Exit(0);
                             break;
+                        case "updateoverrides":
+                            YoutubeOverride.UpdateOverrides();
+                            break;
                         case "clear":
                             Console.Clear();
                             await Debug.WriteAsync("Cleared the Console");
@@ -194,7 +199,6 @@ namespace DiscordBot
                                 await Debug.WriteAsync(
                                     $"{val.Name} : {val.Id} - Owner : {val.Owner.DisplayName} - {val.Owner.Id}");
                             }
-
                             continue;
                         case "debug":
                             DebugMode = !DebugMode;

@@ -20,7 +20,7 @@ namespace DiscordBot.Audio.Objects
 
         private new bool Errored { get; set; }
 
-        public override string GetName()
+        public override string GetName(bool settingsShowOriginalInfo = false)
         {
             return Title == "" ? Url : Title;
         }
@@ -85,16 +85,6 @@ namespace DiscordBot.Audio.Objects
         public override string GetId()
         {
             return "";
-        }
-
-        public override string GetTypeOf(ILanguage language)
-        {
-            return language switch
-            {
-                English => "Twitch Content",
-                Bulgarian => "Съдържание в Twitch",
-                _ => throw new ArgumentOutOfRangeException(nameof(language), language, null)
-            };
         }
 
         public override string GetThumbnailUrl()

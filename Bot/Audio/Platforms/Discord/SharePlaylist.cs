@@ -22,6 +22,11 @@ namespace DiscordBot.Audio.Platforms.Discord
             return await Get(att.FileName[..^5]);
         }
 
+        public static bool Exists(string token)
+        {
+            return File.Exists($"{Bot.WorkingDirectory}/Playlists/{token}.batp");
+        }
+        
         public static FileStream Write(string token, IEnumerable<PlayableItem> list)
         {
             var bytes = new List<byte> {84, 7, 70, 60, 5, 34};

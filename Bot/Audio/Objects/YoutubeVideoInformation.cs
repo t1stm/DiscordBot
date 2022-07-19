@@ -4,7 +4,6 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using DiscordBot.Abstract;
-using DiscordBot.Objects;
 using DiscordBot.Readers;
 using YouTubeApiSharp;
 using YoutubeExplode;
@@ -93,21 +92,6 @@ namespace DiscordBot.Audio.Objects
         public override string GetId()
         {
             return YoutubeId ?? "";
-        }
-
-        public override string GetTypeOf(ILanguage language)
-        {
-            return IsLiveStream ? language switch
-            {
-                English => "YouTube Live Stream",
-                Bulgarian => "YouTube Стрийм",
-                _ => throw new ArgumentOutOfRangeException(nameof(language), language, null)
-            } : language switch
-            {
-                English => "YouTube Video",
-                Bulgarian => "YouTube Видео",
-                _ => throw new ArgumentOutOfRangeException(nameof(language), language, null)
-            };
         }
 
         private static string ReturnIfExists(string id)

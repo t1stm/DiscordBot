@@ -1,4 +1,6 @@
 using System;
+using DiscordBot.Abstract;
+using DiscordBot.Audio.Objects;
 using DiscordBot.Enums;
 
 namespace DiscordBot.Objects
@@ -317,5 +319,21 @@ namespace DiscordBot.Objects
         }
         
         #endregion
+        
+        public string GetTypeOfTrack(PlayableItem it)
+        {
+            return it switch
+            {
+                YoutubeVideoInformation yt when yt.GetIfLiveStream() => "Youtube Live Stream",
+                YoutubeVideoInformation yt when !yt.GetIfLiveStream() => "Youtube Видео",
+                OnlineFile => "Онлайн Файл",
+                SpotifyTrack => "Песен от Spotify",
+                SystemFile => "Локален Файл",
+                TtsText => "Text to Speech",
+                TwitchLiveStream => "Twitch Live Stream",
+                YoutubeOverride => "Избран Запис",
+                _ => "Нещо"
+            };
+        }
     }
 }

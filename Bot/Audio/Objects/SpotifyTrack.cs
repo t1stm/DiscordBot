@@ -21,15 +21,6 @@ namespace DiscordBot.Audio.Objects
             return "";
         }
 
-        public override string GetTypeOf(ILanguage language)
-        {
-            return language switch
-            {
-                English => "Spotify Track",
-                Bulgarian => "Песен от Spotify"
-            };
-        }
-
         public override string GetThumbnailUrl()
         {
             return "";

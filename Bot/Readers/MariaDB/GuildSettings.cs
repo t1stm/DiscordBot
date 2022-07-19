@@ -4,9 +4,7 @@ using System.Threading.Tasks;
 using DiscordBot.Audio;
 using DiscordBot.Methods;
 using DiscordBot.Objects;
-using Microsoft.Build.Tasks;
 using MySql.Data.MySqlClient;
-using Org.BouncyCastle.Crypto.Engines;
 
 namespace DiscordBot.Readers.MariaDB
 {
@@ -20,7 +18,8 @@ namespace DiscordBot.Readers.MariaDB
                 Statusbar = Statusbar,
                 VerboseMessages = VerboseMessages,
                 Language = Language,
-                Normalize = Normalize
+                Normalize = Normalize,
+                ShowOriginalInfo = ShowOriginalInfo
             };
             return settings;
         }
@@ -29,6 +28,7 @@ namespace DiscordBot.Readers.MariaDB
         public bool VerboseMessages { get; init; } = true;
         public ILanguage Language { get; init; }
         public bool Normalize { get; private init; } = true;
+        public bool ShowOriginalInfo { get; private init; }
 
         public async Task ModifySettings(string target, string value) // I am not going to bother making this method safe.
         {
@@ -66,9 +66,10 @@ namespace DiscordBot.Readers.MariaDB
                     Statusbar = (ushort) dataReader["statusbar"],
                     Language = Parser.FromNumber((ushort) dataReader["language"]),
                     VerboseMessages = (bool) dataReader["verboseMessages"],
-                    Normalize = (bool) dataReader["normalize"]
+                    Normalize = (bool) dataReader["normalize"],
+                    ShowOriginalInfo = (bool) dataReader["showOriginalInfo"]
                 });    
-            } 
+            }
             await dataReader.CloseAsync(); 
             await connection.CloseAsync();
 

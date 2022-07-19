@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using DiscordBot.Abstract;
 using DiscordBot.Audio.Objects;
 using DiscordBot.Methods;
 using DiscordBot.Readers;
@@ -17,10 +18,10 @@ namespace DiscordBot.Audio.Platforms.Youtube
 {
     public static class Video
     {
-        public static async Task<YoutubeVideoInformation> Search(string term, bool urgent = false,
+        public static async Task<PlayableItem> Search(string term, bool urgent = false,
             ulong length = 0, SpotifyTrack track = null)
         {
-            YoutubeVideoInformation info;
+            PlayableItem info;
             var cachedSearchResult = await GetIdFromCachedTerms(term);
             if (cachedSearchResult != null && !string.IsNullOrEmpty(cachedSearchResult.SearchTerm) &&
                 !string.IsNullOrEmpty(cachedSearchResult.VideoId))
@@ -74,11 +75,18 @@ namespace DiscordBot.Audio.Platforms.Youtube
                         .ToList();
                 }
             }
-
+            
             var result = res.First();
             if (result == null) return null;
             await Debug.WriteAsync(
                 $"Result Milliseconds are: {StringToTimeSpan.Generate(result.Duration).TotalMilliseconds}");
+            
+            var alt = YoutubeOverride.FromId(result.Id);
+            if (alt is not null)
+            {
+                return alt;
+            }
+            
             info = new YoutubeVideoInformation
             {
                 Title = result.Title,
@@ -95,7 +103,7 @@ namespace DiscordBot.Audio.Platforms.Youtube
                     //await new SearchJsonReader().AddVideo(term, result.Id);
                     //JsonWriteQueue.Add(term, result.Id);
                     await SearchValues.Add(term, result.Id);
-                    await ExistingVideoInfoGetter.Add(info);
+                    await ExistingVideoInfoGetter.Add((YoutubeVideoInformation) info);
                 }
                 catch (Exception e)
                 {
@@ -170,10 +178,15 @@ namespace DiscordBot.Audio.Platforms.Youtube
                 }).ToList();
         }
 
-        public static async Task<YoutubeVideoInformation> SearchById(string id, bool urgent = false)
+        public static async Task<PlayableItem> SearchById(string id, bool urgent = false)
         {
             try
             {
+                var alt = YoutubeOverride.FromId(id);
+                if (alt is not null)
+                {
+                    return alt;
+                }
                 var info = await GetCachedVideoFromId(id);
                 if (info is not null && !urgent) return info;
                 var client = new YoutubeClient(HttpClient.WithCookies());
@@ -216,19 +229,24 @@ namespace DiscordBot.Audio.Platforms.Youtube
             return await SearchValues.ReadSearchResult(term);
         }
 
-        private static async Task<YoutubeVideoInformation> GetCachedVideoFromId(string id)
+        private static async Task<PlayableItem> GetCachedVideoFromId(string id)
         {
+            var alt = YoutubeOverride.FromId(id);
+            if (alt is not null)
+            {
+                return alt;
+            }
             return await ExistingVideoInfoGetter.Read(id);
         }
 
-        public static async Task<YoutubeVideoInformation> Search(SpotifyTrack track, bool urgent = false)
+        public static async Task<PlayableItem> Search(SpotifyTrack track, bool urgent = false)
         {
             await Debug.WriteAsync($"Spotify Track: {track.GetName()}, Length: {track.GetLength()}");
             var result =
                 await Search(
                     $"{track.Title} - {track.Author} {track.Explicit switch {true => "Explicit Version ", false => ""}}- Topic",
                     urgent, track.Length, track);
-            result.OriginTrack = track;
+            ((YoutubeVideoInformation) result).OriginTrack = track;
             result.Requester = track.GetRequester();
             if (urgent) await result.Download();
             return result;
