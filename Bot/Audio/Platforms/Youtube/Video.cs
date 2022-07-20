@@ -51,7 +51,8 @@ namespace DiscordBot.Audio.Platforms.Youtube
                     "bass boosted", "bass", "earrape", "ear", "rape",
                     "cover", "кавър", "backstage", "live", "version", "guitar", 
                     "extend", "maxi", "piano", "avi", "vinyl", "mix",
-                    "bonus", "hour", "acapella", "vocal");
+                    "bonus", "hour", "acapella", "vocal", "matrica", "dj", "edit", "club",
+                    "mashup");
             }
             catch (Exception e)
             {

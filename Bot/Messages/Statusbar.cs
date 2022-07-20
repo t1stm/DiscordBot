@@ -190,7 +190,7 @@ namespace DiscordBot.Messages
                 $"{Player.Sink switch {null => "", _ => Player.Sink.VolumeModifier switch {0 => " (🔇", >0 and <.33 => " (🔈", >=.33 and <=.66 => " (🔉", >.66 => " (🔊", _ => " (🔊"} + $" {(int) (Player.Sink.VolumeModifier * 100)}%)"}}" +
                 $"{Player.LoopStatus switch {Loop.One => " ( 🔂 )", Loop.WholeQueue => " ( 🔁 )", _ => ""}}" +
                 $"{req switch {null => "", _ => $"\n{Language.RequestedBy()}: {req.Username} #{req.Discriminator}"}}" +
-                $"{next switch {null => "", _ => $"\n\n{Language.NextUp()}: ({Player.Queue.Current + 2}) {next.GetName()}"}}" +
+                $"{next switch {null => "", _ => $"\n\n{Language.NextUp()}: ({Player.Queue.Current + 2}) {next.GetName(Player.Settings.ShowOriginalInfo)}"}}" +
                 $"{message}```";
         }
 
