@@ -272,7 +272,7 @@ namespace DiscordBot.Audio
                         await player.CurrentClient.SendMessageAsync(messageChannel, lang.AddedItem(term).CodeBlocked());
                     else
                         await player.CurrentClient.SendMessageAsync(messageChannel, 
-                            lang.AddedItem($"({player.Queue.Items.IndexOf(items.First()) + 1}) - {items.First().GetName()}").CodeBlocked());
+                            lang.AddedItem($"({player.Queue.Items.IndexOf(items.First()) + 1}) - {items.First().GetName(player.Settings.ShowOriginalInfo)}").CodeBlocked());
                 }
             }
             catch (Exception e)
@@ -479,7 +479,7 @@ namespace DiscordBot.Audio
             item.ForEach(it => it.SetRequester(ctx.Member));
             player.Queue.AddToQueueNext(item);
             await Bot.Reply(player.CurrentClient, ctx.Channel,
-                item.Count > 1 ? player.Settings.Language.PlayingItemAfterThis(term) : player.Settings.Language.PlayingItemAfterThis(player.Queue.Items.IndexOf(item[0]) + 1, item[0].GetName()));
+                item.Count > 1 ? player.Settings.Language.PlayingItemAfterThis(term) : player.Settings.Language.PlayingItemAfterThis(player.Queue.Items.IndexOf(item[0]) + 1, item[0].GetName(player.Settings.ShowOriginalInfo)));
         }
 
         public static async Task Remove(CommandContext ctx, string text)
