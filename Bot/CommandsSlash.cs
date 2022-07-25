@@ -728,6 +728,27 @@ namespace DiscordBot
                         await Debug.WriteAsync($"Changing guild setting \"normalization\" failed: {e}");
                     }
                 }
+                
+                [SlashCommand("saveQueueOnLeave", "Change whether the bot should save it's queue after it quits the channel."), 
+                 SlashRequirePermissions(Permissions.Administrator), SlashRequireGuild]
+                public async Task SaveQueueOnLeave(InteractionContext ctx, [Option("saveQueueOnLeave", "Change status.")] BooleanEnum booleanEnum)
+                {
+                    try
+                    {
+                        var settings = await GuildSettings.FromId(ctx.Guild.Id);
+                        await settings.ModifySettings("saveQueueOnLeave", $"{booleanEnum switch {BooleanEnum.Disabled => 0, BooleanEnum.Enabled => 1, _ => 1}}");
+                        await ctx.CreateResponseAsync((settings.Language switch
+                        {
+                            English => $"Saving queue on leave is now: \"{booleanEnum switch {BooleanEnum.Enabled => "Enabled", BooleanEnum.Disabled => "Disabled", _ => throw new ArgumentOutOfRangeException(nameof(booleanEnum), booleanEnum, null)}}\"", 
+                            Bulgarian => $"Ботът вече {booleanEnum switch {BooleanEnum.Enabled => "Запазва списъкът като напуска канала.", BooleanEnum.Disabled => "Не запазва списъкът като напуска канала", _ => throw new ArgumentOutOfRangeException(nameof(booleanEnum), booleanEnum, null)}}",
+                            _ => throw new ArgumentOutOfRangeException(nameof(settings.Language), settings.Language, "Somehow this value doesn't exist.")
+                        }).CodeBlocked(), true);
+                    }
+                    catch (Exception e)
+                    {
+                        await Debug.WriteAsync($"Changing guild setting \"saveQueueOnLeave\" failed: {e}");
+                    }
+                }
             }
         }
     }
