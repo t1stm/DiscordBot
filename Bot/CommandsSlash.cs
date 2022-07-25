@@ -1,4 +1,5 @@
 using System;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using DiscordBot.Audio;
@@ -390,10 +391,14 @@ namespace DiscordBot
                     return;
                 }
 
-                var token = $"{ctx.Guild.Id}-{ctx.Channel.Id}-{Bot.RandomString(6)}";
-                while (SharePlaylist.Exists(token)) token = $"{ctx.Guild.Id}-{ctx.Channel.Id}-{Bot.RandomString(6)}";
-                var fs = SharePlaylist.Write(token, player.Queue.Items);
-                fs.Position = 0;
+                var token = Manager.GetFreePlaylistToken(ctx.Guild.Id, player.VoiceChannel.Id);
+
+                FileStream fs;
+                lock (player.Queue.Items)
+                {
+                    fs = SharePlaylist.Write(token, player.Queue.Items);
+                    fs.Position = 0;
+                }
                 await ctx.CreateResponseAsync(new DiscordInteractionResponseBuilder().WithContent(
                     guild.Language.QueueSavedSuccessfully(token).CodeBlocked()).AddFile($"{token}.batp", fs));
             }

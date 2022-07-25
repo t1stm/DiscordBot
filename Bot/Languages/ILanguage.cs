@@ -80,5 +80,6 @@ namespace DiscordBot.Objects
         
         #endregion
         public string GetTypeOfTrack(PlayableItem it);
+        public string SavedQueueAfterLeavingMessage(string cmd);
     }
 }

@@ -11,6 +11,7 @@ using DiscordBot.Messages;
 using DiscordBot.Methods;
 using DiscordBot.Objects;
 using DiscordBot.Readers;
+using DiscordBot.Readers.MariaDB;
 using DSharpPlus;
 using DSharpPlus.CommandsNext;
 using DSharpPlus.Entities;
@@ -372,86 +373,127 @@ namespace DiscordBot
             return client;
         }
 
-        private static async Task MessageInteractionHandler(DiscordClient _,
+        private static async Task MessageInteractionHandler(DiscordClient client,
             ComponentInteractionCreateEventArgs eventArgs)
         {
-            eventArgs.Handled = true;
-            await eventArgs.Interaction.CreateResponseAsync(InteractionResponseType.DeferredMessageUpdate);
-
-            Player pl;
-            lock (Manager.Main)
+            try
             {
-                pl = Manager.Main.AsParallel().FirstOrDefault(r =>
-                    r.Channel.Id == eventArgs.Channel.Id && r.VoiceUsers.Contains(eventArgs.User));
-            }
+                eventArgs.Handled = true;
+                await eventArgs.Interaction.CreateResponseAsync(InteractionResponseType.DeferredMessageUpdate);
 
-            var user = await User.FromId(eventArgs.User.Id);
-            if (pl == null)
-            {
-                await eventArgs.Interaction.CreateFollowupMessageAsync(
-                    new DiscordFollowupMessageBuilder {IsEphemeral = true}.WithContent(
-                        user.Language.YouAreNotInTheChannel()));
-                if (DebugMode)
-                    await Debug.WriteAsync(
-                        $"The user: \"{eventArgs.User.Username}#{eventArgs.User.Discriminator}\" interacted to a player message without being in the channel.");
-                return;
-            }
+                Player pl;
+                lock (Manager.Main)
+                {
+                    pl = Manager.Main.AsParallel().FirstOrDefault(r =>
+                        r.Channel.Id == eventArgs.Channel.Id && r.VoiceUsers.Contains(eventArgs.User));
+                }
+
+                var user = await User.FromId(eventArgs.User.Id);
+                if (pl == null && !eventArgs.Id.StartsWith("resume:"))
+                {
+                    await eventArgs.Interaction.CreateFollowupMessageAsync(
+                        new DiscordFollowupMessageBuilder {IsEphemeral = true}.WithContent(
+                            user.Language.YouAreNotInTheChannel()));
+                    if (DebugMode)
+                        await Debug.WriteAsync(
+                            $"The user: \"{eventArgs.User.Username}#{eventArgs.User.Discriminator}\" interacted to a player message without being in the channel.");
+                    return;
+                }
+                var verbose = user.VerboseMessages;
+                var split = eventArgs.Id.Split(':');
+                var command = split.First();
             
-            var verbose = user.VerboseMessages;
+                switch (command)
+                {
+                    case "shuffle":
+                        if (verbose)
+                            await eventArgs.Interaction.CreateFollowupMessageAsync(
+                                new DiscordFollowupMessageBuilder {IsEphemeral = true}.WithContent(
+                                    user.Language.ShufflingTheQueue().CodeBlocked()));
+                        pl?.Shuffle();
+                        break;
+                    case "skip":
+                        if (verbose)
+                            await eventArgs.Interaction.CreateFollowupMessageAsync(
+                                new DiscordFollowupMessageBuilder {IsEphemeral = true}.WithContent(
+                                    user.Language.SkippingOneTime().CodeBlocked()));
+                        if (pl != null)
+                            await pl.Skip();
+                        break;
+                    case "pause":
+                        if (verbose)
+                            await eventArgs.Interaction.CreateFollowupMessageAsync(
+                                new DiscordFollowupMessageBuilder {IsEphemeral = true}.WithContent(
+                                    (!pl?.Paused switch {true => user.Language.PausingThePlayer(), false => user.Language.UnpausingThePlayer()}).CodeBlocked()));
+                        pl?.Pause();
+                        break;
+                    case "back":
+                        if (pl != null)
+                            await pl.Skip(-1);
+                        if (verbose)
+                            await eventArgs.Interaction.CreateFollowupMessageAsync(
+                                new DiscordFollowupMessageBuilder {IsEphemeral = true}.WithContent(
+                                    user.Language.SkippingOneTimeBack().CodeBlocked()));
+                        break;
+                    case "leave":
+                        if (pl != null)
+                            await pl.DisconnectAsync();
+                        break;
+                    case "webui":
+                        if (verbose)
+                            await eventArgs.Interaction.CreateFollowupMessageAsync(
+                                new DiscordFollowupMessageBuilder {IsEphemeral = true}.WithContent(
+                                    user.Language.SendingADirectMessageContainingTheInformation().CodeBlocked()));
+                        DiscordMessageBuilder message;
+                        if (Controllers.Bot.WebUiUsers.ContainsKey(eventArgs.User.Id))
+                        {
+                            var key = Controllers.Bot.WebUiUsers.GetValue(eventArgs.User.Id);
+                            message = Manager.GetWebUiMessage(key, user.Language.YouHaveAlreadyGeneratedAWebUiCode(), user.Language.ControlTheBotUsingAFancyInterface());
+                        }
+                        else
+                        {
+                            var randomString = RandomString(96);
+                            await Controllers.Bot.AddUser(eventArgs.User.Id, randomString);
+                            message = Manager.GetWebUiMessage(randomString, user.Language.YourWebUiCodeIs(), user.Language.ControlTheBotUsingAFancyInterface());
+                        }
 
-            switch (eventArgs.Id)
+                        await eventArgs.Guild.Members[eventArgs.User.Id].SendMessageAsync(message);
+                        break;
+                    case "resume":
+                        var userVoiceS = eventArgs.Guild.Members[eventArgs.User.Id]?.VoiceState?.Channel;
+                        if (userVoiceS == null)
+                        {
+                            await eventArgs.Interaction.CreateFollowupMessageAsync(new DiscordFollowupMessageBuilder {IsEphemeral = true}.WithContent(user.Language.EnterChannelBeforeCommand("Play Saved Queue").CodeBlocked()));
+                            break;
+                        }
+                        var player = Manager.GetPlayer(userVoiceS, client, generateNew: true);
+                        if (player == null)
+                        {
+                            await eventArgs.Interaction.CreateFollowupMessageAsync(new DiscordFollowupMessageBuilder {IsEphemeral = true}.WithContent(user.Language.NoFreeBotAccounts().CodeBlocked()));
+                            return;
+                        }
+                        player.Settings = await GuildSettings.FromId(eventArgs.Guild.Id);
+
+                        var task = new Task(async () =>
+                        {
+                            try
+                            {
+                                await Manager.Play($"pl:{string.Join(':', split[1..])}", false, player, userVoiceS,
+                                    eventArgs.Guild.Members[eventArgs.User.Id], new List<DiscordAttachment>(),
+                                    eventArgs.Channel);
+                            }
+                            catch (Exception e)
+                            {
+                                await Debug.WriteAsync($"Player from interaction message failed: \"{e}\"");
+                            }
+                        });
+                        task.Start();
+                        break;
+                }
+            }
+            catch (Exception e)
             {
-                case "shuffle":
-                    if (verbose)
-                        await eventArgs.Interaction.CreateFollowupMessageAsync(
-                            new DiscordFollowupMessageBuilder {IsEphemeral = true}.WithContent(
-                                user.Language.ShufflingTheQueue().CodeBlocked()));
-                    pl.Shuffle();
-                    break;
-                case "skip":
-                    if (verbose)
-                        await eventArgs.Interaction.CreateFollowupMessageAsync(
-                            new DiscordFollowupMessageBuilder {IsEphemeral = true}.WithContent(
-                                user.Language.SkippingOneTime().CodeBlocked()));
-                    await pl.Skip();
-                    break;
-                case "pause":
-                    if (verbose)
-                        await eventArgs.Interaction.CreateFollowupMessageAsync(
-                            new DiscordFollowupMessageBuilder {IsEphemeral = true}.WithContent(
-                                (!pl.Paused switch {true => user.Language.PausingThePlayer(), false => user.Language.UnpausingThePlayer()}).CodeBlocked()));
-                    pl.Pause();
-                    break;
-                case "back":
-                    await pl.Skip(-1);
-                    if (verbose)
-                        await eventArgs.Interaction.CreateFollowupMessageAsync(
-                            new DiscordFollowupMessageBuilder {IsEphemeral = true}.WithContent(
-                                user.Language.SkippingOneTimeBack().CodeBlocked()));
-                    break;
-                case "leave":
-                    await pl.DisconnectAsync();
-                    break;
-                case "webui":
-                    if (verbose)
-                        await eventArgs.Interaction.CreateFollowupMessageAsync(
-                            new DiscordFollowupMessageBuilder {IsEphemeral = true}.WithContent(
-                                user.Language.SendingADirectMessageContainingTheInformation().CodeBlocked()));
-                    DiscordMessageBuilder message;
-                    if (Controllers.Bot.WebUiUsers.ContainsKey(eventArgs.User.Id))
-                    {
-                        var key = Controllers.Bot.WebUiUsers.GetValue(eventArgs.User.Id);
-                        message = Manager.GetWebUiMessage(key, user.Language.YouHaveAlreadyGeneratedAWebUiCode(), user.Language.ControlTheBotUsingAFancyInterface());
-                    }
-                    else
-                    {
-                        var randomString = RandomString(96);
-                        await Controllers.Bot.AddUser(eventArgs.User.Id, randomString);
-                        message = Manager.GetWebUiMessage(randomString, user.Language.YourWebUiCodeIs(), user.Language.ControlTheBotUsingAFancyInterface());
-                    }
-
-                    await eventArgs.Guild.Members[eventArgs.User.Id].SendMessageAsync(message);
-                    break;
+                await Debug.WriteAsync($"Message interaction failed: \"{e}\"", false, Debug.DebugColor.Error);
             }
         }
 

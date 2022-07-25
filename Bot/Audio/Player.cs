@@ -8,6 +8,7 @@ using System.Timers;
 using DiscordBot.Abstract;
 using DiscordBot.Audio.Objects;
 using DiscordBot.Audio.Platforms;
+using DiscordBot.Audio.Platforms.Discord;
 using DiscordBot.Enums;
 using DiscordBot.Messages;
 using DiscordBot.Readers.MariaDB;
@@ -60,11 +61,14 @@ namespace DiscordBot.Audio
         private bool Die { get; set; }
         public string StatusbarMessage { get; private set; } = "";
         private double Volume { get; set; } = 100;
+        public string QueueToken { get; set; } 
+        public bool SavedQueue { get; set; }
 
         public async Task Play(int current = 0)
         {
             try
             {
+                QueueToken ??= Manager.GetFreePlaylistToken(CurrentGuild.Id, VoiceChannel.Id);
                 if (Die) return;
                 Statusbar.Client = CurrentClient;
                 Statusbar.Guild = CurrentGuild;
@@ -189,6 +193,24 @@ namespace DiscordBot.Audio
             await Queue.DownloadAll();
             if (WebSocketManager == null) return;
             await WebSocketManager.BroadcastCurrentTime();
+        }
+
+        public void SaveCurrentQueue()
+        {
+            try
+            {
+                if (Queue.Items == null) return;
+                QueueToken ??= Manager.GetFreePlaylistToken(CurrentGuild.Id, VoiceChannel.Id);
+                lock (Queue.Items)
+                {
+                    SharePlaylist.Write(QueueToken, Queue.Items);
+                }
+                SavedQueue = true;
+            }
+            catch (Exception e)
+            {
+                Debug.Write($"Failed to save queue: \"{e}");
+            }
         }
 
         private async Task PlayTrack(PlayableItem item, string startingTime, bool isStream = false)
@@ -422,11 +444,15 @@ namespace DiscordBot.Audio
 
         public void Disconnect(string message = "Bye! \\(◕ ◡ ◕\\)")
         {
+            if (Settings.SaveQueueOnLeave)
+            {
+                SaveCurrentQueue();
+            }
             _timer.Stop();
             var task = new Task(async () =>
             {
                 await WebSocketManager.SendDying();
-                await Statusbar.UpdateMessageAndStop(message);
+                await Statusbar.UpdateMessageAndStop(message + (Settings.SaveQueueOnLeave ? $"\n\n{Settings.Language.SavedQueueAfterLeavingMessage($"-p pl:{QueueToken}")}": ""));
             });
             task.Start();
             Die = true;
@@ -445,6 +471,10 @@ namespace DiscordBot.Audio
         {
             try
             {
+                if (Settings.SaveQueueOnLeave)
+                {
+                    SaveCurrentQueue();
+                }
                 _timer.Stop();
                 await WebSocketManager.SendDying();
                 await Statusbar.UpdateMessageAndStop(message);

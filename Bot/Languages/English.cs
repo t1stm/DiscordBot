@@ -346,5 +346,12 @@ namespace DiscordBot.Objects
                 _ => "Item"
             };
         }
+
+        public string SavedQueueAfterLeavingMessage(string cmd)
+        {
+            return "The queue of this instance has been saved successfully. " +
+                   $"You can play it back again with the command \"{cmd}\" or by clicking the button below this message while in a voice channel.\n" +
+                   "If you want to deactivate this feature use the \"/settings\" slash command";
+        }
     }
 }

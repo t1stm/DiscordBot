@@ -734,6 +734,17 @@ namespace DiscordBot.Audio
             player.Queue.Clear();
         }
 
+        public static string GetFreePlaylistToken(ulong guildId, ulong channelId)
+        {
+            var token = $"{guildId}/{channelId}/{Bot.RandomString(6)}";
+            if (!Directory.Exists($"{Bot.WorkingDirectory}/Playlists/{guildId}"))
+                Directory.CreateDirectory($"{Bot.WorkingDirectory}/Playlists/{guildId}");
+            if (!Directory.Exists($"{Bot.WorkingDirectory}/Playlists/{guildId}/{channelId}/"))
+                Directory.CreateDirectory($"{Bot.WorkingDirectory}/Playlists/{guildId}/{channelId}/");
+            while (SharePlaylist.Exists(token)) token = $"{guildId}/{channelId}/{Bot.RandomString(6)}";
+            return token;
+        }
+        
         public static async Task SavePlaylist(CommandContext ctx)
         {
             var user = await User.FromId(ctx.User.Id);
@@ -752,10 +763,13 @@ namespace DiscordBot.Audio
                 return;
             }
 
-            var token = $"{ctx.Guild.Id}-{ctx.Channel.Id}-{Bot.RandomString(6)}";
-            while (SharePlaylist.Exists(token)) token = $"{ctx.Guild.Id}-{ctx.Channel.Id}-{Bot.RandomString(6)}";
-            var fs = SharePlaylist.Write(token, player.Queue.Items);
-            fs.Position = 0;
+            var token = GetFreePlaylistToken(ctx.Guild.Id, player.VoiceChannel.Id);
+            FileStream fs;
+            lock (player.Queue.Items)
+            {
+                fs = SharePlaylist.Write(token, player.Queue.Items);
+                fs.Position = 0;
+            }
             await ctx.RespondAsync(
                 new DiscordMessageBuilder().WithContent(player.Settings.Language.QueueSavedSuccessfully(token).CodeBlocked())
                     .WithFile($"{token}.batp", fs));

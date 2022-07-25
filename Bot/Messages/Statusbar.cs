@@ -5,7 +5,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using DiscordBot.Abstract;
 using DiscordBot.Audio;
-using DiscordBot.Audio.Objects;
 using DiscordBot.Enums;
 using DiscordBot.Objects;
 using DSharpPlus;
@@ -208,6 +207,13 @@ namespace DiscordBot.Messages
                 await Task.Delay(Bot.UpdateDelay);
                 var builder = new DiscordMessageBuilder().WithContent(formatted ? $"```{message}```" : message);
                 builder.ClearComponents();
+                if (Player.Settings.SaveQueueOnLeave && Player.SavedQueue)
+                {
+                    builder.AddComponents(new List<DiscordComponent>
+                    {
+                        new DiscordButtonComponent(ButtonStyle.Success, $"resume:{Player.QueueToken}", "Play Saved Queue")
+                    });
+                }
                 await Message.ModifyAsync(builder);
             }
             catch (Exception e)
