@@ -70,8 +70,8 @@ namespace DiscordBot.Abstract
         {
             return new()
             {
-                Title = Title,
-                Author = Author,
+                Title = GetTitle(),
+                Author = GetAuthor(),
                 IsSpotify = false,
                 Length = Length + "",
                 ThumbnailUrl = GetThumbnailUrl(),

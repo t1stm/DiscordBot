@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using DiscordBot.Abstract;
 using DiscordBot.Audio.Objects;
@@ -43,6 +42,7 @@ namespace DiscordBot.Audio.Platforms.Discord
                     OnlineFile => 06,
                     TtsText => 07,
                     TwitchLiveStream => 08,
+                    YoutubeOverride => 09,
                     _ => throw new ArgumentOutOfRangeException($"Item is not supported in: \"{nameof(list)}\"")
                 };
                 if (acc == 03 && urlSplit[0] == "dis-att") acc = 04;
@@ -94,6 +94,7 @@ namespace DiscordBot.Audio.Platforms.Discord
                 06 => "onl://",
                 07 => "tts://",
                 08 => "twitch://",
+                09 => "yt-ov://",
                 _ => ""
             } + info.Information;
         }
