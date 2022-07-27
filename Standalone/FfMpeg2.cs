@@ -14,9 +14,10 @@ namespace DiscordBot.Standalone
             {
                 FileName = "ffmpeg",
                 Arguments = @"-v quiet -nostats " +
-                            $@"-i ""{path}"" {codec} {addParameters} {format} pipe:1",
+                            $@"-i ""{path}"" {codec} -vn {addParameters} {format} pipe:1",
                 RedirectStandardOutput = true,
                 RedirectStandardInput = false,
+                RedirectStandardError = false,
                 UseShellExecute = false
             };
             FfMpegProcess = Process.Start(ffmpegStartInfo);

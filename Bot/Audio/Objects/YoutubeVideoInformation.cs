@@ -38,7 +38,7 @@ namespace DiscordBot.Audio.Objects
             return IsLiveStream;
         }
 
-        public new string GetLocation()
+        public override string GetLocation()
         {
             if (!IsLiveStream) return Location;
             var updateTask = Task.Run(async () => { await DownloadYtDlp(YoutubeId, true); });
