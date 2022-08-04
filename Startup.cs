@@ -20,8 +20,8 @@ namespace DiscordBot
                     builder => builder
                         .AllowAnyMethod()
                         .AllowCredentials()
-                        .SetIsOriginAllowed(_ => true)
-                        .AllowAnyHeader());
+                        .AllowAnyHeader()
+                        .AllowAnyOrigin());
             });
             //services.AddSignalR();
         }
@@ -45,8 +45,6 @@ namespace DiscordBot
                 ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
             });
             app.UseAuthentication();
-
-            app.UseCors("CorsPolicy");
 
             app.UseEndpoints(endpoints =>
             {

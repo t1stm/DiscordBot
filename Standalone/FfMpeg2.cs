@@ -5,7 +5,7 @@ namespace DiscordBot.Standalone
 {
     public class FfMpeg2
     {
-        private Process FfMpegProcess { get; set; }
+        public Process FfMpegProcess { get; set; }
 
         public Stream Convert(string path, string format = "-f ogg", string codec = "-c:a copy",
             string addParameters = " ")

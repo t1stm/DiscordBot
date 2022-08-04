@@ -1,10 +1,12 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 using DiscordBot.Audio;
 using DiscordBot.Methods;
+using DiscordBot.Standalone;
 using vtortola.WebSockets;
 using vtortola.WebSockets.Rfc6455;
 
@@ -13,6 +15,7 @@ namespace DiscordBot
     public static class WebSocketServer
     {
         private const int ListeningPort = 8001;
+        private static readonly List<AudioSockets> AudioSockets = new ();
 
         public static async Task Start()
         {
@@ -47,6 +50,12 @@ namespace DiscordBot
                 await Debug.WriteAsync($"WebSocket connection with request: {req}");
                 if (req.StartsWith("/ToshoWS/")) req = req[9..];
                 if (req.StartsWith("/BotWebSocket/")) req = req[14..];
+                if (req.StartsWith("/AudioSockets/"))
+                {
+                    req = req[14..];
+                    await AudioSocketManager(ws, req);
+                    return;
+                }
 
                 var split = req.Split('/');
                 if (split.Length != 3)
@@ -114,6 +123,11 @@ namespace DiscordBot
             {
                 // Ignored
             }
+        }
+
+        private static async Task AudioSocketManager(WebSocket ws, string req)
+        {
+            
         }
 
         private static async Task Fail(WebSocket ws, string info = "No information specified")

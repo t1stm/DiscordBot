@@ -118,6 +118,10 @@ namespace DiscordBot
 
                             continue;
                         }
+                        
+                        case "staudio":
+                            Standalone.Audio.PrintAudio();
+                            break;
                         case "reboot":
                             var cancel = false;
                             var force = false;
@@ -288,6 +292,7 @@ namespace DiscordBot
             // And for the sake of not crashing the bot when the spaghetti code acts up, I've enclosed it with try catch blocks.
             try // Genius. Insert head blown guy GIF here.
             {
+                Standalone.Audio.RemoveStale();
             }
             catch (Exception e)
             {
