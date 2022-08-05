@@ -13,20 +13,32 @@ namespace DiscordBot.Standalone
     public class Audio : Controller
     {
         public static readonly List<EncodedAudio> EncodedAudio = new();
+        public static readonly List<SocketSession> GeneratedSocketSessions = new();
 
         private const int AudioCacheTimeout = 15;
-        
+
         public static void RemoveStale()
         {
+            var now = DateTime.UtcNow.Ticks;
             lock (EncodedAudio)
             {
-                var now = DateTime.UtcNow.Ticks;
-                var stale = EncodedAudio.Where(r => r.Expire < now).ToList();
-                foreach (var audio in stale)
+                foreach (var audio in EncodedAudio.Where(r => r.Expire < now).ToList())
                 {
-                    Debug.Write(
-                        $"Removing stale audio: \"{audio.SearchTerm}\" - Now: {now} - Expire: {audio.Expire} - Encoded: {audio.Encoded}");
+                    if (Bot.DebugMode)
+                        Debug.Write(
+                            $"Removing stale audio: \"{audio.SearchTerm}\" - Now: {now} - Expire: {audio.Expire} - Encoded: {audio.Encoded}");
                     EncodedAudio.Remove(audio);
+                }
+            }
+
+            lock (GeneratedSocketSessions)
+            {
+                foreach (var session in GeneratedSocketSessions.Where(r => r.StartExpire < now).ToList())
+                {
+                    if (Bot.DebugMode)
+                        Debug.Write(
+                            $"Removing socket session id: \"{session.Id.ToString()}\" - Now: {now} - Expire: {session.StartExpire}");
+                    GeneratedSocketSessions.Remove(session);
                 }
             }
         }
@@ -38,14 +50,15 @@ namespace DiscordBot.Standalone
                 if (!show) return;
                 Debug.Write("Showing all encoded audios.");
                 var now = DateTime.UtcNow.Ticks;
-                foreach (var audio in EncodedAudio) {
-                    Debug.Write($"\"{audio.SearchTerm}\" - Now: {now} - Expire: {audio.Expire} - Remaining: {new DateTime().AddTicks(audio.Expire - now > 0 ? audio.Expire - now : 0):HH:mm:ss} - Encoded: {audio.Encoded}");
+                foreach (var audio in EncodedAudio)
+                {
+                    Debug.Write(
+                        $"\"{audio.SearchTerm}\" - Now: {now} - Expire: {audio.Expire} - Remaining: {new DateTime().AddTicks(audio.Expire - now > 0 ? audio.Expire - now : 0):HH:mm:ss} - Encoded: {audio.Encoded}");
                 }
             }
         }
-        
-        public async Task<ActionResult> DownloadTrack(string id, int bitrate = 96,
-            bool useOpus = true)
+
+        public async Task<ActionResult> DownloadTrack(string id, int bitrate = 96, bool useOpus = true)
         {
             try
             {
@@ -53,9 +66,8 @@ namespace DiscordBot.Standalone
                 Response.ContentType = "audio/ogg";
                 Response.Headers.ContentDisposition = "attachment; filename=audio.ogg; filename*=UTF-8''audio.ogg";
                 Response.Headers.AcceptRanges = "bytes";
-                
-                if (Bot.DebugMode)
-                    await Debug.WriteAsync("Using Audio Controller");
+
+                if (Bot.DebugMode) await Debug.WriteAsync("Using Audio Controller");
                 var res = await DiscordBot.Audio.Platforms.Search.Get(id);
                 var first = res.First();
                 await first.Download();
@@ -66,18 +78,20 @@ namespace DiscordBot.Standalone
                 {
                     foundEnc = EncodedAudio.AsParallel().FirstOrDefault(r => r.SearchTerm == id, null);
                 }
+
                 if (foundEnc != null && foundEnc.SearchTerm == id)
                 {
                     foundEnc.Expire = DateTime.UtcNow.AddMinutes(AudioCacheTimeout).Ticks;
                     while (foundEnc.Data == null && !foundEnc.Encoded) await Task.Delay(16);
                     if (foundEnc.Data == null) return BadRequest();
                     await Response.Body.WriteAsync(foundEnc.Data);
-                    if (Bot.DebugMode) await Debug.WriteAsync(
-                        $"Retuning already encoded audio for search term \"{foundEnc.SearchTerm}\".");
+                    if (Bot.DebugMode)
+                        await Debug.WriteAsync(
+                            $"Retuning already encoded audio for search term \"{foundEnc.SearchTerm}\".");
                     await Response.CompleteAsync();
                     return null;
                 }
-                
+
                 var stream = useOpus switch
                 {
                     true => ff.Convert(file, codec: "-c:a libopus", addParameters: $"-b:a {bitrate}k"),
@@ -102,6 +116,7 @@ namespace DiscordBot.Standalone
                     await Task.Delay(16);
                     if (Bot.DebugMode) await Debug.WriteAsync("Waiting for readable stream.");
                 }
+
                 while (await stream.ReadAsync(memory) != 0)
                 {
                     await ms.WriteAsync(memory);
@@ -123,10 +138,8 @@ namespace DiscordBot.Standalone
         public async Task<JsonResult> Search(string term)
         {
             var items = await DiscordBot.Audio.Platforms.Search.Get(term, returnAllResults: true);
-            return Json(items.Select(r => r.ToSearchResult()), new JsonSerializerOptions
-            {
-                PropertyNameCaseInsensitive = false
-            });
+            return Json(items.Select(r => r.ToSearchResult()),
+                new JsonSerializerOptions {PropertyNameCaseInsensitive = false});
         }
 
         public FileStreamResult GetRandomDownload()
@@ -137,12 +150,38 @@ namespace DiscordBot.Standalone
             FfMpeg2 ff = new();
             return File(ff.Convert(files[rnFile]), "audio/ogg", $"{files[rnFile][..^5].Split("/").Last()}.ogg");
         }
+
+        public IActionResult GetNewSocketSession()
+        {
+            var newSession = new SocketSession
+            {
+                Id = Guid.NewGuid(),
+                StartExpire = DateTime.UtcNow.AddMinutes(5).Ticks
+            };
+            lock (GeneratedSocketSessions)
+            {
+                while (GeneratedSocketSessions.Any(r => r.Id == newSession.Id))
+                {
+                    newSession.Id = Guid.NewGuid();
+                }
+                GeneratedSocketSessions.Add(newSession);
+            }
+
+            return Ok(newSession.Id.ToString());
+        }
     }
-    
-    public class EncodedAudio {
+
+    public class EncodedAudio
+    {
         public string SearchTerm { get; init; }
         public byte[] Data { get; set; }
         public long Expire { get; set; }
         public bool Encoded { get; set; }
+    }
+
+    public struct SocketSession
+    {
+        public Guid Id;
+        public long StartExpire;
     }
 }

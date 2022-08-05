@@ -15,7 +15,7 @@ namespace DiscordBot
     public static class WebSocketServer
     {
         private const int ListeningPort = 8001;
-        private static readonly List<AudioSockets> AudioSockets = new ();
+        private static readonly List<AudioSocket> AudioSockets = new ();
 
         public static async Task Start()
         {
@@ -127,14 +127,78 @@ namespace DiscordBot
 
         private static async Task AudioSocketManager(WebSocket ws, string req)
         {
+            var split = req.Split('/');
+            if (split.Length != 2)
+            {
+                await Fail(ws, "Invalid request");
+                return;
+            }
             
+            AudioSocket found;
+            Guid guid;
+            lock (AudioSockets)
+            {
+                if (!Guid.TryParse(req, out guid))
+                {
+                    new Task(async () =>
+                    {
+                        await Fail(ws, "Invalid request");
+                    }).Start();
+                    return;
+                }
+                found = AudioSockets.FirstOrDefault(r => r.SessionId == guid);
+            }
+
+            if (found != null)
+            {
+                new Task(async () =>
+                {
+                    await found.AddClient(ws, split[1]);
+                }).Start();
+                return;
+            }
+
+            lock (Standalone.Audio.GeneratedSocketSessions)
+            {
+                if (Standalone.Audio.GeneratedSocketSessions.AsParallel().All(r => r.Id != guid))
+                {
+                    new Task(async () =>
+                    {
+                        await Fail(ws, "Not an available session");
+                    }).Start();
+                    return;
+                }
+            }
+            
+            var session = new AudioSocket
+            {
+                SessionId = guid
+            };
+            await session.SetAdmin(ws, split[1]);
+
+            lock (AudioSockets)
+            {
+                AudioSockets.Add(session);
+            }
         }
 
         private static async Task Fail(WebSocket ws, string info = "No information specified")
         {
-            await ws.WriteStringAsync($"Fail:{info}");
-            await ws.CloseAsync();
-            ws.Dispose();
+            try
+            {
+                if (!ws.IsConnected)
+                {
+                    ws.Dispose();
+                    return;
+                }
+                await ws.WriteStringAsync($"Fail:{info}");
+                await ws.CloseAsync();
+                ws.Dispose();
+            }
+            catch (Exception e)
+            {
+                await Debug.WriteAsync($"Failed to \"Fail\" Web Socket: \"{e}\"");
+            }
         }
     }
 }
