@@ -1,6 +1,6 @@
 namespace DiscordBot.Audio.Objects
 {
-    public struct SearchResult
+    public class SearchResult
     {
         public string Title { get; init; }
         public string Author { get; init; }

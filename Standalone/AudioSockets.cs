@@ -1,8 +1,10 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
+using DiscordBot.Audio.Objects;
 using DiscordBot.Methods;
 using vtortola.WebSockets;
 
@@ -14,14 +16,28 @@ namespace DiscordBot.Standalone
         {
             Options = new Settings
             {
-                AllowNonAdminSkipping = false
+                AllowNonAdminSkipping = false,
+                AllowAnonymousJoining = true
             };
         }
         public WebSocket Admin { get; set; }
         public List<Client> Clients { get; } = new();
         public Guid SessionId { get; init; }
 
+        private List<SearchResult> Queue = Enumerable.Empty<SearchResult>().ToList();
+        private int Current { get; set; } = 0;
         private Settings Options;
+
+        private void ClearReady()
+        {
+            lock (Clients)
+            {
+                foreach (var client in Clients)
+                {
+                    client.Ready = false;
+                }
+            }
+        }
 
         private async Task OnWrite(Client client, string message)
         {
@@ -39,6 +55,20 @@ namespace DiscordBot.Standalone
             switch (command)
             {
                 case "info":
+                    if (!int.TryParse(joined, out var i))
+                    {
+                        await Respond(client.Socket, "Invalid index");
+                        return;
+                    }
+                    var el = Queue.ElementAtOrDefault(i);
+                    
+                    if (el == null)
+                    {
+                        await Respond(client.Socket, "Index not found");
+                        return;
+                    }
+
+                    await Respond(client.Socket, $"Item:{JsonSerializer.Serialize(el)}");
                     return;
             }
 
@@ -50,9 +80,23 @@ namespace DiscordBot.Standalone
 
             switch (command)
             {
-                case "updatecurrent":
+                case "queue":
+                    Queue = JsonSerializer.Deserialize<List<SearchResult>>(joined);
+                    await Broadcast($"Queue:{joined}", client);
                     return;
                 
+                case "back":
+                    ClearReady();
+                    return;
+                
+                case "skip":
+                    ClearReady();
+                    return;
+                
+                case "goto":
+                    ClearReady();
+                    return;
+
                 case "options":
                     Options = JsonSerializer.Deserialize<Settings>(joined);
                     return;
@@ -62,6 +106,41 @@ namespace DiscordBot.Standalone
             }
         }
 
+        private async Task Broadcast(string message)
+        {
+            List<Client> clients;
+
+            lock (Clients)
+            {
+                clients = Clients.ToList();
+            }
+
+            foreach (var client in clients)
+            {
+                await Respond(client.Socket, message);
+            }
+        }
+        
+        private async Task Broadcast(string message, Client exclude)
+        {
+            List<Client> clients;
+
+            lock (Clients)
+            {
+                clients = Clients.ToList();
+            }
+
+            if (exclude != null)
+            {
+                clients.Remove(exclude);
+            }
+            
+            foreach (var client in clients)
+            {
+                await Respond(client.Socket, message);
+            }
+        }
+        
         private static async Task Respond(WebSocket socket, string message)
         {
             try
@@ -128,16 +207,18 @@ namespace DiscordBot.Standalone
             }
         }
 
-        public struct Client
+        public class Client
         {
             public WebSocket Socket { get; init; }
             public string Token { get; init; }
-            public bool IsAnon => string.IsNullOrEmpty(Token);
+            public bool IsAnon => string.IsNullOrEmpty(Token) || Token is "null" or "undefined";
+            public bool Ready { get; set; }
         }
 
-        public struct Settings
+        public class Settings
         {
             public bool AllowNonAdminSkipping { get; set; }
+            public bool AllowAnonymousJoining { get; set; }
         }
     }
 }
