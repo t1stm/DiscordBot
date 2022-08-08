@@ -4,8 +4,10 @@ using System.IO;
 using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
+using DiscordBot.Audio.Objects;
 using DiscordBot.Methods;
 using Microsoft.AspNetCore.Mvc;
+using TagLib.Riff;
 using YtPlaylist = DiscordBot.Audio.Platforms.Youtube.Playlist;
 
 namespace DiscordBot.Standalone
@@ -138,8 +140,16 @@ namespace DiscordBot.Standalone
         public async Task<JsonResult> Search(string term)
         {
             var items = await DiscordBot.Audio.Platforms.Search.Get(term, returnAllResults: true);
-            return Json(items.Select(r => r.ToSearchResult()),
-                new JsonSerializerOptions {PropertyNameCaseInsensitive = false});
+            var res = new List<SearchResult>();
+            foreach (var result in items)
+            {
+                if (result is SpotifyTrack sp)
+                {
+                    res.Add((await DiscordBot.Audio.Platforms.Search.Get(sp)).First().ToSearchResult());
+                }
+                else res.Add(result.ToSearchResult());
+            }
+            return Json(res, new JsonSerializerOptions {PropertyNameCaseInsensitive = false});
         }
 
         public FileStreamResult GetRandomDownload()

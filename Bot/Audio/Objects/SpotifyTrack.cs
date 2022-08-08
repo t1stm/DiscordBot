@@ -30,5 +30,19 @@ namespace DiscordBot.Audio.Objects
         {
             return $"spt://{TrackId}";
         }
+        
+        public override SearchResult ToSearchResult()
+        {
+            return new()
+            {
+                Title = GetTitle(),
+                Author = GetAuthor(),
+                IsSpotify = true,
+                Length = Length + "",
+                ThumbnailUrl = GetThumbnailUrl(),
+                Url = GetAddUrl(),
+                Id = GetId()
+            };
+        }
     }
 }

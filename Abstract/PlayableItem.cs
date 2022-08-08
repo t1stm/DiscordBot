@@ -66,7 +66,7 @@ namespace DiscordBot.Abstract
 
         public abstract string GetAddUrl();
 
-        public SearchResult ToSearchResult()
+        public virtual SearchResult ToSearchResult()
         {
             return new()
             {
