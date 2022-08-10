@@ -23,7 +23,6 @@ namespace DiscordBot.Standalone
         public WebSocket Admin { get; set; }
         public List<Client> Clients { get; } = new();
         public Guid SessionId { get; init; }
-
         private List<SearchResult> Queue = Enumerable.Empty<SearchResult>().ToList();
         private int Current { get; set; } = 0;
         private Settings Options;
@@ -41,7 +40,6 @@ namespace DiscordBot.Standalone
 
         private async Task OnWrite(Client client, string message)
         {
-            // TODO: Implement Behavior
             var split = message.Split(':');
             if (split.Length < 2)
             {
@@ -51,7 +49,8 @@ namespace DiscordBot.Standalone
             
             var joined = string.Join(':', split[1..]);
             var command = split[0].ToLower();
-            
+
+            bool all;
             switch (command)
             {
                 case "info":
@@ -70,6 +69,33 @@ namespace DiscordBot.Standalone
 
                     await Respond(client.Socket, $"Item:{JsonSerializer.Serialize(el)}");
                     return;
+                
+                case "end":
+                    client.Ended = true;
+                    lock (Clients)
+                    {
+                        all = Clients.AsParallel().All(r => r.Ended);
+                    }
+
+                    if (!all || Current + 1 == Queue.Count) return;
+                    
+                    ClearReady();
+                    await Broadcast("Skip:");
+
+                    return;
+                
+                case "ready":
+                    client.Ready = true;
+                    lock (Clients)
+                    {
+                        all = Clients.AsParallel().All(r => r.Ready);
+                    }
+                    if (!all || Current + 1 == Queue.Count) return;
+                    
+                    ClearReady();
+                    await Broadcast("Play:");
+                    
+                    return;
             }
 
             if (client.Socket != Admin && !Options.AllowNonAdminSkipping)
@@ -86,15 +112,30 @@ namespace DiscordBot.Standalone
                     return;
                 
                 case "back":
+                    if (Current - 1 < 0)
+                        return;
                     ClearReady();
+                    await Broadcast("Back:");
                     return;
                 
                 case "skip":
+                    if (Current + 1 != Queue.Count)
+                        return;
                     ClearReady();
+                    await Broadcast("Skip:");
                     return;
                 
                 case "goto":
+                    var parsed = int.TryParse(joined, out var num);
+                    if (!parsed)
+                    {
+                        await Respond(client.Socket, "Invalid number syntax");
+                        return;
+                    }
+                    if (Current + 1 == Queue.Count || Current - 1 < 0)
+                        return;
                     ClearReady();
+                    await Broadcast($"GoTo:{num}");
                     return;
 
                 case "options":
@@ -213,6 +254,7 @@ namespace DiscordBot.Standalone
             public string Token { get; init; }
             public bool IsAnon => string.IsNullOrEmpty(Token) || Token is "null" or "undefined";
             public bool Ready { get; set; }
+            public bool Ended { get; set; }
         }
 
         public class Settings
