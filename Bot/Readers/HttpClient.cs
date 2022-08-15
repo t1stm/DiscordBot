@@ -5,6 +5,7 @@ using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Threading.Tasks;
+using DiscordBot.Methods;
 
 namespace DiscordBot.Readers
 {
@@ -40,7 +41,7 @@ namespace DiscordBot.Readers
                     await resp.CopyToAsync(response);
                     break;
                 case true:
-                    await ChunkedDownloaderToStream(client, new Uri(url), response);
+                    await ChunkedDownloaderToStream(client, new Uri(url), false, response);
                     break;
             }
 
@@ -101,9 +102,11 @@ namespace DiscordBot.Readers
             return response.Content.Headers.ContentLength;
         }
 
-        public static async Task ChunkedDownloaderToStream(System.Net.Http.HttpClient httpClient, Uri uri,
+        public static async Task ChunkedDownloaderToStream(System.Net.Http.HttpClient httpClient, Uri uri, bool autoClose = false,
             params Stream[] streams)
         {
+            await Debug.WriteAsync($"Chunked Downloader has {streams.Length} destinations.");
+            var ignore = new List<Stream>();
             var fileSize = await GetContentLengthAsync(httpClient, uri.AbsoluteUri) ?? 0;
             const long chunkSize = 10485760;
             if (fileSize == 0) throw new Exception("File has no content");
@@ -125,9 +128,27 @@ namespace DiscordBot.Readers
                 do
                 {
                     bytesCopied = await stream.ReadAsync(buffer.AsMemory(0, buffer.Length));
-                    foreach (var output in streams) await output.WriteAsync(buffer.AsMemory(0, bytesCopied));
+                    foreach (var output in streams)
+                    {
+                        try
+                        {
+                            if (ignore.Contains(output)) continue;
+                            await output.WriteAsync(buffer.AsMemory(0, bytesCopied));
+                        }
+                        catch
+                        {
+                            ignore.Add(output);
+                            await Debug.WriteAsync("Added a stream to the Chunked Downloader ignore list.");
+                        }
+                    }
                 } while (bytesCopied > 0);
             }
+            if (autoClose)
+                foreach (var output in streams)
+                {
+                    output.Close();
+                }
+            await Debug.WriteAsync("Chunked Downloader finished.");
         }
     }
 }

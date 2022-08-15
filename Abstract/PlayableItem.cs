@@ -1,3 +1,4 @@
+using System.IO;
 using System.Threading.Tasks;
 using DiscordBot.Audio.Objects;
 using DiscordBot.Objects;
@@ -29,7 +30,12 @@ namespace DiscordBot.Abstract
             return Location;
         }
 
-        public abstract Task Download();
+        public abstract Task GetAudioData(params Stream[] outputs);
+
+        public virtual Task ProcessInfo()
+        {
+            return Task.CompletedTask;
+        }
 
         public void SetRequester(DiscordMember user)
         {

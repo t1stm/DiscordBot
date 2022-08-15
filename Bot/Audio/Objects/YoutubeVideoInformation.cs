@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -15,11 +16,9 @@ namespace DiscordBot.Audio.Objects
     public class YoutubeVideoInformation : PlayableItem
     {
         private const string DownloadDirectory = $"{Bot.WorkingDirectory}/dll/audio";
-        private bool Downloading { get; set; }
         private bool IsLiveStream { get; set; }
         public string SearchTerm { get; init; }
         public string YoutubeId { get; set; }
-        public SpotifyTrack OriginTrack { get; set; }
         public string ThumbnailUrl { get; init; } = "";
         private int TriesToDownload { get; set; }
 
@@ -47,46 +46,62 @@ namespace DiscordBot.Audio.Objects
         }
 
         //This is a bad way to implement this feature, but I cannot currently implement it in a better way... Well, too bad!
-        public override async Task Download()
+        public override async Task GetAudioData(params Stream[] outputs)
         {
             TriesToDownload++;
             Errored = TriesToDownload > 3;
-            if (string.IsNullOrEmpty(Location) && !Downloading && TriesToDownload < 3)
+            try
+            {
+                Location = ReturnIfExists(YoutubeId);
+                if (!string.IsNullOrEmpty(Location))
+                {
+                    var ms = new MemoryStream();
+                    var fs = File.OpenRead(Location);
+                    await fs.CopyToAsync(ms);
+                    fs.Close();
+                    foreach (var stream in outputs)
+                    {
+                        ms.Position = 0;
+                        try
+                        {
+                            await ms.CopyToAsync(stream);
+                        }
+                        catch
+                        {
+                            // Ignored because Streams are handled worse than my code.
+                        }
+                    }
+
+                    return;
+                }
                 try
                 {
-                    Downloading = true;
-                    Location = ReturnIfExists(YoutubeId);
-                    if (!string.IsNullOrEmpty(Location)) return;
+                    await DownloadYtDlp(YoutubeId, false, outputs);
+                }
+                catch (Exception)
+                {
                     try
                     {
-                        await DownloadYtDlp(YoutubeId);
+                        await DownloadExplode(YoutubeId, outputs);
                     }
                     catch (Exception)
                     {
                         try
                         {
-                            await DownloadExplode(YoutubeId);
+                            await DownloadOtherApi(YoutubeId, outputs);
                         }
-                        catch (Exception)
+                        catch (Exception exc)
                         {
-                            try
-                            {
-                                DownloadOtherApi(YoutubeId);
-                            }
-                            catch (Exception exc)
-                            {
-                                await Debug.WriteAsync($"No downloadable audio for {YoutubeId}, With error {exc}",
-                                    true);
-                            }
+                            await Debug.WriteAsync($"No downloadable audio for {YoutubeId}, With error {exc}",
+                                true);
                         }
                     }
-
-                    Downloading = false;
                 }
-                catch (Exception e)
-                {
-                    await Debug.WriteAsync($"Failed to download. {YoutubeId}, Exception: \"{e}\"");
-                }
+            }
+            catch (Exception e)
+            {
+                await Debug.WriteAsync($"Failed to download. {YoutubeId}, Exception: \"{e}\"");
+            }
         }
 
         public override string GetId()
@@ -108,8 +123,9 @@ namespace DiscordBot.Audio.Objects
                 : null;
         }
 
-        private async Task DownloadYtDlp(string id, bool live = false)
+        private async Task DownloadYtDlp(string id, bool live = false, params Stream[] outputs)
         {
+            var outs = new List<Stream>(outputs);
             var sett = new ProcessStartInfo
             {
                 RedirectStandardOutput = true,
@@ -133,32 +149,17 @@ namespace DiscordBot.Audio.Objects
             if (!string.IsNullOrEmpty(err) && err.Contains("Requested format is not available"))
             {
                 await DownloadYtDlp(id, true);
-                return;
             }
-
-            if (url == null) throw new NullReferenceException();
-            var dll = new Task(async () =>
-            {
-                try
-                {
-                    if (File.Exists($"{DownloadDirectory}/{id}.webm"))
-                        File.Delete($"{DownloadDirectory}/{id}.webm");
-                    //await webClient.DownloadFileTaskAsync(url, $"{DownloadDirectory}/{id}.webm"); // Updating to HttpClient down below
-                    //Update 30 Dec 2021: Moved the HTTP Client Downloader to it's own class.
-                    if (Length < 1800000)
-                        Location = await HttpClient.DownloadFile(url, $"{DownloadDirectory}/{id}.webm");
-                }
-                catch (Exception e)
-                {
-                    await Debug.WriteAsync($"Downloading File Failed: {e}");
-                }
-            });
-            dll.Start();
-            Location = url;
+            
+            Location = url ?? throw new NullReferenceException();
+            if (Length < 1800000) outs.Add(File.Open($"{DownloadDirectory}/{id}.webm", FileMode.Create));
+            await Debug.WriteAsync("Starting download task.");
+            await HttpClient.ChunkedDownloaderToStream(HttpClient.WithCookies(), new Uri(url), false,outs.ToArray());
         }
 
-        private void DownloadOtherApi(string id)
+        private async Task DownloadOtherApi(string id, params Stream[] outputs)
         {
+            var outs = new List<Stream>(outputs);
             var videoInfos =
                 DownloadUrlResolver.GetDownloadUrls($"https://youtube.com/watch?v={id}");
             if (videoInfos == null) throw new Exception("Empty Results");
@@ -170,45 +171,22 @@ namespace DiscordBot.Audio.Objects
                 DownloadUrlResolver.DecryptDownloadUrl(audioInfo);
 
             var audioPath = $"{DownloadDirectory}/{id}{audioInfo.VideoExtension}";
-            var downTask1 = new Task(async () =>
-            {
-                try
-                {
-                    //await new WebClient().DownloadFileTaskAsync(new Uri(audioInfo.DownloadUrl), audioPath); // 30 Dec 2021: Migrated to new HttpClient
-                    if (Length > 1800000) return;
-                    await HttpClient.DownloadFile(audioInfo.DownloadUrl, audioPath);
-                    Location = audioPath;
-                }
-                catch (Exception e)
-                {
-                    await Debug.WriteAsync($"Downloading File Failed: {e}");
-                }
-            });
-            downTask1.Start();
+            if (Length < 1800000) outs.Add(File.Open($"{DownloadDirectory}/{id}.webm", FileMode.Create));
+            await Debug.WriteAsync("Starting download task.");
+            await HttpClient.ChunkedDownloaderToStream(HttpClient.WithCookies(), new Uri(audioPath), false,outs.ToArray());
             Location = audioInfo.DownloadUrl;
         }
 
-        private async Task DownloadExplode(string id)
+        private async Task DownloadExplode(string id, params Stream[] outputs)
         {
+            var outs = new List<Stream>(outputs);
             var client = new YoutubeClient(HttpClient.WithCookies());
-
             var streamManifest = await client.Videos.Streams.GetManifestAsync(id);
             var streamInfo = streamManifest.GetAudioOnlyStreams().GetWithHighestBitrate();
             var filepath = $"{DownloadDirectory}/{id}.{streamInfo.Container}";
-            var dllTask = new Task(async () =>
-            {
-                try
-                {
-                    if (Length > 1800000) return;
-                    await client.Videos.Streams.DownloadAsync(streamInfo, filepath);
-                    Location = filepath;
-                }
-                catch (Exception e)
-                {
-                    await Debug.WriteAsync($"Download Explode, Download Task failed: {e}");
-                }
-            });
-            dllTask.Start();
+            if (Length < 1800000) outs.Add(File.Open($"{DownloadDirectory}/{id}.webm", FileMode.Create));
+            await Debug.WriteAsync("Starting download task.");
+            await HttpClient.ChunkedDownloaderToStream(HttpClient.WithCookies(), new Uri(filepath), false, outs.ToArray());
             YoutubeId = streamInfo.Url;
         }
     }

@@ -19,8 +19,6 @@ namespace DiscordBot.Audio.Objects
 
         private bool _converting;
 
-        public bool Exited;
-
         public TtsText(string textToSay, Language language = Language.English)
         {
             Location = "Location is used. Happy now?";
@@ -46,9 +44,8 @@ namespace DiscordBot.Audio.Objects
 
         public MemoryStream DataStream { get; } = new();
 
-        public override async Task Download()
+        public override async Task GetAudioData(params Stream[] outputs)
         {
-            if (Exited || _converting) return;
             _converting = true;
             var process = new Process
             {
@@ -72,7 +69,6 @@ namespace DiscordBot.Audio.Objects
                 {
                     await baseStream.CopyToAsync(DataStream);
                     Length = (ulong) (DataStream.Length / 4);
-                    Exited = true;
                     _converting = false;
                 }
                 catch (Exception)

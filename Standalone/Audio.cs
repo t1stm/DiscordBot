@@ -5,9 +5,9 @@ using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
 using DiscordBot.Audio.Objects;
+using DiscordBot.Audio.Platforms.Youtube;
 using DiscordBot.Methods;
 using Microsoft.AspNetCore.Mvc;
-using TagLib.Riff;
 using YtPlaylist = DiscordBot.Audio.Platforms.Youtube.Playlist;
 
 namespace DiscordBot.Standalone
@@ -72,8 +72,6 @@ namespace DiscordBot.Standalone
                 if (Bot.DebugMode) await Debug.WriteAsync("Using Audio Controller");
                 var res = await DiscordBot.Audio.Platforms.Search.Get(id);
                 var first = res.First();
-                await first.Download();
-                var file = first.GetLocation();
                 FfMpeg2 ff = new();
                 EncodedAudio foundEnc;
                 lock (EncodedAudio)
@@ -96,8 +94,8 @@ namespace DiscordBot.Standalone
 
                 var stream = useOpus switch
                 {
-                    true => ff.Convert(file, codec: "-c:a libopus", addParameters: $"-b:a {bitrate}k"),
-                    false => ff.Convert(file, codec: "-c:a libvorbis", addParameters: $"-b:a {bitrate}k")
+                    true => await ff.Convert(first, codec: "-c:a libopus", addParameters: $"-b:a {bitrate}k"),
+                    false => await ff.Convert(first, codec: "-c:a libvorbis", addParameters: $"-b:a {bitrate}k")
                 };
                 var el = new EncodedAudio
                 {
@@ -137,19 +135,23 @@ namespace DiscordBot.Standalone
             }
         }
 
-        public async Task<JsonResult> Search(string term)
+        public async Task<IActionResult> Search(string term)
         {
             var items = await DiscordBot.Audio.Platforms.Search.Get(term, returnAllResults: true);
-            var res = new List<SearchResult>();
-            foreach (var result in items)
+            var list = new List<SearchResult>();
+            foreach (var item in items)
             {
-                if (result is SpotifyTrack sp)
+                if (item is not SpotifyTrack track)
                 {
-                    res.Add((await DiscordBot.Audio.Platforms.Search.Get(sp)).First().ToSearchResult());
+                    list.Add(item.ToSearchResult());
+                    continue;
                 }
-                else res.Add(result.ToSearchResult());
+                var spotify = await Video.Search(track);
+                var res = spotify.ToSearchResult();
+                res.IsSpotify = false;
+                list.Add(res);
             }
-            return Json(res, new JsonSerializerOptions {PropertyNameCaseInsensitive = false});
+            return Json(list, new JsonSerializerOptions {PropertyNameCaseInsensitive = false});
         }
 
         public FileStreamResult GetRandomDownload()

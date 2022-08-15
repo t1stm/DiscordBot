@@ -1,5 +1,6 @@
 using System;
 using System.Diagnostics;
+using System.IO;
 using System.Threading.Tasks;
 using DiscordBot.Abstract;
 using DiscordBot.Objects;
@@ -33,13 +34,13 @@ namespace DiscordBot.Audio.Objects
         public override string GetLocation()
         {
             if (!string.IsNullOrEmpty(Location)) return Location;
-            var task = new Task(async () => await Download());
+            var task = new Task(async () => await GetAudioData());
             task.Start();
             task.Wait();
             return Location;
         }
 
-        public override async Task Download()
+        public override async Task ProcessInfo()
         {
             try
             {
@@ -80,6 +81,11 @@ namespace DiscordBot.Audio.Objects
                 await Debug.WriteAsync($"Twitch Content finding URL failed: \"{e.Message}\"");
                 Errored = true;
             }
+        }
+
+        public override async Task GetAudioData(params Stream[] outputs)
+        {
+            if (Location == null) await ProcessInfo();
         }
 
         public override string GetId()

@@ -63,7 +63,7 @@ namespace DiscordBot
         }
 
         [Command("play")]
-        [Aliases("p", "плаъ", "п")]
+        [Aliases("p", "плаъ", "п", "udri", "удри")]
         public async Task PlayCommand(CommandContext ctx, [RemainingText] string search)
         {
             try

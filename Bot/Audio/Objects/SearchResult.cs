@@ -7,7 +7,7 @@ namespace DiscordBot.Audio.Objects
         public string Length { get; init; }
         public string Url { get; init; }
         public string ThumbnailUrl { get; init; }
-        public bool IsSpotify { get; init; }
+        public bool IsSpotify { get; set; }
         public string Id { get; init; }
     }
 }

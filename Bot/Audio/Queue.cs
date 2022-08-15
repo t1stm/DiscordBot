@@ -182,7 +182,7 @@ namespace DiscordBot.Audio
                             Items[index] = newI;
                         }
 
-                        await newI.Download();
+                        await newI.GetAudioData();
                         Update(index);
                         continue;
                     }
@@ -190,7 +190,7 @@ namespace DiscordBot.Audio
                     if (pl.GetIfErrored()) continue;
 
                     await Debug.WriteAsync($"Downloading {pl.GetName()}");
-                    if (string.IsNullOrEmpty(pl.GetLocation())) await pl.Download();
+                    if (string.IsNullOrEmpty(pl.GetLocation())) await pl.GetAudioData();
                     Broadcast();
                 }
             }

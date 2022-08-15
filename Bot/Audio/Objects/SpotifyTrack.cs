@@ -1,3 +1,4 @@
+using System.IO;
 using System.Threading.Tasks;
 using DiscordBot.Abstract;
 using DiscordBot.Objects;
@@ -11,9 +12,9 @@ namespace DiscordBot.Audio.Objects
 
         public bool Explicit { get; init; }
 
-        public override Task Download()
+        public override Task GetAudioData(params Stream[] outputs)
         {
-            return Task.CompletedTask;
+            return Task.FromResult(Stream.Null);
         }
 
         public override string GetId()

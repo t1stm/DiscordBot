@@ -17,6 +17,21 @@ namespace DiscordBot
         private const int ListeningPort = 8001;
         private static readonly List<AudioSocket> AudioSockets = new ();
 
+        public static void PrintAudioSockets()
+        {
+            List<AudioSocket> connected;
+            lock (AudioSockets)
+            {
+                connected = AudioSockets.ToList();
+            }
+
+            Debug.Write("Writing all sockets.");
+            foreach (var socket in connected)
+            {
+                Debug.Write($"Socket: {socket.SessionId}, Clients: \"{socket.Clients.Select(r => $"{r},")}\", Admin: {socket.Admin}");
+            }
+        }
+        
         public static async Task Start()
         {
             var options = new WebSocketListenerOptions();
@@ -133,12 +148,13 @@ namespace DiscordBot
                 await Fail(ws, "Invalid request");
                 return;
             }
-            
+
+            var token = split[1];
             AudioSocket found;
             Guid guid;
             lock (AudioSockets)
             {
-                if (!Guid.TryParse(req, out guid))
+                if (!Guid.TryParse(split[0], out guid))
                 {
                     new Task(async () =>
                     {
@@ -153,7 +169,7 @@ namespace DiscordBot
             {
                 new Task(async () =>
                 {
-                    await found.AddClient(ws, split[1]);
+                    await found.AddClient(ws, token);
                 }).Start();
                 return;
             }
@@ -174,7 +190,7 @@ namespace DiscordBot
             {
                 SessionId = guid
             };
-            await session.SetAdmin(ws, split[1]);
+            await session.SetAdmin(ws, token);
 
             lock (AudioSockets)
             {
@@ -198,6 +214,18 @@ namespace DiscordBot
             catch (Exception e)
             {
                 await Debug.WriteAsync($"Failed to \"Fail\" Web Socket: \"{e}\"");
+            }
+        }
+
+        public static void RemoveStale()
+        {
+            lock (AudioSockets)
+            {
+                var selected = AudioSockets.Where(r => r.Clients.Count == 0 || r.Clients.All(c => !c.Socket.IsConnected)).ToList();
+                foreach (var socket in selected)
+                {
+                    AudioSockets.Remove(socket);
+                }
             }
         }
     }

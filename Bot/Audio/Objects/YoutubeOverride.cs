@@ -69,8 +69,6 @@ namespace DiscordBot.Audio.Objects
             }
         }
         public string[]? YoutubeIds { get; init; }
-        
-        public SpotifyTrack? OriginTrack { get; set; }
         public string[] Titles { get; init; } = Array.Empty<string>();
         public string[] Authors { get; init; } = Array.Empty<string>();
         
@@ -94,9 +92,13 @@ namespace DiscordBot.Audio.Objects
             return Authors[0];
         }
 
-        public override Task Download()
+        public override async Task GetAudioData(params Stream[] outputs)
         {
-            return Task.CompletedTask;
+            var file = File.OpenRead(Location);
+            foreach (var stream in outputs)
+            {
+                await file.CopyToAsync(stream);
+            }
         }
 
         public override string? GetId()

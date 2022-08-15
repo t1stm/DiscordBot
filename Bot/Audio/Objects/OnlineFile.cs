@@ -1,5 +1,8 @@
+using System;
+using System.IO;
 using System.Threading.Tasks;
 using DiscordBot.Abstract;
+using DiscordBot.Readers;
 
 namespace DiscordBot.Audio.Objects
 {
@@ -11,9 +14,9 @@ namespace DiscordBot.Audio.Objects
             return loc.Length > 40 ? $"{loc[..40]}..." : loc;
         }
 
-        public override Task Download()
+        public override async Task GetAudioData(params Stream[] outputs)
         {
-            return Task.CompletedTask;
+            await HttpClient.ChunkedDownloaderToStream(HttpClient.WithCookies(), new Uri(Location), false,outputs);
         }
 
         public override string GetId()

@@ -118,7 +118,9 @@ namespace DiscordBot
 
                             continue;
                         }
-                        
+                        case "as":
+                            WebSocketServer.PrintAudioSockets();
+                            break;
                         case "staudio":
                             Standalone.Audio.PrintAudio();
                             break;
@@ -293,6 +295,7 @@ namespace DiscordBot
             try // Genius. Insert head blown guy GIF here.
             {
                 Standalone.Audio.RemoveStale();
+                WebSocketServer.RemoveStale();
             }
             catch (Exception e)
             {

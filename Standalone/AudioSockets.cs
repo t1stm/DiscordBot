@@ -16,7 +16,7 @@ namespace DiscordBot.Standalone
         {
             Options = new Settings
             {
-                AllowNonAdminSkipping = false,
+                AllowNonAdminControl = false,
                 AllowAnonymousJoining = true
             };
         }
@@ -25,6 +25,7 @@ namespace DiscordBot.Standalone
         public Guid SessionId { get; init; }
         private List<SearchResult> Queue = Enumerable.Empty<SearchResult>().ToList();
         private int Current { get; set; } = 0;
+        private bool Paused { get; set; } = false;
         private Settings Options;
 
         private void ClearReady()
@@ -40,115 +41,130 @@ namespace DiscordBot.Standalone
 
         private async Task OnWrite(Client client, string message)
         {
-            var split = message.Split(':');
-            if (split.Length < 2)
+            try
             {
-                await Respond(client.Socket, "Invalid syntax");
-                return;
-            }
+                var split = message.Split(':');
+                if (split.Length < 2)
+                {
+                    await Respond(client.Socket, "Invalid syntax");
+                    return;
+                }
             
-            var joined = string.Join(':', split[1..]);
-            var command = split[0].ToLower();
+                var joined = string.Join(':', split[1..]);
+                var command = split[0].ToLower();
+                if (Bot.DebugMode)
+                    await Debug.WriteAsync($"AudioSocket OnWrite message is: \"{message}\"");
 
-            bool all;
-            switch (command)
-            {
-                case "info":
-                    if (!int.TryParse(joined, out var i))
-                    {
-                        await Respond(client.Socket, "Invalid index");
+                bool all;
+                switch (command)
+                {
+                    case "current":
+                        await Respond(client.Socket, $"Current:{Current}");
                         return;
-                    }
-                    var el = Queue.ElementAtOrDefault(i);
+                
+                    case "end":
+                        client.Ended = true;
+                        lock (Clients)
+                        {
+                            all = Clients.AsParallel().All(r => r.Ended);
+                        }
+
+                        if (!all || Current + 1 == Queue.Count) return;
                     
-                    if (el == null)
-                    {
-                        await Respond(client.Socket, "Index not found");
+                        ClearReady();
+                        await Broadcast("Skip:");
+
                         return;
-                    }
-
-                    await Respond(client.Socket, $"Item:{JsonSerializer.Serialize(el)}");
-                    return;
                 
-                case "end":
-                    client.Ended = true;
-                    lock (Clients)
-                    {
-                        all = Clients.AsParallel().All(r => r.Ended);
-                    }
-
-                    if (!all || Current + 1 == Queue.Count) return;
+                    case "ready":
+                        client.Ready = true;
+                        lock (Clients)
+                        {
+                            all = Clients.AsParallel().All(r => r.Ready);
+                        }
+                        if (!all || Current < Queue.Count) return;
                     
-                    ClearReady();
-                    await Broadcast("Skip:");
+                        ClearReady();
+                        await Broadcast("Play:");
+                    
+                        return;
+                }
 
+                if (client.Socket != Admin && !Options.AllowNonAdminControl)
+                {
+                    await Respond(client.Socket, "Invalid permission");
                     return;
+                }
+
+                switch (command)
+                {
+                    case "pause":
+                        Paused = !Paused;
+                        await Broadcast($"Pause:{Paused}");
+                        return;
+                    case "queue":
+                        lock (Queue)
+                        {
+                            Queue = JsonSerializer.Deserialize<List<SearchResult>>(joined);
+                        }
+                        await Broadcast($"Queue:{JsonSerializer.Serialize(Queue)}", client);
+                        lock (Clients)
+                        {
+                            all = Clients.AsParallel().All(r => r.Ended);
+                        }
+
+                        if (!all || Current + 1 == Queue.Count) return;
+                        await Broadcast("Skip:");
+                        return;
                 
-                case "ready":
-                    client.Ready = true;
-                    lock (Clients)
-                    {
-                        all = Clients.AsParallel().All(r => r.Ready);
-                    }
-                    if (!all || Current + 1 == Queue.Count) return;
-                    
-                    ClearReady();
-                    await Broadcast("Play:");
-                    
-                    return;
+                    case "back":
+                        if (Current - 1 < 0)
+                            return;
+                        ClearReady();
+                        await Broadcast("Back:");
+                        return;
+                
+                    case "skip":
+                        if (Current + 1 != Queue.Count)
+                            return;
+                        ClearReady();
+                        await Broadcast("Skip:");
+                        return;
+                
+                    case "goto":
+                        var parsed = int.TryParse(joined, out var num);
+                        if (!parsed)
+                        {
+                            await Respond(client.Socket, "Invalid number syntax");
+                            return;
+                        }
+                        if (Current + 1 == Queue.Count || Current - 1 < 0)
+                            return;
+                        ClearReady();
+                        await Broadcast($"GoTo:{num}");
+                        return;
+
+                    case "options":
+                        lock (Options)
+                        {
+                            Options = JsonSerializer.Deserialize<Settings>(joined);
+                        }
+                        return;
+                
+                    case "ban":
+                        return;
+                }
             }
-
-            if (client.Socket != Admin && !Options.AllowNonAdminSkipping)
+            catch (Exception e)
             {
-                await Respond(client.Socket, "Invalid permission");
-                return;
-            }
-
-            switch (command)
-            {
-                case "queue":
-                    Queue = JsonSerializer.Deserialize<List<SearchResult>>(joined);
-                    await Broadcast($"Queue:{joined}", client);
-                    return;
-                
-                case "back":
-                    if (Current - 1 < 0)
-                        return;
-                    ClearReady();
-                    await Broadcast("Back:");
-                    return;
-                
-                case "skip":
-                    if (Current + 1 != Queue.Count)
-                        return;
-                    ClearReady();
-                    await Broadcast("Skip:");
-                    return;
-                
-                case "goto":
-                    var parsed = int.TryParse(joined, out var num);
-                    if (!parsed)
-                    {
-                        await Respond(client.Socket, "Invalid number syntax");
-                        return;
-                    }
-                    if (Current + 1 == Queue.Count || Current - 1 < 0)
-                        return;
-                    ClearReady();
-                    await Broadcast($"GoTo:{num}");
-                    return;
-
-                case "options":
-                    Options = JsonSerializer.Deserialize<Settings>(joined);
-                    return;
-                
-                case "ban":
-                    return;
+                await Debug.WriteAsync($"AudioSocket OnWrite error: \"{e}\"");
             }
         }
 
         private async Task Broadcast(string message)
         {
+            if (Bot.DebugMode)
+                await Debug.WriteAsync($"AudioSocket Broadcasting message: \"{message}\"");
             List<Client> clients;
 
             lock (Clients)
@@ -158,12 +174,22 @@ namespace DiscordBot.Standalone
 
             foreach (var client in clients)
             {
-                await Respond(client.Socket, message);
+                try
+                {
+                    await Respond(client.Socket, message);
+                }
+                catch (Exception e)
+                {
+                    await Debug.WriteAsync(
+                        $"Sending broadcast message to client: \"{(client.IsAnon ? "Anonymous" : client.Token)}\" failed. \"{e}\"");
+                }
             }
         }
         
         private async Task Broadcast(string message, Client exclude)
         {
+            if (Bot.DebugMode)
+                await Debug.WriteAsync($"AudioSocket Broadcasting message: \"{message}\"");
             List<Client> clients;
 
             lock (Clients)
@@ -178,7 +204,15 @@ namespace DiscordBot.Standalone
             
             foreach (var client in clients)
             {
-                await Respond(client.Socket, message);
+                try
+                {
+                    await Respond(client.Socket, message);
+                }
+                catch (Exception e)
+                {
+                    await Debug.WriteAsync(
+                        $"Sending broadcast message to client: \"{(client.IsAnon ? "Anonymous" : client.Token)}\" failed. \"{e}\"");
+                }
             }
         }
         
@@ -186,7 +220,14 @@ namespace DiscordBot.Standalone
         {
             try
             {
-                if (!socket.IsConnected) return;
+                if (!socket.IsConnected)
+                {
+                    if (Bot.DebugMode)
+                        await Debug.WriteAsync("AudioSocket respond tried to send message to not connected user.");
+                    return;
+                }
+                if (Bot.DebugMode)
+                    await Debug.WriteAsync($"AudioSocket Respond message: \"{message}\"");
                 await socket.WriteStringAsync(message);
             }
             catch (Exception e)
@@ -208,26 +249,32 @@ namespace DiscordBot.Standalone
                 {
                     Clients.Add(client);
                 }
-                while (ws.IsConnected)
+
+                await Respond(ws, $"Queue:{JsonSerializer.Serialize(Queue)}");
+                var task = new Task(async () =>
                 {
-                    try
+                    while (ws.IsConnected)
                     {
-                        var message = await ws.ReadStringAsync(CancellationToken.None);
-                        if (message == null)
+                        try
                         {
-                            lock (Clients)
+                            var message = await ws.ReadStringAsync(CancellationToken.None);
+                            if (message == null)
                             {
-                                Clients.Remove(client);
+                                lock (Clients)
+                                {
+                                    Clients.Remove(client);
+                                }
+                                return;
                             }
-                            return;
+                            await OnWrite(client, message);
                         }
-                        await OnWrite(client, message);
+                        catch (Exception e)
+                        { 
+                            await Debug.WriteAsync($"Exception reading AudioSocket message: \"{e}\"");
+                        }
                     }
-                    catch (Exception e)
-                    { 
-                        await Debug.WriteAsync($"Exception reading AudioSocket message: \"{e}\"");
-                    }
-                }
+                });
+                task.Start();
             }
             catch (Exception e)
             {
@@ -259,7 +306,7 @@ namespace DiscordBot.Standalone
 
         public class Settings
         {
-            public bool AllowNonAdminSkipping { get; set; }
+            public bool AllowNonAdminControl { get; set; }
             public bool AllowAnonymousJoining { get; set; }
         }
     }

@@ -52,7 +52,7 @@ namespace DiscordBot.Audio.Platforms.Youtube
                     "cover", "кавър", "backstage", "live", "version", "guitar", 
                     "extend", "maxi", "piano", "avi", "vinyl", "mix",
                     "bonus", "hour", "acapella", "vocal", "matrica", "dj", "edit", "club",
-                    "mashup");
+                    "mash", "up");
             }
             catch (Exception e)
             {
@@ -113,7 +113,7 @@ namespace DiscordBot.Audio.Platforms.Youtube
                 }
             });
             task.Start();
-            if (urgent) await info.Download();
+            if (urgent) await info.GetAudioData();
             return info;
         }
 
@@ -201,7 +201,7 @@ namespace DiscordBot.Audio.Platforms.Youtube
                     YoutubeId = id,
                     ThumbnailUrl = video.Thumbnails[0].Url
                 };
-                if (urgent) await vid.Download();
+                if (urgent) await vid.GetAudioData();
                 var task = new Task(async () =>
                 {
                     try
@@ -247,9 +247,8 @@ namespace DiscordBot.Audio.Platforms.Youtube
                 await Search(
                     $"{track.Title} - {track.Author} {track.Explicit switch {true => "Explicit Version ", false => ""}}- Topic",
                     urgent, track.Length, track);
-            ((YoutubeVideoInformation) result).OriginTrack = track;
             result.Requester = track.GetRequester();
-            if (urgent) await result.Download();
+            if (urgent) await result.GetAudioData();
             return result;
         }
     }

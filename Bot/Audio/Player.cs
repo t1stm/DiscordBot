@@ -118,26 +118,9 @@ namespace DiscordBot.Audio
                             case SpotifyTrack tr:
                                 var list = await Search.Get(tr);
                                 var track = list.First();
-                                await track.Download();
+                                await track.GetAudioData();
                                 Queue.Current -= 1;
                                 continue;
-
-                            case YoutubeVideoInformation vi:
-                                var tries = 1;
-                                while (string.IsNullOrEmpty(vi.GetLocation()) && tries < 5)
-                                {
-                                    await vi.Download();
-                                    await Task.Delay(33);
-                                    tries++;
-                                }
-
-                                StatusbarMessage = tries > 5
-                                    ? $"Failed to get item: ({Queue.Current}) \"{vi.GetName()}\", skipping it."
-                                    : StatusbarMessage;
-                                if (!vi.GetIfLiveStream())
-                                    await PlayTrack(vi, Stopwatch.Elapsed.ToString(@"c"), true);
-                                else await PlayTrack(vi, Stopwatch.Elapsed.ToString(@"c"));
-                                break;
 
                             default:
                                 //await CurrentItem.Download();
@@ -190,7 +173,7 @@ namespace DiscordBot.Audio
 
         private async void TimerEvent(object o, ElapsedEventArgs elapsedEventArgs)
         {
-            await Queue.DownloadAll();
+            //await Queue.DownloadAll();
             if (WebSocketManager == null) return;
             await WebSocketManager.BroadcastCurrentTime();
         }
@@ -213,11 +196,10 @@ namespace DiscordBot.Audio
             }
         }
 
-        private async Task PlayTrack(PlayableItem item, string startingTime, bool isStream = false)
+        private async Task PlayTrack(PlayableItem item, string startingTime)
         {
             try
             {
-                var location = item.GetLocation();
                 CancelSource = new CancellationTokenSource();
                 UpdatedChannel = false;
                 lock (CurrentItem) CurrentItem = item;
@@ -230,43 +212,19 @@ namespace DiscordBot.Audio
                 {
                     await Debug.WriteAsync($"Failed to broadcast item: \"{e}\"");
                 }
-                try
-                {
-                    await Connection.SendSpeakingAsync();
-                }
-                catch (Exception e)
-                {
-                    await Debug.WriteAsync($"Failed to set speaking to true: \"{e}\"");
-                }
-
-                await Debug.WriteAsync($"Location is: {location}");
+                
                 if (!Stopwatch.IsRunning) Stopwatch.Start();
                 UpdateVolume();
                 switch (item)
                 {
-                    case TtsText tts:
-                        await FfMpeg.TtsToPcm(tts, startingTime, Normalize)
-                            .CopyToAsync(Sink, null, CancelSource.Token);
+                    case YoutubeVideoInformation vi when vi.GetIfLiveStream():
+                    case TwitchLiveStream:
+                        await FfMpeg.PathToPcm(item.Location, startingTime, Normalize).CopyToAsync(Sink, null, CancelSource.Token);
                         break;
                     default:
-                        if (location is {Length: > 4} && location[..4] == "http" && isStream)
-                            await FfMpeg.UrlToPcm(location, startingTime, Normalize)
-                                .CopyToAsync(Sink, null, CancelSource.Token);
-                        else
-                            await FfMpeg.PathToPcm(location, startingTime, Normalize)
-                                .CopyToAsync(Sink, null, CancelSource.Token);
+                        await FfMpeg.ItemToPcm(item, Sink, startingTime, Normalize);
                         break;
                 }
-
-                if (!UpdatedChannel)
-                    try
-                    {
-                        await Connection.SendSpeakingAsync(false);
-                    }
-                    catch (Exception e)
-                    {
-                        await Debug.WriteAsync($"Failed to set speaking to false: {e}");
-                    }
             }
             catch (Exception e)
             {

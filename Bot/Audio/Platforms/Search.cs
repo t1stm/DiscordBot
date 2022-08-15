@@ -123,7 +123,7 @@ namespace DiscordBot.Audio.Platforms
                 case "yt-ov":
                     return YoutubeOverride.FromId(split[1]);
                 case "spt":
-                    return await Track.Get(split[1]);
+                    return await Track.Get(split[1], true);
                 case "file":
                     return Files.Get(split[1]);
                 case "dis-att":

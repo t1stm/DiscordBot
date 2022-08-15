@@ -1,8 +1,8 @@
-using System;
+using System.IO;
 using System.Threading.Tasks;
 using DiscordBot.Abstract;
-using DiscordBot.Objects;
 using TagLib;
+using File = TagLib.File;
 
 namespace DiscordBot.Audio.Objects
 {
@@ -36,7 +36,7 @@ namespace DiscordBot.Audio.Objects
             return Length == default ? 0 : Length;
         }
 
-        public override Task Download()
+        public override Task ProcessInfo()
         {
             if (Checked) return Task.CompletedTask;
             Checked = true;
@@ -50,12 +50,20 @@ namespace DiscordBot.Audio.Objects
                 Title = tag.Title;
                 Author = tag.JoinedPerformers;
             }
-            catch (Exception)
+            catch
             {
-                return Task.CompletedTask;
+                // Ignored
             }
-
             return Task.CompletedTask;
+        }
+
+        public override async Task GetAudioData(params Stream[] outputs)
+        {
+            var file = System.IO.File.OpenRead(Location);
+            foreach (var stream in outputs)
+            {
+                await file.CopyToAsync(stream);
+            }
         }
 
         public override string GetId()
