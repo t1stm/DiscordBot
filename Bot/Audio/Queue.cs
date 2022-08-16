@@ -6,6 +6,7 @@ using DiscordBot.Abstract;
 using DiscordBot.Audio.Objects;
 using DiscordBot.Audio.Platforms.Youtube;
 using DiscordBot.Methods;
+using DiscordBot.Objects;
 using DiscordBot.Tools;
 
 namespace DiscordBot.Audio
@@ -150,7 +151,7 @@ namespace DiscordBot.Audio
             }
         }
 
-        public async Task DownloadAll()
+        public async Task ProcessAll()
         {
             if (_downloadTasks > 0) return;
             _downloadTasks = 1;
@@ -182,15 +183,15 @@ namespace DiscordBot.Audio
                             Items[index] = newI;
                         }
 
-                        await newI.GetAudioData();
+                        await newI.ProcessInfo();
                         Update(index);
                         continue;
                     }
 
                     if (pl.GetIfErrored()) continue;
 
-                    await Debug.WriteAsync($"Downloading {pl.GetName()}");
-                    if (string.IsNullOrEmpty(pl.GetLocation())) await pl.GetAudioData();
+                    await Debug.WriteAsync($"Updating info of {pl.GetTypeOf(Parser.FromNumber(0))} : \"{pl.GetName()}\"");
+                    if (string.IsNullOrEmpty(pl.GetLocation())) await pl.ProcessInfo();
                     Broadcast();
                 }
             }

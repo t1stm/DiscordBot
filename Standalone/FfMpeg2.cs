@@ -1,3 +1,4 @@
+using System;
 using System.Diagnostics;
 using System.IO;
 using System.Threading.Tasks;
@@ -38,8 +39,45 @@ namespace DiscordBot.Standalone
                 UseShellExecute = false
             };
             FfMpegProcess = Process.Start(ffmpegStartInfo);
-            var yes = new Task(async () => { await item.GetAudioData(FfMpegProcess.StandardInput.BaseStream); });
+            var ms = new MemoryStream();
+            var ended = false;
+            var yes = new Task(async () =>
+            {
+                await item.GetAudioData(ms);
+                ended = true;
+            });
             yes.Start();
+            
+            var task = new Task(async () =>
+            {
+                try
+                {
+                    while (ms.Length < 10) await Task.Delay(4);
+                    for (var i = 0; i < ms.Length; i++)
+                    {
+                        while (i == ms.Length - 2 && !ended)
+                            await Task.Delay(3); // These are the spaghetti code fixes I adore.
+                        var by = ms.GetBuffer()[i]; // I am starting to think that this method is quite slow.
+                        try
+                        {
+                            FfMpegProcess.StandardInput.BaseStream.WriteByte(by);
+                        }
+                        catch (Exception e)
+                        {
+                            if (e.Message.ToLower().Contains("broken pipe")) break;
+                            await Methods.Debug.WriteAsync($"Writing byte falure: {e}");
+                            break;
+                        }
+                    }
+                    FfMpegProcess.StandardInput.Close();
+                }
+                catch (Exception e)
+                {
+                    if (e.Message.ToLower().Contains("broken") && e.Message.ToLower().Contains("pipe")) return;
+                    await Methods.Debug.WriteAsync($"Writing byte falure: {e}");
+                }
+            });
+            task.Start();
             return FfMpegProcess?.StandardOutput.BaseStream;
         }
     }

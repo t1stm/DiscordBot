@@ -55,20 +55,6 @@ namespace DiscordBot.Audio.Platforms.Discord
                 IsDiscordAttachment = true,
                 Guild = guild
             };
-            try
-            {
-                var tags = TagLib.File.Create(location);
-                file.Length = (ulong) tags.Properties.Duration.TotalMilliseconds;
-                file.Title = tags.Tag.Title;
-                file.Author = tags.Tag.JoinedPerformers;
-                file.Location = attachment.FileName;
-                file.Guild = guild;
-            }
-            catch (Exception)
-            {
-                // Ignored
-            }
-
             return file;
         }
     }

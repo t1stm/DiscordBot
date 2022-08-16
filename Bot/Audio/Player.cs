@@ -173,7 +173,7 @@ namespace DiscordBot.Audio
 
         private async void TimerEvent(object o, ElapsedEventArgs elapsedEventArgs)
         {
-            //await Queue.DownloadAll();
+            await Queue.ProcessAll();
             if (WebSocketManager == null) return;
             await WebSocketManager.BroadcastCurrentTime();
         }

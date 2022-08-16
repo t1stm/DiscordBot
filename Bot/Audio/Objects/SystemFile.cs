@@ -42,13 +42,12 @@ namespace DiscordBot.Audio.Objects
             Checked = true;
             try
             {
-                var info = File.Create(Location);
-                Length = (ulong) info.Properties.Duration.TotalMilliseconds +
-                         0; //Fixed: 15 Mar 2022 How can I be this dumb.
-                var tag = info.GetTag(TagTypes.AudibleMetadata);
+                var info = File.Create(GetLocation());
+                Length = (ulong) info.Properties.Duration.TotalMilliseconds + 0;
+                var tag = info.GetTag(TagTypes.AllTags);
                 if (tag == null) return Task.CompletedTask;
-                Title = tag.Title;
-                Author = tag.JoinedPerformers;
+                Title = string.IsNullOrEmpty(tag.Title) ? Title : tag.Title;
+                Author = string.IsNullOrEmpty(tag.JoinedPerformers) ? Author : tag.JoinedPerformers;
             }
             catch
             {
@@ -59,7 +58,7 @@ namespace DiscordBot.Audio.Objects
 
         public override async Task GetAudioData(params Stream[] outputs)
         {
-            var file = System.IO.File.OpenRead(Location);
+            var file = System.IO.File.OpenRead(GetLocation());
             foreach (var stream in outputs)
             {
                 await file.CopyToAsync(stream);
