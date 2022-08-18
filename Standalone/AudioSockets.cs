@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Text;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
@@ -47,6 +49,7 @@ namespace DiscordBot.Standalone
                 if (split.Length < 2)
                 {
                     await Respond(client.Socket, "Invalid syntax");
+                    await Debug.WriteAsync("AudioSocket made an invalid request.");
                     return;
                 }
             
@@ -83,8 +86,7 @@ namespace DiscordBot.Standalone
                             all = Clients.AsParallel().All(r => r.Ready);
                         }
                         if (!all || Current < Queue.Count) return;
-                    
-                        ClearReady();
+                        
                         await Broadcast("Play:");
                     
                         return;
@@ -93,6 +95,7 @@ namespace DiscordBot.Standalone
                 if (client.Socket != Admin && !Options.AllowNonAdminControl)
                 {
                     await Respond(client.Socket, "Invalid permission");
+                    await Debug.WriteAsync("AudioSocket made an unauthorized request.");
                     return;
                 }
 
@@ -257,16 +260,29 @@ namespace DiscordBot.Standalone
                     {
                         try
                         {
-                            var message = await ws.ReadStringAsync(CancellationToken.None);
+                            var message = await ws.ReadMessageAsync(CancellationToken.None);
                             if (message == null)
                             {
                                 lock (Clients)
                                 {
                                     Clients.Remove(client);
                                 }
+
+                                if (Admin == ws)
+                                {
+                                    Admin = Clients.FirstOrDefault()?.Socket;
+                                }
+
+                                await ws.CloseAsync();
                                 return;
                             }
-                            await OnWrite(client, message);
+
+                            if (message.MessageType != WebSocketMessageType.Text)
+                                continue;
+                            string contents;
+                            using (var reader = new StreamReader(message, new UTF8Encoding(false, false)))
+                                contents = await reader.ReadToEndAsync();
+                            await OnWrite(client, contents);
                         }
                         catch (Exception e)
                         { 

@@ -121,7 +121,7 @@ namespace DiscordBot
                         case "as":
                             WebSocketServer.PrintAudioSockets();
                             break;
-                        case "staudio":
+                        case "sta":
                             Standalone.Audio.PrintAudio();
                             break;
                         case "reboot":
