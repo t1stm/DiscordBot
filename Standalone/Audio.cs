@@ -76,10 +76,10 @@ namespace DiscordBot.Standalone
                 EncodedAudio foundEnc;
                 lock (EncodedAudio)
                 {
-                    foundEnc = EncodedAudio.AsParallel().FirstOrDefault(r => r.SearchTerm == id, null);
+                    foundEnc = EncodedAudio.AsParallel().FirstOrDefault(r => r.SearchTerm == id && r.Bitrate == bitrate, null);
                 }
 
-                if (foundEnc != null && foundEnc.SearchTerm == id && foundEnc.Bitrate == bitrate)
+                if (foundEnc != null)
                 {
                     foundEnc.Expire = DateTime.UtcNow.AddMinutes(AudioCacheTimeout).Ticks;
                     while (foundEnc.Data == null && !foundEnc.Encoded) await Task.Delay(16);
@@ -102,7 +102,8 @@ namespace DiscordBot.Standalone
                     SearchTerm = id,
                     Data = null,
                     Expire = DateTime.UtcNow.AddMinutes(AudioCacheTimeout).Ticks,
-                    Encoded = false
+                    Encoded = false,
+                    Bitrate = bitrate
                 };
                 lock (EncodedAudio)
                 {
