@@ -47,7 +47,7 @@ namespace DiscordBot
 
         public const int UpdateDelay = 3200; //Milliseconds
 
-        private static readonly Random Rng = new();
+        public static readonly Random Rng = new();
         private static Timer UpdateLoop { get; } = new(UpdateDelay);
         public static List<DiscordClient> Clients { get; } = new();
         public static bool DebugMode { get; private set; }

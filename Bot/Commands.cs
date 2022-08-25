@@ -369,7 +369,7 @@ namespace DiscordBot
                         //await Bot.Reply(ctx, "");
                         return;
                 } 
-                var random = new Random().Next(0, 100);
+                var random = Bot.Rng.Next(0, 100);
                 await Bot.Reply(ctx, $"{target?.Mention} is {random}% gay.", false);
             }
             catch (Exception e)
@@ -513,13 +513,13 @@ namespace DiscordBot
                                 break;
                             }
 
-                            if (yRec.Contains(du))
+                            if (nRec.Contains(du))
                             {
                                 em = 1;
                                 break;
                             }
 
-                            await Task.Delay(1200);
+                            await Task.Delay(Bot.UpdateDelay);
                         }
 
                         if (em == 2) timedOut = true;
