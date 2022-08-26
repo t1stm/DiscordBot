@@ -4,6 +4,7 @@ namespace DiscordBot.Objects
     {
         private static readonly English English = new();
         private static readonly Bulgarian Bulgarian = new();
+
         public static ILanguage FromNumber(ushort language)
         {
             return language switch

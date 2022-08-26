@@ -58,7 +58,11 @@ namespace DiscordBot.Audio
                 try
                 {
                     PlayableItem item;
-                    lock (Items) item = Items[index];
+                    lock (Items)
+                    {
+                        item = Items[index];
+                    }
+
                     if (Manager != null)
                         await Manager.BroadcastUpdateItem(index, item.ToSearchResult());
                     else throw new Exception("The WebSocketManager is null.");
@@ -189,8 +193,9 @@ namespace DiscordBot.Audio
                     }
 
                     if (pl.GetIfErrored()) continue;
-
-                    await Debug.WriteAsync($"Updating info of {pl.GetTypeOf(Parser.FromNumber(0))} : \"{pl.GetName()}\"");
+                    if (pl.Processed) continue;
+                    await Debug.WriteAsync(
+                        $"Updating info of {pl.GetTypeOf(Parser.FromNumber(0))} : \"{pl.GetName()}\"");
                     if (string.IsNullOrEmpty(pl.GetLocation())) await pl.ProcessInfo();
                     Broadcast();
                 }

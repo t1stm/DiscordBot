@@ -15,7 +15,7 @@ namespace DiscordBot
     public static class WebSocketServer
     {
         private const int ListeningPort = 8001;
-        private static readonly List<AudioSocket> AudioSockets = new ();
+        private static readonly List<AudioSocket> AudioSockets = new();
 
         public static void PrintAudioSockets()
         {
@@ -27,11 +27,10 @@ namespace DiscordBot
 
             Debug.Write("Writing all sockets.");
             foreach (var socket in connected)
-            {
-                Debug.Write($"Socket: {socket.SessionId}, Clients: \"{socket.Clients.Select(r => $"{r},")}\", Admin: {socket.Admin}");
-            }
+                Debug.Write(
+                    $"Socket: {socket.SessionId}, Clients: \"{socket.Clients.Select(r => $"{r},")}\", Admin: {socket.Admin}");
         }
-        
+
         public static async Task Start()
         {
             var options = new WebSocketListenerOptions();
@@ -117,7 +116,6 @@ namespace DiscordBot
                 player.WebSocketManager.Add(ws, clientToken);
 
                 while (ws.IsConnected)
-                {
                     try
                     {
                         var message = await ws.ReadStringAsync(CancellationToken.None);
@@ -126,13 +124,13 @@ namespace DiscordBot
                             await player.WebSocketManager.Remove(ws);
                             return;
                         }
+
                         await player.WebSocketManager.OnWrite(ws, message);
                     }
                     catch (Exception e)
-                    { 
+                    {
                         await Debug.WriteAsync($"Exception reading WebSocket message: \"{e}\"");
                     }
-                }
             }
             catch (Exception)
             {
@@ -156,21 +154,16 @@ namespace DiscordBot
             {
                 if (!Guid.TryParse(split[0], out guid))
                 {
-                    new Task(async () =>
-                    {
-                        await Fail(ws, "Invalid request");
-                    }).Start();
+                    new Task(async () => { await Fail(ws, "Invalid request"); }).Start();
                     return;
                 }
+
                 found = AudioSockets.FirstOrDefault(r => r.SessionId == guid);
             }
 
             if (found != null)
             {
-                new Task(async () =>
-                {
-                    await found.AddClient(ws, token);
-                }).Start();
+                new Task(async () => { await found.AddClient(ws, token); }).Start();
                 return;
             }
 
@@ -178,14 +171,11 @@ namespace DiscordBot
             {
                 if (Standalone.Audio.GeneratedSocketSessions.AsParallel().All(r => r.Id != guid))
                 {
-                    new Task(async () =>
-                    {
-                        await Fail(ws, "Not an available session");
-                    }).Start();
+                    new Task(async () => { await Fail(ws, "Not an available session"); }).Start();
                     return;
                 }
             }
-            
+
             var session = new AudioSocket
             {
                 SessionId = guid
@@ -207,6 +197,7 @@ namespace DiscordBot
                     ws.Dispose();
                     return;
                 }
+
                 await ws.WriteStringAsync($"Fail:{info}");
                 await ws.CloseAsync();
                 ws.Dispose();
@@ -221,11 +212,9 @@ namespace DiscordBot
         {
             lock (AudioSockets)
             {
-                var selected = AudioSockets.Where(r => r.Clients.Count == 0 || r.Clients.All(c => !c.Socket.IsConnected)).ToList();
-                foreach (var socket in selected)
-                {
-                    AudioSockets.Remove(socket);
-                }
+                var selected = AudioSockets
+                    .Where(r => r.Clients.Count == 0 || r.Clients.All(c => !c.Socket.IsConnected)).ToList();
+                foreach (var socket in selected) AudioSockets.Remove(socket);
             }
         }
     }

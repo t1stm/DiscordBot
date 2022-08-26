@@ -102,7 +102,8 @@ namespace DiscordBot.Readers
             return response.Content.Headers.ContentLength;
         }
 
-        public static async Task ChunkedDownloaderToStream(System.Net.Http.HttpClient httpClient, Uri uri, bool autoClose = false,
+        public static async Task ChunkedDownloaderToStream(System.Net.Http.HttpClient httpClient, Uri uri,
+            bool autoClose = false,
             params Stream[] streams)
         {
             await Debug.WriteAsync($"Chunked Downloader has {streams.Length} destinations.");
@@ -129,7 +130,6 @@ namespace DiscordBot.Readers
                 {
                     bytesCopied = await stream.ReadAsync(buffer.AsMemory(0, buffer.Length));
                     foreach (var output in streams)
-                    {
                         try
                         {
                             if (ignore.Contains(output)) continue;
@@ -140,14 +140,12 @@ namespace DiscordBot.Readers
                             ignore.Add(output);
                             await Debug.WriteAsync("Added a stream to the Chunked Downloader ignore list.");
                         }
-                    }
                 } while (bytesCopied > 0);
             }
+
             if (autoClose)
                 foreach (var output in streams)
-                {
                     output.Close();
-                }
             await Debug.WriteAsync("Chunked Downloader finished.");
         }
     }

@@ -5,6 +5,7 @@ using System.Text.Json;
 using System.Threading.Tasks;
 using DiscordBot.Abstract;
 using DiscordBot.Audio.Objects;
+using DiscordBot.Audio.Platforms;
 using DiscordBot.Methods;
 using DiscordBot.Objects;
 using DiscordBot.Readers.MariaDB;
@@ -33,6 +34,7 @@ namespace DiscordBot.Audio
                 await Send(ws, $"Invalid command: \"{message}\"");
                 return;
             }
+
             if (!WebSockets.ContainsKey(ws)) return;
 
             switch (command[0].ToLower())
@@ -44,20 +46,20 @@ namespace DiscordBot.Audio
                     await SendCurrentItem(ws);
                     return;
                 case "search":
-                    var results = await Platforms.Search.Get(string.Join(':', command[1..]), returnAllResults: true);
+                    var results = await Search.Get(string.Join(':', command[1..]), returnAllResults: true);
                     await Send(ws, $"Search:{JsonSerializer.Serialize(results.Select(r => r.ToSearchResult()))}");
                     return;
                 case "set":
                     await SettingsParser(WebSockets[ws], string.Join(":", command[1..]));
                     return;
             }
-            
+
             if (!await IsInChannel(WebSockets[ws]))
             {
                 await Send(ws, "Fail:Not in voice channel");
                 return;
             }
-            
+
             switch (command[0].ToLower())
             {
                 case "skip" when string.IsNullOrEmpty(command[1]):
@@ -83,7 +85,8 @@ namespace DiscordBot.Audio
                         await Send(ws, "Fail:Empty Search Term");
                         return;
                     }
-                    var search = await Platforms.Search.Get(searchTerm);
+
+                    var search = await Search.Get(searchTerm);
                     Queue.AddToQueue(search);
                     return;
                 case "playnext":
@@ -93,7 +96,8 @@ namespace DiscordBot.Audio
                         await Send(ws, "Fail:Empty Search Term");
                         return;
                     }
-                    var resulted = await Platforms.Search.Get(searchTerm2);
+
+                    var resulted = await Search.Get(searchTerm2);
                     Queue.AddToQueueNext(resulted);
                     return;
                 case "goto":
@@ -114,6 +118,7 @@ namespace DiscordBot.Audio
                         await Send(ws, "Fail:Volume out of range");
                         return;
                     }
+
                     await Send(ws, "Fail:Invalid volume string");
                     return;
                 case "leave":
@@ -153,7 +158,7 @@ namespace DiscordBot.Audio
                 // Ignored
             }
         }
-        
+
         public async Task Remove(WebSocket ws)
         {
             try
@@ -323,7 +328,7 @@ namespace DiscordBot.Audio
             var call = await ClientTokens.ReadAll();
             return Player.VoiceUsers.Any(user => call.ContainsKey(user.Id) && call.GetValue(user.Id) == token);
         }
-        
+
         private string SerializeCurrent()
         {
             return JsonSerializer.Serialize(Player.ToPlayerInfo());
@@ -341,26 +346,31 @@ namespace DiscordBot.Audio
                 WriteIndented = false
             });
         }
-        
+
         private static async Task SendSettings(WebSocket ws, string token)
         {
             var user = await User.FromToken(token);
             if (user == null)
             {
-                await Debug.WriteAsync("A user is null, despite being logged in the Web UI Sockets.", false, Debug.DebugColor.Error);
+                await Debug.WriteAsync("A user is null, despite being logged in the Web UI Sockets.", false,
+                    Debug.DebugColor.Error);
                 return;
             }
+
             await Send(ws, $"Settings:{JsonSerializer.Serialize(user.ToWebUISettings())}");
         }
-        
+
         private static async Task SettingsParser(string token, string setting)
         {
-            
         }
 
-        private static string SerializeQueue(Queue queue) => JsonSerializer.Serialize(queue.Items.Select(r => r.ToSearchResult()).ToList(), new JsonSerializerOptions
+        private static string SerializeQueue(Queue queue)
         {
-            WriteIndented = false
-        });
+            return JsonSerializer.Serialize(queue.Items.Select(r => r.ToSearchResult()).ToList(),
+                new JsonSerializerOptions
+                {
+                    WriteIndented = false
+                });
+        }
     }
 }

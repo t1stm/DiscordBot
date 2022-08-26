@@ -1,7 +1,6 @@
 using System.IO;
 using System.Threading.Tasks;
 using DiscordBot.Abstract;
-using DiscordBot.Objects;
 
 namespace DiscordBot.Audio.Objects
 {
@@ -31,7 +30,7 @@ namespace DiscordBot.Audio.Objects
         {
             return $"spt://{TrackId}";
         }
-        
+
         public override SearchResult ToSearchResult()
         {
             return new()

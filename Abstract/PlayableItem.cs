@@ -14,6 +14,7 @@ namespace DiscordBot.Abstract
         public string Location { get; set; }
         public DiscordMember Requester { get; set; }
         protected bool Errored { get; set; }
+        public bool Processed { get; set; }
 
         public virtual string GetName(bool settingsShowOriginalInfo = false)
         {
@@ -34,6 +35,7 @@ namespace DiscordBot.Abstract
 
         public virtual Task ProcessInfo()
         {
+            Processed = true;
             return Task.CompletedTask;
         }
 
@@ -48,6 +50,7 @@ namespace DiscordBot.Abstract
         }
 
         public abstract string GetId();
+
         public string GetTypeOf(ILanguage language)
         {
             return language.GetTypeOfTrack(this);

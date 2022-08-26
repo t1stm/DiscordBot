@@ -178,14 +178,14 @@ namespace DiscordBot
                 await ctx.CreateResponseAsync(guild.Language.SlashBotNotInChannel().CodeBlocked(), true);
                 return;
             }
-            
+
             player.LoopStatus = status switch
             {
                 LoopStatus.None => Loop.None, LoopStatus.LoopOne => Loop.One,
                 LoopStatus.LoopQueue => Loop.WholeQueue,
                 _ => Loop.None
             };
-            
+
             await ctx.CreateResponseAsync(guild.Language.LoopStatusUpdate(player.LoopStatus));
         }
 
@@ -292,18 +292,21 @@ namespace DiscordBot
             try
             {
                 var user = await User.FromId(ctx.User.Id);
-                await ctx.CreateResponseAsync(user.Language.SendingADirectMessageContainingTheInformation().CodeBlocked());
-                
+                await ctx.CreateResponseAsync(user.Language.SendingADirectMessageContainingTheInformation()
+                    .CodeBlocked());
+
                 if (!string.IsNullOrEmpty(user.Token))
                 {
-                    await ctx.Member.SendMessageAsync(Manager.GetWebUiMessage(user.Token, user.Language.YouHaveAlreadyGeneratedAWebUiCode(), 
+                    await ctx.Member.SendMessageAsync(Manager.GetWebUiMessage(user.Token,
+                        user.Language.YouHaveAlreadyGeneratedAWebUiCode(),
                         user.Language.ControlTheBotUsingAFancyInterface()));
                     return;
                 }
 
                 var randomString = Bot.RandomString(96);
                 await Controllers.Bot.AddUser(ctx.Member.Id, randomString);
-                await ctx.Member.SendMessageAsync(Manager.GetWebUiMessage(randomString, user.Language.YourWebUiCodeIs(), user.Language.ControlTheBotUsingAFancyInterface()));
+                await ctx.Member.SendMessageAsync(Manager.GetWebUiMessage(randomString, user.Language.YourWebUiCodeIs(),
+                    user.Language.ControlTheBotUsingAFancyInterface()));
             }
             catch (Exception e)
             {
@@ -312,7 +315,8 @@ namespace DiscordBot
         }
 
         [SlashCommand("volume", "This command changes the volume of the bot. Must be between 0 and 200%")]
-        public async Task Volume(InteractionContext ctx, [Option("volume", "Volume percent number")] double volume)
+        public async Task Volume(InteractionContext ctx, [Option("volume", "Volume percent number")]
+            double volume)
         {
             try
             {
@@ -398,6 +402,7 @@ namespace DiscordBot
                     fs = SharePlaylist.Write(token, player.Queue.Items);
                     fs.Position = 0;
                 }
+
                 await ctx.CreateResponseAsync(new DiscordInteractionResponseBuilder().WithContent(
                     guild.Language.QueueSavedSuccessfully(token).CodeBlocked()).AddFile($"{token}.batp", fs));
             }
@@ -416,20 +421,21 @@ namespace DiscordBot
                 var userVoiceS = ctx.Member?.VoiceState?.Channel;
                 if (userVoiceS == null)
                 {
-                    await ctx.CreateResponseAsync(guild.Language.OneCannotRecieveBlessingNotInChannel().CodeBlocked(), true);
+                    await ctx.CreateResponseAsync(guild.Language.OneCannotRecieveBlessingNotInChannel().CodeBlocked(),
+                        true);
                     return;
                 }
 
                 var player = Manager.GetPlayer(userVoiceS, ctx.Client);
                 if (player == null)
                 {
-                    await ctx.CreateResponseAsync(guild.Language.OneCannotRecieveBlessingNothingToPlay().CodeBlocked(), true);
+                    await ctx.CreateResponseAsync(guild.Language.OneCannotRecieveBlessingNothingToPlay().CodeBlocked(),
+                        true);
                     return;
                 }
 
                 player.PlsFix();
                 await ctx.CreateResponseAsync(guild.Language.SlashPrayingToTheRngGods().CodeBlocked());
-
             }
             catch (Exception e)
             {
@@ -559,46 +565,52 @@ namespace DiscordBot
                 await Debug.WriteAsync($"Hvani Me Za Kura Context Menu failed: {e}");
             }
         }
-        
+
         [SlashCommandGroup("settings", "Change the bot's behavior with this command.")]
         public class CommandsSettings : ApplicationCommandModule
         {
+            public enum BooleanEnum
+            {
+                [ChoiceName("Disabled")] Disabled,
+                [ChoiceName("Enabled")] Enabled
+            }
+
             public enum Language
             {
                 [ChoiceName("English")] English,
                 [ChoiceName("Bulgarian")] Bulgarian
             }
 
-            private static int LanguageParser(Language language) => language switch
-            {
-                Language.English => 0,
-                Language.Bulgarian => 1,
-                _ => throw new ArgumentOutOfRangeException(nameof(language), language, null)
-            };
-
             public enum Verbosity
             {
                 [ChoiceName("None")] None,
-                [ChoiceName("All")] All 
+                [ChoiceName("All")] All
             }
-            
-            public enum BooleanEnum
+
+            private static int LanguageParser(Language language)
             {
-                [ChoiceName("Disabled")] Disabled,
-                [ChoiceName("Enabled")] Enabled
+                return language switch
+                {
+                    Language.English => 0,
+                    Language.Bulgarian => 1,
+                    _ => throw new ArgumentOutOfRangeException(nameof(language), language, null)
+                };
             }
-            
+
             [SlashCommandGroup("user", "Change the bot's behavior for your account only.")]
             public class UserCommands : ApplicationCommandModule
             {
-                [SlashCommand("language","Change the bot's response language.")]
-                public async Task UpdateLanguage(InteractionContext ctx, [Option("language", "Choose a language.")] Language lang)
+                [SlashCommand("language", "Change the bot's response language.")]
+                public async Task UpdateLanguage(InteractionContext ctx, [Option("language", "Choose a language.")]
+                    Language lang)
                 {
                     try
                     {
                         var settings = await User.FromId(ctx.User.Id);
                         await settings.ModifySettings("language", $"{LanguageParser(lang)}");
-                        await ctx.CreateResponseAsync((lang switch {Language.English => "The bot's responses to you are now in English.", 
+                        await ctx.CreateResponseAsync((lang switch
+                        {
+                            Language.English => "The bot's responses to you are now in English.",
                             Language.Bulgarian => "Отговорите на бота към теб са вече на Български.",
                             _ => throw new ArgumentOutOfRangeException(nameof(lang), lang, null)
                         }).CodeBlocked(), true);
@@ -608,17 +620,25 @@ namespace DiscordBot
                         await Debug.WriteAsync($"Changing user setting \"language\" failed: {e}");
                     }
                 }
-                
-                [SlashCommand("verboseMessages","Change the bot's verbosity.")]
-                public async Task UpdateVerbosity(InteractionContext ctx, [Option("verbosity", "Choose verbosity level.")] Verbosity verbosity)
+
+                [SlashCommand("verboseMessages", "Change the bot's verbosity.")]
+                public async Task UpdateVerbosity(InteractionContext ctx,
+                    [Option("verbosity", "Choose verbosity level.")]
+                    Verbosity verbosity)
                 {
                     try
                     {
                         var settings = await User.FromId(ctx.User.Id);
-                        await settings.ModifySettings("verboseMessages", $"{verbosity switch {Verbosity.None => 0, Verbosity.All => 1, _ => 1}}");
-                        await ctx.CreateResponseAsync((settings.Language switch {English => $"Changing the verbosity of messages to: \"{verbosity switch {Verbosity.All => "Fully verbose.", Verbosity.None => "Not verbose.", _ => throw new ArgumentOutOfRangeException(nameof(verbosity), verbosity, null)}}\"", 
-                            Bulgarian => $"Видимостта на отговорите на бота е вече: \"{verbosity switch {Verbosity.All => "Видими отговори.", Verbosity.None => "Скрити отговори.", _ => throw new ArgumentOutOfRangeException(nameof(verbosity), verbosity, null)}}\"",
-                            _ => throw new ArgumentOutOfRangeException(nameof(settings.Language), settings.Language, "Somehow this value doesn't exist.")
+                        await settings.ModifySettings("verboseMessages",
+                            $"{verbosity switch {Verbosity.None => 0, Verbosity.All => 1, _ => 1}}");
+                        await ctx.CreateResponseAsync((settings.Language switch
+                        {
+                            English =>
+                                $"Changing the verbosity of messages to: \"{verbosity switch {Verbosity.All => "Fully verbose.", Verbosity.None => "Not verbose.", _ => throw new ArgumentOutOfRangeException(nameof(verbosity), verbosity, null)}}\"",
+                            Bulgarian =>
+                                $"Видимостта на отговорите на бота е вече: \"{verbosity switch {Verbosity.All => "Видими отговори.", Verbosity.None => "Скрити отговори.", _ => throw new ArgumentOutOfRangeException(nameof(verbosity), verbosity, null)}}\"",
+                            _ => throw new ArgumentOutOfRangeException(nameof(settings.Language), settings.Language,
+                                "Somehow this value doesn't exist.")
                         }).CodeBlocked(), true);
                     }
                     catch (Exception e)
@@ -626,7 +646,7 @@ namespace DiscordBot
                         await Debug.WriteAsync($"Changing user setting \"verboseMessages\" failed: {e}");
                     }
                 }
-                
+
                 [SlashCommand("resettoken", "This command resets the token the bot gives you.")]
                 public async Task ResetClientToken(InteractionContext ctx)
                 {
@@ -642,7 +662,8 @@ namespace DiscordBot
                     }
                     catch (Exception e)
                     {
-                        await Debug.WriteAsync($"Resetting Client: \"{ctx.User.Username}#{ctx.User.Discriminator} - {ctx.User.Id}\"'s Token failed: \"{e}\"");
+                        await Debug.WriteAsync(
+                            $"Resetting Client: \"{ctx.User.Username}#{ctx.User.Discriminator} - {ctx.User.Id}\"'s Token failed: \"{e}\"");
                     }
                 }
             }
@@ -650,14 +671,19 @@ namespace DiscordBot
             [SlashCommandGroup("guild", "Change the bot's behavior for the whole guild.")]
             public class GuildCommands : ApplicationCommandModule
             {
-                [SlashCommand("language","Change the bot's response language."), SlashRequirePermissions(Permissions.Administrator), SlashRequireGuild]
-                public async Task UpdateLanguage(InteractionContext ctx, [Option("language", "Choose a language.")] Language lang)
+                [SlashCommand("language", "Change the bot's response language.")]
+                [SlashRequirePermissions(Permissions.Administrator)]
+                [SlashRequireGuild]
+                public async Task UpdateLanguage(InteractionContext ctx, [Option("language", "Choose a language.")]
+                    Language lang)
                 {
                     try
                     {
                         var settings = await GuildSettings.FromId(ctx.Guild.Id);
                         await settings.ModifySettings("language", $"{LanguageParser(lang)}");
-                        await ctx.CreateResponseAsync((lang switch {Language.English => "The bot's responses to the whole guild are now in English.", 
+                        await ctx.CreateResponseAsync((lang switch
+                        {
+                            Language.English => "The bot's responses to the whole guild are now in English.",
                             Language.Bulgarian => "Отговорите на бота към целия гилд са вече на Български.",
                             _ => throw new ArgumentOutOfRangeException(nameof(lang), lang, null)
                         }).CodeBlocked(), true);
@@ -667,18 +693,27 @@ namespace DiscordBot
                         await Debug.WriteAsync($"Changing guild setting \"language\" failed: {e}");
                     }
                 }
-                
-                [SlashCommand("verboseMessages","Change the bot's verbosity."), SlashRequirePermissions(Permissions.Administrator), SlashRequireGuild]
-                public async Task UpdateVerbosity(InteractionContext ctx, [Option("verbosity", "Choose verbosity level.")] Verbosity verbosity)
+
+                [SlashCommand("verboseMessages", "Change the bot's verbosity.")]
+                [SlashRequirePermissions(Permissions.Administrator)]
+                [SlashRequireGuild]
+                public async Task UpdateVerbosity(InteractionContext ctx,
+                    [Option("verbosity", "Choose verbosity level.")]
+                    Verbosity verbosity)
                 {
                     try
                     {
                         var settings = await GuildSettings.FromId(ctx.Guild.Id);
-                        await settings.ModifySettings("verboseMessages", $"{verbosity switch {Verbosity.None => 0, Verbosity.All => 1, _ => 1}}");
-                        await ctx.CreateResponseAsync((settings.Language switch {
-                            English => $"Changing the verbosity of messages to: \"{verbosity switch {Verbosity.All => "Fully verbose.", Verbosity.None => "Not verbose.", _ => throw new ArgumentOutOfRangeException(nameof(verbosity), verbosity, null)}}\"", 
-                            Bulgarian => $"Промяна на видимостта на отговорите на бота: \"{verbosity switch {Verbosity.All => "Видими отговори.", Verbosity.None => "Скрити отговори.", _ => throw new ArgumentOutOfRangeException(nameof(verbosity), verbosity, null)}}\"",
-                            _ => throw new ArgumentOutOfRangeException(nameof(settings.Language), settings.Language, "Somehow this value doesn't exist.")
+                        await settings.ModifySettings("verboseMessages",
+                            $"{verbosity switch {Verbosity.None => 0, Verbosity.All => 1, _ => 1}}");
+                        await ctx.CreateResponseAsync((settings.Language switch
+                        {
+                            English =>
+                                $"Changing the verbosity of messages to: \"{verbosity switch {Verbosity.All => "Fully verbose.", Verbosity.None => "Not verbose.", _ => throw new ArgumentOutOfRangeException(nameof(verbosity), verbosity, null)}}\"",
+                            Bulgarian =>
+                                $"Промяна на видимостта на отговорите на бота: \"{verbosity switch {Verbosity.All => "Видими отговори.", Verbosity.None => "Скрити отговори.", _ => throw new ArgumentOutOfRangeException(nameof(verbosity), verbosity, null)}}\"",
+                            _ => throw new ArgumentOutOfRangeException(nameof(settings.Language), settings.Language,
+                                "Somehow this value doesn't exist.")
                         }).CodeBlocked(), true);
                     }
                     catch (Exception e)
@@ -687,18 +722,26 @@ namespace DiscordBot
                     }
                 }
 
-                [SlashCommand("normalization", "Change whether the bot should normalize audio."), SlashRequirePermissions(Permissions.Administrator), SlashRequireGuild]
-                public async Task UpdateNormalization(InteractionContext ctx, [Option("normalization", "Change normalization.")] BooleanEnum booleanEnum)
+                [SlashCommand("normalization", "Change whether the bot should normalize audio.")]
+                [SlashRequirePermissions(Permissions.Administrator)]
+                [SlashRequireGuild]
+                public async Task UpdateNormalization(InteractionContext ctx,
+                    [Option("normalization", "Change normalization.")]
+                    BooleanEnum booleanEnum)
                 {
                     try
                     {
                         var settings = await GuildSettings.FromId(ctx.Guild.Id);
-                        await settings.ModifySettings("verboseMessages", $"{booleanEnum switch {BooleanEnum.Disabled => 0, BooleanEnum.Enabled => 1, _ => 1}}");
+                        await settings.ModifySettings("verboseMessages",
+                            $"{booleanEnum switch {BooleanEnum.Disabled => 0, BooleanEnum.Enabled => 1, _ => 1}}");
                         await ctx.CreateResponseAsync((settings.Language switch
                         {
-                            English => $"Changing the normalization of audio to: \"{booleanEnum switch {BooleanEnum.Enabled => "Enabled", BooleanEnum.Disabled => "Disabled", _ => throw new ArgumentOutOfRangeException(nameof(booleanEnum), booleanEnum, null)}}\"", 
-                            Bulgarian => $"Нормализирането на звука на бота е вече: \"{booleanEnum switch {BooleanEnum.Enabled => "Включено", BooleanEnum.Disabled => "Изключено", _ => throw new ArgumentOutOfRangeException(nameof(booleanEnum), booleanEnum, null)}}\"",
-                            _ => throw new ArgumentOutOfRangeException(nameof(settings.Language), settings.Language, "Somehow this value doesn't exist.")
+                            English =>
+                                $"Changing the normalization of audio to: \"{booleanEnum switch {BooleanEnum.Enabled => "Enabled", BooleanEnum.Disabled => "Disabled", _ => throw new ArgumentOutOfRangeException(nameof(booleanEnum), booleanEnum, null)}}\"",
+                            Bulgarian =>
+                                $"Нормализирането на звука на бота е вече: \"{booleanEnum switch {BooleanEnum.Enabled => "Включено", BooleanEnum.Disabled => "Изключено", _ => throw new ArgumentOutOfRangeException(nameof(booleanEnum), booleanEnum, null)}}\"",
+                            _ => throw new ArgumentOutOfRangeException(nameof(settings.Language), settings.Language,
+                                "Somehow this value doesn't exist.")
                         }).CodeBlocked(), true);
                     }
                     catch (Exception e)
@@ -706,20 +749,28 @@ namespace DiscordBot
                         await Debug.WriteAsync($"Changing guild setting \"normalization\" failed: {e}");
                     }
                 }
-                
-                [SlashCommand("showOriginalTitles", "Change whether the bot should show the current item information in it's original language."), 
-                 SlashRequirePermissions(Permissions.Administrator), SlashRequireGuild]
-                public async Task ShowOriginalTitles(InteractionContext ctx, [Option("showOriginalTitles", "Change status.")] BooleanEnum booleanEnum)
+
+                [SlashCommand("showOriginalTitles",
+                    "Change whether the bot should show the current item information in it's original language.")]
+                [SlashRequirePermissions(Permissions.Administrator)]
+                [SlashRequireGuild]
+                public async Task ShowOriginalTitles(InteractionContext ctx,
+                    [Option("showOriginalTitles", "Change status.")]
+                    BooleanEnum booleanEnum)
                 {
                     try
                     {
                         var settings = await GuildSettings.FromId(ctx.Guild.Id);
-                        await settings.ModifySettings("showOriginalInfo", $"{booleanEnum switch {BooleanEnum.Disabled => 0, BooleanEnum.Enabled => 1, _ => 1}}");
+                        await settings.ModifySettings("showOriginalInfo",
+                            $"{booleanEnum switch {BooleanEnum.Disabled => 0, BooleanEnum.Enabled => 1, _ => 1}}");
                         await ctx.CreateResponseAsync((settings.Language switch
                         {
-                            English => $"Showing original information is now: \"{booleanEnum switch {BooleanEnum.Enabled => "Enabled", BooleanEnum.Disabled => "Disabled", _ => throw new ArgumentOutOfRangeException(nameof(booleanEnum), booleanEnum, null)}}\"", 
-                            Bulgarian => $"Показаната информация е вече: \"{booleanEnum switch {BooleanEnum.Enabled => "На оригиналния език", BooleanEnum.Disabled => "На английски език", _ => throw new ArgumentOutOfRangeException(nameof(booleanEnum), booleanEnum, null)}}\"",
-                            _ => throw new ArgumentOutOfRangeException(nameof(settings.Language), settings.Language, "Somehow this value doesn't exist.")
+                            English =>
+                                $"Showing original information is now: \"{booleanEnum switch {BooleanEnum.Enabled => "Enabled", BooleanEnum.Disabled => "Disabled", _ => throw new ArgumentOutOfRangeException(nameof(booleanEnum), booleanEnum, null)}}\"",
+                            Bulgarian =>
+                                $"Показаната информация е вече: \"{booleanEnum switch {BooleanEnum.Enabled => "На оригиналния език", BooleanEnum.Disabled => "На английски език", _ => throw new ArgumentOutOfRangeException(nameof(booleanEnum), booleanEnum, null)}}\"",
+                            _ => throw new ArgumentOutOfRangeException(nameof(settings.Language), settings.Language,
+                                "Somehow this value doesn't exist.")
                         }).CodeBlocked(), true);
                     }
                     catch (Exception e)
@@ -727,20 +778,28 @@ namespace DiscordBot
                         await Debug.WriteAsync($"Changing guild setting \"normalization\" failed: {e}");
                     }
                 }
-                
-                [SlashCommand("saveQueueOnLeave", "Change whether the bot should save it's queue after it quits the channel."), 
-                 SlashRequirePermissions(Permissions.Administrator), SlashRequireGuild]
-                public async Task SaveQueueOnLeave(InteractionContext ctx, [Option("saveQueueOnLeave", "Change status.")] BooleanEnum booleanEnum)
+
+                [SlashCommand("saveQueueOnLeave",
+                    "Change whether the bot should save it's queue after it quits the channel.")]
+                [SlashRequirePermissions(Permissions.Administrator)]
+                [SlashRequireGuild]
+                public async Task SaveQueueOnLeave(InteractionContext ctx,
+                    [Option("saveQueueOnLeave", "Change status.")]
+                    BooleanEnum booleanEnum)
                 {
                     try
                     {
                         var settings = await GuildSettings.FromId(ctx.Guild.Id);
-                        await settings.ModifySettings("saveQueueOnLeave", $"{booleanEnum switch {BooleanEnum.Disabled => 0, BooleanEnum.Enabled => 1, _ => 1}}");
+                        await settings.ModifySettings("saveQueueOnLeave",
+                            $"{booleanEnum switch {BooleanEnum.Disabled => 0, BooleanEnum.Enabled => 1, _ => 1}}");
                         await ctx.CreateResponseAsync((settings.Language switch
                         {
-                            English => $"Saving queue on leave is now: \"{booleanEnum switch {BooleanEnum.Enabled => "Enabled", BooleanEnum.Disabled => "Disabled", _ => throw new ArgumentOutOfRangeException(nameof(booleanEnum), booleanEnum, null)}}\"", 
-                            Bulgarian => $"Ботът вече {booleanEnum switch {BooleanEnum.Enabled => "Запазва списъкът като напуска канала.", BooleanEnum.Disabled => "Не запазва списъкът като напуска канала", _ => throw new ArgumentOutOfRangeException(nameof(booleanEnum), booleanEnum, null)}}",
-                            _ => throw new ArgumentOutOfRangeException(nameof(settings.Language), settings.Language, "Somehow this value doesn't exist.")
+                            English =>
+                                $"Saving queue on leave is now: \"{booleanEnum switch {BooleanEnum.Enabled => "Enabled", BooleanEnum.Disabled => "Disabled", _ => throw new ArgumentOutOfRangeException(nameof(booleanEnum), booleanEnum, null)}}\"",
+                            Bulgarian =>
+                                $"Ботът вече {booleanEnum switch {BooleanEnum.Enabled => "Запазва списъкът като напуска канала.", BooleanEnum.Disabled => "Не запазва списъкът като напуска канала", _ => throw new ArgumentOutOfRangeException(nameof(booleanEnum), booleanEnum, null)}}",
+                            _ => throw new ArgumentOutOfRangeException(nameof(settings.Language), settings.Language,
+                                "Somehow this value doesn't exist.")
                         }).CodeBlocked(), true);
                     }
                     catch (Exception e)

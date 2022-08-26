@@ -214,7 +214,7 @@ namespace DiscordBot.Controllers
                     qu.GetLength() == 0 ? "10" : TimeSpan.FromMilliseconds(qu.GetLength()).ToString("hh\\:mm\\:ss"),
                 Url = qu.GetType() == typeof(YoutubeVideoInformation)
                     ? $"https://youtube.com/watch?v={qu.GetId()}"
-                    : "no",
+                    : "no"
                 //VoiceUsers = player.VoiceUsers.Count
             }).ToList();
             return Json(items);
@@ -344,7 +344,7 @@ namespace DiscordBot.Controllers
 
             public string IconUrl { get; init; }
         }
-        
+
         private struct UserInfo
         {
             public string Username { get; init; }

@@ -74,6 +74,7 @@ namespace DiscordBot.Audio.Objects
 
                     return;
                 }
+
                 try
                 {
                     await DownloadYtDlp(YoutubeId, false, outputs);
@@ -147,14 +148,12 @@ namespace DiscordBot.Audio.Objects
             }
 
             if (!string.IsNullOrEmpty(err) && err.Contains("Requested format is not available"))
-            {
                 await DownloadYtDlp(id, true);
-            }
-            
+
             Location = url ?? throw new NullReferenceException();
             if (Length < 1800000) outs.Add(File.Open($"{DownloadDirectory}/{id}.webm", FileMode.Create));
             await Debug.WriteAsync("Starting download task.");
-            await HttpClient.ChunkedDownloaderToStream(HttpClient.WithCookies(), new Uri(url), false,outs.ToArray());
+            await HttpClient.ChunkedDownloaderToStream(HttpClient.WithCookies(), new Uri(url), false, outs.ToArray());
         }
 
         private async Task DownloadOtherApi(string id, params Stream[] outputs)
@@ -173,7 +172,8 @@ namespace DiscordBot.Audio.Objects
             var audioPath = $"{DownloadDirectory}/{id}{audioInfo.VideoExtension}";
             if (Length < 1800000) outs.Add(File.Open($"{DownloadDirectory}/{id}.webm", FileMode.Create));
             await Debug.WriteAsync("Starting download task.");
-            await HttpClient.ChunkedDownloaderToStream(HttpClient.WithCookies(), new Uri(audioPath), false,outs.ToArray());
+            await HttpClient.ChunkedDownloaderToStream(HttpClient.WithCookies(), new Uri(audioPath), false,
+                outs.ToArray());
             Location = audioInfo.DownloadUrl;
         }
 
@@ -186,7 +186,8 @@ namespace DiscordBot.Audio.Objects
             var filepath = $"{DownloadDirectory}/{id}.{streamInfo.Container}";
             if (Length < 1800000) outs.Add(File.Open($"{DownloadDirectory}/{id}.webm", FileMode.Create));
             await Debug.WriteAsync("Starting download task.");
-            await HttpClient.ChunkedDownloaderToStream(HttpClient.WithCookies(), new Uri(filepath), false, outs.ToArray());
+            await HttpClient.ChunkedDownloaderToStream(HttpClient.WithCookies(), new Uri(filepath), false,
+                outs.ToArray());
             YoutubeId = streamInfo.Url;
         }
     }

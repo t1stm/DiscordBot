@@ -85,6 +85,7 @@ namespace DiscordBot.Audio.Objects
                                 break;
                             }
                         }
+
                         FfMpegProcess.StandardInput.Close();
                     }
                     catch (Exception e)

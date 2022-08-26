@@ -17,11 +17,17 @@ namespace DiscordBot.Messages
     {
         private const char EmptyBlock = '□', FullBlock = '■';
         private int _pl0, _pl1 = 1, _pl2 = 2, _pl3 = 3, _pl4 = 4;
-        private bool NewStatusbar => true; // I plan on making this generate a whole new statusbar, but for now I am going to leave it be.
+
+        private bool NewStatusbar =>
+            true; // I plan on making this generate a whole new statusbar, but for now I am going to leave it be.
+
         public bool HasButtons => NewStatusbar;
         private bool Stopped { get; set; }
         public Player Player { get; set; }
-        private ILanguage Language => Player?.Settings.Language ?? Parser.FromNumber(0); // If null, gets the English Language.
+
+        private ILanguage Language =>
+            Player?.Settings.Language ?? Parser.FromNumber(0); // If null, gets the English Language.
+
         public DiscordGuild Guild { get; set; }
         public DiscordChannel Channel { get; set; }
         public DiscordClient Client { get; set; }
@@ -51,38 +57,6 @@ namespace DiscordBot.Messages
             }
         }
 
-        private async Task UpdateMessage()
-        {
-            if (!NewStatusbar)
-            {
-                if (Message == null)
-                    Message = await Client.Guilds[Guild.Id].Channels[Channel.Id]
-                        .SendMessageAsync(GenerateStatusbar());
-                else
-                    Message = await Message.ModifyAsync(GenerateStatusbar());
-                return;
-            }
-            
-            if (Message == null)
-                Message = await Client.Guilds[Guild.Id].Channels[Channel.Id]
-                    .SendMessageAsync(GenerateNewStatusbar());
-            else
-                Message = await Message.ModifyAsync(GenerateNewStatusbar());
-        }
-
-        private DiscordMessageBuilder GenerateNewStatusbar()
-        {
-            var builder = new DiscordMessageBuilder();
-            builder.AddComponents(
-                new DiscordButtonComponent(ButtonStyle.Secondary, "shuffle", "Shuffle"),
-                new DiscordButtonComponent(ButtonStyle.Success, "back", "Previous"),
-                new DiscordButtonComponent(ButtonStyle.Primary, "pause", "Play / Pause"),
-                new DiscordButtonComponent(ButtonStyle.Success, "skip", "Next"),
-                new DiscordButtonComponent(ButtonStyle.Secondary, "webui", "Web UI")
-            );
-            return builder.WithContent(GenerateStatusbar());
-        }
-        
         public async Task Start()
         {
             if (Message == null)
@@ -111,7 +85,8 @@ namespace DiscordBot.Messages
                     if (Bot.DebugMode)
                     {
                         stopwatch.Stop();
-                        await Debug.WriteAsync($"Updating statusbar took: {stopwatch.Elapsed:c} / Update Delay is: {UpdateDelay}ms");
+                        await Debug.WriteAsync(
+                            $"Updating statusbar took: {stopwatch.Elapsed:c} / Update Delay is: {UpdateDelay}ms");
                     }
                 }
                 catch (Exception e)
@@ -193,6 +168,38 @@ namespace DiscordBot.Messages
                 $"{message}```";
         }
 
+        private async Task UpdateMessage()
+        {
+            if (!NewStatusbar)
+            {
+                if (Message == null)
+                    Message = await Client.Guilds[Guild.Id].Channels[Channel.Id]
+                        .SendMessageAsync(GenerateStatusbar());
+                else
+                    Message = await Message.ModifyAsync(GenerateStatusbar());
+                return;
+            }
+
+            if (Message == null)
+                Message = await Client.Guilds[Guild.Id].Channels[Channel.Id]
+                    .SendMessageAsync(GenerateNewStatusbar());
+            else
+                Message = await Message.ModifyAsync(GenerateNewStatusbar());
+        }
+
+        private DiscordMessageBuilder GenerateNewStatusbar()
+        {
+            var builder = new DiscordMessageBuilder();
+            builder.AddComponents(
+                new DiscordButtonComponent(ButtonStyle.Secondary, "shuffle", "Shuffle"),
+                new DiscordButtonComponent(ButtonStyle.Success, "back", "Previous"),
+                new DiscordButtonComponent(ButtonStyle.Primary, "pause", "Play / Pause"),
+                new DiscordButtonComponent(ButtonStyle.Success, "skip", "Next"),
+                new DiscordButtonComponent(ButtonStyle.Secondary, "webui", "Web UI")
+            );
+            return builder.WithContent(GenerateStatusbar());
+        }
+
         private async Task UpdateWaiting()
         {
             await Message.ModifyAsync(
@@ -208,12 +215,11 @@ namespace DiscordBot.Messages
                 var builder = new DiscordMessageBuilder().WithContent(formatted ? $"```{message}```" : message);
                 builder.ClearComponents();
                 if (Player.Settings.SaveQueueOnLeave && Player.SavedQueue)
-                {
                     builder.AddComponents(new List<DiscordComponent>
                     {
-                        new DiscordButtonComponent(ButtonStyle.Success, $"resume:{Player.QueueToken}", "Play Saved Queue")
+                        new DiscordButtonComponent(ButtonStyle.Success, $"resume:{Player.QueueToken}",
+                            "Play Saved Queue")
                     });
-                }
                 await Message.ModifyAsync(builder);
             }
             catch (Exception e)

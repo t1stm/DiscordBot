@@ -14,10 +14,9 @@ namespace DiscordBot.Standalone
 {
     public class Audio : Controller
     {
+        private const int AudioCacheTimeout = 15;
         public static readonly List<EncodedAudio> EncodedAudio = new();
         public static readonly List<SocketSession> GeneratedSocketSessions = new();
-
-        private const int AudioCacheTimeout = 15;
 
         public static void RemoveStale()
         {
@@ -53,10 +52,8 @@ namespace DiscordBot.Standalone
                 Debug.Write("Showing all encoded audios.");
                 var now = DateTime.UtcNow.Ticks;
                 foreach (var audio in EncodedAudio)
-                {
                     Debug.Write(
                         $"\"{audio.SearchTerm}\" - Now: {now} - Expire: {audio.Expire} - Remaining: {new DateTime().AddTicks(audio.Expire - now > 0 ? audio.Expire - now : 0):HH:mm:ss} - Encoded: {audio.Encoded}");
-                }
             }
         }
 
@@ -76,7 +73,8 @@ namespace DiscordBot.Standalone
                 EncodedAudio foundEnc;
                 lock (EncodedAudio)
                 {
-                    foundEnc = EncodedAudio.AsParallel().FirstOrDefault(r => r.SearchTerm == id && r.Bitrate == bitrate, null);
+                    foundEnc = EncodedAudio.AsParallel()
+                        .FirstOrDefault(r => r.SearchTerm == id && r.Bitrate == bitrate, null);
                 }
 
                 if (foundEnc != null)
@@ -147,11 +145,13 @@ namespace DiscordBot.Standalone
                     list.Add(item.ToSearchResult());
                     continue;
                 }
+
                 var spotify = await Video.Search(track);
                 var res = spotify.ToSearchResult();
                 res.IsSpotify = false;
                 list.Add(res);
             }
+
             return Json(list, new JsonSerializerOptions {PropertyNameCaseInsensitive = false});
         }
 
@@ -173,10 +173,7 @@ namespace DiscordBot.Standalone
             };
             lock (GeneratedSocketSessions)
             {
-                while (GeneratedSocketSessions.Any(r => r.Id == newSession.Id))
-                {
-                    newSession.Id = Guid.NewGuid();
-                }
+                while (GeneratedSocketSessions.Any(r => r.Id == newSession.Id)) newSession.Id = Guid.NewGuid();
                 GeneratedSocketSessions.Add(newSession);
             }
 

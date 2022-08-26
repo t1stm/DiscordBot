@@ -47,9 +47,9 @@ namespace DiscordBot.Audio.Platforms.Youtube
 
             try
             {
-                RemoveAll(ref res, term, "remix", "karaoke", "instru", "clean", 
+                RemoveAll(ref res, term, "remix", "karaoke", "instru", "clean",
                     "bass boosted", "bass", "earrape", "ear", "rape",
-                    "cover", "кавър", "backstage", "live", "version", "guitar", 
+                    "cover", "кавър", "backstage", "live", "version", "guitar",
                     "extend", "maxi", "piano", "avi", "vinyl", "mix",
                     "bonus", "hour", "acapella", "vocal", "matrica", "dj", "edit", "club",
                     "mash", "up");
@@ -65,9 +65,7 @@ namespace DiscordBot.Audio.Platforms.Youtube
                 {
                     res = Sorter.SortResults(track, res);
                     foreach (var yt in res.Cast<YoutubeVideo>())
-                    {
                         await Debug.WriteAsync($"Video Results: \"{yt.Title} - {yt.Author} - {yt.Duration}\"");
-                    }
                 }
                 else
                 {
@@ -76,18 +74,15 @@ namespace DiscordBot.Audio.Platforms.Youtube
                         .ToList();
                 }
             }
-            
+
             var result = res.First();
             if (result == null) return null;
             await Debug.WriteAsync(
                 $"Result Milliseconds are: {StringToTimeSpan.Generate(result.Duration).TotalMilliseconds}");
-            
+
             var alt = YoutubeOverride.FromId(result.Id);
-            if (alt is not null)
-            {
-                return alt;
-            }
-            
+            if (alt is not null) return alt;
+
             info = new YoutubeVideoInformation
             {
                 Title = result.Title,
@@ -184,10 +179,7 @@ namespace DiscordBot.Audio.Platforms.Youtube
             try
             {
                 var alt = YoutubeOverride.FromId(id);
-                if (alt is not null)
-                {
-                    return alt;
-                }
+                if (alt is not null) return alt;
                 var info = await GetCachedVideoFromId(id);
                 if (info is not null && !urgent) return info;
                 var client = new YoutubeClient(HttpClient.WithCookies());
@@ -233,10 +225,7 @@ namespace DiscordBot.Audio.Platforms.Youtube
         private static async Task<PlayableItem> GetCachedVideoFromId(string id)
         {
             var alt = YoutubeOverride.FromId(id);
-            if (alt is not null)
-            {
-                return alt;
-            }
+            if (alt is not null) return alt;
             return await ExistingVideoInfoGetter.Read(id);
         }
 

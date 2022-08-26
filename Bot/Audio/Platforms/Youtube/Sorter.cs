@@ -16,25 +16,21 @@ namespace DiscordBot.Audio.Platforms.Youtube
             var exact = res.AsParallel().Any(r =>
                 LevenshteinDistance.Compute(track.Author.ToLower(), r.Author.ToLower()) < 2 &&
                 LevenshteinDistance.Compute(track.Title.ToLower(), r.Title.ToLower()) < 2);
-            
+
             if (exact)
-            {
                 return res.AsParallel().OrderByDescending(r =>
                     LevenshteinDistance.Compute(track.Author.ToLower(), r.Author.ToLower()) < 4 &&
                     LevenshteinDistance.Compute(track.Title.ToLower(), r.Title.ToLower()) < 4).ToList();
-            }
-            
+
             var oneArtist = res.AsParallel().Any(r =>
                 LevenshteinDistance.Compute(track.Author.ToLower().Split(',')[0].Trim(), r.Author.ToLower()) < 4 &&
                 LevenshteinDistance.Compute(track.Title.ToLower(), r.Title.ToLower()) < 4);
 
             if (oneArtist)
-            {
                 return res.AsParallel().OrderByDescending(r =>
                     LevenshteinDistance.Compute(track.Author.ToLower().Split(',')[0].Trim(), r.Author.ToLower()) < 4 &&
                     LevenshteinDistance.Compute(track.Title.ToLower(), r.Title.ToLower()) < 4).ToList();
-            }
-            
+
             return res.AsParallel()
                 .OrderByDescending(r =>
                     LevenshteinDistance.Compute(track.Author.ToLower(), r.Author.ToLower()) < 4 ||
@@ -45,7 +41,8 @@ namespace DiscordBot.Audio.Platforms.Youtube
                     LevenshteinDistance.Compute($"{track.Author.ToLower()} official", r.Author.ToLower()) < 4)
                 .ThenByDescending(r =>
                     LevenshteinDistance.Compute($"official {track.Author.ToLower()}", r.Author.ToLower()) < 4)
-                .ThenByDescending(r => Math.Abs((int) (track.Length - StringToTimeSpan.Generate(r.Duration).TotalMilliseconds)) < 3000)
+                .ThenByDescending(r =>
+                    Math.Abs((int) (track.Length - StringToTimeSpan.Generate(r.Duration).TotalMilliseconds)) < 3000)
                 .ThenByDescending(r => r.Title.ToLower().Contains("lyric"))
                 .ThenByDescending(r => r.Title.ToLower().Contains("official audio"))
                 .ThenBy(r => LevenshteinDistance.Compute(r.Title, track.Title))
@@ -55,7 +52,8 @@ namespace DiscordBot.Audio.Platforms.Youtube
                     LevenshteinDistance.Compute(
                         r.Author.ToLower().Replace("- topic", "").Replace(" ", ""),
                         track.Author.ToLower().Replace(" ", "")) < 3)
-                .ThenByDescending(r => Math.Abs((int) (track.Length - StringToTimeSpan.Generate(r.Duration).TotalMilliseconds)) < 3000)
+                .ThenByDescending(r =>
+                    Math.Abs((int) (track.Length - StringToTimeSpan.Generate(r.Duration).TotalMilliseconds)) < 3000)
                 .ToList();
         }
     }

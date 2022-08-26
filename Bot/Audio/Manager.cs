@@ -108,9 +108,10 @@ namespace DiscordBot.Audio
             var player = GetPlayer(userVoiceS, ctx.Client, generateNew: true);
             if (player == null)
             {
-                await Bot.SendDirectMessage(ctx,languageUser.NoFreeBotAccounts());
+                await Bot.SendDirectMessage(ctx, languageUser.NoFreeBotAccounts());
                 return;
             }
+
             player.Settings = await GuildSettings.FromId(ctx.Guild.Id);
             try
             {
@@ -123,6 +124,7 @@ namespace DiscordBot.Audio
                 {
                     if (Main.Contains(player)) Main.Remove(player);
                 }
+
                 throw;
             }
         }
@@ -158,6 +160,7 @@ namespace DiscordBot.Audio
                                 await messageChannel.SendMessageAsync(lang.NoResultsFound(term).CodeBlocked());
                                 return;
                             }
+
                             var options = results.Select(result =>
                                 new DiscordSelectComponentOption(result.Title, result.GetId(), result.Author)).ToList();
                             var dropdown = new DiscordSelectComponent("dropdown", null, options);
@@ -177,14 +180,15 @@ namespace DiscordBot.Audio
                                 await Video.SearchById(interaction.First())
                             };
                             player.Statusbar.Message = await message.ModifyAsync(
-                                new DiscordMessageBuilder().WithContent(lang.ThisMessageWillUpdateShortly().CodeBlocked()));
+                                new DiscordMessageBuilder().WithContent(lang.ThisMessageWillUpdateShortly()
+                                    .CodeBlocked()));
                         }
                         else
                         {
                             items = await Search.Get(term);
                         }
                     }
-                    
+
                     if (items.Count < 1)
                     {
                         await messageChannel.SendMessageAsync(lang.NoResultsFound(term).CodeBlocked());
@@ -194,7 +198,7 @@ namespace DiscordBot.Audio
                         items.ForEach(it => it.SetRequester(user));
                         player.Queue.AddToQueue(items);
                     }
-                    
+
                     player.Connection = await player.CurrentClient.GetVoiceNext()
                         .ConnectAsync(player.CurrentClient.Guilds[userVoiceS.Guild.Id].Channels[userVoiceS.Id]);
                     player.VoiceChannel = userVoiceS;
@@ -237,6 +241,7 @@ namespace DiscordBot.Audio
                                 await messageChannel.SendMessageAsync(lang.NoResultsFound(term).CodeBlocked());
                                 return;
                             }
+
                             var options = results.Select(result =>
                                 new DiscordSelectComponentOption(result.Title, result.GetId(), result.Author)).ToList();
                             var dropdown = new DiscordSelectComponent("dropdown", null, options);
@@ -249,6 +254,7 @@ namespace DiscordBot.Audio
                                 await message.ModifyAsync(lang.SelectVideoTimeout().CodeBlocked());
                                 return;
                             }
+
                             var interaction = response.Result.Values;
                             items = new List<PlayableItem>
                             {
@@ -261,18 +267,22 @@ namespace DiscordBot.Audio
                             items = await Search.Get(term);
                         }
                     }
+
                     if (items.Count < 1)
                     {
                         await messageChannel.SendMessageAsync(lang.NoResultsFound(term).CodeBlocked());
                         return;
                     }
+
                     items.ForEach(it => it.SetRequester(user));
                     player.Queue.AddToQueue(items);
                     if (items.Count > 1)
                         await player.CurrentClient.SendMessageAsync(messageChannel, lang.AddedItem(term).CodeBlocked());
                     else
-                        await player.CurrentClient.SendMessageAsync(messageChannel, 
-                            lang.AddedItem($"({player.Queue.Items.IndexOf(items.First()) + 1}) - {items.First().GetName(player.Settings.ShowOriginalInfo)}").CodeBlocked());
+                        await player.CurrentClient.SendMessageAsync(messageChannel,
+                            lang.AddedItem(
+                                    $"({player.Queue.Items.IndexOf(items.First()) + 1}) - {items.First().GetName(player.Settings.ShowOriginalInfo)}")
+                                .CodeBlocked());
                 }
             }
             catch (Exception e)
@@ -315,7 +325,7 @@ namespace DiscordBot.Audio
             var userVoiceS = ctx.Member?.VoiceState?.Channel;
             if (userVoiceS == null)
             {
-                await Bot.SendDirectMessage(ctx, user.Language.EnterChannelBeforeCommand("leave"));  
+                await Bot.SendDirectMessage(ctx, user.Language.EnterChannelBeforeCommand("leave"));
                 return;
             }
 
@@ -348,7 +358,7 @@ namespace DiscordBot.Audio
             var userVoiceS = ctx.Member?.VoiceState?.Channel;
             if (userVoiceS == null)
             {
-                await Bot.SendDirectMessage(ctx, user.Language.EnterChannelBeforeCommand("shuffle"));  
+                await Bot.SendDirectMessage(ctx, user.Language.EnterChannelBeforeCommand("shuffle"));
                 return;
             }
 
@@ -383,7 +393,7 @@ namespace DiscordBot.Audio
             var userVoiceS = ctx.Member?.VoiceState?.Channel;
             if (userVoiceS == null)
             {
-                await Bot.SendDirectMessage(ctx, user.Language.EnterChannelBeforeCommand("loop"));  
+                await Bot.SendDirectMessage(ctx, user.Language.EnterChannelBeforeCommand("loop"));
                 return;
             }
 
@@ -404,7 +414,7 @@ namespace DiscordBot.Audio
             var userVoiceS = ctx.Member?.VoiceState?.Channel;
             if (userVoiceS == null)
             {
-                await Bot.SendDirectMessage(ctx, user.Language.EnterChannelBeforeCommand("pause"));  
+                await Bot.SendDirectMessage(ctx, user.Language.EnterChannelBeforeCommand("pause"));
                 return;
             }
 
@@ -415,7 +425,7 @@ namespace DiscordBot.Audio
                 await Bot.Reply(ctx, guild.Language.BotIsNotInTheChannel());
                 return;
             }
-            
+
             player.Pause();
         }
 
@@ -425,7 +435,7 @@ namespace DiscordBot.Audio
             var userVoiceS = ctx.Member?.VoiceState?.Channel;
             if (userVoiceS == null)
             {
-                await Bot.SendDirectMessage(ctx, user.Language.EnterChannelBeforeCommand("loop"));  
+                await Bot.SendDirectMessage(ctx, user.Language.EnterChannelBeforeCommand("loop"));
                 return;
             }
 
@@ -437,7 +447,6 @@ namespace DiscordBot.Audio
             }
 
             if (int.TryParse(term, out var nextSong))
-            {
                 do
                 {
                     if (nextSong > player.Queue.Count)
@@ -445,14 +454,16 @@ namespace DiscordBot.Audio
                         await Bot.Reply(ctx, player.Settings.Language.NumberBiggerThanQueueLength(nextSong));
                         break;
                     }
+
                     var thing = player.Queue.Items[nextSong - 1];
                     player.Queue.RemoveFromQueue(thing);
                     player.Queue.AddToQueueNext(thing);
                     await Bot.Reply(player.CurrentClient, ctx.Channel,
-                        player.Settings.Language.PlayingItemAfterThis(player.Queue.Items.IndexOf(thing) + 1, thing.GetName()));
+                        player.Settings.Language.PlayingItemAfterThis(player.Queue.Items.IndexOf(thing) + 1,
+                            thing.GetName()));
                     return;
-                } while (false); // This error is tilting me but I can't do anything about it, because it's technically true. Rider cannot contain my intelligence.
-            }
+                } while (
+                    false); // This error is tilting me but I can't do anything about it, because it's technically true. Rider cannot contain my intelligence.
 
             term += ""; // Clear any possible null warnings.
 
@@ -479,7 +490,10 @@ namespace DiscordBot.Audio
             item.ForEach(it => it.SetRequester(ctx.Member));
             player.Queue.AddToQueueNext(item);
             await Bot.Reply(player.CurrentClient, ctx.Channel,
-                item.Count > 1 ? player.Settings.Language.PlayingItemAfterThis(term) : player.Settings.Language.PlayingItemAfterThis(player.Queue.Items.IndexOf(item[0]) + 1, item[0].GetName(player.Settings.ShowOriginalInfo)));
+                item.Count > 1
+                    ? player.Settings.Language.PlayingItemAfterThis(term)
+                    : player.Settings.Language.PlayingItemAfterThis(player.Queue.Items.IndexOf(item[0]) + 1,
+                        item[0].GetName(player.Settings.ShowOriginalInfo)));
         }
 
         public static async Task Remove(CommandContext ctx, string text)
@@ -488,7 +502,7 @@ namespace DiscordBot.Audio
             var userVoiceS = ctx.Member?.VoiceState?.Channel;
             if (userVoiceS == null)
             {
-                await Bot.SendDirectMessage(ctx, user.Language.EnterChannelBeforeCommand("remove"));  
+                await Bot.SendDirectMessage(ctx, user.Language.EnterChannelBeforeCommand("remove"));
                 return;
             }
 
@@ -522,7 +536,7 @@ namespace DiscordBot.Audio
             return new MemoryStream(qrCodeAsPngByteArr);
         }
 
-        public static DiscordMessageBuilder GetWebUiMessage(string key, string text , string description)
+        public static DiscordMessageBuilder GetWebUiMessage(string key, string text, string description)
         {
             return new DiscordMessageBuilder()
                 .WithContent($"```{text}: {key}```")
@@ -538,7 +552,7 @@ namespace DiscordBot.Audio
                     }
                 });
         }
-        
+
         public static async Task GetWebUi(CommandContext ctx)
         {
             var guild = await GuildSettings.FromId(ctx.Guild.Id);
@@ -546,7 +560,8 @@ namespace DiscordBot.Audio
             if (ctx.Member is null) return;
             if (!string.IsNullOrEmpty(user.Token))
             {
-                await ctx.Member.SendMessageAsync(GetWebUiMessage(user.Token, user.Language.YouHaveAlreadyGeneratedAWebUiCode(), 
+                await ctx.Member.SendMessageAsync(GetWebUiMessage(user.Token,
+                    user.Language.YouHaveAlreadyGeneratedAWebUiCode(),
                     user.Language.ControlTheBotUsingAFancyInterface()));
                 await Bot.Reply(ctx, guild.Language.SendingADirectMessageContainingTheInformation());
                 return;
@@ -554,7 +569,8 @@ namespace DiscordBot.Audio
 
             var randomString = Bot.RandomString(96);
             await Controllers.Bot.AddUser(ctx.Member.Id, randomString);
-            await ctx.Member.SendMessageAsync(GetWebUiMessage(randomString, user.Language.YourWebUiCodeIs(), user.Language.ControlTheBotUsingAFancyInterface()));
+            await ctx.Member.SendMessageAsync(GetWebUiMessage(randomString, user.Language.YourWebUiCodeIs(),
+                user.Language.ControlTheBotUsingAFancyInterface()));
             await Bot.Reply(ctx, guild.Language.SendingADirectMessageContainingTheInformation());
         }
 
@@ -564,7 +580,7 @@ namespace DiscordBot.Audio
             var userVoiceS = ctx.Member?.VoiceState?.Channel;
             if (userVoiceS == null)
             {
-                await Bot.SendDirectMessage(ctx, user.Language.EnterChannelBeforeCommand("move"));  
+                await Bot.SendDirectMessage(ctx, user.Language.EnterChannelBeforeCommand("move"));
                 return;
             }
 
@@ -644,7 +660,7 @@ namespace DiscordBot.Audio
             var userVoiceS = ctx.Member?.VoiceState?.Channel;
             if (userVoiceS == null)
             {
-                await Bot.SendDirectMessage(ctx, user.Language.EnterChannelBeforeCommand("move"));  
+                await Bot.SendDirectMessage(ctx, user.Language.EnterChannelBeforeCommand("move"));
                 return;
             }
 
@@ -657,7 +673,8 @@ namespace DiscordBot.Audio
             }
 
             await Bot.Reply(ctx,
-                new DiscordMessageBuilder().WithContent(player.Settings.Language.CurrentQueue().CodeBlocked()).WithFile("queue.txt",
+                new DiscordMessageBuilder().WithContent(player.Settings.Language.CurrentQueue().CodeBlocked()).WithFile(
+                    "queue.txt",
                     new MemoryStream(Encoding.UTF8.GetBytes(player.Queue + player.Settings.Language.TechTip()))));
         }
 
@@ -667,7 +684,7 @@ namespace DiscordBot.Audio
             var userVoiceS = ctx.Member?.VoiceState?.Channel;
             if (userVoiceS == null)
             {
-                await Bot.SendDirectMessage(ctx, user.Language.EnterChannelBeforeCommand("goto"));  
+                await Bot.SendDirectMessage(ctx, user.Language.EnterChannelBeforeCommand("goto"));
                 return;
             }
 
@@ -680,16 +697,16 @@ namespace DiscordBot.Audio
             }
 
             var thing = player.GoToIndex(index - 1);
-            await Bot.Reply(ctx,player.Settings.Language.GoingTo(index, thing?.GetName()));
+            await Bot.Reply(ctx, player.Settings.Language.GoingTo(index, thing?.GetName()));
         }
-        
+
         public static async Task Volume(CommandContext ctx, double volume)
         {
             var user = await User.FromId(ctx.User.Id);
             var userVoiceS = ctx.Member?.VoiceState?.Channel;
             if (userVoiceS == null)
             {
-                await Bot.SendDirectMessage(ctx, user.Language.EnterChannelBeforeCommand("volume"));  
+                await Bot.SendDirectMessage(ctx, user.Language.EnterChannelBeforeCommand("volume"));
                 return;
             }
 
@@ -719,7 +736,7 @@ namespace DiscordBot.Audio
             var userVoiceS = ctx.Member?.VoiceState?.Channel;
             if (userVoiceS == null)
             {
-                await Bot.SendDirectMessage(ctx, user.Language.EnterChannelBeforeCommand("clear"));  
+                await Bot.SendDirectMessage(ctx, user.Language.EnterChannelBeforeCommand("clear"));
                 return;
             }
 
@@ -744,14 +761,14 @@ namespace DiscordBot.Audio
             while (SharePlaylist.Exists(token)) token = $"{guildId}/{channelId}/{Bot.RandomString(6)}";
             return token;
         }
-        
+
         public static async Task SavePlaylist(CommandContext ctx)
         {
             var user = await User.FromId(ctx.User.Id);
             var userVoiceS = ctx.Member?.VoiceState?.Channel;
             if (userVoiceS == null)
             {
-                await Bot.SendDirectMessage(ctx, user.Language.EnterChannelBeforeCommand("saveplaylist"));  
+                await Bot.SendDirectMessage(ctx, user.Language.EnterChannelBeforeCommand("saveplaylist"));
                 return;
             }
 
@@ -770,8 +787,10 @@ namespace DiscordBot.Audio
                 fs = SharePlaylist.Write(token, player.Queue.Items);
                 fs.Position = 0;
             }
+
             await ctx.RespondAsync(
-                new DiscordMessageBuilder().WithContent(player.Settings.Language.QueueSavedSuccessfully(token).CodeBlocked())
+                new DiscordMessageBuilder()
+                    .WithContent(player.Settings.Language.QueueSavedSuccessfully(token).CodeBlocked())
                     .WithFile($"{token}.batp", fs));
         }
 
@@ -781,7 +800,7 @@ namespace DiscordBot.Audio
             var userVoiceS = ctx.Member?.VoiceState?.Channel;
             if (userVoiceS == null)
             {
-                await Bot.SendDirectMessage(ctx, user.Language.OneCannotRecieveBlessingNotInChannel());  
+                await Bot.SendDirectMessage(ctx, user.Language.OneCannotRecieveBlessingNotInChannel());
                 return;
             }
 
@@ -807,7 +826,7 @@ namespace DiscordBot.Audio
                     var userVoiceS = ctx.Member?.VoiceState?.Channel;
                     if (userVoiceS == null)
                     {
-                        await Bot.SendDirectMessage(ctx, user.Language.UserNotInChannelLyrics());  
+                        await Bot.SendDirectMessage(ctx, user.Language.UserNotInChannelLyrics());
                         return;
                     }
 
@@ -830,7 +849,7 @@ namespace DiscordBot.Audio
             }
 
             guild = await GuildSettings.FromId(ctx.Guild.Id);
-            
+
             var lyrics = await GetLyrics(query);
             if (lyrics == null)
             {

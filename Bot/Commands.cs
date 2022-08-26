@@ -361,14 +361,15 @@ namespace DiscordBot
             {
                 switch (target)
                 {
-                    case null: 
+                    case null:
                         target = ctx.Member;
                         break;
-                    
+
                     case not null when target.IsBot && target.Id == ctx.Client.CurrentUser.Id:
                         //await Bot.Reply(ctx, "");
                         return;
-                } 
+                }
+
                 var random = Bot.Rng.Next(0, 100);
                 await Bot.Reply(ctx, $"{target?.Mention} is {random}% gay.", false);
             }

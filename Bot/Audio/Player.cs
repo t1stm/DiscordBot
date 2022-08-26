@@ -59,9 +59,9 @@ namespace DiscordBot.Audio
         public Stopwatch WaitingStopwatch { get; } = new();
         public List<DiscordMember> VoiceUsers { get; set; }
         private bool Die { get; set; }
-        public string StatusbarMessage { get; private set; } = "";
+        public string StatusbarMessage { get; } = "";
         private double Volume { get; set; } = 100;
-        public string QueueToken { get; set; } 
+        public string QueueToken { get; set; }
         public bool SavedQueue { get; set; }
 
         public async Task Play(int current = 0)
@@ -89,7 +89,7 @@ namespace DiscordBot.Audio
                 _timer.Elapsed += Handler;
                 _timer.Start();
                 Queue.Current = current;
-                
+
                 do
                 {
                     if (Queue.Current < 0)
@@ -97,13 +97,12 @@ namespace DiscordBot.Audio
                         Queue.Current++;
                         continue;
                     }
-                    
+
                     if (Die) break;
                     CurrentItem = Queue.GetCurrent();
-                    
+
                     if (CurrentItem != null)
                     {
-                        
                         Statusbar.ChangeMode(StatusbarMode.Playing);
                         while (Paused)
                         {
@@ -149,12 +148,10 @@ namespace DiscordBot.Audio
                             WaitingStopwatch.Start();
                         }
 
-                        if (WaitingStopwatch.Elapsed.TotalMinutes > 15)
-                        {
-                            Die = true;
-                        }
+                        if (WaitingStopwatch.Elapsed.TotalMinutes > 15) Die = true;
                         continue;
                     }
+
                     Queue.Current++;
                     WaitingStopwatch.Reset();
                     WaitingToLeave = false;
@@ -188,6 +185,7 @@ namespace DiscordBot.Audio
                 {
                     SharePlaylist.Write(QueueToken, Queue.Items);
                 }
+
                 SavedQueue = true;
             }
             catch (Exception e)
@@ -202,7 +200,11 @@ namespace DiscordBot.Audio
             {
                 CancelSource = new CancellationTokenSource();
                 UpdatedChannel = false;
-                lock (CurrentItem) CurrentItem = item;
+                lock (CurrentItem)
+                {
+                    CurrentItem = item;
+                }
+
                 FfMpeg = new FfMpeg();
                 try
                 {
@@ -212,14 +214,15 @@ namespace DiscordBot.Audio
                 {
                     await Debug.WriteAsync($"Failed to broadcast item: \"{e}\"");
                 }
-                
+
                 if (!Stopwatch.IsRunning) Stopwatch.Start();
                 UpdateVolume();
                 switch (item)
                 {
                     case YoutubeVideoInformation vi when vi.GetIfLiveStream():
                     case TwitchLiveStream:
-                        await FfMpeg.PathToPcm(item.Location, startingTime, Normalize).CopyToAsync(Sink, null, CancelSource.Token);
+                        await FfMpeg.PathToPcm(item.Location, startingTime, Normalize)
+                            .CopyToAsync(Sink, null, CancelSource.Token);
                         break;
                     default:
                         await FfMpeg.ItemToPcm(item, Sink, startingTime, Normalize);
@@ -234,8 +237,8 @@ namespace DiscordBot.Audio
         }
 
         public bool UpdateVolume(double? percent = null)
-        //When will I implement this I don't know too. This has existed for over 1 year, left unused. To be honest, it has its charms.
-        //EDIT 06.05.2022: Eureka! This has finally been implemented in WebSocketManager.cs. 
+            //When will I implement this I don't know too. This has existed for over 1 year, left unused. To be honest, it has its charms.
+            //EDIT 06.05.2022: Eureka! This has finally been implemented in WebSocketManager.cs. 
         {
             if (percent is > 200 or < 1) return false;
             percent ??= Volume;
@@ -279,7 +282,8 @@ namespace DiscordBot.Audio
                             $"VoiceSocket Errored in Guild: \"{CurrentGuild.Name}\" with arguments \"{args.Exception}\" - Attempting to reconnect.",
                             true, Debug.DebugColor.Urgent);
                         UpdateChannel(VoiceChannel);
-                        await CurrentClient.SendMessageAsync(Channel, Settings.Language.DiscordDidTheFunny().CodeBlocked());
+                        await CurrentClient.SendMessageAsync(Channel,
+                            Settings.Language.DiscordDidTheFunny().CodeBlocked());
                     };
                     Sink = Connection.GetTransmitSink();
                     await Skip(0);
@@ -307,7 +311,7 @@ namespace DiscordBot.Audio
             Paused = false;
             times -= 1;
             if (Queue.Current + times < -1) return;
-            if (Queue.Current + times != Queue.Count + 1) 
+            if (Queue.Current + times != Queue.Count + 1)
                 Queue.Current += times;
             await FfMpeg.Kill();
             await Sink.FlushAsync();
@@ -402,15 +406,14 @@ namespace DiscordBot.Audio
 
         public void Disconnect(string message = "Bye! \\(◕ ◡ ◕\\)")
         {
-            if (Settings.SaveQueueOnLeave)
-            {
-                SaveCurrentQueue();
-            }
+            if (Settings.SaveQueueOnLeave) SaveCurrentQueue();
             _timer.Stop();
             var task = new Task(async () =>
             {
                 await WebSocketManager.SendDying();
-                await Statusbar.UpdateMessageAndStop(message + (Settings.SaveQueueOnLeave ? $"\n\n{Settings.Language.SavedQueueAfterLeavingMessage($"-p pl:{QueueToken}")}": ""));
+                await Statusbar.UpdateMessageAndStop(message + (Settings.SaveQueueOnLeave
+                    ? $"\n\n{Settings.Language.SavedQueueAfterLeavingMessage($"-p pl:{QueueToken}")}"
+                    : ""));
             });
             task.Start();
             Die = true;
@@ -429,10 +432,7 @@ namespace DiscordBot.Audio
         {
             try
             {
-                if (Settings.SaveQueueOnLeave)
-                {
-                    SaveCurrentQueue();
-                }
+                if (Settings.SaveQueueOnLeave) SaveCurrentQueue();
                 _timer.Stop();
                 await WebSocketManager.SendDying();
                 await Statusbar.UpdateMessageAndStop(message);

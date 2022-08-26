@@ -8,7 +8,12 @@ namespace DiscordBot
     public static class ObjectExtensions
     {
         private static readonly Random Random = new();
-        public static string CodeBlocked(this string str) => $"```{str}```";
+
+        public static string CodeBlocked(this string str)
+        {
+            return $"```{str}```";
+        }
+
         public static string GetRandom(this string[] array)
         {
             return array[Random.Next(0, array.Length)];
@@ -24,12 +29,12 @@ namespace DiscordBot
         {
             return users.AsReadOnly().AsParallel().Any(r => r.Id == id);
         }
-        
+
         public static string GetValue(this List<User> users, ulong key)
         {
             return users.AsReadOnly().AsParallel().FirstOrDefault(r => r.Id == key)?.Token;
         }
-        
+
         public static string GetKey(this List<User> users, string value)
         {
             return users.AsReadOnly().AsParallel().FirstOrDefault(r => r.Token == value)?.Token;
@@ -39,7 +44,7 @@ namespace DiscordBot
         {
             return users.AsReadOnly().AsParallel().FirstOrDefault(r => r.Id == key);
         }
-        
+
         public static User Get(this List<User> users, string value)
         {
             return users.AsReadOnly().AsParallel().FirstOrDefault(r => r.Token == value);
@@ -49,7 +54,7 @@ namespace DiscordBot
         {
             return users.AsReadOnly().AsParallel().Select(r => r.Id);
         }
-        
+
         public static IEnumerable<string> Values(this List<User> users)
         {
             return users.AsReadOnly().AsParallel().Select(r => r.Token);

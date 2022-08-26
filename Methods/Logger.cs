@@ -9,12 +9,10 @@ namespace DiscordBot.Methods
     {
         public void Dispose()
         {
-            
         }
 
         public void AddProvider(ILoggerProvider provider)
         {
-            
         }
 
         public ILogger CreateLogger(string categoryName)
@@ -45,7 +43,8 @@ namespace DiscordBot.Methods
             };
         }
 
-        public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception? exception, Func<TState, Exception?, string> formatter)
+        public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception? exception,
+            Func<TState, Exception?, string> formatter)
         {
             if (!Bot.DebugMode) return;
             if (!IsEnabled(logLevel)) return;

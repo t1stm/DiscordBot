@@ -8,10 +8,10 @@ using DiscordBot.Audio.Platforms.Discord;
 using DiscordBot.Audio.Platforms.Local;
 using DiscordBot.Audio.Platforms.Spotify;
 using DiscordBot.Audio.Platforms.Vbox7;
+using DiscordBot.Audio.Platforms.Youtube;
 using DiscordBot.Methods;
 using DSharpPlus.Entities;
 using Playlist = DiscordBot.Audio.Platforms.Spotify.Playlist;
-using Video = DiscordBot.Audio.Platforms.Youtube.Video;
 
 namespace DiscordBot.Audio.Platforms
 {
@@ -87,9 +87,8 @@ namespace DiscordBot.Audio.Platforms
                     }
                 };
 
-            var res = await HandleBotProtocols(searchTerm); 
+            var res = await HandleBotProtocols(searchTerm);
             if (res != null)
-            {
                 switch (res) // "Work smart, not hard."
                 {
                     case List<PlayableItem> list:
@@ -97,7 +96,6 @@ namespace DiscordBot.Audio.Platforms
                     case PlayableItem item:
                         return new List<PlayableItem> {item};
                 }
-            }
 
             if (searchTerm.StartsWith("pl:"))
                 return await SharePlaylist.Get(searchTerm[3..]);
@@ -128,7 +126,7 @@ namespace DiscordBot.Audio.Platforms
                     return Files.Get(split[1]);
                 case "dis-att":
                     var splitted = split[1].Split("-");
-                    return File.GetInfo(string.Join('-', splitted[1..]), ulong.Parse(splitted[0])); 
+                    return File.GetInfo(string.Join('-', splitted[1..]), ulong.Parse(splitted[0]));
                 case "vb7":
                     var result = await Vbox7SearchClient.SearchUrl($"https://vbox7.com/play:{split[1]}");
                     return result.ToVbox7Video();
@@ -145,7 +143,7 @@ namespace DiscordBot.Audio.Platforms
                         Url = $"https://twitch.tv/{split[1..]}"
                     };
             }
-            
+
             return null;
         }
 

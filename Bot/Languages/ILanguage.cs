@@ -1,11 +1,16 @@
 using DiscordBot.Abstract;
+using DiscordBot.Enums;
 
 namespace DiscordBot.Objects
 {
     public interface ILanguage
     {
+        public string GayRatePercentMessage(int percent);
+        public string GetTypeOfTrack(PlayableItem it);
+        public string SavedQueueAfterLeavingMessage(string cmd);
+
         #region Mixed Commands
-        
+
         public string EnterChannelBeforeCommand(string command);
         public string NoFreeBotAccounts();
         public string ThisMessageWillUpdateShortly();
@@ -15,7 +20,7 @@ namespace DiscordBot.Objects
         public string AddedItem(string term);
         public string BotIsNotInTheChannel();
         public string CouldNotFindCommand(string command);
-        public string LoopStatusUpdate(Enums.Loop loop);
+        public string LoopStatusUpdate(Loop loop);
         public string NumberBiggerThanQueueLength(int number);
         public string PlayingItemAfterThis(int index, string name);
         public string PlayingItemAfterThis(string term);
@@ -41,10 +46,11 @@ namespace DiscordBot.Objects
         public string BotNotInChannelLyrics();
         public string NoResultsFoundLyrics(string search);
         public string LyricsLong();
-        
+
         #endregion
-        
+
         #region Player Interations
+
         public string YouAreNotInTheChannel();
         public string ShufflingTheQueue();
         public string SkippingOneTime();
@@ -54,18 +60,16 @@ namespace DiscordBot.Objects
         public string Playing();
         public string RequestedBy();
         public string NextUp();
-        
+
         #endregion
-        
+
         #region Player Messages
-        
+
         public string DefaultStatusbarMessage();
         public string DiscordDidTheFunny();
-        
+
         #endregion
-        
-        public string GayRatePercentMessage(int percent);
-        
+
         #region Slash Commands
 
         public string SlashHello();
@@ -77,9 +81,7 @@ namespace DiscordBot.Objects
         public string SlashPausing();
         public string SlashPrayingToTheRngGods();
         public string UpdatingToken();
-        
+
         #endregion
-        public string GetTypeOfTrack(PlayableItem it);
-        public string SavedQueueAfterLeavingMessage(string cmd);
     }
 }

@@ -13,9 +13,15 @@ namespace DiscordBot.Audio.Objects
 {
     public class YoutubeOverride : PlayableItem
     {
-        public static List<YoutubeOverride> Overrides { get; set; } = new();
         private const string FileLocation = $"{Bot.WorkingDirectory}/dll/YoutubeOverrides.json";
-        
+        public static List<YoutubeOverride> Overrides { get; set; } = new();
+        public string[]? YoutubeIds { get; init; }
+        public string[] Titles { get; init; } = Array.Empty<string>();
+        public string[] Authors { get; init; } = Array.Empty<string>();
+
+        public string[] OriginalTitles { get; init; } = Array.Empty<string>();
+        public string[] OriginalAuthors { get; init; } = Array.Empty<string>();
+
         public static YoutubeOverride? FromId(string id)
         {
             return Overrides.FirstOrDefault(r => r.YoutubeIds != null && r.YoutubeIds.Contains(id));
@@ -31,9 +37,9 @@ namespace DiscordBot.Audio.Objects
                     file = File.Open(FileLocation, FileMode.OpenOrCreate);
                     JsonSerializer.Serialize(file, new List<YoutubeOverride>
                     {
-                        new ()
+                        new()
                         {
-                            YoutubeIds = new [] {"0123"},
+                            YoutubeIds = new[] {"0123"},
                             Location = "",
                             Length = 420,
                             Titles = new[] {"Test", "Tester"},
@@ -48,19 +54,17 @@ namespace DiscordBot.Audio.Objects
                 {
                     file = File.OpenRead(FileLocation);
                 }
+
                 var json = JsonSerializer.Deserialize<List<YoutubeOverride>>(file);
-                if (json == null)
-                {
-                    throw new DataException("Deserialized Overrides are null.");
-                }
+                if (json == null) throw new DataException("Deserialized Overrides are null.");
 
                 lock (Overrides)
                 {
                     Overrides = json;
                 }
-                
+
                 file.Close();
-                
+
                 Debug.Write("Updated Youtube Overrides.");
             }
             catch (Exception e)
@@ -68,12 +72,6 @@ namespace DiscordBot.Audio.Objects
                 Debug.Write($"Updating Youtube Overrides failed: \"{e}\"");
             }
         }
-        public string[]? YoutubeIds { get; init; }
-        public string[] Titles { get; init; } = Array.Empty<string>();
-        public string[] Authors { get; init; } = Array.Empty<string>();
-        
-        public string[] OriginalTitles { get; init; } = Array.Empty<string>();
-        public string[] OriginalAuthors { get; init; } = Array.Empty<string>();
 
         public override string GetName(bool settingsShowOriginalInfo = false)
         {
@@ -86,7 +84,7 @@ namespace DiscordBot.Audio.Objects
         {
             return Titles[0];
         }
-        
+
         public override string GetAuthor()
         {
             return Authors[0];
@@ -95,16 +93,14 @@ namespace DiscordBot.Audio.Objects
         public override async Task GetAudioData(params Stream[] outputs)
         {
             var file = File.OpenRead(Location);
-            foreach (var stream in outputs)
-            {
-                await file.CopyToAsync(stream);
-            }
+            foreach (var stream in outputs) await file.CopyToAsync(stream);
         }
 
         public override string? GetId()
         {
             return YoutubeIds?[0];
         }
+
         public override string? GetThumbnailUrl()
         {
             return null;

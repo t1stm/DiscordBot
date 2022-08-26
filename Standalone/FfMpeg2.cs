@@ -3,6 +3,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Threading.Tasks;
 using DiscordBot.Abstract;
+using Debug = DiscordBot.Methods.Debug;
 
 namespace DiscordBot.Standalone
 {
@@ -47,7 +48,7 @@ namespace DiscordBot.Standalone
                 ended = true;
             });
             yes.Start();
-            
+
             var task = new Task(async () =>
             {
                 try
@@ -65,16 +66,17 @@ namespace DiscordBot.Standalone
                         catch (Exception e)
                         {
                             if (e.Message.ToLower().Contains("broken pipe")) break;
-                            await Methods.Debug.WriteAsync($"Writing byte falure: {e}");
+                            await Debug.WriteAsync($"Writing byte falure: {e}");
                             break;
                         }
                     }
+
                     FfMpegProcess.StandardInput.Close();
                 }
                 catch (Exception e)
                 {
                     if (e.Message.ToLower().Contains("broken") && e.Message.ToLower().Contains("pipe")) return;
-                    await Methods.Debug.WriteAsync($"Writing byte falure: {e}");
+                    await Debug.WriteAsync($"Writing byte falure: {e}");
                 }
             });
             task.Start();

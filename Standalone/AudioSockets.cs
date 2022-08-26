@@ -14,6 +14,9 @@ namespace DiscordBot.Standalone
 {
     public class AudioSocket
     {
+        private Settings Options;
+        private List<SearchResult> Queue = Enumerable.Empty<SearchResult>().ToList();
+
         public AudioSocket()
         {
             Options = new Settings
@@ -22,22 +25,18 @@ namespace DiscordBot.Standalone
                 AllowAnonymousJoining = true
             };
         }
+
         public WebSocket Admin { get; set; }
         public List<Client> Clients { get; } = new();
         public Guid SessionId { get; init; }
-        private List<SearchResult> Queue = Enumerable.Empty<SearchResult>().ToList();
-        private int Current { get; set; } = 0;
-        private bool Paused { get; set; } = false;
-        private Settings Options;
+        private int Current { get; } = 0;
+        private bool Paused { get; set; }
 
         private void ClearReady()
         {
             lock (Clients)
             {
-                foreach (var client in Clients)
-                {
-                    client.Ready = false;
-                }
+                foreach (var client in Clients) client.Ready = false;
             }
         }
 
@@ -52,7 +51,7 @@ namespace DiscordBot.Standalone
                     await Debug.WriteAsync("AudioSocket made an invalid request.");
                     return;
                 }
-            
+
                 var joined = string.Join(':', split[1..]);
                 var command = split[0].ToLower();
                 if (Bot.DebugMode)
@@ -64,7 +63,7 @@ namespace DiscordBot.Standalone
                     case "current":
                         await Respond(client.Socket, $"Current:{Current}");
                         return;
-                
+
                     case "end":
                         client.Ended = true;
                         lock (Clients)
@@ -73,22 +72,23 @@ namespace DiscordBot.Standalone
                         }
 
                         if (!all || Current + 1 == Queue.Count) return;
-                    
+
                         ClearReady();
                         await Broadcast("Skip:");
 
                         return;
-                
+
                     case "ready":
                         client.Ready = true;
                         lock (Clients)
                         {
                             all = Clients.AsParallel().All(r => r.Ready);
                         }
+
                         if (!all || Current < Queue.Count) return;
-                        
+
                         await Broadcast("Play:");
-                    
+
                         return;
                 }
 
@@ -110,6 +110,7 @@ namespace DiscordBot.Standalone
                         {
                             Queue = JsonSerializer.Deserialize<List<SearchResult>>(joined);
                         }
+
                         await Broadcast($"Queue:{JsonSerializer.Serialize(Queue)}", client);
                         lock (Clients)
                         {
@@ -119,21 +120,21 @@ namespace DiscordBot.Standalone
                         if (!all || Current + 1 == Queue.Count) return;
                         await Broadcast("Skip:");
                         return;
-                
+
                     case "back":
                         if (Current - 1 < 0)
                             return;
                         ClearReady();
                         await Broadcast("Back:");
                         return;
-                
+
                     case "skip":
                         if (Current + 1 != Queue.Count)
                             return;
                         ClearReady();
                         await Broadcast("Skip:");
                         return;
-                
+
                     case "goto":
                         var parsed = int.TryParse(joined, out var num);
                         if (!parsed)
@@ -141,6 +142,7 @@ namespace DiscordBot.Standalone
                             await Respond(client.Socket, "Invalid number syntax");
                             return;
                         }
+
                         if (Current + 1 == Queue.Count || Current - 1 < 0)
                             return;
                         ClearReady();
@@ -152,8 +154,9 @@ namespace DiscordBot.Standalone
                         {
                             Options = JsonSerializer.Deserialize<Settings>(joined);
                         }
+
                         return;
-                
+
                     case "ban":
                         return;
                 }
@@ -176,7 +179,6 @@ namespace DiscordBot.Standalone
             }
 
             foreach (var client in clients)
-            {
                 try
                 {
                     await Respond(client.Socket, message);
@@ -186,9 +188,8 @@ namespace DiscordBot.Standalone
                     await Debug.WriteAsync(
                         $"Sending broadcast message to client: \"{(client.IsAnon ? "Anonymous" : client.Token)}\" failed. \"{e}\"");
                 }
-            }
         }
-        
+
         private async Task Broadcast(string message, Client exclude)
         {
             if (Bot.DebugMode)
@@ -200,13 +201,9 @@ namespace DiscordBot.Standalone
                 clients = Clients.ToList();
             }
 
-            if (exclude != null)
-            {
-                clients.Remove(exclude);
-            }
-            
+            if (exclude != null) clients.Remove(exclude);
+
             foreach (var client in clients)
-            {
                 try
                 {
                     await Respond(client.Socket, message);
@@ -216,9 +213,8 @@ namespace DiscordBot.Standalone
                     await Debug.WriteAsync(
                         $"Sending broadcast message to client: \"{(client.IsAnon ? "Anonymous" : client.Token)}\" failed. \"{e}\"");
                 }
-            }
         }
-        
+
         private static async Task Respond(WebSocket socket, string message)
         {
             try
@@ -229,6 +225,7 @@ namespace DiscordBot.Standalone
                         await Debug.WriteAsync("AudioSocket respond tried to send message to not connected user.");
                     return;
                 }
+
                 if (Bot.DebugMode)
                     await Debug.WriteAsync($"AudioSocket Respond message: \"{message}\"");
                 await socket.WriteStringAsync(message);
@@ -257,7 +254,6 @@ namespace DiscordBot.Standalone
                 var task = new Task(async () =>
                 {
                     while (ws.IsConnected)
-                    {
                         try
                         {
                             var message = await ws.ReadMessageAsync(CancellationToken.None);
@@ -268,10 +264,7 @@ namespace DiscordBot.Standalone
                                     Clients.Remove(client);
                                 }
 
-                                if (Admin == ws)
-                                {
-                                    Admin = Clients.FirstOrDefault()?.Socket;
-                                }
+                                if (Admin == ws) Admin = Clients.FirstOrDefault()?.Socket;
 
                                 await ws.CloseAsync();
                                 return;
@@ -281,14 +274,16 @@ namespace DiscordBot.Standalone
                                 continue;
                             string contents;
                             using (var reader = new StreamReader(message, new UTF8Encoding(false, false)))
+                            {
                                 contents = await reader.ReadToEndAsync();
+                            }
+
                             await OnWrite(client, contents);
                         }
                         catch (Exception e)
-                        { 
+                        {
                             await Debug.WriteAsync($"Exception reading AudioSocket message: \"{e}\"");
                         }
-                    }
                 });
                 task.Start();
             }
@@ -297,7 +292,7 @@ namespace DiscordBot.Standalone
                 await Debug.WriteAsync($"Client Session failed: \"{e}\"");
             }
         }
-        
+
         public async Task SetAdmin(WebSocket ws, string suppliedToken = null)
         {
             try

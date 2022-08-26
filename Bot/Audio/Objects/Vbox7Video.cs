@@ -9,6 +9,7 @@ namespace DiscordBot.Audio.Objects
     public class Vbox7Video : PlayableItem
     {
         public string Id { get; init; }
+
         public override async Task GetAudioData(params Stream[] outputs)
         {
             await HttpClient.ChunkedDownloaderToStream(HttpClient.WithCookies(), new Uri(Location), false, outputs);

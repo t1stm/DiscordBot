@@ -16,7 +16,7 @@ namespace DiscordBot.Audio.Objects
 
         public override async Task GetAudioData(params Stream[] outputs)
         {
-            await HttpClient.ChunkedDownloaderToStream(HttpClient.WithCookies(), new Uri(Location), false,outputs);
+            await HttpClient.ChunkedDownloaderToStream(HttpClient.WithCookies(), new Uri(Location), false, outputs);
         }
 
         public override string GetId()

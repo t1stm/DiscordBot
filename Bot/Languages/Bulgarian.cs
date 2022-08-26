@@ -225,7 +225,7 @@ namespace DiscordBot.Objects
         {
             return "Връщам се един път назад.";
         }
-        
+
         public string Playing()
         {
             return "Сега се слуша";
@@ -243,10 +243,11 @@ namespace DiscordBot.Objects
 
         public string DefaultStatusbarMessage()
         {
-            return "В момента се добавят много нови екстри на бота и неговите компоненти могат да се държат нестабилно. Извинявам се предварително за бъгове, ако има.\n\n" +
-                   "Освен това вече можеш да смениш настройките на бота (пр. език на отговори) с командата \"/settings\"";
+            return
+                "В момента се добавят много нови екстри на бота и неговите компоненти могат да се държат нестабилно. Извинявам се предварително за бъгове, ако има.\n\n" +
+                "Освен това вече можеш да смениш настройките на бота (пр. език на отговори) с командата \"/settings\"";
         }
-        
+
         public string DiscordDidTheFunny()
         {
             return
@@ -268,7 +269,30 @@ namespace DiscordBot.Objects
                 >=100 => "You are omega gay."
             };
         }
-        
+
+        public string GetTypeOfTrack(PlayableItem it)
+        {
+            return it switch
+            {
+                YoutubeVideoInformation yt when yt.GetIfLiveStream() => "Youtube Live Stream",
+                YoutubeVideoInformation yt when !yt.GetIfLiveStream() => "Youtube Видео",
+                OnlineFile => "Онлайн Файл",
+                SpotifyTrack => "Песен от Spotify",
+                SystemFile => "Локален Файл",
+                TtsText => "Text to Speech",
+                TwitchLiveStream => "Twitch Live Stream",
+                YoutubeOverride => "Избран Запис",
+                _ => "Нещо"
+            };
+        }
+
+        public string SavedQueueAfterLeavingMessage(string cmd)
+        {
+            return "Списъка на бота е запазен успешно. " +
+                   $"Можеш да го пуснеш отново с командата \"{cmd}\" или като натиснеш бутона под това съобщение.\n" +
+                   "Ако искаш бота да не запазва списъка като напуска канала, използвай \"/settings\" командата.";
+        }
+
         #region Slash Commands
 
         public string SlashHello()
@@ -312,35 +336,12 @@ namespace DiscordBot.Objects
         {
             return "Ти се помоли на RNG боговете.";
         }
-        
+
         public string UpdatingToken()
         {
             return "Старият ти код е изтрит. Ще получиш съобщение съдържащо новия ти код.";
         }
-        
+
         #endregion
-        
-        public string GetTypeOfTrack(PlayableItem it)
-        {
-            return it switch
-            {
-                YoutubeVideoInformation yt when yt.GetIfLiveStream() => "Youtube Live Stream",
-                YoutubeVideoInformation yt when !yt.GetIfLiveStream() => "Youtube Видео",
-                OnlineFile => "Онлайн Файл",
-                SpotifyTrack => "Песен от Spotify",
-                SystemFile => "Локален Файл",
-                TtsText => "Text to Speech",
-                TwitchLiveStream => "Twitch Live Stream",
-                YoutubeOverride => "Избран Запис",
-                _ => "Нещо"
-            };
-        }
-        
-        public string SavedQueueAfterLeavingMessage(string cmd)
-        {
-            return "Списъка на бота е запазен успешно. " +
-                   $"Можеш да го пуснеш отново с командата \"{cmd}\" или като натиснеш бутона под това съобщение.\n" +
-                   "Ако искаш бота да не запазва списъка като напуска канала, използвай \"/settings\" командата.";
-        }
     }
 }

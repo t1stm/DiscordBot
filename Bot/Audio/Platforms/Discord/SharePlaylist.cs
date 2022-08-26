@@ -25,7 +25,7 @@ namespace DiscordBot.Audio.Platforms.Discord
         {
             return File.Exists($"{Bot.WorkingDirectory}/Playlists/{token}.batp");
         }
-        
+
         public static FileStream Write(string token, IEnumerable<PlayableItem> list)
         {
             var bytes = new List<byte> {84, 7, 70, 60, 5, 34};
@@ -69,6 +69,7 @@ namespace DiscordBot.Audio.Platforms.Discord
                         list.Add(item);
                         continue;
                     }
+
                     var add = await Search.Get(NewFormatSearch(info));
                     list.AddRange(add);
                 }
@@ -98,7 +99,7 @@ namespace DiscordBot.Audio.Platforms.Discord
                 _ => ""
             } + info.Information;
         }
-        
+
         private static PlayableItem? OldFormatItem(Info info)
         {
             var split = info.Information.Split("&//");
@@ -136,16 +137,15 @@ namespace DiscordBot.Audio.Platforms.Discord
                     06 => new OnlineFile {Location = split[0]},
                     _ => null
                 };
-            
+
             Debug.Write("Deserializing Playlist Format failed. Split not long enough.");
             throw new Exception("Split not long enough.");
-
         }
 
         private static void Encode(List<byte> bytes, string text, byte accessor)
         {
             List<byte> data = new();
-            var encoding = text.All(IsAscii) ? (byte) 01 : text.All(IsBulgarianCharacter) ? (byte) 02: (byte) 00;
+            var encoding = text.All(IsAscii) ? (byte) 01 : text.All(IsBulgarianCharacter) ? (byte) 02 : (byte) 00;
             foreach (var ch in text)
             {
                 if (encoding == 02)
@@ -160,6 +160,7 @@ namespace DiscordBot.Audio.Platforms.Discord
                     data.Add((byte) utf);
                     continue;
                 }
+
                 data.Add((byte) utf);
                 data.Add((byte) (utf >> 8));
             }
@@ -184,7 +185,8 @@ namespace DiscordBot.Audio.Platforms.Discord
                 oldFormat = true;
             for (var i = oldFormat ? 4 : 6; i < bytes.Length; i++)
             {
-                if (bytes[i] != 00 || bytes[i + 1] != 02) throw new Exception("Invalid or Corrupted File: Seperator check failed.");
+                if (bytes[i] != 00 || bytes[i + 1] != 02)
+                    throw new Exception("Invalid or Corrupted File: Seperator check failed.");
                 //Console.WriteLine($"Id is: {bytes[i+3]}");
                 var encoding = bytes[i + 2];
                 var index = bytes[i + 3];
@@ -228,6 +230,7 @@ namespace DiscordBot.Audio.Platforms.Discord
 
                             data += DecodeBulgarian(bytes[j]);
                         }
+
                         break;
                 }
 

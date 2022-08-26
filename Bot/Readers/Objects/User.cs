@@ -12,9 +12,10 @@ namespace DiscordBot.Objects
         public string Token { get; init; }
         public bool VerboseMessages { get; init; } = true;
         public ILanguage Language { get; init; } = Parser.FromNumber(0);
-        private bool UiScroll { get; init; } = true;
-        private bool UiForceScroll { get; init; } = false;
-        private bool LowSpec { get; init; } = false;
+        private bool UiScroll { get; } = true;
+        private bool UiForceScroll { get; } = false;
+        private bool LowSpec { get; } = false;
+
         public WebUISettings ToWebUISettings()
         {
             return new()
@@ -35,7 +36,7 @@ namespace DiscordBot.Objects
             await cmd.ExecuteNonQueryAsync();
             await connection.CloseAsync();
         }
-        
+
         public static async Task<User> FromId(ulong id)
         {
             if (Bot.DebugMode) await Debug.WriteAsync($"Searching user: \"{id}\"");
@@ -43,9 +44,12 @@ namespace DiscordBot.Objects
             var select = read.AsReadOnly().AsParallel().FirstOrDefault(r => r.Id == id);
             if (select != null)
             {
-                if (Bot.DebugMode) await Debug.WriteAsync($"Returning found user: \"{id}\", {select.VerboseMessages}, {select.Language}");
+                if (Bot.DebugMode)
+                    await Debug.WriteAsync(
+                        $"Returning found user: \"{id}\", {select.VerboseMessages}, {select.Language}");
                 return select;
             }
+
             var user = new User
             {
                 Id = id
@@ -54,16 +58,17 @@ namespace DiscordBot.Objects
             await ClientTokens.Add(id);
             return user;
         }
-        
+
         public static async Task<User?> FromToken(string token)
         {
             if (Bot.DebugMode) await Debug.WriteAsync($"Searching user with token: \"{token}\"");
             var read = await ClientTokens.ReadAll();
             var select = read.AsReadOnly().AsParallel().FirstOrDefault(r => r.Token == token);
             if (select == null) return null;
-            if (Bot.DebugMode) await Debug.WriteAsync($"Returning user with token \"{token}\": \"{@select.Id}\", {@select.VerboseMessages}, {@select.Language}");
+            if (Bot.DebugMode)
+                await Debug.WriteAsync(
+                    $"Returning user with token \"{token}\": \"{select.Id}\", {select.VerboseMessages}, {select.Language}");
             return select;
-
         }
     }
 
@@ -72,5 +77,5 @@ namespace DiscordBot.Objects
         public bool UiScroll { get; init; }
         public bool UiForceScroll { get; init; }
         public bool LowSpec { get; init; }
-    } 
+    }
 }

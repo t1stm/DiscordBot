@@ -3,7 +3,6 @@ using System.Diagnostics;
 using System.IO;
 using System.Threading.Tasks;
 using DiscordBot.Abstract;
-using DiscordBot.Objects;
 using Debug = DiscordBot.Methods.Debug;
 
 namespace DiscordBot.Audio.Objects
@@ -75,6 +74,7 @@ namespace DiscordBot.Audio.Objects
                 Title = spl[2];
 
                 Running = false;
+                Processed = true;
             }
             catch (Exception e)
             {

@@ -10,7 +10,6 @@ namespace DiscordBot.Audio.Objects
     {
         public bool IsDiscordAttachment { get; init; }
         public ulong Guild { get; set; }
-        private bool Checked { get; set; }
 
         public override string GetThumbnailUrl()
         {
@@ -19,7 +18,9 @@ namespace DiscordBot.Audio.Objects
 
         public override string GetLocation()
         {
-            return IsDiscordAttachment ? $"{Bot.WorkingDirectory}/dll/Discord Attachments/{Guild}/{Location}" : base.GetLocation();
+            return IsDiscordAttachment
+                ? $"{Bot.WorkingDirectory}/dll/Discord Attachments/{Guild}/{Location}"
+                : base.GetLocation();
         }
 
         public override string GetAddUrl()
@@ -38,8 +39,8 @@ namespace DiscordBot.Audio.Objects
 
         public override Task ProcessInfo()
         {
-            if (Checked) return Task.CompletedTask;
-            Checked = true;
+            if (Processed) return Task.CompletedTask;
+            Processed = true;
             try
             {
                 var info = File.Create(GetLocation());
@@ -53,16 +54,14 @@ namespace DiscordBot.Audio.Objects
             {
                 // Ignored
             }
+
             return Task.CompletedTask;
         }
 
         public override async Task GetAudioData(params Stream[] outputs)
         {
             var file = System.IO.File.OpenRead(GetLocation());
-            foreach (var stream in outputs)
-            {
-                await file.CopyToAsync(stream);
-            }
+            foreach (var stream in outputs) await file.CopyToAsync(stream);
         }
 
         public override string GetId()

@@ -7,6 +7,45 @@ namespace DiscordBot.Objects
 {
     public class English : ILanguage
     {
+        public string GayRatePercentMessage(int percent)
+        {
+            return percent switch
+            {
+                <2 => "You're so straight, that scientists want to study how perfect you are.",
+                >=2 and <10 => "Your gay level is so low, it's basically non-existant.",
+                >=10 and <20 => "You have some gay quirks, but you're still straight.",
+                >=20 and <40 => "You have some subtle gayness but you can still be called straight.",
+                >=40 and <70 => "Your gay level is mediocre, but you can still be saved.",
+                >=70 and <80 => "Your gay level is getting high. This isn't turning out great.",
+                >=80 and <90 => "Your gay level is higher that Mount Everest, may god send you help.",
+                >=90 and <100 => "Your gay level is so high, that you're among the world's greatest gays.",
+                >=100 => "You are omega gay."
+            };
+        }
+
+        public string GetTypeOfTrack(PlayableItem it)
+        {
+            return it switch
+            {
+                YoutubeVideoInformation yt when yt.GetIfLiveStream() => "Youtube Live Stream",
+                YoutubeVideoInformation yt when !yt.GetIfLiveStream() => "Youtube Video",
+                OnlineFile => "Online File",
+                SpotifyTrack => "Spotify Track",
+                SystemFile => "Local File",
+                TtsText => "Text to Speech",
+                TwitchLiveStream => "Twitch Live Stream",
+                YoutubeOverride => "Chosen Track",
+                _ => "Item"
+            };
+        }
+
+        public string SavedQueueAfterLeavingMessage(string cmd)
+        {
+            return "The queue of this instance has been saved successfully. " +
+                   $"You can play it back again with the command \"{cmd}\" or by clicking the button below this message while in a voice channel.\n" +
+                   "If you want to deactivate this feature use the \"/settings\" slash command";
+        }
+
         #region Mixed Commands
 
         public string EnterChannelBeforeCommand(string command)
@@ -72,7 +111,7 @@ namespace DiscordBot.Objects
         {
             return $"Playing: ({index}) - \"{name}\" after this.";
         }
-        
+
         public string PlayingItemAfterThis(string term)
         {
             return $"Playing: \"{term}\" after this.";
@@ -220,7 +259,7 @@ namespace DiscordBot.Objects
         {
             return "Pausing the player.";
         }
-        
+
         public string UnpausingThePlayer()
         {
             return "Unpausing the player.";
@@ -235,7 +274,7 @@ namespace DiscordBot.Objects
         {
             return "Playing";
         }
-        
+
         public string RequestedBy()
         {
             return "Requested by";
@@ -252,8 +291,9 @@ namespace DiscordBot.Objects
 
         public string DefaultStatusbarMessage()
         {
-            return "The bot is currently being reworked majorly, so please note that there may be many bugs. Sorry for any bugs in advance.\n\n" +
-                   "By the way, you can now change some settings of the bot (ex. the response language) with the slash command \"/settings\"";
+            return
+                "The bot is currently being reworked majorly, so please note that there may be many bugs. Sorry for any bugs in advance.\n\n" +
+                "By the way, you can now change some settings of the bot (ex. the response language) with the slash command \"/settings\"";
         }
 
         public string DiscordDidTheFunny()
@@ -264,22 +304,6 @@ namespace DiscordBot.Objects
 
         #endregion
 
-        public string GayRatePercentMessage(int percent)
-        {
-            return percent switch
-            {
-                <2 => "You're so straight, that scientists want to study how perfect you are.",
-                >=2 and <10 => "Your gay level is so low, it's basically non-existant.",
-                >=10 and <20 => "You have some gay quirks, but you're still straight.",
-                >=20 and <40 => "You have some subtle gayness but you can still be called straight.",
-                >=40 and <70 => "Your gay level is mediocre, but you can still be saved.",
-                >=70 and <80 => "Your gay level is getting high. This isn't turning out great.",
-                >=80 and <90 => "Your gay level is higher that Mount Everest, may god send you help.",
-                >=90 and <100 => "Your gay level is so high, that you're among the world's greatest gays.",
-                >=100 => "You are omega gay."
-            };
-        }
-        
         #region Slash Commands
 
         public string SlashHello()
@@ -330,28 +354,5 @@ namespace DiscordBot.Objects
         }
 
         #endregion
-        
-        public string GetTypeOfTrack(PlayableItem it)
-        {
-            return it switch
-            {
-                YoutubeVideoInformation yt when yt.GetIfLiveStream() => "Youtube Live Stream",
-                YoutubeVideoInformation yt when !yt.GetIfLiveStream() => "Youtube Video",
-                OnlineFile => "Online File",
-                SpotifyTrack => "Spotify Track",
-                SystemFile => "Local File",
-                TtsText => "Text to Speech",
-                TwitchLiveStream => "Twitch Live Stream",
-                YoutubeOverride => "Chosen Track",
-                _ => "Item"
-            };
-        }
-
-        public string SavedQueueAfterLeavingMessage(string cmd)
-        {
-            return "The queue of this instance has been saved successfully. " +
-                   $"You can play it back again with the command \"{cmd}\" or by clicking the button below this message while in a voice channel.\n" +
-                   "If you want to deactivate this feature use the \"/settings\" slash command";
-        }
     }
 }
