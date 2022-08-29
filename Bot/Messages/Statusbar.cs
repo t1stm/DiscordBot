@@ -159,7 +159,7 @@ namespace DiscordBot.Messages
 
             return
                 $"```{Language.Playing()}: \"{Player.CurrentItem.GetTypeOf(Language)}\"\n" +
-                $"({Player.Queue.Current + 1} - {Player.Queue.Count}) {Player.CurrentItem.GetName(Player.Settings.ShowOriginalInfo)}\n" +
+                $"({Player.Queue.Current + 1} - {Player.Queue.Count}) {Player?.CurrentItem?.GetName(Player.Settings.ShowOriginalInfo) ?? "Something's broken."}\n" +
                 $"{progress} ( {Player.Paused switch {false => "▶️", true => "⏸️"}} {Time(TimeSpan.FromMilliseconds(time))} - {length switch {0 => "∞", _ => Time(TimeSpan.FromMilliseconds(length))}} )" +
                 $"{Player.Sink switch {null => "", _ => Player.Sink.VolumeModifier switch {0 => " (🔇", >0 and <.33 => " (🔈", >=.33 and <=.66 => " (🔉", >.66 => " (🔊", _ => " (🔊"} + $" {(int) (Player.Sink.VolumeModifier * 100)}%)"}}" +
                 $"{Player.LoopStatus switch {Loop.One => " ( 🔂 )", Loop.WholeQueue => " ( 🔁 )", _ => ""}}" +
@@ -191,11 +191,21 @@ namespace DiscordBot.Messages
         {
             var builder = new DiscordMessageBuilder();
             builder.AddComponents(
-                new DiscordButtonComponent(ButtonStyle.Secondary, "shuffle", "Shuffle"),
-                new DiscordButtonComponent(ButtonStyle.Success, "back", "Previous"),
-                new DiscordButtonComponent(ButtonStyle.Primary, "pause", "Play / Pause"),
-                new DiscordButtonComponent(ButtonStyle.Success, "skip", "Next"),
-                new DiscordButtonComponent(ButtonStyle.Secondary, "webui", "Web UI")
+                new List<DiscordActionRowComponent>
+                {
+                    new(new []
+                    {
+                        new DiscordButtonComponent(ButtonStyle.Secondary, "shuffle", "Shuffle"),
+                        new DiscordButtonComponent(ButtonStyle.Success, "back", "Previous"),
+                        new DiscordButtonComponent(ButtonStyle.Primary, "pause", "Play / Pause"),
+                        new DiscordButtonComponent(ButtonStyle.Success, "skip", "Next"),
+                        new DiscordButtonComponent(ButtonStyle.Secondary, "leave", "Leave")
+                    }),
+                    new(new []
+                    {
+                        new DiscordButtonComponent(ButtonStyle.Secondary, "webui", "Web UI")
+                    })
+                }
             );
             return builder.WithContent(GenerateStatusbar());
         }

@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -186,7 +187,7 @@ namespace DiscordBot
                 _ => Loop.None
             };
 
-            await ctx.CreateResponseAsync(guild.Language.LoopStatusUpdate(player.LoopStatus));
+            await ctx.CreateResponseAsync(guild.Language.LoopStatusUpdate(player.LoopStatus).CodeBlocked());
         }
 
         public async Task MoveCommand(InteractionContext ctx, [Option("item", "The item which you want to move")]

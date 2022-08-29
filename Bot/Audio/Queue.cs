@@ -29,7 +29,7 @@ namespace DiscordBot.Audio
             }
         }
 
-        public bool EndOfQueue => !(Current < Count);
+        public bool EndOfQueue => Current >= Count;
 
         public int RandomSeed { get; private set; }
 

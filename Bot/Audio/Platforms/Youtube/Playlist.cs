@@ -18,7 +18,7 @@ namespace DiscordBot.Audio.Platforms.Youtube
                     return new YoutubeVideoInformation
                     {
                         Title = video.Title,
-                        Author = video.Author.Title,
+                        Author = video.Author.ChannelTitle,
                         Length = (ulong) video.Duration?.TotalMilliseconds,
                         ThumbnailUrl = video.Thumbnails[0].Url,
                         YoutubeId = video.Id

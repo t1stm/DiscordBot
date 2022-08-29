@@ -362,6 +362,7 @@ namespace DiscordBot.Audio
 
         private static async Task SettingsParser(string token, string setting)
         {
+            
         }
 
         private static string SerializeQueue(Queue queue)

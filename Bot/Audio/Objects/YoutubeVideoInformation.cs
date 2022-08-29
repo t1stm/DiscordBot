@@ -55,23 +55,20 @@ namespace DiscordBot.Audio.Objects
                 Location = ReturnIfExists(YoutubeId);
                 if (!string.IsNullOrEmpty(Location))
                 {
-                    var ms = new MemoryStream();
-                    var fs = File.OpenRead(Location);
-                    await fs.CopyToAsync(ms);
-                    fs.Close();
+                    var fs = File.Open(Location, FileMode.Open, FileAccess.Read, FileShare.Read);
                     foreach (var stream in outputs)
                     {
-                        ms.Position = 0;
+                        fs.Position = 0;
                         try
                         {
-                            await ms.CopyToAsync(stream);
+                            await fs.CopyToAsync(stream);
                         }
                         catch
                         {
                             // Ignored because Streams are handled worse than my code.
                         }
                     }
-
+                    fs.Close();
                     return;
                 }
 

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -7,13 +8,14 @@ using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using DiscordBot.Audio.Objects;
-using DiscordBot.Methods;
 using vtortola.WebSockets;
+using Debug = DiscordBot.Methods.Debug;
 
 namespace DiscordBot.Standalone
 {
     public class AudioSocket
     {
+        public Stopwatch InactiveStopwatch { get; } = new();
         private Settings Options;
         private List<SearchResult> Queue = Enumerable.Empty<SearchResult>().ToList();
 
@@ -149,6 +151,8 @@ namespace DiscordBot.Standalone
                         await Broadcast($"GoTo:{num}");
                         return;
 
+                    case "options" when client.Socket != Admin:
+                        return;
                     case "options":
                         lock (Options)
                         {
