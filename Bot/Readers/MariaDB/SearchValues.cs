@@ -18,7 +18,7 @@ namespace DiscordBot.Readers.MariaDB
                 term = term.Replace("\'", "\'\'").Replace("\"", "\"\"").Replace("\\", "\\\\");
                 var cmd = new MySqlCommand(
                     $"SELECT * FROM fuckyoutube WHERE search = \"{term}\"", connection);
-                var dataReader = cmd.ExecuteReader();
+                var dataReader = await cmd.ExecuteReaderAsync();
                 string search = null;
                 while (await dataReader.ReadAsync())
                     search = dataReader["videoid"] + "";
@@ -44,7 +44,7 @@ namespace DiscordBot.Readers.MariaDB
                 term = term.Replace("\"", "\"\"").Replace("\\", "\\\\");
                 var cmd = new MySqlCommand(
                     $"SELECT * FROM fuckyoutube WHERE search = \"{term}\"", connection);
-                var dataReader = cmd.ExecuteReader();
+                var dataReader = await cmd.ExecuteReaderAsync();
                 while (await dataReader.ReadAsync())
                     result.VideoId = dataReader["videoid"] + "";
                 await dataReader.CloseAsync();
@@ -70,7 +70,7 @@ namespace DiscordBot.Readers.MariaDB
                 var cmd = new MySqlCommand(
                     "INSERT INTO fuckyoutube (search,videoid) " +
                     $"VALUES (\"{term}\", \"{id}\")", connection);
-                cmd.ExecuteNonQuery();
+                await cmd.ExecuteNonQueryAsync();
                 await connection.CloseAsync();
             }
             catch (Exception e)

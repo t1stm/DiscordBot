@@ -57,7 +57,7 @@ namespace DiscordBot.Readers.MariaDB
                     $"\"{videoInfo.Author.Replace("\"", "\"\"").Replace("\\", "\\\\")}\", " +
                     $"\"{videoInfo.Length}\"," +
                     $"\"{videoInfo.ThumbnailUrl.Split("?").First()}\")", connection);
-                cmd.ExecuteNonQuery();
+                await cmd.ExecuteNonQueryAsync();
                 await connection.CloseAsync();
             }
             catch (Exception e)

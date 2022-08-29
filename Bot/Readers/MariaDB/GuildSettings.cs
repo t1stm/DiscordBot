@@ -64,7 +64,7 @@ namespace DiscordBot.Readers.MariaDB
             var connection = new MySqlConnection(Bot.SqlConnectionQuery);
             await connection.OpenAsync();
             var cmd = new MySqlCommand("SELECT * FROM guilds", connection);
-            var dataReader = cmd.ExecuteReader();
+            var dataReader = await cmd.ExecuteReaderAsync();
             while (await dataReader.ReadAsync())
                 list.Add(new GuildSettings
                 {
@@ -89,7 +89,7 @@ namespace DiscordBot.Readers.MariaDB
             var cmd = new MySqlCommand(
                 "INSERT INTO guilds (id) " +
                 $"VALUES (\"{id}\")", connection);
-            cmd.ExecuteNonQuery();
+            await cmd.ExecuteNonQueryAsync();
             await connection.CloseAsync();
         }
 
