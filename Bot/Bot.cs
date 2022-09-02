@@ -208,6 +208,7 @@ namespace DiscordBot
                             continue;
                         case "debug":
                             DebugMode = !DebugMode;
+                            await Debug.WriteAsync($"Debug mode is now: {DebugMode}");
                             continue;
                         case "sms":
                             await Debug.WriteAsync("Enter a message (example: \"messageId&&Insert Message Here\")",

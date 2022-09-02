@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using DiscordBot.Audio;
+using DiscordBot.Audio.Platforms;
 using DiscordBot.Audio.Platforms.Discord;
 using DiscordBot.Enums;
 using DiscordBot.Methods;

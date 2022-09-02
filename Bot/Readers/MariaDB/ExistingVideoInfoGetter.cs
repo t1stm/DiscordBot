@@ -50,13 +50,14 @@ namespace DiscordBot.Readers.MariaDB
 
                 MySqlConnection connection = new(Bot.SqlConnectionQuery);
                 await connection.OpenAsync();
-                var cmd = new MySqlCommand(
-                    "INSERT INTO videoinformation (videoid,title,author,length,thumbnail) " +
-                    $"VALUES (\"{videoInfo.YoutubeId}\", " +
-                    $"\"{videoInfo.Title.Replace("\"", "\"\"").Replace("\\", "\\\\")}\", " +
-                    $"\"{videoInfo.Author.Replace("\"", "\"\"").Replace("\\", "\\\\")}\", " +
-                    $"\"{videoInfo.Length}\"," +
-                    $"\"{videoInfo.ThumbnailUrl.Split("?").First()}\")", connection);
+                var req = "INSERT INTO videoinformation (videoid,title,author,length,thumbnail) " +
+                          $"VALUES (\"{videoInfo.YoutubeId}\", " +
+                          $"\"{videoInfo.Title.Replace("\"", "\"\"").Replace("\\", "\\\\")}\", " +
+                          $"\"{videoInfo.Author.Replace("\"", "\"\"").Replace("\\", "\\\\")}\", " +
+                          $"\"{videoInfo.Length}\"," +
+                          $"\"{videoInfo.ThumbnailUrl.Split("?").First()}\")";
+                if (Bot.DebugMode) await Debug.WriteAsync($"MariaDB request is: \"{req}\"");
+                var cmd = new MySqlCommand(req, connection);
                 await cmd.ExecuteNonQueryAsync();
                 await connection.CloseAsync();
             }

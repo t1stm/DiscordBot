@@ -9,7 +9,7 @@ using DiscordBot.Methods;
 using DiscordBot.Readers;
 using DSharpPlus.Entities;
 
-namespace DiscordBot.Audio.Platforms.Discord
+namespace DiscordBot.Audio.Platforms
 {
     public static class SharePlaylist
     {
