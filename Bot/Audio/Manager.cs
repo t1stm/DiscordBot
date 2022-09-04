@@ -154,7 +154,7 @@ namespace DiscordBot.Audio
                         player.Channel = player.CurrentClient.Guilds[userVoiceS.Guild.Id].Channels[messageChannel.Id];
                         if (select && !term.StartsWith("http"))
                         {
-                            var results = await Video.SearchAllResults(term);
+                            var results = await Search.Get(term);
                             if (results.Count < 1)
                             {
                                 await messageChannel.SendMessageAsync(lang.NoResultsFound(term).CodeBlocked());
@@ -162,7 +162,7 @@ namespace DiscordBot.Audio
                             }
 
                             var options = results.Select(result =>
-                                new DiscordSelectComponentOption(result.Title, result.GetId(), result.Author)).ToList();
+                                new DiscordSelectComponentOption(result.GetName(), result.GetAddUrl(), result.Author)).ToList();
                             var dropdown = new DiscordSelectComponent("dropdown", null, options);
                             var builder = new DiscordMessageBuilder().WithContent(lang.SelectVideo())
                                 .AddComponents(dropdown);
@@ -175,9 +175,13 @@ namespace DiscordBot.Audio
                             }
 
                             var interaction = response.Result.Values;
+                            if (interaction == null || interaction.Length < 1)
+                            {
+                                return;
+                            }
                             items = new List<PlayableItem>
                             {
-                                await Video.SearchById(interaction.First())
+                                (await Search.Get(interaction.First())).First()
                             };
                             player.Statusbar.Message = await message.ModifyAsync(
                                 new DiscordMessageBuilder().WithContent(lang.ThisMessageWillUpdateShortly()
@@ -235,7 +239,7 @@ namespace DiscordBot.Audio
 
                         if (select && !term.Contains("http"))
                         {
-                            var results = await Video.SearchAllResults(term);
+                            var results = await Search.Get(term);
                             if (results.Count < 1)
                             {
                                 await messageChannel.SendMessageAsync(lang.NoResultsFound(term).CodeBlocked());
@@ -243,12 +247,12 @@ namespace DiscordBot.Audio
                             }
 
                             var options = results.Select(result =>
-                                new DiscordSelectComponentOption(result.Title, result.GetId(), result.Author)).ToList();
+                                new DiscordSelectComponentOption(result.GetName(), result.GetAddUrl(), result.Author)).ToList();
                             var dropdown = new DiscordSelectComponent("dropdown", null, options);
                             var builder = new DiscordMessageBuilder().WithContent(lang.SelectVideo())
                                 .AddComponents(dropdown);
                             var message = await builder.SendAsync(player.Channel);
-                            var response = await message.WaitForSelectAsync(user, "dropdown", CancellationToken.None);
+                            var response = await message.WaitForSelectAsync(user, "dropdown", TimeSpan.FromSeconds(60));
                             if (response.TimedOut)
                             {
                                 await message.ModifyAsync(lang.SelectVideoTimeout().CodeBlocked());
@@ -256,9 +260,13 @@ namespace DiscordBot.Audio
                             }
 
                             var interaction = response.Result.Values;
+                            if (interaction == null || interaction.Length < 1)
+                            {
+                                return;
+                            }
                             items = new List<PlayableItem>
                             {
-                                await Video.SearchById(interaction.First())
+                                (await Search.Get(interaction.First())).First()
                             };
                             await message.DeleteAsync();
                         }

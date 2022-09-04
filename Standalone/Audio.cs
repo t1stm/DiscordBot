@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text.Json;
+using System.Text.Json.Nodes;
 using System.Threading.Tasks;
 using DiscordBot.Audio.Objects;
 using DiscordBot.Audio.Platforms.Youtube;
@@ -132,6 +133,24 @@ namespace DiscordBot.Standalone
                 await Debug.WriteAsync($"DownloadTrack failed with exception: \"{e}\"");
                 throw;
             }
+        }
+
+        public async Task<IActionResult> GetUserPlaylists(string userToken)
+        {
+            
+            return Ok();
+        }
+        
+        [HttpPost]
+        public async Task<IActionResult> UploadPlaylist()
+        {
+            var uploadedFiles = Request.Form.Files;
+            if (uploadedFiles.Count < 1)
+            {
+                return NoContent();
+            }
+            
+            return Ok();
         }
 
         public async Task<IActionResult> Search(string term)
