@@ -192,7 +192,7 @@ namespace DiscordBot.Standalone
             };
             lock (GeneratedSocketSessions)
             {
-                while (GeneratedSocketSessions.Any(r => r.Id == newSession.Id)) newSession.Id = Guid.NewGuid();
+                while (GeneratedSocketSessions.Any(r => r.Id == newSession.Id)) newSession.Id = Guid.NewGuid(); // Practically impossible
                 GeneratedSocketSessions.Add(newSession);
             }
 

@@ -3,7 +3,6 @@ using System.Collections.Generic;
 
 namespace DiscordBot.Readers.JSON
 {
-    [Obsolete(" This class is obseleted, by the new Database implementation. Reminder to myself, to not use it.")]
     public static class JsonWriteQueue
     {
         private static readonly SearchJsonReader JsonReader = new();
@@ -16,6 +15,7 @@ namespace DiscordBot.Readers.JSON
             {
                 AddQueue.Add(new Tuple<string, string>(term, videoId));
             }
+            Update();
         }
 
         public static void Update()

@@ -123,6 +123,7 @@
       <PackageReference Include="Microsoft.Win32.Registry" Version="6.0.0-preview.5.21301.5" />
       <PackageReference Include="Microsoft.Win32.SystemEvents" Version="6.0.2-mauipre.1.22054.8" />
       <PackageReference Include="MySql.Data" Version="8.0.30" />
+      <PackageReference Include="MySql.EntityFrameworkCore" Version="6.0.4" />
       <PackageReference Include="NetCoreServer" Version="6.6.0" />
       <PackageReference Include="NETStandard.Library" Version="2.0.3" />
       <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
@@ -277,6 +278,11 @@
 
     <ItemGroup>
       <UpToDateCheckInput Remove="Pages\Bot\Index.cshtml" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Folder Include="Data" />
+      <Folder Include="Models" />
     </ItemGroup>
 
 </Project>
