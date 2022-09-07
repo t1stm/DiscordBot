@@ -280,9 +280,4 @@
       <UpToDateCheckInput Remove="Pages\Bot\Index.cshtml" />
     </ItemGroup>
 
-    <ItemGroup>
-      <Folder Include="Data" />
-      <Folder Include="Models" />
-    </ItemGroup>
-
 </Project>
