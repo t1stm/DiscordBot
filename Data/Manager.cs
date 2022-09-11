@@ -13,8 +13,10 @@ namespace DiscordBot.Data
     {
         private List<T> Data { get; set; } = new();
         private readonly string FileLocation;
+        private readonly string ObjectName;
         private FileStream FileStream { get; set; }
-        private readonly Timer SaveTimer = new(); 
+        private readonly Timer SaveTimer = new();
+        private long OldCount;
 
         public Manager()
         {
@@ -23,13 +25,14 @@ namespace DiscordBot.Data
             SaveTimer.Start();
             var type = typeof(T);
             var name = type.Name;
-            FileLocation = name.Length > 5 && name[^5..] is "Model" or "model" ? 
-                $"{Bot.WorkingDirectory}/Databases/{name[..^5]}.json" : 
-                $"{Bot.WorkingDirectory}/Databases/{name}.json";
+            ObjectName = name.Length > 5 && name[^5..] is "Model" or "model" ? name[..^5] : name;
+            FileLocation = $"{Bot.WorkingDirectory}/Databases/{ObjectName}.json";
         }
 
         private void ElapsedEvent(object sender, ElapsedEventArgs e)
         {
+            if (OldCount == Data.Count) return;
+            if (Bot.DebugMode) Debug.Write($"Saving \"{ObjectName}\" database.");
             SaveToFile();
         }
 
@@ -82,7 +85,7 @@ namespace DiscordBot.Data
                 }
                 catch (Exception e)
                 {
-                    Debug.Write($"Failed to update database file \"{nameof(T)}.json\": \"{e}\"");
+                    Debug.Write($"Failed to update database file \"{ObjectName}.json\": \"{e}\"");
                 }
             }
         }
@@ -92,6 +95,7 @@ namespace DiscordBot.Data
             lock (Data)
             {
                 var copy = Data.ToList();
+                OldCount = copy.Count;
                 SaveToFile(copy);
             }
         }
@@ -108,7 +112,7 @@ namespace DiscordBot.Data
                 }
                 catch (Exception e)
                 {
-                    Debug.Write($"Failed to update database file \"{nameof(T)}\": \"{e}\"");
+                    Debug.Write($"Failed to update database file \"{ObjectName}\": \"{e}\"");
                 }
             }
         }

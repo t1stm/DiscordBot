@@ -106,6 +106,10 @@ namespace DiscordBot
                 {
                     switch (text)
                     {
+                        case "save":
+                            SaveDatabases();
+                            await Debug.WriteAsync("Saving all databases.");
+                            break;
                         case "list":
                         {
                             await Debug.WriteAsync("Listing all player instances:");
@@ -433,9 +437,6 @@ namespace DiscordBot
 
                 switch (command)
                 {
-                    case "save":
-                        SaveDatabases();
-                        break;
                     case "shuffle":
                         if (verbose)
                             await eventArgs.Interaction.CreateFollowupMessageAsync(

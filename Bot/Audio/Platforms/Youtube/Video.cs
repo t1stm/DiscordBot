@@ -9,8 +9,6 @@ using DiscordBot.Data;
 using DiscordBot.Data.Models;
 using DiscordBot.Methods;
 using DiscordBot.Readers;
-using DiscordBot.Readers.MariaDB;
-using DiscordBot.Readers.Objects;
 using DiscordBot.Tools;
 using YoutubeExplode;
 using YoutubeSearchApi.Net.Models.Youtube;
@@ -28,7 +26,7 @@ namespace DiscordBot.Audio.Platforms.Youtube
             if (cachedSearchResult != null && !string.IsNullOrEmpty(cachedSearchResult.SearchTerm) &&
                 !string.IsNullOrEmpty(cachedSearchResult.VideoId))
             {
-                info = await GetCachedVideoFromId(cachedSearchResult.VideoId);
+                info = GetCachedVideoFromId(cachedSearchResult.VideoId);
                 if (info is not null) return info;
                 return await SearchById(cachedSearchResult.VideoId);
             }
@@ -210,7 +208,7 @@ namespace DiscordBot.Audio.Platforms.Youtube
             {
                 var alt = YoutubeOverride.FromId(id);
                 if (alt is not null) return alt;
-                var info = await GetCachedVideoFromId(id);
+                var info = GetCachedVideoFromId(id);
                 if (info is not null && !urgent) return info;
                 var client = new YoutubeClient(HttpClient.WithCookies());
                 var video = await client.Videos.GetAsync(id);
@@ -224,15 +222,26 @@ namespace DiscordBot.Audio.Platforms.Youtube
                     ThumbnailUrl = video.Thumbnails[0].Url
                 };
                 if (urgent) await vid.GetAudioData();
-                var task = new Task(async () =>
+                var task = new Task(() =>
                 {
                     try
                     {
-                        await ExistingVideoInfoGetter.Add(vid);
+                        var data = new VideoInformationModel
+                        {
+                            VideoId = video.Id
+                        };
+                        var read = Databases.VideoDatabase.Read(data);
+                        if (read != null) return;
+                        data.Title = vid.Title;
+                        data.Author = vid.Author;
+                        data.Length = vid.Length;
+                        data.ThumbnailUrl = vid.ThumbnailUrl;
+                        
+                        Databases.VideoDatabase.Add(data);
                     }
                     catch (Exception e)
                     {
-                        await Debug.WriteAsync($"Adding information in Youtube/Video.cs/SearchById {e}", true,
+                        Debug.Write($"Adding information in Youtube/Video.cs/SearchById failed: \"{e}\"", true,
                             Debug.DebugColor.Urgent);
                     }
                 });
@@ -256,11 +265,15 @@ namespace DiscordBot.Audio.Platforms.Youtube
             return Databases.FuckYoutubeDatabase.Read(vid);
         }
 
-        private static async Task<PlayableItem> GetCachedVideoFromId(string id)
+        private static PlayableItem GetCachedVideoFromId(string id)
         {
             var alt = YoutubeOverride.FromId(id);
             if (alt is not null) return alt;
-            return await ExistingVideoInfoGetter.Read(id);
+            var search = new VideoInformationModel
+            {
+                VideoId = id
+            };
+            return Databases.VideoDatabase.Read(search).Convert();
         }
 
         public static async Task<PlayableItem> Search(SpotifyTrack track, bool urgent = false)
