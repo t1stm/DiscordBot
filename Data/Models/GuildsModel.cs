@@ -1,6 +1,6 @@
 namespace DiscordBot.Data.Models
 {
-    public class GuildModel
+    public class GuildsModel
     {
         public ulong Id { get; set; }
         public ushort Language { get; set; }

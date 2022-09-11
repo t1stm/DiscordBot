@@ -6,13 +6,10 @@ using System.Net.Http;
 using System.Text;
 using System.Text.Json;
 using System.Text.RegularExpressions;
-using System.Threading;
 using System.Threading.Tasks;
 using DiscordBot.Abstract;
 using DiscordBot.Audio.Objects;
 using DiscordBot.Audio.Platforms;
-using DiscordBot.Audio.Platforms.Discord;
-using DiscordBot.Audio.Platforms.Youtube;
 using DiscordBot.Methods;
 using DiscordBot.Miscellaneous;
 using DiscordBot.Objects;
@@ -154,7 +151,7 @@ namespace DiscordBot.Audio
                         player.Channel = player.CurrentClient.Guilds[userVoiceS.Guild.Id].Channels[messageChannel.Id];
                         if (select && !term.StartsWith("http"))
                         {
-                            var results = await Search.Get(term);
+                            var results = await Search.Get(term, returnAllResults: true);
                             if (results.Count < 1)
                             {
                                 await messageChannel.SendMessageAsync(lang.NoResultsFound(term).CodeBlocked());
@@ -239,7 +236,7 @@ namespace DiscordBot.Audio
 
                         if (select && !term.Contains("http"))
                         {
-                            var results = await Search.Get(term);
+                            var results = await Search.Get(term, returnAllResults: true);
                             if (results.Count < 1)
                             {
                                 await messageChannel.SendMessageAsync(lang.NoResultsFound(term).CodeBlocked());

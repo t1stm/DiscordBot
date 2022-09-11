@@ -5,6 +5,8 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using DiscordBot.Abstract;
 using DiscordBot.Audio.Objects;
+using DiscordBot.Data;
+using DiscordBot.Data.Models;
 using DiscordBot.Methods;
 using DiscordBot.Readers;
 using DiscordBot.Readers.MariaDB;
@@ -22,7 +24,7 @@ namespace DiscordBot.Audio.Platforms.Youtube
             ulong length = 0, SpotifyTrack track = null)
         {
             PlayableItem info;
-            var cachedSearchResult = await GetIdFromCachedTerms(term);
+            var cachedSearchResult = GetIdFromCachedTerms(term);
             if (cachedSearchResult != null && !string.IsNullOrEmpty(cachedSearchResult.SearchTerm) &&
                 !string.IsNullOrEmpty(cachedSearchResult.VideoId))
             {
@@ -34,6 +36,32 @@ namespace DiscordBot.Audio.Platforms.Youtube
             var client = new YoutubeSearchClient(HttpClient.WithCookies());
             var response = await client.SearchAsync(term);
             var res = response.Results.ToList();
+            var copy = res.ToList();
+            new Task(() =>
+            {
+                try
+                {
+                    foreach (var video in copy)
+                    {
+                        var data = new VideoInformationModel
+                        {
+                            VideoId = video.Id
+                        };
+                        var read = Databases.VideoDatabase.Read(data);
+                        if (read != null) continue;
+                        data.Title = video.Title;
+                        data.Author = video.Author;
+                        data.Length = (ulong) StringToTimeSpan.Generate(video.Duration).TotalMilliseconds;
+                        data.ThumbnailUrl = video.ThumbnailUrl;
+                        
+                        Databases.VideoDatabase.Add(data);
+                    }
+                }
+                catch (Exception e)
+                {
+                    Debug.Write($"Saving all results failed. \"{e}\"");
+                }
+            }).Start();
             try
             {
                 RemoveTheFucking18dAudio(ref res,
@@ -96,10 +124,12 @@ namespace DiscordBot.Audio.Platforms.Youtube
             {
                 try
                 {
-                    //await new SearchJsonReader().AddVideo(term, result.Id);
-                    //JsonWriteQueue.Add(term, result.Id);
-                    await SearchValues.Add(term, result.Id);
-                    await ExistingVideoInfoGetter.Add((YoutubeVideoInformation) info);
+                    var vid = new FuckYoutubeModel
+                    {
+                        SearchTerm = term,
+                        VideoId = result.Id
+                    };
+                    Databases.FuckYoutubeDatabase.Add(vid);
                 }
                 catch (Exception e)
                 {
@@ -216,10 +246,14 @@ namespace DiscordBot.Audio.Platforms.Youtube
             }
         }
 
-        private static async Task<PreviousSearchResult> GetIdFromCachedTerms(string term)
+        private static FuckYoutubeModel GetIdFromCachedTerms(string term)
         {
             //return await new SearchJsonReader().GetVideo(term);
-            return await SearchValues.ReadSearchResult(term);
+            var vid = new FuckYoutubeModel
+            {
+                SearchTerm = term.ToLower()
+            };
+            return Databases.FuckYoutubeDatabase.Read(vid);
         }
 
         private static async Task<PlayableItem> GetCachedVideoFromId(string id)

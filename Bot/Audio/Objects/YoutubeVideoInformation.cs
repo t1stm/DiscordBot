@@ -185,7 +185,7 @@ namespace DiscordBot.Audio.Objects
             await Debug.WriteAsync("Starting download task.");
             await HttpClient.ChunkedDownloaderToStream(HttpClient.WithCookies(), new Uri(filepath), false,
                 outs.ToArray());
-            YoutubeId = streamInfo.Url;
+            Location = streamInfo.Url;
         }
     }
 }

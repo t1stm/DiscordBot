@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using System.Timers;
 using DiscordBot.Audio;
 using DiscordBot.Audio.Objects;
+using DiscordBot.Data;
 using DiscordBot.Messages;
 using DiscordBot.Methods;
 using DiscordBot.Objects;
@@ -56,6 +57,7 @@ namespace DiscordBot
 
         public static async Task Initialize(RunType token)
         {
+            LoadDatabases();
             UpdateLoop.Elapsed += (_, _) => OnUpdate();
             UpdateLoop.Start();
             await Controllers.Bot.LoadUsers(true);
@@ -252,6 +254,22 @@ namespace DiscordBot
                 }
         }
 
+        private static void LoadDatabases()
+        {
+            Databases.FuckYoutubeDatabase.ReadDatabase();
+            Databases.VideoDatabase.ReadDatabase();
+            Databases.UserDatabase.ReadDatabase();
+            Databases.GuildDatabase.ReadDatabase();
+        }
+
+        private static void SaveDatabases()
+        {
+            Databases.FuckYoutubeDatabase.SaveToFile();
+            Databases.VideoDatabase.SaveToFile();
+            Databases.UserDatabase.SaveToFile();
+            Databases.GuildDatabase.SaveToFile();
+        }
+
         private static async Task ReadStatus(DiscordClient client)
         {
             try
@@ -415,6 +433,9 @@ namespace DiscordBot
 
                 switch (command)
                 {
+                    case "save":
+                        SaveDatabases();
+                        break;
                     case "shuffle":
                         if (verbose)
                             await eventArgs.Interaction.CreateFollowupMessageAsync(
