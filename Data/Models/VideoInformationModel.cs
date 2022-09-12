@@ -1,8 +1,10 @@
+using System.Collections.Generic;
+using System.Linq;
 using DiscordBot.Audio.Objects;
 
 namespace DiscordBot.Data.Models
 {
-    public class VideoInformationModel
+    public class VideoInformationModel : IModel<VideoInformationModel>
     {
         public string VideoId { get; set; }
         public string Title { get; set; }
@@ -10,6 +12,10 @@ namespace DiscordBot.Data.Models
         public ulong Length { get; set; }
         public string ThumbnailUrl { get; set; }
 
+        public VideoInformationModel Read(IEnumerable<VideoInformationModel> source)
+        {
+            return source.AsParallel().FirstOrDefault(r => VideoId == r.VideoId);
+        }
         public YoutubeVideoInformation Convert()
         {
             return new()

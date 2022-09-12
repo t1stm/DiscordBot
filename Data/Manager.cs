@@ -9,7 +9,7 @@ using DiscordBot.Methods;
 
 namespace DiscordBot.Data
 {
-    public class Manager <T> where T : class
+    public class Manager <T> where T : IModel<T>
     {
         private List<T> Data { get; set; } = new();
         private readonly string FileLocation;
@@ -45,23 +45,7 @@ namespace DiscordBot.Data
 
         public T Read(T searchData)
         {
-            lock (Data)
-            {
-                return searchData switch
-                {
-                    FuckYoutubeModel fm => Data.AsParallel()
-                        .FirstOrDefault(r =>
-                            string.Equals(((FuckYoutubeModel) (object) r).SearchTerm, fm.SearchTerm,
-                                StringComparison.InvariantCultureIgnoreCase) ||
-                            string.Equals(((FuckYoutubeModel) (object) r).VideoId, fm.VideoId,
-                                StringComparison.InvariantCultureIgnoreCase)),
-                    GuildsModel gm => Data.AsParallel().FirstOrDefault(r => ((GuildsModel) (object) r).Id == gm.Id),
-                    UsersModel um => Data.AsParallel().FirstOrDefault(r => ((UsersModel) (object) r).Id == um.Id),
-                    VideoInformationModel vm => Data.AsParallel()
-                        .FirstOrDefault(r => ((VideoInformationModel) (object) r).VideoId == vm.VideoId),
-                    _ => null
-                };
-            }
+            lock (Data) return searchData.Read(Data); // This makes me go over the rainbow.
         }
         
         public void Add(T addModel)
@@ -100,7 +84,7 @@ namespace DiscordBot.Data
             }
         }
         
-        public void SaveToFile(List<T> data)
+        private void SaveToFile(List<T> data)
         {
             lock (FileStream ?? new object())
             {
