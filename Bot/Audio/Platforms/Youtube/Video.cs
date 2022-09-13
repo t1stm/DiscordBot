@@ -273,7 +273,7 @@ namespace DiscordBot.Audio.Platforms.Youtube
             {
                 VideoId = id
             };
-            return Databases.VideoDatabase.Read(search).Convert();
+            return Databases.VideoDatabase.Read(search)?.Convert();
         }
 
         public static async Task<PlayableItem> Search(SpotifyTrack track, bool urgent = false)

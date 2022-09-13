@@ -9,7 +9,7 @@ using DiscordBot.Methods;
 
 namespace DiscordBot.Data
 {
-    public class Manager <T> where T : IModel<T>
+    public class DatabaseManager <T> where T : IModel<T>
     {
         private List<T> Data { get; set; } = new();
         private readonly string FileLocation;
@@ -18,7 +18,7 @@ namespace DiscordBot.Data
         private readonly Timer SaveTimer = new();
         private long OldCount;
 
-        public Manager()
+        public DatabaseManager()
         {
             SaveTimer.Elapsed += ElapsedEvent;
             SaveTimer.Interval = 300000; // ms | 5 Minutes

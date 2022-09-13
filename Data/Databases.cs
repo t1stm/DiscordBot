@@ -4,9 +4,9 @@ namespace DiscordBot.Data
 {
     public static class Databases
     {
-        public static readonly Manager<FuckYoutubeModel> FuckYoutubeDatabase = new();
-        public static readonly Manager<GuildsModel> GuildDatabase = new();
-        public static readonly Manager<UsersModel> UserDatabase = new();
-        public static readonly Manager<VideoInformationModel> VideoDatabase = new();
+        public static readonly DatabaseManager<FuckYoutubeModel> FuckYoutubeDatabase = new();
+        public static readonly DatabaseManager<GuildsModel> GuildDatabase = new();
+        public static readonly DatabaseManager<UsersModel> UserDatabase = new();
+        public static readonly DatabaseManager<VideoInformationModel> VideoDatabase = new();
     }
 }
