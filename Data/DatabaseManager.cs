@@ -47,6 +47,14 @@ namespace DiscordBot.Data
         {
             lock (Data) return searchData.Read(Data); // This makes me go over the rainbow.
         }
+
+        public List<T> ReadCopy()
+        {
+            lock (Data)
+            {
+                return Data.ToList();
+            }
+        }
         
         public void Add(T addModel)
         {

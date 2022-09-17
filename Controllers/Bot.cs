@@ -7,10 +7,11 @@ using DiscordBot.Audio;
 using DiscordBot.Audio.Objects;
 using DiscordBot.Audio.Platforms.Spotify;
 using DiscordBot.Audio.Platforms.Youtube;
+using DiscordBot.Data;
+using DiscordBot.Data.Models;
 using DiscordBot.Enums;
 using DiscordBot.Methods;
 using DiscordBot.Objects;
-using DiscordBot.Readers.MariaDB;
 using DSharpPlus;
 using Microsoft.AspNetCore.Mvc;
 using YoutubePlaylist = DiscordBot.Audio.Platforms.Youtube.Playlist;
@@ -26,17 +27,17 @@ namespace DiscordBot.Controllers
         {
             try
             {
-                var users = await ClientTokens.ReadAll();
+                var users = Databases.UserDatabase.ReadCopy();
                 lock (WebUiUsers)
                 {
-                    WebUiUsers = users;
+                    WebUiUsers = users.Select(r => new User(r)).ToList();
                 }
 
                 if (display) PrintUsers();
             }
             catch (Exception e)
             {
-                await Debug.WriteAsync($"Failed to load WebUI users, maybe MariaDB is offline: \"{e}\"");
+                await Debug.WriteAsync($"Failed to load WebUI users: \"{e}\"");
             }
         }
 

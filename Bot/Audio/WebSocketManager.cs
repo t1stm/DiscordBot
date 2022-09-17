@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using DiscordBot.Abstract;
 using DiscordBot.Audio.Objects;
 using DiscordBot.Audio.Platforms;
+using DiscordBot.Data;
 using DiscordBot.Methods;
 using DiscordBot.Objects;
 using DiscordBot.Readers.MariaDB;
@@ -54,7 +55,7 @@ namespace DiscordBot.Audio
                     return;
             }
 
-            if (!await IsInChannel(WebSockets[ws]))
+            if (!IsInChannel(WebSockets[ws]))
             {
                 await Send(ws, "Fail:Not in voice channel");
                 return;
@@ -323,9 +324,9 @@ namespace DiscordBot.Audio
             }
         }
 
-        private async Task<bool> IsInChannel(string token)
+        private bool IsInChannel(string token)
         {
-            var call = await ClientTokens.ReadAll();
+            var call = Databases.UserDatabase.ReadCopy().Select(r => new User(r)).ToList();
             return Player.VoiceUsers.Any(user => call.ContainsKey(user.Id) && call.GetValue(user.Id) == token);
         }
 

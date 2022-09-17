@@ -14,5 +14,15 @@ namespace DiscordBot.Objects
                 _ => English
             };
         }
+
+        public static ushort GetIndex(ILanguage language)
+        {
+            return language switch
+            {
+                English _ => 0,
+                Bulgarian _ => 1,
+                _ => 0
+            };
+        }
     }
 }

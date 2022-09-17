@@ -1,5 +1,7 @@
 using System.Linq;
 using System.Threading.Tasks;
+using DiscordBot.Data;
+using DiscordBot.Data.Models;
 using DiscordBot.Methods;
 using DiscordBot.Readers.MariaDB;
 using MySql.Data.MySqlClient;
@@ -8,13 +10,26 @@ namespace DiscordBot.Objects
 {
     public class User
     {
-        public ulong Id { get; init; }
-        public string Token { get; init; }
-        public bool VerboseMessages { get; init; } = true;
-        public ILanguage Language { get; init; } = Parser.FromNumber(0);
-        private bool UiScroll { get; } = true;
-        private bool UiForceScroll { get; } = false;
-        private bool LowSpec { get; } = false;
+        private readonly UsersModel Model;
+        public ulong Id => Model.Id;
+        public string Token => Model.Token;
+        public bool VerboseMessages => Model.VerboseMessages;
+
+        public ILanguage Language
+        {
+            get => Parser.FromNumber(Model.Language);
+
+            set => Model.Language = Parser.GetIndex(value);
+        }
+
+        private bool UiScroll => Model.UiScroll;
+        private bool UiForceScroll => Model.ForceUiScroll;
+        private bool LowSpec => Model.LowSpec;
+
+        public User(UsersModel model)
+        {
+            Model = model;
+        }
 
         public WebUISettings ToWebUISettings()
         {
@@ -40,35 +55,41 @@ namespace DiscordBot.Objects
         public static async Task<User> FromId(ulong id)
         {
             if (Bot.DebugMode) await Debug.WriteAsync($"Searching user: \"{id}\"");
-            var read = await ClientTokens.ReadAll();
-            var select = read.AsReadOnly().AsParallel().FirstOrDefault(r => r.Id == id);
-            if (select != null)
+            var searchUser = new UsersModel
+            {
+                Id = id
+            };
+            var selectedUser = Databases.UserDatabase.Read(searchUser);
+            if (selectedUser != null)
             {
                 if (Bot.DebugMode)
                     await Debug.WriteAsync(
-                        $"Returning found user: \"{id}\", {select.VerboseMessages}, {select.Language}");
-                return select;
+                        $"Returning found user: \"{id}\", {selectedUser.VerboseMessages}, {selectedUser.Language}");
+                return new User(selectedUser);
             }
 
-            var user = new User
+            var newUser = new UsersModel
             {
                 Id = id
             };
 
-            await ClientTokens.Add(id);
-            return user;
+            Databases.UserDatabase.Add(newUser);
+            return new User(newUser);
         }
 
         public static async Task<User?> FromToken(string token)
         {
             if (Bot.DebugMode) await Debug.WriteAsync($"Searching user with token: \"{token}\"");
-            var read = await ClientTokens.ReadAll();
-            var select = read.AsReadOnly().AsParallel().FirstOrDefault(r => r.Token == token);
+            var searchData = new UsersModel
+            {
+                Token = token
+            };
+            var select = Databases.UserDatabase.Read(searchData);
             if (select == null) return null;
             if (Bot.DebugMode)
                 await Debug.WriteAsync(
                     $"Returning user with token \"{token}\": \"{select.Id}\", {select.VerboseMessages}, {select.Language}");
-            return select;
+            return new User(select);
         }
     }
 
