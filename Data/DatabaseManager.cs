@@ -16,7 +16,7 @@ namespace DiscordBot.Data
         private readonly string ObjectName;
         private FileStream FileStream { get; set; }
         private readonly Timer SaveTimer = new();
-        private long OldCount;
+        private bool Modified;
 
         public DatabaseManager()
         {
@@ -31,7 +31,7 @@ namespace DiscordBot.Data
 
         private void ElapsedEvent(object sender, ElapsedEventArgs e)
         {
-            if (OldCount == Data.Count) return;
+            if (!Modified) return;
             if (Bot.DebugMode) Debug.Write($"Saving \"{ObjectName}\" database.");
             SaveToFile();
         }
@@ -43,8 +43,9 @@ namespace DiscordBot.Data
             ReadFile();
         }
 
-        public T Read(T searchData)
+        public T Read(T searchData, bool markModified = false)
         {
+            if (markModified) Modified = true;
             lock (Data) return searchData.Read(Data); // This makes me go over the rainbow.
         }
 
@@ -62,6 +63,7 @@ namespace DiscordBot.Data
             {
                 if (Data.Count == 0) ReadDatabase();
                 Data.Add(addModel);
+                Modified = true;
             }
         }
 
@@ -87,7 +89,6 @@ namespace DiscordBot.Data
             lock (Data)
             {
                 var copy = Data.ToList();
-                OldCount = copy.Count;
                 SaveToFile(copy);
             }
         }

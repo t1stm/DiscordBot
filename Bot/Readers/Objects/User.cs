@@ -1,9 +1,7 @@
-using System.Linq;
 using System.Threading.Tasks;
 using DiscordBot.Data;
 using DiscordBot.Data.Models;
 using DiscordBot.Methods;
-using DiscordBot.Readers.MariaDB;
 using MySql.Data.MySqlClient;
 
 namespace DiscordBot.Objects
@@ -11,8 +9,16 @@ namespace DiscordBot.Objects
     public class User
     {
         private readonly UsersModel Model;
-        public ulong Id => Model.Id;
-        public string Token => Model.Token;
+        public ulong Id {
+            get => Model.Id;
+            set => Model.Id = value;
+        }
+        public string Token
+        {
+            get => Model.Token;
+            set => Model.Token = value;
+        }
+
         public bool VerboseMessages => Model.VerboseMessages;
 
         public ILanguage Language

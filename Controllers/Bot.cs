@@ -49,7 +49,7 @@ namespace DiscordBot.Controllers
         public static async Task AddUser(ulong userId, string clientSecret)
         {
             var user = await Objects.User.FromId(userId);
-            await user.ModifySettings("token", clientSecret);
+            user.Token = clientSecret;
             await LoadUsers();
         }
 
