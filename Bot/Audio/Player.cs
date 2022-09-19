@@ -8,7 +8,6 @@ using System.Timers;
 using DiscordBot.Abstract;
 using DiscordBot.Audio.Objects;
 using DiscordBot.Audio.Platforms;
-using DiscordBot.Audio.Platforms.Discord;
 using DiscordBot.Enums;
 using DiscordBot.Messages;
 using DiscordBot.Readers.MariaDB;
@@ -314,7 +313,7 @@ namespace DiscordBot.Audio
             if (Queue.Current + times != Queue.Count + 1)
                 Queue.Current += times;
             await FfMpeg.Kill();
-            await Sink.FlushAsync();
+            await (Sink?.FlushAsync() ?? Task.CompletedTask);
             CancelSource.Cancel();
         }
 
@@ -418,8 +417,8 @@ namespace DiscordBot.Audio
             task.Start();
             Die = true;
             FfMpeg.KillSync();
-            Connection.Disconnect();
-            Sink.Dispose();
+            Connection?.Disconnect();
+            Sink?.Dispose();
             lock (Manager.Main)
             {
                 if (Manager.Main.Contains(this)) Manager.Main.Remove(this);
@@ -439,8 +438,8 @@ namespace DiscordBot.Audio
                 Die = true;
                 FfMpeg.KillSync();
                 CancelSource.Cancel();
-                Sink.Dispose();
-                Connection.Disconnect();
+                Sink?.Dispose();
+                Connection?.Disconnect();
                 lock (Manager.Main)
                 {
                     if (Manager.Main.Contains(this)) Manager.Main.Remove(this);

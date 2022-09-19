@@ -146,8 +146,8 @@ namespace DiscordBot.Messages
                 next = null;
             }
 
-            var req = Player.CurrentItem.GetRequester();
-            var length = Player.CurrentItem.GetLength();
+            var req = Player.CurrentItem?.GetRequester();
+            var length = Player.CurrentItem?.GetLength() ?? 0;
             var time = Player.Stopwatch.ElapsedMilliseconds;
             var progress = GenerateProgressbar(Player);
             var message = string.IsNullOrEmpty(Player.StatusbarMessage)
@@ -155,10 +155,10 @@ namespace DiscordBot.Messages
                 : $"\n\n{Player.StatusbarMessage}";
             if (Bot.DebugMode)
                 Debug.Write(
-                    $"Updated Statusbar in guild \"{Player.CurrentGuild.Name}\": Track: \"{Player.CurrentItem.GetName()}\", Time: {Time(Player.Stopwatch.Elapsed)} - {Time(TimeSpan.FromMilliseconds(length))}");
+                    $"Updated Statusbar in guild \"{Player.CurrentGuild.Name}\": Track: \"{Player.CurrentItem?.GetName()}\", Time: {Time(Player.Stopwatch.Elapsed)} - {Time(TimeSpan.FromMilliseconds(length))}");
 
             return
-                $"```{Language.Playing()}: \"{Player.CurrentItem.GetTypeOf(Language)}\"\n" +
+                $"```{Language.Playing()}: \"{Player.CurrentItem?.GetTypeOf(Language)}\"\n" +
                 $"({Player.Queue.Current + 1} - {Player.Queue.Count}) {Player?.CurrentItem?.GetName(Player.Settings.ShowOriginalInfo) ?? "Something's broken."}\n" +
                 $"{progress} ( {Player.Paused switch {false => "▶️", true => "⏸️"}} {Time(TimeSpan.FromMilliseconds(time))} - {length switch {0 => "∞", _ => Time(TimeSpan.FromMilliseconds(length))}} )" +
                 $"{Player.Sink switch {null => "", _ => Player.Sink.VolumeModifier switch {0 => " (🔇", >0 and <.33 => " (🔈", >=.33 and <=.66 => " (🔉", >.66 => " (🔊", _ => " (🔊"} + $" {(int) (Player.Sink.VolumeModifier * 100)}%)"}}" +
