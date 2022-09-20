@@ -37,11 +37,11 @@ namespace DiscordBot.Audio
             {
                 lock (Main)
                 {
-                    if (Main.Any(pl => pl.VoiceChannel.Id == channel.Id))
+                    if (Main.Any(pl => pl.VoiceChannel?.Id == channel.Id))
                     {
                         Debug.Write($"Returning channel: \"{channel.Name}\" in guild: \"{channel.Guild.Name}\"");
                         failedGetAttempts = 0;
-                        return Main.First(pl => pl.VoiceChannel.Id == channel.Id);
+                        return Main.First(pl => pl.VoiceChannel?.Id == channel.Id);
                     }
 
                     var conn = client.GetVoiceNext().GetConnection(channel.Guild);
@@ -142,13 +142,13 @@ namespace DiscordBot.Audio
                         items = await Search.Get(term, attachments, user.Guild.Id);
                         var builder =
                             new DiscordMessageBuilder().WithContent(lang.ThisMessageWillUpdateShortly().CodeBlocked());
-                        player.Channel = player.CurrentClient.Guilds[userVoiceS.Guild.Id].Channels[messageChannel.Id];
+                        player.Channel = player.CurrentClient!.Guilds[userVoiceS.Guild.Id].Channels[messageChannel.Id];
                         player.Statusbar.Message = await builder.SendAsync(player.Channel);
                     }
                     else
                     {
                         if (string.IsNullOrEmpty(term)) return;
-                        player.Channel = player.CurrentClient.Guilds[userVoiceS.Guild.Id].Channels[messageChannel.Id];
+                        player.Channel = player.CurrentClient!.Guilds[userVoiceS.Guild.Id].Channels[messageChannel.Id];
                         if (select && !term.StartsWith("http"))
                         {
                             var results = await Search.Get(term, returnAllResults: true);
@@ -203,7 +203,7 @@ namespace DiscordBot.Audio
                     player.Connection = await player.CurrentClient.GetVoiceNext()
                         .ConnectAsync(player.CurrentClient.Guilds[userVoiceS.Guild.Id].Channels[userVoiceS.Id]);
                     player.VoiceChannel = userVoiceS;
-                    player.Sink = player.Connection.GetTransmitSink();
+                    player.Sink = player.Connection?.GetTransmitSink();
                     player.CurrentGuild = user.Guild;
                     var playerTask = new Task(async () =>
                     {
@@ -282,9 +282,9 @@ namespace DiscordBot.Audio
                     items.ForEach(it => it.SetRequester(user));
                     player.Queue.AddToQueue(items);
                     if (items.Count > 1)
-                        await player.CurrentClient.SendMessageAsync(messageChannel, lang.AddedItem(term).CodeBlocked());
+                        await player.CurrentClient!.SendMessageAsync(messageChannel, lang.AddedItem(term).CodeBlocked());
                     else
-                        await player.CurrentClient.SendMessageAsync(messageChannel,
+                        await player.CurrentClient!.SendMessageAsync(messageChannel,
                             lang.AddedItem(
                                     $"({player.Queue.Items.IndexOf(items.First()) + 1}) - {items.First().GetName(player.Settings.ShowOriginalInfo)}")
                                 .CodeBlocked());
@@ -503,6 +503,7 @@ namespace DiscordBot.Audio
 
         public static async Task Remove(CommandContext ctx, string text)
         {
+            text ??= "";
             var user = await User.FromId(ctx.User.Id);
             var userVoiceS = ctx.Member?.VoiceState?.Channel;
             if (userVoiceS == null)
@@ -609,7 +610,7 @@ namespace DiscordBot.Audio
             }
 
             if (!move.Contains("!to"))
-                await player.CurrentClient.SendMessageAsync(ctx.Channel, player.Settings.Language.InvalidMoveFormat());
+                await player.CurrentClient!.SendMessageAsync(ctx.Channel, player.Settings.Language.InvalidMoveFormat());
 
             var tracks = move.Split("!to");
             var success = player.Queue.Move(tracks[0], tracks[1], out var i1, out var i2);
@@ -787,7 +788,7 @@ namespace DiscordBot.Audio
                 return;
             }
 
-            var token = GetFreePlaylistToken(ctx.Guild.Id, player.VoiceChannel.Id);
+            var token = GetFreePlaylistToken(ctx.Guild.Id, player.VoiceChannel?.Id);
             FileStream fs;
             lock (player.Queue.Items)
             {
