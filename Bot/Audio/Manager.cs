@@ -756,8 +756,10 @@ namespace DiscordBot.Audio
             player.Queue.Clear();
         }
 
-        public static string GetFreePlaylistToken(ulong guildId, ulong channelId)
+        public static string GetFreePlaylistToken(ulong? guildId, ulong? channelId)
         {
+            guildId ??= 0;
+            channelId ??= 0;
             var token = $"{guildId}/{channelId}/{Bot.RandomString(6)}";
             if (!Directory.Exists($"{Bot.WorkingDirectory}/Playlists/{guildId}"))
                 Directory.CreateDirectory($"{Bot.WorkingDirectory}/Playlists/{guildId}");

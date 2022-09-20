@@ -1,3 +1,4 @@
+#nullable enable
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -34,52 +35,55 @@ namespace DiscordBot.Audio
         }
 
         private FfMpeg FfMpeg { get; set; } = new();
-        private ElapsedEventHandler Handler { get; set; }
+        private ElapsedEventHandler? Handler { get; set; }
         private bool WaitingToLeave { get; set; }
         public bool Started { get; set; }
         public WebSocketManager WebSocketManager { get; }
-        public DiscordChannel VoiceChannel { get; set; }
+        public DiscordChannel? VoiceChannel { get; set; }
         public bool Paused { get; set; }
-        public GuildSettings Settings { get; set; }
+        public GuildSettings Settings { get; set; } = new();
         public bool Normalize => Settings.Normalize;
         private CancellationTokenSource CancelSource { get; set; } = new();
         public Queue Queue { get; }
         public Statusbar Statusbar { get; } = new();
-        public DiscordChannel Channel { get; set; }
-        public DiscordClient CurrentClient { get; init; }
-        public DiscordGuild CurrentGuild { get; set; }
-        public VoiceTransmitSink Sink { get; set; }
-        public VoiceNextConnection Connection { get; set; }
+        public DiscordChannel? Channel { get; set; }
+        public DiscordClient? CurrentClient { get; init; }
+        public DiscordGuild? CurrentGuild { get; set; }
+        public VoiceTransmitSink? Sink { get; set; }
+        public VoiceNextConnection? Connection { get; set; }
         public bool UpdatedChannel { get; private set; }
         public Loop LoopStatus { get; set; } = Loop.None;
         private bool BreakNow { get; set; }
-        public PlayableItem CurrentItem { get; private set; }
+        public PlayableItem? CurrentItem { get; private set; }
         public Stopwatch Stopwatch { get; } = new();
         public Stopwatch WaitingStopwatch { get; } = new();
-        public List<DiscordMember> VoiceUsers { get; set; }
+        public List<DiscordMember> VoiceUsers { get; set; } = new();
         private bool Die { get; set; }
         public string StatusbarMessage { get; } = "";
         private double Volume { get; set; } = 100;
-        public string QueueToken { get; set; }
+        public string? QueueToken { get; set; }
         public bool SavedQueue { get; set; }
+        private object LockObject { get; } = new();
 
         public async Task Play(int current = 0)
         {
             try
             {
-                QueueToken ??= Manager.GetFreePlaylistToken(CurrentGuild.Id, VoiceChannel.Id);
+                QueueToken ??= Manager.GetFreePlaylistToken(CurrentGuild?.Id, VoiceChannel?.Id);
                 if (Die) return;
                 Statusbar.Client = CurrentClient;
                 Statusbar.Guild = CurrentGuild;
                 Statusbar.Player = this;
                 Statusbar.Channel = Channel;
+                if (Connection != null)
                 Connection.VoiceSocketErrored += async (_, args) =>
                 {
                     await Debug.WriteAsync(
-                        $"VoiceSocket Errored in Guild: \"{CurrentGuild.Name}\" with arguments \"{args.Exception}\"\n\nAttempting to reconnect.",
+                        $"VoiceSocket Errored in Guild: \"{CurrentGuild?.Name}\" with arguments \"{args.Exception}\"\n\nAttempting to reconnect.",
                         true, Debug.DebugColor.Urgent);
                     UpdateChannel(VoiceChannel);
-                    await CurrentClient.SendMessageAsync(Channel, Settings.Language.DiscordDidTheFunny().CodeBlocked());
+                    await (CurrentClient?.SendMessageAsync(Channel,
+                        Settings.Language.DiscordDidTheFunny().CodeBlocked()) ?? Task.CompletedTask);
                 };
 
                 var statusbar = new Task(async () => { await Statusbar.Start(); });
@@ -167,10 +171,9 @@ namespace DiscordBot.Audio
             }
         }
 
-        private async void TimerEvent(object o, ElapsedEventArgs elapsedEventArgs)
+        private async void TimerEvent(object? o, ElapsedEventArgs elapsedEventArgs)
         {
             await Queue.ProcessAll();
-            if (WebSocketManager == null) return;
             await WebSocketManager.BroadcastCurrentTime();
         }
 
@@ -179,7 +182,7 @@ namespace DiscordBot.Audio
             try
             {
                 if (Queue.Items == null) return;
-                QueueToken ??= Manager.GetFreePlaylistToken(CurrentGuild.Id, VoiceChannel.Id);
+                QueueToken ??= Manager.GetFreePlaylistToken(CurrentGuild?.Id, VoiceChannel?.Id);
                 lock (Queue.Items)
                 {
                     SharePlaylist.Write(QueueToken, Queue.Items);
@@ -199,7 +202,7 @@ namespace DiscordBot.Audio
             {
                 CancelSource = new CancellationTokenSource();
                 UpdatedChannel = false;
-                lock (CurrentItem)
+                lock (LockObject)
                 {
                     CurrentItem = item;
                 }
@@ -241,11 +244,12 @@ namespace DiscordBot.Audio
         {
             if (percent is > 200 or < 1) return false;
             percent ??= Volume;
+            if (Sink == null) return true;
             Sink.VolumeModifier = (Volume = percent.Value) / 100;
             return true;
         }
 
-        public void UpdateChannel(DiscordChannel channel)
+        public void UpdateChannel(DiscordChannel? channel)
         {
             var task = new Task(async () =>
             {
@@ -281,8 +285,8 @@ namespace DiscordBot.Audio
                             $"VoiceSocket Errored in Guild: \"{CurrentGuild.Name}\" with arguments \"{args.Exception}\" - Attempting to reconnect.",
                             true, Debug.DebugColor.Urgent);
                         UpdateChannel(VoiceChannel);
-                        await CurrentClient.SendMessageAsync(Channel,
-                            Settings.Language.DiscordDidTheFunny().CodeBlocked());
+                        await (CurrentClient?.SendMessageAsync(Channel,
+                            Settings.Language.DiscordDidTheFunny().CodeBlocked()) ?? Task.CompletedTask);
                     };
                     Sink = Connection.GetTransmitSink();
                     await Skip(0);
@@ -324,7 +328,7 @@ namespace DiscordBot.Audio
             CancelSource.Cancel();
         }
 
-        public async Task<PlayableItem> RemoveFromQueue(int index)
+        public async Task<PlayableItem?> RemoveFromQueue(int index)
         {
             try
             {
@@ -350,7 +354,7 @@ namespace DiscordBot.Audio
             return null;
         }
 
-        public async Task<PlayableItem> RemoveFromQueue(PlayableItem item)
+        public async Task<PlayableItem?> RemoveFromQueue(PlayableItem item)
         {
             var index = Queue.Items.IndexOf(item);
             try
@@ -376,7 +380,7 @@ namespace DiscordBot.Audio
             }
         }
 
-        public async Task<PlayableItem> RemoveFromQueue(string name)
+        public async Task<PlayableItem?> RemoveFromQueue(string name)
         {
             var item = Queue.GetWithString(name);
             var index = Queue.Items.IndexOf(item);
@@ -424,7 +428,7 @@ namespace DiscordBot.Audio
                 if (Manager.Main.Contains(this)) Manager.Main.Remove(this);
             }
 
-            Debug.Write($"Disconnecting from channel: {VoiceChannel.Name} in guild: {CurrentGuild.Name}");
+            Debug.Write($"Disconnecting from channel: {VoiceChannel?.Name} in guild: {CurrentGuild?.Name}");
         }
 
         public async Task DisconnectAsync(string message = "Bye! \\(◕ ◡ ◕\\)")
@@ -446,7 +450,7 @@ namespace DiscordBot.Audio
                 }
 
                 await Debug.WriteAsync(
-                    $"Disconnecting from channel: {VoiceChannel.Name} in guild: {CurrentGuild.Name}");
+                    $"Disconnecting from channel: {VoiceChannel?.Name} in guild: {CurrentGuild?.Name}");
             }
             catch (Exception e)
             {
@@ -459,7 +463,7 @@ namespace DiscordBot.Audio
             Queue.Shuffle();
         }
 
-        public PlayableItem GoToIndex(int index)
+        public PlayableItem? GoToIndex(int index)
         {
             Paused = false;
             if (index >= Queue.Count && index < -1) return null;
@@ -477,11 +481,12 @@ namespace DiscordBot.Audio
             Stopwatch.Stop();
         }
 
-        public PlayerInfo ToPlayerInfo()
+        public PlayerInfo? ToPlayerInfo()
         {
             var stats = new PlayerInfo();
             try
             {
+                if (CurrentItem == null) return null;
                 stats.Title = CurrentItem.GetTitle();
                 stats.Author = CurrentItem.GetAuthor();
                 stats.Current = Stopwatch.Elapsed.ToString("hh\\:mm\\:ss");
