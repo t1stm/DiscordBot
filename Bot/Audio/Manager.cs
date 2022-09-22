@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using DiscordBot.Abstract;
 using DiscordBot.Audio.Objects;
 using DiscordBot.Audio.Platforms;
+using DiscordBot.Data.Models;
 using DiscordBot.Methods;
 using DiscordBot.Miscellaneous;
 using DiscordBot.Objects;
@@ -131,7 +132,7 @@ namespace DiscordBot.Audio
         {
             try
             {
-                var lang = player.Settings.Language;
+                var lang = player.Language;
                 if (!player.Started)
                 {
                     player.Started = true;
@@ -338,7 +339,7 @@ namespace DiscordBot.Audio
             if (player == null)
             {
                 var guild = await GuildSettings.FromId(ctx.Guild.Id);
-                await Bot.Reply(ctx, guild.Language.BotIsNotInTheChannel());
+                await Bot.Reply(ctx, Parser.FromNumber(guild.Language).BotIsNotInTheChannel());
                 return;
             }
 
@@ -371,7 +372,7 @@ namespace DiscordBot.Audio
             if (player == null)
             {
                 var guild = await GuildSettings.FromId(ctx.Guild.Id);
-                await Bot.Reply(ctx, guild.Language.BotIsNotInTheChannel());
+                await Bot.Reply(ctx, Parser.FromNumber(guild.Language).BotIsNotInTheChannel());
                 return;
             }
 
@@ -406,11 +407,11 @@ namespace DiscordBot.Audio
             if (player == null)
             {
                 var guild = await GuildSettings.FromId(ctx.Guild.Id);
-                await Bot.Reply(ctx, guild.Language.BotIsNotInTheChannel());
+                await Bot.Reply(ctx, Parser.FromNumber(guild.Language).BotIsNotInTheChannel());
                 return;
             }
 
-            await ctx.RespondAsync(player.Settings.Language.LoopStatusUpdate(player.ToggleLoop()).CodeBlocked());
+            await ctx.RespondAsync(player.Language.LoopStatusUpdate(player.ToggleLoop()).CodeBlocked());
         }
 
         public static async Task Pause(CommandContext ctx)
@@ -427,7 +428,7 @@ namespace DiscordBot.Audio
             if (player == null)
             {
                 var guild = await GuildSettings.FromId(ctx.Guild.Id);
-                await Bot.Reply(ctx, guild.Language.BotIsNotInTheChannel());
+                await Bot.Reply(ctx, Parser.FromNumber(guild.Language).BotIsNotInTheChannel());
                 return;
             }
 
@@ -456,7 +457,7 @@ namespace DiscordBot.Audio
                 {
                     if (nextSong > player.Queue.Count)
                     {
-                        await Bot.Reply(ctx, player.Settings.Language.NumberBiggerThanQueueLength(nextSong));
+                        await Bot.Reply(ctx, player.Language.NumberBiggerThanQueueLength(nextSong));
                         break;
                     }
 
@@ -464,7 +465,7 @@ namespace DiscordBot.Audio
                     player.Queue.RemoveFromQueue(thing);
                     player.Queue.AddToQueueNext(thing);
                     await Bot.Reply(player.CurrentClient, ctx.Channel,
-                        player.Settings.Language.PlayingItemAfterThis(player.Queue.Items.IndexOf(thing) + 1,
+                        player.Language.PlayingItemAfterThis(player.Queue.Items.IndexOf(thing) + 1,
                             thing.GetName()));
                     return;
                 } while (
@@ -488,7 +489,7 @@ namespace DiscordBot.Audio
 
             if (item.Count < 1)
             {
-                await Bot.Reply(ctx, player.Settings.Language.NoResultsFound(term));
+                await Bot.Reply(ctx, player.Language.NoResultsFound(term));
                 return;
             }
 
@@ -496,8 +497,8 @@ namespace DiscordBot.Audio
             player.Queue.AddToQueueNext(item);
             await Bot.Reply(player.CurrentClient, ctx.Channel,
                 item.Count > 1
-                    ? player.Settings.Language.PlayingItemAfterThis(term)
-                    : player.Settings.Language.PlayingItemAfterThis(player.Queue.Items.IndexOf(item[0]) + 1,
+                    ? player.Language.PlayingItemAfterThis(term)
+                    : player.Language.PlayingItemAfterThis(player.Queue.Items.IndexOf(item[0]) + 1,
                         item[0].GetName(player.Settings.ShowOriginalInfo)));
         }
 
@@ -516,7 +517,7 @@ namespace DiscordBot.Audio
             if (player == null)
             {
                 var guild = await GuildSettings.FromId(ctx.Guild.Id);
-                await Bot.Reply(ctx, guild.Language.BotIsNotInTheChannel());
+                await Bot.Reply(ctx, Parser.FromNumber(guild.Language).BotIsNotInTheChannel());
                 return;
             }
 
@@ -525,11 +526,11 @@ namespace DiscordBot.Audio
                 : await player.RemoveFromQueue(text);
             if (item == null)
             {
-                await Bot.Reply(player.CurrentClient, ctx.Channel, player.Settings.Language.FailedToRemove(text));
+                await Bot.Reply(player.CurrentClient, ctx.Channel, player.Language.FailedToRemove(text));
                 return;
             }
 
-            await Bot.Reply(player.CurrentClient, ctx.Channel, player.Settings.Language.RemovingItem(item.GetName()));
+            await Bot.Reply(player.CurrentClient, ctx.Channel, player.Language.RemovingItem(item.GetName()));
         }
 
         public static MemoryStream GetQrCodeForWebUi(string key)
@@ -569,7 +570,7 @@ namespace DiscordBot.Audio
                 await ctx.Member.SendMessageAsync(GetWebUiMessage(user.Token,
                     user.Language.YouHaveAlreadyGeneratedAWebUiCode(),
                     user.Language.ControlTheBotUsingAFancyInterface()));
-                await Bot.Reply(ctx, guild.Language.SendingADirectMessageContainingTheInformation());
+                await Bot.Reply(ctx, Parser.FromNumber(guild.Language).SendingADirectMessageContainingTheInformation());
                 return;
             }
 
@@ -577,7 +578,7 @@ namespace DiscordBot.Audio
             await Controllers.Bot.AddUser(ctx.Member.Id, randomString);
             await ctx.Member.SendMessageAsync(GetWebUiMessage(randomString, user.Language.YourWebUiCodeIs(),
                 user.Language.ControlTheBotUsingAFancyInterface()));
-            await Bot.Reply(ctx, guild.Language.SendingADirectMessageContainingTheInformation());
+            await Bot.Reply(ctx, Parser.FromNumber(guild.Language).SendingADirectMessageContainingTheInformation());
         }
 
         public static async Task Move(CommandContext ctx, string move)
@@ -594,7 +595,7 @@ namespace DiscordBot.Audio
             if (player == null)
             {
                 var guild = await GuildSettings.FromId(ctx.Guild.Id);
-                await Bot.Reply(ctx, guild.Language.BotIsNotInTheChannel());
+                await Bot.Reply(ctx, Parser.FromNumber(guild.Language).BotIsNotInTheChannel());
                 return;
             }
 
@@ -604,20 +605,20 @@ namespace DiscordBot.Audio
                 var succ = player.Queue.Move(thing1 - 1, thing2 - 1, out var item);
                 if (succ)
                     await Bot.Reply(player.CurrentClient, ctx.Channel,
-                        player.Settings.Language.Moved(thing1, item.GetName(), thing2));
-                else await Bot.Reply(player.CurrentClient, ctx.Channel, player.Settings.Language.FailedToMove());
+                        player.Language.Moved(thing1, item.GetName(), thing2));
+                else await Bot.Reply(player.CurrentClient, ctx.Channel, player.Language.FailedToMove());
                 return;
             }
 
             if (!move.Contains("!to"))
-                await player.CurrentClient!.SendMessageAsync(ctx.Channel, player.Settings.Language.InvalidMoveFormat());
+                await player.CurrentClient!.SendMessageAsync(ctx.Channel, player.Language.InvalidMoveFormat());
 
             var tracks = move.Split("!to");
             var success = player.Queue.Move(tracks[0], tracks[1], out var i1, out var i2);
             if (success)
                 await Bot.Reply(player.CurrentClient, ctx.Channel,
-                    player.Settings.Language.SwitchedThePlacesOf(i1.GetName(), i2.GetName()));
-            else await Bot.Reply(player.CurrentClient, ctx.Channel, player.Settings.Language.FailedToMove());
+                    player.Language.SwitchedThePlacesOf(i1.GetName(), i2.GetName()));
+            else await Bot.Reply(player.CurrentClient, ctx.Channel, player.Language.FailedToMove());
         }
 
         public static async Task Shuffle(CommandContext ctx, int seedInt)
@@ -674,14 +675,14 @@ namespace DiscordBot.Audio
             if (player == null)
             {
                 var guild = await GuildSettings.FromId(ctx.Guild.Id);
-                await Bot.Reply(ctx, guild.Language.BotIsNotInTheChannel());
+                await Bot.Reply(ctx, Parser.FromNumber(guild.Language).BotIsNotInTheChannel());
                 return;
             }
 
             await Bot.Reply(ctx,
-                new DiscordMessageBuilder().WithContent(player.Settings.Language.CurrentQueue().CodeBlocked()).WithFile(
+                new DiscordMessageBuilder().WithContent(player.Language.CurrentQueue().CodeBlocked()).WithFile(
                     "queue.txt",
-                    new MemoryStream(Encoding.UTF8.GetBytes(player.Queue + player.Settings.Language.TechTip()))));
+                    new MemoryStream(Encoding.UTF8.GetBytes(player.Queue + player.Language.TechTip()))));
         }
 
         public static async Task GoTo(CommandContext ctx, int index)
@@ -698,12 +699,12 @@ namespace DiscordBot.Audio
             if (player == null)
             {
                 var guild = await GuildSettings.FromId(ctx.Guild.Id);
-                await Bot.Reply(ctx, guild.Language.BotIsNotInTheChannel());
+                await Bot.Reply(ctx, Parser.FromNumber(guild.Language).BotIsNotInTheChannel());
                 return;
             }
 
             var thing = player.GoToIndex(index - 1);
-            await Bot.Reply(ctx, player.Settings.Language.GoingTo(index, thing?.GetName()));
+            await Bot.Reply(ctx, player.Language.GoingTo(index, thing?.GetName()));
         }
 
         public static async Task Volume(CommandContext ctx, double volume)
@@ -720,7 +721,7 @@ namespace DiscordBot.Audio
             if (player == null)
             {
                 var guild = await GuildSettings.FromId(ctx.Guild.Id);
-                await Bot.Reply(ctx, guild.Language.BotIsNotInTheChannel());
+                await Bot.Reply(ctx, Parser.FromNumber(guild.Language).BotIsNotInTheChannel());
                 return;
             }
 
@@ -728,10 +729,10 @@ namespace DiscordBot.Audio
             switch (val)
             {
                 case true:
-                    await Bot.Reply(ctx, player.Settings.Language.SetVolumeTo(volume));
+                    await Bot.Reply(ctx, player.Language.SetVolumeTo(volume));
                     break;
                 case false:
-                    await Bot.Reply(ctx, player.Settings.Language.InvalidVolumeRange());
+                    await Bot.Reply(ctx, player.Language.InvalidVolumeRange());
                     break;
             }
         }
@@ -750,7 +751,7 @@ namespace DiscordBot.Audio
             if (player == null)
             {
                 var guild = await GuildSettings.FromId(ctx.Guild.Id);
-                await Bot.Reply(ctx, guild.Language.BotIsNotInTheChannel());
+                await Bot.Reply(ctx, Parser.FromNumber(guild.Language).BotIsNotInTheChannel());
                 return;
             }
 
@@ -784,7 +785,7 @@ namespace DiscordBot.Audio
             if (player == null)
             {
                 var guild = await GuildSettings.FromId(ctx.Guild.Id);
-                await Bot.Reply(ctx, guild.Language.BotIsNotInTheChannel());
+                await Bot.Reply(ctx, Parser.FromNumber(guild.Language).BotIsNotInTheChannel());
                 return;
             }
 
@@ -798,7 +799,7 @@ namespace DiscordBot.Audio
 
             await ctx.RespondAsync(
                 new DiscordMessageBuilder()
-                    .WithContent(player.Settings.Language.QueueSavedSuccessfully(token).CodeBlocked())
+                    .WithContent(player.Language.QueueSavedSuccessfully(token).CodeBlocked())
                     .WithFile($"{token}.batp", fs));
         }
 
@@ -816,7 +817,7 @@ namespace DiscordBot.Audio
             if (player == null)
             {
                 var guild = await GuildSettings.FromId(ctx.Guild.Id);
-                await Bot.Reply(ctx, guild.Language.OneCannotRecieveBlessingNothingToPlay());
+                await Bot.Reply(ctx, Parser.FromNumber(guild.Language).OneCannotRecieveBlessingNothingToPlay());
                 return;
             }
 
@@ -826,7 +827,7 @@ namespace DiscordBot.Audio
         public static async Task SendLyrics(CommandContext ctx, string text)
         {
             string query;
-            GuildSettings guild;
+            GuildsModel guild;
             switch (string.IsNullOrEmpty(text))
             {
                 case true:
@@ -842,7 +843,7 @@ namespace DiscordBot.Audio
                     if (player == null)
                     {
                         guild = await GuildSettings.FromId(ctx.Guild.Id);
-                        await Bot.Reply(ctx, guild.Language.BotNotInChannelLyrics());
+                        await Bot.Reply(ctx, Parser.FromNumber(guild.Language).BotNotInChannelLyrics());
                         return;
                     }
 
@@ -861,7 +862,7 @@ namespace DiscordBot.Audio
             var lyrics = await GetLyrics(query);
             if (lyrics == null)
             {
-                await Bot.Reply(ctx, guild.Language.NoResultsFoundLyrics(query));
+                await Bot.Reply(ctx, Parser.FromNumber(guild.Language).NoResultsFoundLyrics(query));
                 return;
             }
 
@@ -869,7 +870,7 @@ namespace DiscordBot.Audio
             {
                 await Bot.Reply(ctx, new DiscordMessageBuilder()
                     .WithContent(
-                        guild.Language.LyricsLong().CodeBlocked())
+                        Parser.FromNumber(guild.Language).LyricsLong().CodeBlocked())
                     .WithFile("lyrics.txt", new MemoryStream(Encoding.UTF8.GetBytes(lyrics)))
                 );
                 return;

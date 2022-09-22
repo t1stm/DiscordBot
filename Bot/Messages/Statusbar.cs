@@ -24,10 +24,7 @@ namespace DiscordBot.Messages
         public bool HasButtons => NewStatusbar;
         private bool Stopped { get; set; }
         public Player Player { get; set; }
-
-        private ILanguage Language =>
-            Player?.Settings.Language ?? Parser.FromNumber(0); // If null, gets the English Language.
-
+        private ILanguage Language => Player?.Language ?? Parser.FromNumber(0); // If null, gets the English Language.
         public DiscordGuild Guild { get; set; }
         public DiscordChannel Channel { get; set; }
         public DiscordClient Client { get; set; }

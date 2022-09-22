@@ -57,14 +57,14 @@ namespace DiscordBot
         public async Task PlayCommand(InteractionContext ctx, [Option("searchterm", "Search Term")] string term)
         {
             var guild = await GuildSettings.FromId(ctx.Guild.Id);
-            await ctx.CreateResponseAsync(guild.Language.SlashHello().CodeBlocked());
+            await ctx.CreateResponseAsync(Parser.FromNumber(guild.Language).SlashHello().CodeBlocked());
             var userVoiceS = ctx.Member?.VoiceState?.Channel;
             if (userVoiceS == null)
             {
                 await ctx.EditResponseAsync(new DiscordWebhookBuilder
                 {
                     Content = //"```You cannot use this command while not being in a channel.```"
-                        guild.Language.SlashNotInChannel().CodeBlocked()
+                        Parser.FromNumber(guild.Language).SlashNotInChannel().CodeBlocked()
                 });
                 return;
             }
@@ -74,14 +74,14 @@ namespace DiscordBot
             {
                 await ctx.EditResponseAsync(new DiscordWebhookBuilder
                 {
-                    Content = guild.Language.NoFreeBotAccounts().CodeBlocked()
+                    Content = Parser.FromNumber(guild.Language).NoFreeBotAccounts().CodeBlocked()
                 });
                 return;
             }
 
             await ctx.EditResponseAsync(new DiscordWebhookBuilder
             {
-                Content = guild.Language.SlashPlayCommand(term).CodeBlocked()
+                Content = Parser.FromNumber(guild.Language).SlashPlayCommand(term).CodeBlocked()
             });
             await Manager.Play(term, false, player, ctx.Member?.VoiceState?.Channel, ctx.Member, null, ctx.Channel);
         }
@@ -93,18 +93,18 @@ namespace DiscordBot
             var userVoiceS = ctx.Member?.VoiceState?.Channel;
             if (userVoiceS == null)
             {
-                await ctx.CreateResponseAsync(guild.Language.SlashNotInChannel().CodeBlocked(), true);
+                await ctx.CreateResponseAsync(Parser.FromNumber(guild.Language).SlashNotInChannel().CodeBlocked(), true);
                 return;
             }
 
             var player = Manager.GetPlayer(userVoiceS, ctx.Client);
             if (player == null)
             {
-                await ctx.CreateResponseAsync(guild.Language.SlashBotNotInChannel().CodeBlocked(), true);
+                await ctx.CreateResponseAsync(Parser.FromNumber(guild.Language).SlashBotNotInChannel().CodeBlocked(), true);
                 return;
             }
 
-            await ctx.CreateResponseAsync(guild.Language.SlashLeaving().CodeBlocked());
+            await ctx.CreateResponseAsync(Parser.FromNumber(guild.Language).SlashLeaving().CodeBlocked());
 
             player.Disconnect();
             player.Statusbar.Stop();
@@ -170,14 +170,14 @@ namespace DiscordBot
             var userVoiceS = ctx.Member?.VoiceState?.Channel;
             if (userVoiceS == null)
             {
-                await ctx.CreateResponseAsync(guild.Language.SlashNotInChannel().CodeBlocked(), true);
+                await ctx.CreateResponseAsync(Parser.FromNumber(guild.Language).SlashNotInChannel().CodeBlocked(), true);
                 return;
             }
 
             var player = Manager.GetPlayer(userVoiceS, ctx.Client);
             if (player == null)
             {
-                await ctx.CreateResponseAsync(guild.Language.SlashBotNotInChannel().CodeBlocked(), true);
+                await ctx.CreateResponseAsync(Parser.FromNumber(guild.Language).SlashBotNotInChannel().CodeBlocked(), true);
                 return;
             }
 
@@ -188,7 +188,7 @@ namespace DiscordBot
                 _ => Loop.None
             };
 
-            await ctx.CreateResponseAsync(guild.Language.LoopStatusUpdate(player.LoopStatus).CodeBlocked());
+            await ctx.CreateResponseAsync(Parser.FromNumber(guild.Language).LoopStatusUpdate(player.LoopStatus).CodeBlocked());
         }
 
         public async Task MoveCommand(InteractionContext ctx, [Option("item", "The item which you want to move")]
@@ -199,19 +199,19 @@ namespace DiscordBot
             var userVoiceS = ctx.Member?.VoiceState?.Channel;
             if (userVoiceS == null)
             {
-                await ctx.CreateResponseAsync(guild.Language.SlashNotInChannel().CodeBlocked(), true);
+                await ctx.CreateResponseAsync(Parser.FromNumber(guild.Language).SlashNotInChannel().CodeBlocked(), true);
                 return;
             }
 
             var player = Manager.GetPlayer(userVoiceS, ctx.Client);
             if (player == null)
             {
-                await ctx.CreateResponseAsync(guild.Language.SlashBotNotInChannel().CodeBlocked(), true);
+                await ctx.CreateResponseAsync(Parser.FromNumber(guild.Language).SlashBotNotInChannel().CodeBlocked(), true);
                 return;
             }
 
             player.Queue.Move((int) x - 1, (int) y - 1, out var item);
-            await ctx.CreateResponseAsync(guild.Language.Moved((int) x, item.GetName(), (int) y).CodeBlocked());
+            await ctx.CreateResponseAsync(Parser.FromNumber(guild.Language).Moved((int) x, item.GetName(), (int) y).CodeBlocked());
         }
 
         [SlashCommand("skip", "This is the skip command. It makes the bot skip an item.")]
@@ -221,18 +221,18 @@ namespace DiscordBot
             var userVoiceS = ctx.Member?.VoiceState?.Channel;
             if (userVoiceS == null)
             {
-                await ctx.CreateResponseAsync(guild.Language.SlashNotInChannel().CodeBlocked(), true);
+                await ctx.CreateResponseAsync(Parser.FromNumber(guild.Language).SlashNotInChannel().CodeBlocked(), true);
                 return;
             }
 
             var player = Manager.GetPlayer(userVoiceS, ctx.Client);
             if (player == null)
             {
-                await ctx.CreateResponseAsync(guild.Language.SlashBotNotInChannel().CodeBlocked(), true);
+                await ctx.CreateResponseAsync(Parser.FromNumber(guild.Language).SlashBotNotInChannel().CodeBlocked(), true);
                 return;
             }
 
-            await ctx.CreateResponseAsync(guild.Language.SlashSkipping((int) times).CodeBlocked());
+            await ctx.CreateResponseAsync(Parser.FromNumber(guild.Language).SlashSkipping((int) times).CodeBlocked());
 
             await player.Skip((int) times);
         }
@@ -244,18 +244,18 @@ namespace DiscordBot
             var userVoiceS = ctx.Member?.VoiceState?.Channel;
             if (userVoiceS == null)
             {
-                await ctx.CreateResponseAsync(guild.Language.SlashNotInChannel().CodeBlocked(), true);
+                await ctx.CreateResponseAsync(Parser.FromNumber(guild.Language).SlashNotInChannel().CodeBlocked(), true);
                 return;
             }
 
             var player = Manager.GetPlayer(userVoiceS, ctx.Client);
             if (player == null)
             {
-                await ctx.CreateResponseAsync(guild.Language.SlashBotNotInChannel().CodeBlocked(), true);
+                await ctx.CreateResponseAsync(Parser.FromNumber(guild.Language).SlashBotNotInChannel().CodeBlocked(), true);
                 return;
             }
 
-            await ctx.CreateResponseAsync(guild.Language.SlashPausing().CodeBlocked());
+            await ctx.CreateResponseAsync(Parser.FromNumber(guild.Language).SlashPausing().CodeBlocked());
             player.Pause();
         }
 
@@ -268,19 +268,19 @@ namespace DiscordBot
                 var userVoiceS = ctx.Member?.VoiceState?.Channel;
                 if (userVoiceS == null)
                 {
-                    await ctx.CreateResponseAsync(guild.Language.SlashNotInChannel().CodeBlocked(), true);
+                    await ctx.CreateResponseAsync(Parser.FromNumber(guild.Language).SlashNotInChannel().CodeBlocked(), true);
                     return;
                 }
 
                 var player = Manager.GetPlayer(userVoiceS, ctx.Client);
                 if (player == null)
                 {
-                    await ctx.CreateResponseAsync(guild.Language.SlashBotNotInChannel().CodeBlocked(), true);
+                    await ctx.CreateResponseAsync(Parser.FromNumber(guild.Language).SlashBotNotInChannel().CodeBlocked(), true);
                     return;
                 }
 
                 player.Shuffle();
-                await ctx.CreateResponseAsync(guild.Language.ShufflingTheQueue().CodeBlocked());
+                await ctx.CreateResponseAsync(Parser.FromNumber(guild.Language).ShufflingTheQueue().CodeBlocked());
             }
             catch (Exception e)
             {
@@ -326,14 +326,14 @@ namespace DiscordBot
                 var userVoiceS = ctx.Member?.VoiceState?.Channel;
                 if (userVoiceS == null)
                 {
-                    await ctx.CreateResponseAsync(guild.Language.SlashNotInChannel().CodeBlocked(), true);
+                    await ctx.CreateResponseAsync(Parser.FromNumber(guild.Language).SlashNotInChannel().CodeBlocked(), true);
                     return;
                 }
 
                 var player = Manager.GetPlayer(userVoiceS, ctx.Client);
                 if (player == null)
                 {
-                    await ctx.CreateResponseAsync(guild.Language.SlashBotNotInChannel().CodeBlocked(), true);
+                    await ctx.CreateResponseAsync(Parser.FromNumber(guild.Language).SlashBotNotInChannel().CodeBlocked(), true);
                     return;
                 }
 
@@ -341,10 +341,10 @@ namespace DiscordBot
                 switch (val)
                 {
                     case true:
-                        await ctx.CreateResponseAsync(guild.Language.SetVolumeTo(volume).CodeBlocked());
+                        await ctx.CreateResponseAsync(Parser.FromNumber(guild.Language).SetVolumeTo(volume).CodeBlocked());
                         break;
                     case false:
-                        await ctx.CreateResponseAsync(guild.Language.InvalidVolumeRange().CodeBlocked());
+                        await ctx.CreateResponseAsync(Parser.FromNumber(guild.Language).InvalidVolumeRange().CodeBlocked());
                         break;
                 }
             }
@@ -361,19 +361,19 @@ namespace DiscordBot
             var userVoiceS = ctx.Member?.VoiceState?.Channel;
             if (userVoiceS == null)
             {
-                await ctx.CreateResponseAsync(guild.Language.SlashNotInChannel().CodeBlocked(), true);
+                await ctx.CreateResponseAsync(Parser.FromNumber(guild.Language).SlashNotInChannel().CodeBlocked(), true);
                 return;
             }
 
             var player = Manager.GetPlayer(userVoiceS, ctx.Client);
             if (player == null)
             {
-                await ctx.CreateResponseAsync(guild.Language.SlashBotNotInChannel().CodeBlocked(), true);
+                await ctx.CreateResponseAsync(Parser.FromNumber(guild.Language).SlashBotNotInChannel().CodeBlocked(), true);
                 return;
             }
 
             var item = player.Queue.RemoveFromQueue((int) num - 1);
-            await ctx.CreateResponseAsync(guild.Language.RemovingItem(item.GetName()).CodeBlocked());
+            await ctx.CreateResponseAsync(Parser.FromNumber(guild.Language).RemovingItem(item.GetName()).CodeBlocked());
         }
 
         [SlashCommand("saveplaylist", "This command saves the playlist and sends it to the current text channel")]
@@ -385,14 +385,14 @@ namespace DiscordBot
                 var userVoiceS = ctx.Member?.VoiceState?.Channel;
                 if (userVoiceS == null)
                 {
-                    await ctx.CreateResponseAsync(guild.Language.SlashNotInChannel().CodeBlocked(), true);
+                    await ctx.CreateResponseAsync(Parser.FromNumber(guild.Language).SlashNotInChannel().CodeBlocked(), true);
                     return;
                 }
 
                 var player = Manager.GetPlayer(userVoiceS, ctx.Client);
                 if (player == null)
                 {
-                    await ctx.CreateResponseAsync(guild.Language.SlashBotNotInChannel().CodeBlocked(), true);
+                    await ctx.CreateResponseAsync(Parser.FromNumber(guild.Language).SlashBotNotInChannel().CodeBlocked(), true);
                     return;
                 }
 
@@ -406,7 +406,7 @@ namespace DiscordBot
                 }
 
                 await ctx.CreateResponseAsync(new DiscordInteractionResponseBuilder().WithContent(
-                    guild.Language.QueueSavedSuccessfully(token).CodeBlocked()).AddFile($"{token}.batp", fs));
+                    Parser.FromNumber(guild.Language).QueueSavedSuccessfully(token).CodeBlocked()).AddFile($"{token}.batp", fs));
             }
             catch (Exception e)
             {
@@ -423,7 +423,7 @@ namespace DiscordBot
                 var userVoiceS = ctx.Member?.VoiceState?.Channel;
                 if (userVoiceS == null)
                 {
-                    await ctx.CreateResponseAsync(guild.Language.OneCannotRecieveBlessingNotInChannel().CodeBlocked(),
+                    await ctx.CreateResponseAsync(Parser.FromNumber(guild.Language).OneCannotRecieveBlessingNotInChannel().CodeBlocked(),
                         true);
                     return;
                 }
@@ -431,13 +431,13 @@ namespace DiscordBot
                 var player = Manager.GetPlayer(userVoiceS, ctx.Client);
                 if (player == null)
                 {
-                    await ctx.CreateResponseAsync(guild.Language.OneCannotRecieveBlessingNothingToPlay().CodeBlocked(),
+                    await ctx.CreateResponseAsync(Parser.FromNumber(guild.Language).OneCannotRecieveBlessingNothingToPlay().CodeBlocked(),
                         true);
                     return;
                 }
 
                 player.PlsFix();
-                await ctx.CreateResponseAsync(guild.Language.SlashPrayingToTheRngGods().CodeBlocked());
+                await ctx.CreateResponseAsync(Parser.FromNumber(guild.Language).SlashPrayingToTheRngGods().CodeBlocked());
             }
             catch (Exception e)
             {
@@ -589,7 +589,7 @@ namespace DiscordBot
                 [ChoiceName("All")] All
             }
 
-            private static int LanguageParser(Language language)
+            private static ushort LanguageParser(Language language)
             {
                 return language switch
                 {
@@ -609,7 +609,7 @@ namespace DiscordBot
                     try
                     {
                         var settings = await User.FromId(ctx.User.Id);
-                        await settings.ModifySettings("language", $"{LanguageParser(lang)}");
+                        settings.Language = Parser.FromNumber(LanguageParser(lang));
                         await ctx.CreateResponseAsync((lang switch
                         {
                             Language.English => "The bot's responses to you are now in English.",
@@ -682,7 +682,7 @@ namespace DiscordBot
                     try
                     {
                         var settings = await GuildSettings.FromId(ctx.Guild.Id);
-                        await settings.ModifySettings("language", $"{LanguageParser(lang)}");
+                        settings.Language = LanguageParser(lang);
                         await ctx.CreateResponseAsync((lang switch
                         {
                             Language.English => "The bot's responses to the whole guild are now in English.",
@@ -706,9 +706,8 @@ namespace DiscordBot
                     try
                     {
                         var settings = await GuildSettings.FromId(ctx.Guild.Id);
-                        await settings.ModifySettings("verboseMessages",
-                            $"{verbosity switch {Verbosity.None => 0, Verbosity.All => 1, _ => 1}}");
-                        await ctx.CreateResponseAsync((settings.Language switch
+                        settings.VerboseMessages = verbosity switch {Verbosity.None => false, Verbosity.All => true, _ => true};
+                        await ctx.CreateResponseAsync((Parser.FromNumber(settings.Language) switch
                         {
                             English =>
                                 $"Changing the verbosity of messages to: \"{verbosity switch {Verbosity.All => "Fully verbose.", Verbosity.None => "Not verbose.", _ => throw new ArgumentOutOfRangeException(nameof(verbosity), verbosity, null)}}\"",
@@ -734,9 +733,9 @@ namespace DiscordBot
                     try
                     {
                         var settings = await GuildSettings.FromId(ctx.Guild.Id);
-                        await settings.ModifySettings("verboseMessages",
-                            $"{booleanEnum switch {BooleanEnum.Disabled => 0, BooleanEnum.Enabled => 1, _ => 1}}");
-                        await ctx.CreateResponseAsync((settings.Language switch
+                        settings.Normalize =
+                            booleanEnum switch {BooleanEnum.Disabled => false, BooleanEnum.Enabled => true, _ => true};
+                        await ctx.CreateResponseAsync((Parser.FromNumber(settings.Language) switch
                         {
                             English =>
                                 $"Changing the normalization of audio to: \"{booleanEnum switch {BooleanEnum.Enabled => "Enabled", BooleanEnum.Disabled => "Disabled", _ => throw new ArgumentOutOfRangeException(nameof(booleanEnum), booleanEnum, null)}}\"",
@@ -763,9 +762,9 @@ namespace DiscordBot
                     try
                     {
                         var settings = await GuildSettings.FromId(ctx.Guild.Id);
-                        await settings.ModifySettings("showOriginalInfo",
-                            $"{booleanEnum switch {BooleanEnum.Disabled => 0, BooleanEnum.Enabled => 1, _ => 1}}");
-                        await ctx.CreateResponseAsync((settings.Language switch
+                        settings.ShowOriginalInfo =
+                            booleanEnum switch {BooleanEnum.Disabled => false, BooleanEnum.Enabled => true, _ => true};
+                        await ctx.CreateResponseAsync((Parser.FromNumber(settings.Language) switch
                         {
                             English =>
                                 $"Showing original information is now: \"{booleanEnum switch {BooleanEnum.Enabled => "Enabled", BooleanEnum.Disabled => "Disabled", _ => throw new ArgumentOutOfRangeException(nameof(booleanEnum), booleanEnum, null)}}\"",
@@ -792,9 +791,9 @@ namespace DiscordBot
                     try
                     {
                         var settings = await GuildSettings.FromId(ctx.Guild.Id);
-                        await settings.ModifySettings("saveQueueOnLeave",
-                            $"{booleanEnum switch {BooleanEnum.Disabled => 0, BooleanEnum.Enabled => 1, _ => 1}}");
-                        await ctx.CreateResponseAsync((settings.Language switch
+                        settings.SaveQueueOnLeave =
+                            booleanEnum switch {BooleanEnum.Disabled => false, BooleanEnum.Enabled => true, _ => true};
+                        await ctx.CreateResponseAsync((Parser.FromNumber(settings.Language) switch
                         {
                             English =>
                                 $"Saving queue on leave is now: \"{booleanEnum switch {BooleanEnum.Enabled => "Enabled", BooleanEnum.Disabled => "Disabled", _ => throw new ArgumentOutOfRangeException(nameof(booleanEnum), booleanEnum, null)}}\"",

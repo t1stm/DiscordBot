@@ -9,8 +9,10 @@ using System.Timers;
 using DiscordBot.Abstract;
 using DiscordBot.Audio.Objects;
 using DiscordBot.Audio.Platforms;
+using DiscordBot.Data.Models;
 using DiscordBot.Enums;
 using DiscordBot.Messages;
+using DiscordBot.Objects;
 using DiscordBot.Readers.MariaDB;
 using DSharpPlus;
 using DSharpPlus.Entities;
@@ -41,7 +43,13 @@ namespace DiscordBot.Audio
         public WebSocketManager WebSocketManager { get; }
         public DiscordChannel? VoiceChannel { get; set; }
         public bool Paused { get; set; }
-        public GuildSettings Settings { get; set; } = new();
+        public GuildsModel Settings { get; set; } = new();
+
+        public ILanguage Language
+        {
+            get => Parser.FromNumber(Settings.Language);
+            set => Settings.Language = Parser.GetIndex(value);
+        }
         public bool Normalize => Settings.Normalize;
         private CancellationTokenSource CancelSource { get; set; } = new();
         public Queue Queue { get; }
@@ -83,7 +91,7 @@ namespace DiscordBot.Audio
                         true, Debug.DebugColor.Urgent);
                     UpdateChannel(VoiceChannel);
                     await (CurrentClient?.SendMessageAsync(Channel,
-                        Settings.Language.DiscordDidTheFunny().CodeBlocked()) ?? Task.CompletedTask);
+                        Language.DiscordDidTheFunny().CodeBlocked()) ?? Task.CompletedTask);
                 };
 
                 var statusbar = new Task(async () => { await Statusbar.Start(); });
@@ -286,7 +294,7 @@ namespace DiscordBot.Audio
                             true, Debug.DebugColor.Urgent);
                         UpdateChannel(VoiceChannel);
                         await (CurrentClient?.SendMessageAsync(Channel,
-                            Settings.Language.DiscordDidTheFunny().CodeBlocked()) ?? Task.CompletedTask);
+                            Language.DiscordDidTheFunny().CodeBlocked()) ?? Task.CompletedTask);
                     };
                     Sink = Connection.GetTransmitSink();
                     await Skip(0);
@@ -415,7 +423,7 @@ namespace DiscordBot.Audio
             {
                 await WebSocketManager.SendDying();
                 await Statusbar.UpdateMessageAndStop(message + (Settings.SaveQueueOnLeave
-                    ? $"\n\n{Settings.Language.SavedQueueAfterLeavingMessage($"-p pl:{QueueToken}")}"
+                    ? $"\n\n{Language.SavedQueueAfterLeavingMessage($"-p pl:{QueueToken}")}"
                     : ""));
             });
             task.Start();
