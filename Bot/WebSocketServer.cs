@@ -1,3 +1,4 @@
+#nullable enable
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -95,16 +96,16 @@ namespace DiscordBot
 
                 var channelId = split[2];
                 var succ2 = ulong.TryParse(channelId, out var channelKey);
-                if (!succ2 || Manager.Main.All(pl => pl.VoiceChannel.Id != channelKey))
+                if (!succ2 || Manager.Main.All(pl => pl.VoiceChannel?.Id != channelKey))
                 {
                     await Fail(ws, "Not an active voice channel");
                     return;
                 }
 
-                Player player;
+                Player? player;
                 lock (Manager.Main)
                 {
-                    player = Manager.Main.FirstOrDefault(cl => cl.VoiceChannel.Id == channelKey);
+                    player = Manager.Main.FirstOrDefault(cl => cl.VoiceChannel?.Id == channelKey);
                     if (player == null)
                     {
                         var t = new Task(async () => { await Fail(ws, "Error"); });
@@ -148,7 +149,7 @@ namespace DiscordBot
             }
 
             var token = split[1];
-            AudioSocket found;
+            AudioSocket? found;
             Guid guid;
             lock (AudioSockets)
             {

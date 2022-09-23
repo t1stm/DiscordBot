@@ -1,3 +1,5 @@
+#nullable enable
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
@@ -13,14 +15,14 @@ namespace DiscordBot.Audio.Platforms.Discord
     {
         private const string DownloadDirectory = $"{Bot.WorkingDirectory}/dll/Discord Attachments/";
 
-        public static async Task<List<PlayableItem>> GetAttachments(List<DiscordAttachment> attachments,
+        public static async Task<List<PlayableItem?>> GetAttachments(List<DiscordAttachment> attachments,
             ulong guild = 0)
         {
-            var list = new List<PlayableItem>();
+            var list = new List<PlayableItem?>();
             foreach (var at in attachments)
                 if (at.FileName.EndsWith(".batp"))
                 {
-                    list.AddRange(await SharePlaylist.Get(at));
+                    list.AddRange(await SharePlaylist.Get(at) ?? throw new InvalidOperationException());
                 }
                 else if (at.FileName.EndsWith(".txt"))
                 {

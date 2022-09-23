@@ -1,11 +1,10 @@
+#nullable enable
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using DiscordBot.Audio;
 using DiscordBot.Audio.Platforms;
-using DiscordBot.Audio.Platforms.Discord;
 using DiscordBot.Enums;
 using DiscordBot.Methods;
 using DiscordBot.Miscellaneous;
@@ -396,7 +395,7 @@ namespace DiscordBot
                     return;
                 }
 
-                var token = Manager.GetFreePlaylistToken(ctx.Guild.Id, player.VoiceChannel.Id);
+                var token = Manager.GetFreePlaylistToken(ctx.Guild.Id, player.VoiceChannel?.Id);
 
                 FileStream fs;
                 lock (player.Queue.Items)
@@ -450,7 +449,7 @@ namespace DiscordBot
         {
             try
             {
-                DiscordMessage respond = null;
+                DiscordMessage? respond = null;
                 var du = ctx.TargetMember;
                 await ctx.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource,
                     new DiscordInteractionResponseBuilder().WithContent("```Sending request```"));
@@ -484,7 +483,7 @@ namespace DiscordBot
         {
             try
             {
-                DiscordMessage respond = null;
+                DiscordMessage? respond = null;
                 var du = ctx.TargetMember;
                 if (du.Mention != null)
                 {

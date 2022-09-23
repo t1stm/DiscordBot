@@ -17,7 +17,7 @@ namespace DiscordBot.Audio.Platforms
 {
     public static class Search
     {
-        public static async Task<List<PlayableItem>> Get(string searchTerm, ulong length = 0,
+        public static async Task<List<PlayableItem>?> Get(string searchTerm, ulong length = 0,
             bool returnAllResults = false)
         {
             if (Bot.DebugMode) await Debug.WriteAsync($"Search term is: \"{searchTerm}\"");
@@ -148,10 +148,10 @@ namespace DiscordBot.Audio.Platforms
         }
 
         public static async Task<List<PlayableItem>> Get(string searchTerm, List<DiscordAttachment> attachments,
-            ulong guild)
+            ulong? guild)
         {
             var list = new List<PlayableItem>();
-            list.AddRange(await Attachments.GetAttachments(attachments, guild));
+            list.AddRange(await Attachments.GetAttachments(attachments, guild ?? 0));
             if (string.IsNullOrEmpty(searchTerm) || searchTerm.Length < 3) return list;
             list.AddRange(await Get(searchTerm));
             return list;

@@ -1,3 +1,4 @@
+#nullable enable
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -13,8 +14,9 @@ namespace DiscordBot.Audio.Platforms
 {
     public static class SharePlaylist
     {
-        public static async Task<List<PlayableItem>> Get(DiscordAttachment att)
+        public static async Task<List<PlayableItem>?> Get(DiscordAttachment? att)
         {
+            if (att == null) return null;
             var location = $"{Bot.WorkingDirectory}/Playlists/{att.FileName}";
             if (File.Exists(location)) File.Delete(location);
             await HttpClient.DownloadFile(att.Url, location);
@@ -54,7 +56,7 @@ namespace DiscordBot.Audio.Platforms
             return fs;
         }
 
-        public static async Task<List<PlayableItem>> Get(string token)
+        public static async Task<List<PlayableItem>?> Get(string token)
         {
             try
             {
@@ -180,7 +182,7 @@ namespace DiscordBot.Audio.Platforms
             var oldFormat = false;
             List<Info> infos = new();
             if (bytes.Length < 5) throw new Exception("Empty or Corrupted File.");
-            if (bytes[0] != 84 || bytes[1] != 7 || bytes[2] != 70 || bytes[3] != 60) return OldFormat(bytes);
+            if (bytes[0] != 84 || bytes[1] != 7 || bytes[2] != 70 || bytes[3] != 60) return OldFormatParser(bytes);
             if (bytes[0] != 84 || bytes[1] != 7 || bytes[2] != 70 || bytes[3] != 60 || bytes[4] != 5 || bytes[5] != 34)
                 oldFormat = true;
             for (var i = oldFormat ? 4 : 6; i < bytes.Length; i++)
@@ -248,7 +250,7 @@ namespace DiscordBot.Audio.Platforms
             return infos;
         }
 
-        private static IEnumerable<Info> OldFormat(IReadOnlyList<byte> bytes)
+        private static IEnumerable<Info> OldFormatParser(IReadOnlyList<byte> bytes)
         {
             Debug.Write("Using old format");
             List<Info> infos = new();

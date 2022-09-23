@@ -1,3 +1,4 @@
+#nullable enable
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -79,7 +80,7 @@ namespace DiscordBot
                     return;
                 }
 
-                RuleObject[] rule;
+                RuleObject[]? rule;
                 try
                 {
                     rule = JsonSerializer.Deserialize<RuleObject[]>(json);
@@ -125,24 +126,24 @@ namespace DiscordBot
         // Yes I do like these Rider IDE comments.
         private class RuleObject
         {
-            public string preview_url { get; init; }
-            public string sample_url { get; init; }
-            public string file_url { get; init; }
+            public string? preview_url { get; init; }
+            public string? sample_url { get; init; }
+            public string? file_url { get; init; }
             public int directory { get; init; }
-            public string hash { get; init; }
+            public string? hash { get; init; }
             public int width { get; init; }
             public int height { get; init; }
             public int id { get; init; }
-            public string image { get; init; }
+            public string? image { get; init; }
             public int change { get; init; }
-            public string owner { get; init; }
+            public string? owner { get; init; }
             public int parent_id { get; init; }
-            public string rating { get; init; }
+            public string? rating { get; init; }
             public int sample { get; init; }
             public int sample_height { get; init; }
             public int sample_width { get; init; }
             public int score { get; init; }
-            public string tags { get; init; }
+            public string? tags { get; init; }
         }
 
         private struct JsonStructure

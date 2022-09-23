@@ -1,3 +1,4 @@
+#nullable enable
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -29,7 +30,7 @@ namespace DiscordBot.Audio
     {
         public static readonly List<Player> Main = new();
 
-        public static Player GetPlayer(DiscordChannel channel, DiscordClient client, int fail = 0,
+        public static Player? GetPlayer(DiscordChannel channel, DiscordClient client, int fail = 0,
             bool generateNew = false)
         {
             //UDRI MAISTORE EDNA PO DJULEVA RAKIQ
@@ -128,7 +129,7 @@ namespace DiscordBot.Audio
         }
 
         public static async Task Play(string term, bool select, Player player, DiscordChannel userVoiceS,
-            DiscordMember user, List<DiscordAttachment> attachments, DiscordChannel messageChannel)
+            DiscordMember? user, List<DiscordAttachment> attachments, DiscordChannel messageChannel)
         {
             try
             {
@@ -140,7 +141,7 @@ namespace DiscordBot.Audio
                     if (attachments is {Count: > 0})
                     {
                         await Debug.WriteAsync($"Play message contains attachments: {attachments.Count}");
-                        items = await Search.Get(term, attachments, user.Guild.Id);
+                        items = await Search.Get(term, attachments, user?.Guild.Id);
                         var builder =
                             new DiscordMessageBuilder().WithContent(lang.ThisMessageWillUpdateShortly().CodeBlocked());
                         player.Channel = player.CurrentClient!.Guilds[userVoiceS.Guild.Id].Channels[messageChannel.Id];
@@ -205,7 +206,7 @@ namespace DiscordBot.Audio
                         .ConnectAsync(player.CurrentClient.Guilds[userVoiceS.Guild.Id].Channels[userVoiceS.Id]);
                     player.VoiceChannel = userVoiceS;
                     player.Sink = player.Connection?.GetTransmitSink();
-                    player.CurrentGuild = user.Guild;
+                    player.CurrentGuild = user?.Guild;
                     var playerTask = new Task(async () =>
                     {
                         try
@@ -225,7 +226,7 @@ namespace DiscordBot.Audio
                     if (attachments is {Count: > 0})
                     {
                         await Debug.WriteAsync($"Play message contains attachments: {attachments.Count}");
-                        items = await Search.Get(term, attachments, user.Guild.Id);
+                        items = await Search.Get(term, attachments, user?.Guild.Id);
                     }
                     else
                     {
@@ -502,7 +503,7 @@ namespace DiscordBot.Audio
                         item[0].GetName(player.Settings.ShowOriginalInfo)));
         }
 
-        public static async Task Remove(CommandContext ctx, string text)
+        public static async Task Remove(CommandContext ctx, string? text)
         {
             text ??= "";
             var user = await User.FromId(ctx.User.Id);
@@ -879,7 +880,7 @@ namespace DiscordBot.Audio
             await Bot.Reply(ctx, $"Lyrics for {query}: \n{lyrics}");
         }
 
-        public static async Task<string> GetLyrics(string query)
+        public static async Task<string?> GetLyrics(string query)
         {
             var client = HttpClient.WithCookies();
             const string apiKey = "ce7175JINJTgC94aJFgeiwa7Bh99EaoqZFhTeFV9ejmpO2qjEXOpi1eR";

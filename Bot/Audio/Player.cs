@@ -13,7 +13,6 @@ using DiscordBot.Data.Models;
 using DiscordBot.Enums;
 using DiscordBot.Messages;
 using DiscordBot.Objects;
-using DiscordBot.Readers.MariaDB;
 using DSharpPlus;
 using DSharpPlus.Entities;
 using DSharpPlus.VoiceNext;

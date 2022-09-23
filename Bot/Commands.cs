@@ -1,3 +1,4 @@
+#nullable enable
 using System;
 using System.IO;
 using System.Linq;
@@ -24,7 +25,7 @@ namespace DiscordBot
         {
             try
             {
-                if (ctx is not null && ctx.Guild.Id != 0)
+                if (ctx.Guild.Id != 0)
                     await GuildSettings.FromId(ctx.Guild.Id);
             }
             catch (Exception e)
@@ -355,7 +356,7 @@ namespace DiscordBot
         }
 
         [Command("gayrate")]
-        public async Task GayRate(CommandContext ctx, DiscordMember target = null)
+        public async Task GayRate(CommandContext ctx, DiscordMember? target = null)
         {
             try
             {
@@ -396,7 +397,7 @@ namespace DiscordBot
 
         [Command("meme")]
         [Aliases("memes")]
-        public async Task MemeCommand(CommandContext ctx, [RemainingText] string meme = null)
+        public async Task MemeCommand(CommandContext ctx, [RemainingText] string? meme = null)
         {
             try
             {
@@ -441,11 +442,11 @@ namespace DiscordBot
 
         [Command("hvanizakura")]
         [Aliases("хванизакура")]
-        public async Task HvaniZaKura(CommandContext ctx, DiscordUser du)
+        public async Task HvaniZaKura(CommandContext ctx, DiscordUser? du)
         {
             try
             {
-                DiscordMessage respond = null;
+                DiscordMessage? respond = null;
                 du ??= ctx.User;
                 if (du.Mention != null)
                 {
@@ -474,11 +475,11 @@ namespace DiscordBot
 
         [Command("hvanimezakura")]
         [Aliases("хванимезакура")]
-        public async Task HvaniMeZaKura(CommandContext ctx, DiscordUser du = null)
+        public async Task HvaniMeZaKura(CommandContext ctx, DiscordUser? du = null)
         {
             try
             {
-                DiscordMessage respond = null;
+                DiscordMessage? respond = null;
                 du ??= ctx.User;
                 if (du.Mention != null)
                 {
@@ -559,11 +560,11 @@ namespace DiscordBot
         }
 
         [Command("monke")]
-        public async Task MonkeCommand(CommandContext ctx, DiscordUser du = null)
+        public async Task MonkeCommand(CommandContext ctx, DiscordUser? du = null)
         {
             try
             {
-                DiscordMessage respond = null;
+                DiscordMessage? respond = null;
                 du = du switch
                 {
                     null => ctx.User,
