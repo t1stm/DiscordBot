@@ -232,8 +232,11 @@ namespace DiscordBot.Audio
             {
                 try
                 {
-                    player.Disconnect();
-                    player.Statusbar.Stop();
+                    if (!player.Started)
+                    {
+                        player.Disconnect();
+                        player.Statusbar.Stop();
+                    }
                     await Debug.WriteAsync($"Error in Play: {e}");
                 }
                 catch (Exception exception)
