@@ -73,6 +73,7 @@ namespace DiscordBot.Audio.Platforms
                     }
 
                     var add = await Search.Get(NewFormatSearch(info));
+                    if (add == null) continue;
                     list.AddRange(add);
                 }
 

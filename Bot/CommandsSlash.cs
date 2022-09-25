@@ -453,7 +453,11 @@ namespace DiscordBot
                 var attachments = ctx.TargetMessage.Attachments;
                 if (attachments == null || attachments.Count < 1)
                 {
-                    await ctx.CreateResponseAsync("This message doesn't have any attachments.".CodeBlocked(), true);
+                    await ctx.CreateResponseAsync(new DiscordInteractionResponseBuilder
+                    {
+                        Content = "This message doesn't have any attachments.".CodeBlocked(),
+                        IsEphemeral = true
+                    });
                     return;
                 }
                 var voiceState = ctx.Member.VoiceState?.Channel;

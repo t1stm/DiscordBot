@@ -9,7 +9,6 @@ using DiscordBot.Audio.Platforms;
 using DiscordBot.Data;
 using DiscordBot.Methods;
 using DiscordBot.Objects;
-using DiscordBot.Readers.MariaDB;
 using vtortola.WebSockets;
 
 namespace DiscordBot.Audio

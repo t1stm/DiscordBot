@@ -8,7 +8,7 @@ namespace DiscordBot.Controllers
         // GET
         public IActionResult Index()
         {
-            return Ok(HtmlEncoder.Default.Encode("Hello World!"));
+            return Ok(HtmlEncoder.Default.Encode("Yes, yes, hello human."));
         }
     }
 }

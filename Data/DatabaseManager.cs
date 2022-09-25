@@ -43,7 +43,7 @@ namespace DiscordBot.Data
             ReadFile();
         }
 
-        private void ModifiedAction()
+        protected void ModifiedAction()
         {
             Modified = true;
         }
@@ -56,7 +56,7 @@ namespace DiscordBot.Data
                 data = searchData.SearchFrom(Data); // This makes me go over the rainbow.
             }
 
-            data.SetModified = ModifiedAction;
+            if (data != null) data.SetModified = ModifiedAction;
             return data;
         }
 
@@ -76,7 +76,7 @@ namespace DiscordBot.Data
                 Data.Add(addModel);
                 Modified = true;
             }
-            addModel.SetModified = ModifiedAction;
+            if (addModel != null) addModel.SetModified = ModifiedAction;
             return addModel;
         }
 

@@ -1,3 +1,4 @@
+#nullable enable
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,7 +9,6 @@ using DiscordBot.Audio.Objects;
 using DiscordBot.Audio.Platforms.Spotify;
 using DiscordBot.Audio.Platforms.Youtube;
 using DiscordBot.Data;
-using DiscordBot.Data.Models;
 using DiscordBot.Enums;
 using DiscordBot.Methods;
 using DiscordBot.Objects;
@@ -58,7 +58,7 @@ namespace DiscordBot.Controllers
             try
             {
                 var res = await Audio.Platforms.Search.Get(searchTerm, returnAllResults: true);
-                var items = res.Select(r => r.ToSearchResult()).ToList();
+                var items = res?.Select(r => r.ToSearchResult()).ToList();
                 return Json(items);
             }
             catch (Exception e)
@@ -99,7 +99,7 @@ namespace DiscordBot.Controllers
                 var guild = DiscordBot.Bot.Clients[0].Guilds.First(g => g.Value.Id == id).Value;
                 var channels = await guild.GetChannelsAsync();
                 var items = channels.Where(ch => ch.Type == ChannelType.Voice)
-                    .Where(ch => Manager.Main.Any(pl => pl.VoiceChannel.Id == ch.Id))
+                    .Where(ch => Manager.Main.Any(pl => pl.VoiceChannel?.Id == ch.Id))
                     .Select(g => new GuildItem {Id = g.Id + "", Name = g.Name}).ToList();
                 return Json(items);
             }
@@ -137,24 +137,24 @@ namespace DiscordBot.Controllers
         {
             try
             {
-                if (Manager.Main.All(ch => ch.VoiceChannel.Id != channelId)) return Ok("403");
-                var player = Manager.Main.First(ch => ch.VoiceChannel.Id == channelId);
+                if (Manager.Main.All(ch => ch.VoiceChannel?.Id != channelId)) return Ok("403");
+                var player = Manager.Main.First(ch => ch.VoiceChannel?.Id == channelId);
                 var stats = new PlayerInfo();
                 try
                 {
-                    stats.Title = player.CurrentItem.GetTitle();
-                    stats.Author = player.CurrentItem.GetAuthor();
+                    stats.Title = player.CurrentItem?.GetTitle();
+                    stats.Author = player.CurrentItem?.GetAuthor();
                     stats.Current = player.Stopwatch.Elapsed.ToString("hh\\:mm\\:ss");
-                    stats.Total = TimeSpan.FromMilliseconds(player.CurrentItem.GetLength())
+                    stats.Total = TimeSpan.FromMilliseconds(player.CurrentItem?.GetLength() ?? 0)
                         .ToString("hh\\:mm\\:ss");
-                    stats.TotalDuration = player.CurrentItem.GetLength();
+                    stats.TotalDuration = player.CurrentItem?.GetLength() ?? 0;
                     stats.CurrentDuration = (ulong) player.Stopwatch.ElapsedMilliseconds;
                     stats.Loop = player.LoopStatus switch
                     {
                         Loop.None => "None", Loop.One => "One", Loop.WholeQueue => "WholeQueue",
                         _ => "bad"
                     };
-                    stats.ThumbnailUrl = player.CurrentItem.GetThumbnailUrl();
+                    stats.ThumbnailUrl = player.CurrentItem?.GetThumbnailUrl();
                     stats.Paused = player.Paused;
                     stats.Index = player.Queue.Items.ToList().IndexOf(player.CurrentItem);
                 }
@@ -177,18 +177,18 @@ namespace DiscordBot.Controllers
             try
             {
                 if (!WebUiUsers.ContainsValue(clientSecret)) return Ok("404");
-                if (Manager.Main.All(ch => ch.VoiceChannel.Id != channelId)) return Ok("403");
+                if (Manager.Main.All(ch => ch.VoiceChannel?.Id != channelId)) return Ok("403");
                 if (!WebUiUsers.ContainsValue(clientSecret)) return Ok("404");
                 var user = WebUiUsers.Get(clientSecret);
                 if (user == null) return Ok("403");
 
-                var player = Manager.Main.First(ch => ch.VoiceChannel.Id == channelId);
+                var player = Manager.Main.First(ch => ch.VoiceChannel?.Id == channelId);
                 PlayableItem search;
 
                 if (!spotify) search = await Video.SearchById(id);
                 else search = await Track.Get(id, true);
                 if (search == null) return Ok("410");
-                var req = player.CurrentGuild.Members[user.Id];
+                var req = player.CurrentGuild?.Members[user.Id];
                 search.SetRequester(req);
                 if (!next) player.Queue.AddToQueue(search);
                 else player.Queue.AddToQueueNext(search);
@@ -202,8 +202,8 @@ namespace DiscordBot.Controllers
 
         public IActionResult GetQueue(ulong channelId)
         {
-            if (Manager.Main.All(ch => ch.VoiceChannel.Id != channelId)) return Ok("403");
-            var player = Manager.Main.First(ch => ch.VoiceChannel.Id == channelId);
+            if (Manager.Main.All(ch => ch.VoiceChannel?.Id != channelId)) return Ok("403");
+            var player = Manager.Main.First(ch => ch.VoiceChannel?.Id == channelId);
             var queue = player.Queue.Items;
             var items = queue.Select(qu => new SearchResult
             {
@@ -226,8 +226,8 @@ namespace DiscordBot.Controllers
             try
             {
                 if (!WebUiUsers.ContainsValue(clientSecret)) return Ok("404");
-                if (Manager.Main.All(ch => ch.VoiceChannel.Id != channelId)) return Ok("403");
-                var player = Manager.Main.First(ch => ch.VoiceChannel.Id == channelId);
+                if (Manager.Main.All(ch => ch.VoiceChannel?.Id != channelId)) return Ok("403");
+                var player = Manager.Main.First(ch => ch.VoiceChannel?.Id == channelId);
                 player.Pause();
                 return Ok("200");
             }
@@ -242,8 +242,8 @@ namespace DiscordBot.Controllers
             try
             {
                 if (!WebUiUsers.ContainsValue(clientSecret)) return Ok("404");
-                if (Manager.Main.All(ch => ch.VoiceChannel.Id != channelId)) return Ok("403");
-                var player = Manager.Main.First(ch => ch.VoiceChannel.Id == channelId);
+                if (Manager.Main.All(ch => ch.VoiceChannel?.Id != channelId)) return Ok("403");
+                var player = Manager.Main.First(ch => ch.VoiceChannel?.Id == channelId);
                 await player.Skip(times);
                 return Ok("200");
             }
@@ -259,8 +259,8 @@ namespace DiscordBot.Controllers
             {
                 if (index == -555) return Ok("404");
                 if (!WebUiUsers.ContainsValue(clientSecret)) return Ok("404");
-                if (Manager.Main.All(ch => ch.VoiceChannel.Id != channelId)) return Ok("403");
-                var player = Manager.Main.First(ch => ch.VoiceChannel.Id == channelId);
+                if (Manager.Main.All(ch => ch.VoiceChannel?.Id != channelId)) return Ok("403");
+                var player = Manager.Main.First(ch => ch.VoiceChannel?.Id == channelId);
                 player.GoToIndex(index);
                 return Ok("200");
             }
@@ -275,8 +275,8 @@ namespace DiscordBot.Controllers
             try
             {
                 if (!WebUiUsers.ContainsValue(clientSecret)) return Ok("404");
-                if (Manager.Main.All(ch => ch.VoiceChannel.Id != channelId)) return Ok("403");
-                var player = Manager.Main.First(ch => ch.VoiceChannel.Id == channelId);
+                if (Manager.Main.All(ch => ch.VoiceChannel?.Id != channelId)) return Ok("403");
+                var player = Manager.Main.First(ch => ch.VoiceChannel?.Id == channelId);
                 player.Queue.Shuffle();
                 return Ok("200");
             }
@@ -291,8 +291,8 @@ namespace DiscordBot.Controllers
             try
             {
                 if (!WebUiUsers.ContainsValue(clientSecret)) return Ok("404");
-                if (Manager.Main.All(ch => ch.VoiceChannel.Id != channelId)) return Ok("403");
-                var player = Manager.Main.First(ch => ch.VoiceChannel.Id == channelId);
+                if (Manager.Main.All(ch => ch.VoiceChannel?.Id != channelId)) return Ok("403");
+                var player = Manager.Main.First(ch => ch.VoiceChannel?.Id == channelId);
                 player.Disconnect();
                 return Ok("200");
             }
@@ -307,8 +307,8 @@ namespace DiscordBot.Controllers
             try
             {
                 if (!WebUiUsers.ContainsValue(clientSecret)) return Ok("404");
-                if (Manager.Main.All(ch => ch.VoiceChannel.Id != channelId)) return Ok("403");
-                var player = Manager.Main.First(ch => ch.VoiceChannel.Id == channelId);
+                if (Manager.Main.All(ch => ch.VoiceChannel?.Id != channelId)) return Ok("403");
+                var player = Manager.Main.First(ch => ch.VoiceChannel?.Id == channelId);
                 if (index == player.Queue.Current)
                 {
                     player.Queue.RemoveFromQueue(index);
