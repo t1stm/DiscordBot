@@ -474,7 +474,7 @@ namespace DiscordBot
             }
             catch (Exception e)
             {
-                await Debug.WriteAsync($"Hvani Za Kura Context Menu failed: {e}");
+                await Debug.WriteAsync($"Play message attachment Context Menu failed: {e}");
             }
         }
 
