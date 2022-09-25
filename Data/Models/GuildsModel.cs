@@ -1,9 +1,10 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
 namespace DiscordBot.Data.Models
 {
-    public class GuildsModel : IModel<GuildsModel>
+    public class GuildsModel : Model<GuildsModel>
     {
         public ulong Id { get; set; }
         public ushort Language { get; set; }
@@ -12,9 +13,10 @@ namespace DiscordBot.Data.Models
         public bool Normalize { get; set; }
         public bool ShowOriginalInfo { get; set; }
         public bool SaveQueueOnLeave { get; set; }
-        public GuildsModel Read(IEnumerable<GuildsModel> source)
+        public override GuildsModel SearchFrom(IEnumerable<GuildsModel> source)
         {
             return source.AsParallel().FirstOrDefault(r => r.Id == Id);
         }
+        
     }
 }

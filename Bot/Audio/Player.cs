@@ -47,8 +47,13 @@ namespace DiscordBot.Audio
         public ILanguage Language
         {
             get => Parser.FromNumber(Settings.Language);
-            set => Settings.Language = Parser.GetIndex(value);
+            set
+            {
+                Settings.Language = Parser.GetIndex(value);
+                Settings.SetModified?.Invoke();
+            }
         }
+
         public bool Normalize => Settings.Normalize;
         private CancellationTokenSource CancelSource { get; set; } = new();
         public Queue Queue { get; }

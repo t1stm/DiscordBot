@@ -17,10 +17,11 @@ namespace DiscordBot.Audio.Platforms
 {
     public static class Search
     {
-        public static async Task<List<PlayableItem>?> Get(string searchTerm, ulong length = 0,
+        public static async Task<List<PlayableItem>?> Get(string? searchTerm, ulong length = 0,
             bool returnAllResults = false)
         {
             if (Bot.DebugMode) await Debug.WriteAsync($"Search term is: \"{searchTerm}\"");
+            if (searchTerm == null) return null;
             if (searchTerm.Contains("open.spotify.com/"))
             {
                 if (searchTerm.Contains("/playlist/"))
@@ -147,13 +148,12 @@ namespace DiscordBot.Audio.Platforms
             return null;
         }
 
-        public static async Task<List<PlayableItem>> Get(string searchTerm, List<DiscordAttachment> attachments,
+        public static async Task<List<PlayableItem>?> Get(string searchTerm, List<DiscordAttachment>? attachments,
             ulong? guild)
         {
+            if (attachments == null || attachments.Count < 1) return await Get(searchTerm);
             var list = new List<PlayableItem>();
-            list.AddRange(await Attachments.GetAttachments(attachments, guild ?? 0));
-            if (string.IsNullOrEmpty(searchTerm) || searchTerm.Length < 3) return list;
-            list.AddRange(await Get(searchTerm));
+            list.AddRange(await Attachments.GetAttachments(attachments, guild ?? 0) ?? Enumerable.Empty<PlayableItem>());
             return list;
         }
 

@@ -9,7 +9,7 @@ using DiscordBot.Methods;
 
 namespace DiscordBot.Data
 {
-    public class DatabaseManager <T> where T : IModel<T>
+    public class DatabaseManager <T> where T : Model<T>
     {
         private List<T> Data { get; set; } = new();
         private readonly string FileLocation;
@@ -43,10 +43,21 @@ namespace DiscordBot.Data
             ReadFile();
         }
 
-        public T Read(T searchData, bool markModified = false)
+        private void ModifiedAction()
         {
-            if (markModified) Modified = true;
-            lock (Data) return searchData.Read(Data); // This makes me go over the rainbow.
+            Modified = true;
+        }
+
+        public T Read(T searchData)
+        {
+            T data;
+            lock (Data)
+            {
+                data = searchData.SearchFrom(Data); // This makes me go over the rainbow.
+            }
+
+            data.SetModified = ModifiedAction;
+            return data;
         }
 
         public List<T> ReadCopy()
@@ -57,7 +68,7 @@ namespace DiscordBot.Data
             }
         }
         
-        public void Add(T addModel)
+        public T Add(T addModel)
         {
             lock (Data)
             {
@@ -65,6 +76,8 @@ namespace DiscordBot.Data
                 Data.Add(addModel);
                 Modified = true;
             }
+            addModel.SetModified = ModifiedAction;
+            return addModel;
         }
 
         private void ReadFile()

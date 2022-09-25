@@ -82,7 +82,7 @@ namespace DiscordBot
             {
                 Content = Parser.FromNumber(guild.Language).SlashPlayCommand(term).CodeBlocked()
             });
-            await Manager.Play(term, false, player, ctx.Member?.VoiceState?.Channel, ctx.Member, null, ctx.Channel);
+            await Manager.Play(term, false, player, userVoiceS, ctx.Member, null, ctx.Channel);
         }
 
         [SlashCommand("leave", "This is the leave command. It makes the bot leave.")]
@@ -443,6 +443,40 @@ namespace DiscordBot
                 await Debug.WriteAsync($"Pls Fix Slash Command failed: {e}");
             }
         }
+        
+        [ContextMenu(ApplicationCommandType.MessageContextMenu, "Play message attachments"), SlashRequireGuild]
+        public async Task PlayAttachments(ContextMenuContext ctx)
+        {
+            try
+            {
+                var user = await User.FromId(ctx.Member.Id);
+                var attachments = ctx.TargetMessage.Attachments;
+                if (attachments == null || attachments.Count < 1)
+                {
+                    await ctx.CreateResponseAsync(user.Language.SlashNotInChannel().CodeBlocked(), true);
+                    return;
+                }
+                var voiceState = ctx.Member.VoiceState?.Channel;
+                if (voiceState == null)
+                {
+                    await ctx.CreateResponseAsync("You're not in a channel at the moment.".CodeBlocked(), true);
+                    return;
+                }
+
+                await ctx.CreateResponseAsync($"Playing message attachment{(attachments.Count > 1 ? 's' : "")}.".CodeBlocked());
+                var player = Manager.GetPlayer(voiceState, ctx.Client, generateNew: true);
+                if (player == null)
+                {
+                    await ctx.CreateResponseAsync(user.Language.NoFreeBotAccounts().CodeBlocked(), true);
+                    return;
+                }
+                await Manager.Play(null, false, player, voiceState, ctx.Member, attachments.ToList(), ctx.Channel);
+            }
+            catch (Exception e)
+            {
+                await Debug.WriteAsync($"Hvani Za Kura Context Menu failed: {e}");
+            }
+        }
 
         [ContextMenu(ApplicationCommandType.UserContextMenu, "Хвани за кура")]
         public async Task CatchDick(ContextMenuContext ctx)
@@ -630,8 +664,7 @@ namespace DiscordBot
                     try
                     {
                         var settings = await User.FromId(ctx.User.Id);
-                        await settings.ModifySettings("verboseMessages",
-                            $"{verbosity switch {Verbosity.None => 0, Verbosity.All => 1, _ => 1}}");
+                        settings.VerboseMessages = verbosity switch {Verbosity.None => false, Verbosity.All => true, _ => true};
                         await ctx.CreateResponseAsync((settings.Language switch
                         {
                             English =>
@@ -655,7 +688,7 @@ namespace DiscordBot
                     {
                         var settings = await User.FromId(ctx.User.Id);
                         var token = Bot.RandomString(96);
-                        await settings.ModifySettings("token", token);
+                        settings.Token = token;
                         await ctx.CreateResponseAsync(settings.Language.UpdatingToken().CodeBlocked(), true);
                         await ctx.Member.SendMessageAsync(Manager.GetWebUiMessage(token,
                             settings.Language.YourWebUiCodeIs(),
@@ -688,6 +721,7 @@ namespace DiscordBot
                             Language.Bulgarian => "Отговорите на бота към целия гилд са вече на Български.",
                             _ => throw new ArgumentOutOfRangeException(nameof(lang), lang, null)
                         }).CodeBlocked(), true);
+                        settings.SetModified?.Invoke();
                     }
                     catch (Exception e)
                     {
@@ -715,6 +749,7 @@ namespace DiscordBot
                             _ => throw new ArgumentOutOfRangeException(nameof(settings.Language), settings.Language,
                                 "Somehow this value doesn't exist.")
                         }).CodeBlocked(), true);
+                        settings.SetModified?.Invoke();
                     }
                     catch (Exception e)
                     {
@@ -743,6 +778,7 @@ namespace DiscordBot
                             _ => throw new ArgumentOutOfRangeException(nameof(settings.Language), settings.Language,
                                 "Somehow this value doesn't exist.")
                         }).CodeBlocked(), true);
+                        settings.SetModified?.Invoke();
                     }
                     catch (Exception e)
                     {
@@ -772,6 +808,7 @@ namespace DiscordBot
                             _ => throw new ArgumentOutOfRangeException(nameof(settings.Language), settings.Language,
                                 "Somehow this value doesn't exist.")
                         }).CodeBlocked(), true);
+                        settings.SetModified?.Invoke();
                     }
                     catch (Exception e)
                     {
@@ -801,6 +838,7 @@ namespace DiscordBot
                             _ => throw new ArgumentOutOfRangeException(nameof(settings.Language), settings.Language,
                                 "Somehow this value doesn't exist.")
                         }).CodeBlocked(), true);
+                        settings.SetModified?.Invoke();
                     }
                     catch (Exception e)
                     {

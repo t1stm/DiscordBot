@@ -416,7 +416,7 @@ namespace DiscordBot
                 lock (Manager.Main)
                 {
                     pl = Manager.Main.AsParallel().FirstOrDefault(r =>
-                        r.Channel.Id == eventArgs.Channel.Id && r.VoiceUsers.Contains(eventArgs.User));
+                        r.Channel?.Id == eventArgs.Channel.Id && r.VoiceUsers.Contains(eventArgs.User));
                 }
 
                 var user = await User.FromId(eventArgs.User.Id);

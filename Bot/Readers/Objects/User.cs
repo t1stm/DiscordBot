@@ -1,8 +1,8 @@
+#nullable enable
 using System.Threading.Tasks;
 using DiscordBot.Data;
 using DiscordBot.Data.Models;
 using DiscordBot.Methods;
-using MySql.Data.MySqlClient;
 
 namespace DiscordBot.Objects
 {
@@ -11,26 +11,72 @@ namespace DiscordBot.Objects
         private readonly UsersModel Model;
         public ulong Id {
             get => Model.Id;
-            set => Model.Id = value;
+            set
+            {
+                Model.Id = value;
+                Model.SetModified?.Invoke();
+            }
         }
         public string Token
         {
             get => Model.Token;
-            set => Model.Token = value;
+            set
+            {
+                Model.Token = value;
+                Model.SetModified?.Invoke();
+            }
         }
 
-        public bool VerboseMessages => Model.VerboseMessages;
+        public bool VerboseMessages
+        {
+            get => Model.VerboseMessages;
+            set
+            {
+                Model.VerboseMessages = value;
+                Model.SetModified?.Invoke();
+            }
+        }
 
         public ILanguage Language
         {
             get => Parser.FromNumber(Model.Language);
 
-            set => Model.Language = Parser.GetIndex(value);
+            set
+            {
+                Model.Language = Parser.GetIndex(value);
+                Model.SetModified?.Invoke();
+            }
         }
 
-        private bool UiScroll => Model.UiScroll;
-        private bool UiForceScroll => Model.ForceUiScroll;
-        private bool LowSpec => Model.LowSpec;
+        private bool UiScroll
+        {
+            get => Model.UiScroll;
+            set
+            {
+                Model.UiScroll = value;
+                Model.SetModified?.Invoke();
+            }
+        }
+
+        private bool UiForceScroll
+        {
+            get => Model.ForceUiScroll;
+            set
+            {
+                Model.ForceUiScroll = value;
+                Model.SetModified?.Invoke();
+            }
+        }
+
+        private bool LowSpec
+        {
+            get => Model.LowSpec;
+            set
+            {
+                Model.LowSpec = value;
+                Model.SetModified?.Invoke();
+            }
+        }
 
         public User(UsersModel model)
         {
@@ -47,40 +93,19 @@ namespace DiscordBot.Objects
             };
         }
 
-        public async Task ModifySettings(string target, string value)
-        {
-            var connection = new MySqlConnection(Bot.SqlConnectionQuery);
-            await connection.OpenAsync();
-            var request = $"UPDATE `users` SET `{target}` = '{value}' WHERE `users`.`id` = '{Id}'";
-            if (Bot.DebugMode) await Debug.WriteAsync($"Updating user with id: ({Id}): \"{request}\"");
-            var cmd = new MySqlCommand(request, connection);
-            await cmd.ExecuteNonQueryAsync();
-            await connection.CloseAsync();
-        }
-
         public static async Task<User> FromId(ulong id)
         {
             if (Bot.DebugMode) await Debug.WriteAsync($"Searching user: \"{id}\"");
-            var searchUser = new UsersModel
+            var searchModel = new UsersModel
             {
                 Id = id
             };
-            var selectedUser = Databases.UserDatabase.Read(searchUser);
-            if (selectedUser != null)
-            {
-                if (Bot.DebugMode)
-                    await Debug.WriteAsync(
-                        $"Returning found user: \"{id}\", {selectedUser.VerboseMessages}, {selectedUser.Language}");
-                return new User(selectedUser);
-            }
-
-            var newUser = new UsersModel
-            {
-                Id = id
-            };
-
-            Databases.UserDatabase.Add(newUser);
-            return new User(newUser);
+            var selectedUser = Databases.UserDatabase.Read(searchModel);
+            if (selectedUser == null) return new User(Databases.UserDatabase.Add(searchModel));
+            if (Bot.DebugMode)
+                await Debug.WriteAsync(
+                    $"Returning found user: \"{id}\", {selectedUser.VerboseMessages}, {selectedUser.Language}");
+            return new User(selectedUser);
         }
 
         public static async Task<User?> FromToken(string token)

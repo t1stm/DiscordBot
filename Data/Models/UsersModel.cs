@@ -1,9 +1,10 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
 namespace DiscordBot.Data.Models
 {
-    public class UsersModel : IModel<UsersModel>
+    public class UsersModel : Model<UsersModel>
     {
         public ulong Id { get; set; }
         public string Token { get; set; } = null;
@@ -13,7 +14,7 @@ namespace DiscordBot.Data.Models
         public bool ForceUiScroll { get; set; }
         public bool LowSpec { get; set; }
 
-        public UsersModel Read(IEnumerable<UsersModel> source)
+        public override UsersModel SearchFrom(IEnumerable<UsersModel> source)
         {
             return source.AsParallel().FirstOrDefault(r => r.Id == Id || r.Token == Token);
         }

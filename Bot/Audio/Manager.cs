@@ -115,6 +115,10 @@ namespace DiscordBot.Audio
             try
             {
                 await Play(term, select, player, userVoiceS, ctx.Member, ctx.Message.Attachments.ToList(), ctx.Channel);
+                if (!player.Started) lock (Main)
+                {
+                    if (Main.Contains(player)) Main.Remove(player);
+                }
             }
             catch (Exception e)
             {
@@ -128,161 +132,73 @@ namespace DiscordBot.Audio
             }
         }
 
-        public static async Task Play(string term, bool select, Player player, DiscordChannel userVoiceS,
-            DiscordMember? user, List<DiscordAttachment> attachments, DiscordChannel messageChannel)
+        public static async Task Play(string? term, bool select, Player player, DiscordChannel userVoiceS,
+            DiscordMember? user, List<DiscordAttachment>? attachments, DiscordChannel messageChannel)
         {
             try
             {
+                term ??= string.Empty;
                 var lang = player.Language;
-                if (!player.Started)
+                List<PlayableItem>? items;
+                player.Channel = player.CurrentClient!.Guilds[userVoiceS.Guild.Id].Channels[messageChannel.Id];
+                if (select && !term.StartsWith("http"))
                 {
-                    player.Started = true;
-                    List<PlayableItem> items;
-                    if (attachments is {Count: > 0})
-                    {
-                        await Debug.WriteAsync($"Play message contains attachments: {attachments.Count}");
-                        items = await Search.Get(term, attachments, user?.Guild.Id);
-                        var builder =
-                            new DiscordMessageBuilder().WithContent(lang.ThisMessageWillUpdateShortly().CodeBlocked());
-                        player.Channel = player.CurrentClient!.Guilds[userVoiceS.Guild.Id].Channels[messageChannel.Id];
-                        player.Statusbar.Message = await builder.SendAsync(player.Channel);
-                    }
-                    else
-                    {
-                        if (string.IsNullOrEmpty(term)) return;
-                        player.Channel = player.CurrentClient!.Guilds[userVoiceS.Guild.Id].Channels[messageChannel.Id];
-                        if (select && !term.StartsWith("http"))
-                        {
-                            var results = await Search.Get(term, returnAllResults: true);
-                            if (results.Count < 1)
-                            {
-                                await messageChannel.SendMessageAsync(lang.NoResultsFound(term).CodeBlocked());
-                                return;
-                            }
-
-                            var options = results.Select(result =>
-                                new DiscordSelectComponentOption(result.GetName(), result.GetAddUrl(), result.Author)).ToList();
-                            var dropdown = new DiscordSelectComponent("dropdown", null, options);
-                            var builder = new DiscordMessageBuilder().WithContent(lang.SelectVideo())
-                                .AddComponents(dropdown);
-                            var message = await builder.SendAsync(player.Channel);
-                            var response = await message.WaitForSelectAsync(user, "dropdown", TimeSpan.FromSeconds(60));
-                            if (response.TimedOut)
-                            {
-                                await message.ModifyAsync(lang.SelectVideoTimeout().CodeBlocked());
-                                return;
-                            }
-
-                            var interaction = response.Result.Values;
-                            if (interaction == null || interaction.Length < 1)
-                            {
-                                return;
-                            }
-                            items = new List<PlayableItem>
-                            {
-                                (await Search.Get(interaction.First())).First()
-                            };
-                            player.Statusbar.Message = await message.ModifyAsync(
-                                new DiscordMessageBuilder().WithContent(lang.ThisMessageWillUpdateShortly()
-                                    .CodeBlocked()));
-                        }
-                        else
-                        {
-                            items = await Search.Get(term);
-                        }
-                    }
-
-                    if (items.Count < 1)
-                    {
-                        await messageChannel.SendMessageAsync(lang.NoResultsFound(term).CodeBlocked());
-                    }
-                    else
-                    {
-                        items.ForEach(it => it.SetRequester(user));
-                        player.Queue.AddToQueue(items);
-                    }
-
-                    player.Connection = await player.CurrentClient.GetVoiceNext()
-                        .ConnectAsync(player.CurrentClient.Guilds[userVoiceS.Guild.Id].Channels[userVoiceS.Id]);
-                    player.VoiceChannel = userVoiceS;
-                    player.Sink = player.Connection?.GetTransmitSink();
-                    player.CurrentGuild = user?.Guild;
-                    var playerTask = new Task(async () =>
-                    {
-                        try
-                        {
-                            await player.Play();
-                        }
-                        catch (Exception e)
-                        {
-                            await Debug.WriteAsync($"Player Task Failed: {e}");
-                        }
-                    });
-                    playerTask.Start();
-                }
-                else
-                {
-                    List<PlayableItem> items;
-                    if (attachments is {Count: > 0})
-                    {
-                        await Debug.WriteAsync($"Play message contains attachments: {attachments.Count}");
-                        items = await Search.Get(term, attachments, user?.Guild.Id);
-                    }
-                    else
-                    {
-                        if (string.IsNullOrEmpty(term))
-                        {
-                            player.Paused = false;
-                            return;
-                        }
-
-                        if (select && !term.Contains("http"))
-                        {
-                            var results = await Search.Get(term, returnAllResults: true);
-                            if (results.Count < 1)
-                            {
-                                await messageChannel.SendMessageAsync(lang.NoResultsFound(term).CodeBlocked());
-                                return;
-                            }
-
-                            var options = results.Select(result =>
-                                new DiscordSelectComponentOption(result.GetName(), result.GetAddUrl(), result.Author)).ToList();
-                            var dropdown = new DiscordSelectComponent("dropdown", null, options);
-                            var builder = new DiscordMessageBuilder().WithContent(lang.SelectVideo())
-                                .AddComponents(dropdown);
-                            var message = await builder.SendAsync(player.Channel);
-                            var response = await message.WaitForSelectAsync(user, "dropdown", TimeSpan.FromSeconds(60));
-                            if (response.TimedOut)
-                            {
-                                await message.ModifyAsync(lang.SelectVideoTimeout().CodeBlocked());
-                                return;
-                            }
-
-                            var interaction = response.Result.Values;
-                            if (interaction == null || interaction.Length < 1)
-                            {
-                                return;
-                            }
-                            items = new List<PlayableItem>
-                            {
-                                (await Search.Get(interaction.First())).First()
-                            };
-                            await message.DeleteAsync();
-                        }
-                        else
-                        {
-                            items = await Search.Get(term);
-                        }
-                    }
-
-                    if (items.Count < 1)
+                    var results = await Search.Get(term, returnAllResults: true);
+                    if (results?.Count < 1)
                     {
                         await messageChannel.SendMessageAsync(lang.NoResultsFound(term).CodeBlocked());
                         return;
                     }
 
-                    items.ForEach(it => it.SetRequester(user));
-                    player.Queue.AddToQueue(items);
+                    var options = results?.Select(item =>
+                            new DiscordSelectComponentOption(item.GetName(), item.GetAddUrl(), item.Author))
+                        .ToList();
+                    var dropdown = new DiscordSelectComponent("dropdown", null, options);
+                    var builder = new DiscordMessageBuilder().WithContent(lang.SelectVideo())
+                        .AddComponents(dropdown);
+                    var message = await builder.SendAsync(player.Channel);
+                    var response = await message.WaitForSelectAsync(user, "dropdown", TimeSpan.FromSeconds(60));
+                    if (response.TimedOut)
+                    {
+                        await message.ModifyAsync(lang.SelectVideoTimeout().CodeBlocked());
+                        return;
+                    }
+
+                    var interaction = response.Result.Values;
+                    if (interaction == null || interaction.Length < 1)
+                    {
+                        return;
+                    }
+
+                    items = new List<PlayableItem>();
+                    var result = (await Search.Get(interaction.First()) ?? Enumerable.Empty<PlayableItem>())
+                        .FirstOrDefault();
+                    if (result == null)
+                    {
+                        await message.ModifyAsync("Unable to find result.".CodeBlocked());
+                        return;
+                    }
+
+                    player.Statusbar.Message = await message.ModifyAsync(
+                        new DiscordMessageBuilder().WithContent(lang.ThisMessageWillUpdateShortly().CodeBlocked()));
+                }
+                else
+                {
+                    await Debug.WriteAsync($"Play message contains attachments: {attachments?.Count}");
+                    items = await Search.Get(term, attachments, user?.Guild.Id);
+                }
+
+                if (items == null || items.Count < 1)
+                {
+                    await messageChannel.SendMessageAsync(lang.NoResultsFound(term).CodeBlocked());
+                    return;
+                }
+                
+                items.ForEach(it => it.SetRequester(user));
+                player.Queue.AddToQueue(items);
+                
+                if (player.Started)
+                {
                     if (items.Count > 1)
                         await player.CurrentClient!.SendMessageAsync(messageChannel, lang.AddedItem(term).CodeBlocked());
                     else
@@ -290,7 +206,27 @@ namespace DiscordBot.Audio
                             lang.AddedItem(
                                     $"({player.Queue.Items.IndexOf(items.First()) + 1}) - {items.First().GetName(player.Settings.ShowOriginalInfo)}")
                                 .CodeBlocked());
+                    return;
                 }
+
+                player.Started = true;
+                player.Connection = await player.CurrentClient.GetVoiceNext()
+                    .ConnectAsync(player.CurrentClient.Guilds[userVoiceS.Guild.Id].Channels[userVoiceS.Id]);
+                player.VoiceChannel = userVoiceS;
+                player.Sink = player.Connection?.GetTransmitSink();
+                player.CurrentGuild = user?.Guild;
+                var playerTask = new Task(async () =>
+                {
+                    try
+                    {
+                        await player.Play();
+                    }
+                    catch (Exception e)
+                    {
+                        await Debug.WriteAsync($"Player Task Failed: {e}");
+                    }
+                });
+                playerTask.Start();
             }
             catch (Exception e)
             {
@@ -474,33 +410,28 @@ namespace DiscordBot.Audio
 
             term += ""; // Clear any possible null warnings.
 
-            List<PlayableItem> item;
-            if (ctx.Message.Attachments.Count > 0)
-            {
-                item = await Search.Get(term, ctx.Message.Attachments.ToList(), ctx.Guild.Id);
-                term = ctx.Message.Attachments.Count switch
-                {
-                    1 => ctx.Message.Attachments.ToList()[0].FileName, _ => "Discord Attachments"
-                };
-            }
-            else
-            {
-                item = await Search.Get(term);
-            }
+            var attachmentsList = ctx.Message.Attachments.ToList();
 
-            if (item.Count < 1)
+            var items = await Search.Get(term, attachmentsList, ctx.Guild.Id);
+            
+            term = attachmentsList.Count switch
+            {
+                1 => ctx.Message.Attachments.ToList()[0].FileName, _ => "Discord Attachments"
+            };
+
+            if (items == null || items.Count < 1)
             {
                 await Bot.Reply(ctx, player.Language.NoResultsFound(term));
                 return;
             }
 
-            item.ForEach(it => it.SetRequester(ctx.Member));
-            player.Queue.AddToQueueNext(item);
+            items.ForEach(it => it.SetRequester(ctx.Member));
+            player.Queue.AddToQueueNext(items);
             await Bot.Reply(player.CurrentClient, ctx.Channel,
-                item.Count > 1
+                items.Count > 1
                     ? player.Language.PlayingItemAfterThis(term)
-                    : player.Language.PlayingItemAfterThis(player.Queue.Items.IndexOf(item[0]) + 1,
-                        item[0].GetName(player.Settings.ShowOriginalInfo)));
+                    : player.Language.PlayingItemAfterThis(player.Queue.Items.IndexOf(items[0]) + 1,
+                        items[0].GetName(player.Settings.ShowOriginalInfo)));
         }
 
         public static async Task Remove(CommandContext ctx, string? text)

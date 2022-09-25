@@ -6,7 +6,7 @@ using DiscordBot.Methods;
 
 namespace DiscordBot.Readers.MariaDB
 {
-    public class GuildSettings
+    public static class GuildSettings
     {
         public static async Task<GuildsModel> FromId(ulong id)
         {
@@ -15,10 +15,7 @@ namespace DiscordBot.Readers.MariaDB
             {
                 Id = id
             };
-            var select = Databases.GuildDatabase.Read(searchModel);
-            if (select != null) return select;
-            Databases.GuildDatabase.Add(searchModel);
-            return searchModel;
+            return Databases.GuildDatabase.Read(searchModel) ?? Databases.GuildDatabase.Add(searchModel);
         }
     }
 }

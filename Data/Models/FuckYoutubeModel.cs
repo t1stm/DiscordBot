@@ -4,11 +4,11 @@ using System.Linq;
 
 namespace DiscordBot.Data.Models
 {
-    public class FuckYoutubeModel : IModel<FuckYoutubeModel>
+    public class FuckYoutubeModel : Model<FuckYoutubeModel>
     {
         public string SearchTerm { get; set; }
         public string VideoId { get; set; }
-        public FuckYoutubeModel Read(IEnumerable<FuckYoutubeModel> source)
+        public override FuckYoutubeModel SearchFrom(IEnumerable<FuckYoutubeModel> source)
         {
             return source.AsParallel()
                 .FirstOrDefault(r => string.Equals(r.SearchTerm, SearchTerm,
@@ -16,5 +16,6 @@ namespace DiscordBot.Data.Models
                                      string.Equals(r.VideoId, VideoId,
                                          StringComparison.InvariantCultureIgnoreCase));
         }
+        
     }
 }
