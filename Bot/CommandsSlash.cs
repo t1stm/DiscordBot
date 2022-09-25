@@ -453,13 +453,13 @@ namespace DiscordBot
                 var attachments = ctx.TargetMessage.Attachments;
                 if (attachments == null || attachments.Count < 1)
                 {
-                    await ctx.CreateResponseAsync(user.Language.SlashNotInChannel().CodeBlocked(), true);
+                    await ctx.CreateResponseAsync("This message doesn't have any attachments.".CodeBlocked(), true);
                     return;
                 }
                 var voiceState = ctx.Member.VoiceState?.Channel;
                 if (voiceState == null)
                 {
-                    await ctx.CreateResponseAsync("You're not in a channel at the moment.".CodeBlocked(), true);
+                    await ctx.CreateResponseAsync(user.Language.SlashNotInChannel().CodeBlocked(), true);
                     return;
                 }
 
