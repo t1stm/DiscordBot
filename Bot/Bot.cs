@@ -128,6 +128,10 @@ namespace DiscordBot
                         case "sta":
                             Standalone.Audio.PrintAudio();
                             break;
+                        case "clearsta":
+                            await Debug.WriteAsync("Clearing all cached audios.");
+                            Standalone.Audio.RemoveStale(true);
+                            break;
                         case "reboot":
                             var cancel = false;
                             var force = false;

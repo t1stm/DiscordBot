@@ -1,13 +1,15 @@
+#nullable enable
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text.Json;
-using System.Text.Json.Nodes;
+using System.Threading;
 using System.Threading.Tasks;
 using DiscordBot.Audio.Objects;
 using DiscordBot.Audio.Platforms.Youtube;
 using DiscordBot.Methods;
+using DiscordBot.Tools;
 using Microsoft.AspNetCore.Mvc;
 using YtPlaylist = DiscordBot.Audio.Platforms.Youtube.Playlist;
 
@@ -19,16 +21,16 @@ namespace DiscordBot.Standalone
         public static readonly List<EncodedAudio> EncodedAudio = new();
         public static readonly List<SocketSession> GeneratedSocketSessions = new();
 
-        public static void RemoveStale()
+        public static void RemoveStale(bool force = false)
         {
             var now = DateTime.UtcNow.Ticks;
             lock (EncodedAudio)
             {
-                foreach (var audio in EncodedAudio.Where(r => r.Expire < now).ToList())
+                foreach (var audio in EncodedAudio.Where(r => force || r.Expire < now).ToList())
                 {
                     if (Bot.DebugMode)
                         Debug.Write(
-                            $"Removing stale audio: \"{audio.SearchTerm}\" - Now: {now} - Expire: {audio.Expire} - Encoded: {audio.Encoded}");
+                            $"Removing {(force ? "" : "stale ")}audio: \"{audio.SearchTerm}\" - Now: {now} - Expire: {audio.Expire} - Encoded: {audio.Encoded}");
                     EncodedAudio.Remove(audio);
                 }
             }
@@ -58,7 +60,7 @@ namespace DiscordBot.Standalone
             }
         }
 
-        public async Task<ActionResult> DownloadTrack(string id, int bitrate = 96, bool useOpus = true)
+        public async Task<ActionResult?> DownloadTrack(string id, int bitrate = 96, bool useOpus = true)
         {
             try
             {
@@ -69,13 +71,13 @@ namespace DiscordBot.Standalone
 
                 if (Bot.DebugMode) await Debug.WriteAsync("Using Audio Controller");
                 var res = await DiscordBot.Audio.Platforms.Search.Get(id);
-                var first = res.First();
+                var first = res?.First();
                 FfMpeg2 ff = new();
-                EncodedAudio foundEnc;
+                EncodedAudio? foundEnc;
                 lock (EncodedAudio)
                 {
                     foundEnc = EncodedAudio.AsParallel()
-                        .FirstOrDefault(r => r.SearchTerm == id && r.Bitrate == bitrate, null);
+                        .FirstOrDefault(r => r?.SearchTerm == id && r.Bitrate == bitrate, null);
                 }
 
                 if (foundEnc != null)
@@ -108,21 +110,17 @@ namespace DiscordBot.Standalone
                 {
                     EncodedAudio.Add(el);
                 }
-
-                Memory<byte> memory = new byte[512];
+                
                 var ms = new MemoryStream();
                 while (!stream.CanRead)
                 {
                     await Task.Delay(16);
                     if (Bot.DebugMode) await Debug.WriteAsync("Waiting for readable stream.");
                 }
-
-                while (await stream.ReadAsync(memory) != 0)
-                {
-                    await ms.WriteAsync(memory);
-                    await Response.Body.WriteAsync(memory);
-                }
-
+                
+                var streamSpreader = new StreamSpreader(CancellationToken.None, ms, Response.Body);
+                await stream.CopyToAsync(streamSpreader);
+                
                 el.Data = ms.ToArray();
                 el.Encoded = true;
                 await Response.CompleteAsync();
@@ -137,7 +135,6 @@ namespace DiscordBot.Standalone
 
         public async Task<IActionResult> GetUserPlaylists(string userToken)
         {
-            
             return Ok();
         }
         
@@ -202,9 +199,9 @@ namespace DiscordBot.Standalone
 
     public class EncodedAudio
     {
-        public string SearchTerm { get; init; }
+        public string? SearchTerm { get; init; }
         public int Bitrate { get; set; }
-        public byte[] Data { get; set; }
+        public byte[]? Data { get; set; }
         public long Expire { get; set; }
         public bool Encoded { get; set; }
     }

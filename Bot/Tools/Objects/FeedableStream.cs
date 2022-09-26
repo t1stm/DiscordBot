@@ -1,27 +1,37 @@
 #nullable enable
+using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Threading.Tasks;
+using DiscordBot.Methods;
 
-namespace DiscordBot.Tools
+namespace DiscordBot.Tools.Objects
 {
     public class FeedableStream : Stream
     {
-        private Stream BackingStream;
-        private List<byte[]> Cache = new();
-        private bool Updating;
+        private readonly Stream BackingStream;
+        private readonly Queue<StreamData> Cache = new();
+        public bool Updating;
+        private bool Closed { get; set; }
+        public bool WaitCopy { get; init; } = false;
 
         public FeedableStream(Stream backingBackingStream)
         {
             BackingStream = backingBackingStream;
         }
 
-        public void FillBuffer(IEnumerable<byte> data)
+        public override void Close()
         {
-            lock (Cache) Cache.Add(data.ToArray());
-            var updater = new Task(UpdateTask);
-            updater.Start();
+            Closed = true;
+            base.Close();
+        }
+
+        public void FillBuffer(StreamData data)
+        {
+            lock (Cache) Cache.Enqueue(data);
+            var updateTask = new Task(UpdateTask);
+            updateTask.Start();
+            if (WaitCopy) updateTask.Wait();
         }
 
         private int CacheCount()
@@ -34,18 +44,23 @@ namespace DiscordBot.Tools
         
         private void UpdateTask()
         {
-            if (Updating) return;
-            Updating = true;
-            while (CacheCount() != 0)
+            try
             {
-                byte[]? data;
-                lock (Cache) data = Cache.FirstOrDefault();
-                if (data == null) return;
-                BackingStream.Write(data);
-                lock (Cache) Cache.Remove(data);
-            }
+                if (Updating || Closed) return;
+                Updating = true;
+                while (CacheCount() != 0)
+                {
+                    StreamData? data;
+                    lock (Cache) data = Cache.Dequeue();
+                    BackingStream.WriteAsync(data.Data, data.Offset, data.Count);
+                }
 
-            Updating = false;
+                Updating = false;
+            }
+            catch (Exception e)
+            {
+                Debug.Write($"Feedable stream update task failed: \"{e}\"");
+            }
         }
 
         public override void Flush()
@@ -70,7 +85,12 @@ namespace DiscordBot.Tools
 
         public override void Write(byte[] buffer, int offset, int count)
         {
-            BackingStream.Write(buffer, offset, count);
+            FillBuffer(new StreamData
+            {
+                Data = buffer,
+                Offset = offset,
+                Count = count
+            });
         }
 
         public override bool CanRead => BackingStream.CanRead;

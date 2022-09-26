@@ -1,3 +1,4 @@
+#nullable enable 
 using System;
 
 namespace DiscordBot.Tools
@@ -5,7 +6,7 @@ namespace DiscordBot.Tools
     //Source StackOverflow: https://stackoverflow.com/questions/6944056/c-sharp-compare-string-similarity
     public static class LevenshteinDistance
     {
-        public static int Compute(string s, string t)
+        public static int Compute(string? s, string? t)
         {
             if (string.IsNullOrEmpty(s)) return string.IsNullOrEmpty(t) ? 0 : t.Length;
 

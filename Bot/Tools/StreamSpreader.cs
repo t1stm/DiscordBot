@@ -3,38 +3,77 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using DiscordBot.Tools.Objects;
 
 namespace DiscordBot.Tools
 {
-    public class StreamSpreader
+    public class StreamSpreader : Stream
     {
-        private Stream Source { get; }
         private FeedableStream[] Destinations { get; }
-        private bool StopCopying { get; set; }
         private CancellationToken Token { get; set; }
 
-        public StreamSpreader(Stream source, CancellationToken token, params Stream[] destinations)
+        public StreamSpreader(CancellationToken token, params Stream[] destinations)
         {
-            Source = source;
             Destinations = destinations.Select(r => new FeedableStream(r)).ToArray();
             Token = token;
         }
 
-        public async Task Start()
+        public override void Close()
         {
-            var buffer = new Memory<byte>();
-
-            int read;
-
-            while (!StopCopying && !Token.IsCancellationRequested && (read = await Source.ReadAsync(buffer, Token)) > 0)
+            foreach (var feedableStream in Destinations)
             {
-                
+                feedableStream.Close();
+            }
+            base.Close();
+        }
+
+        public override void Flush()
+        {
+            while (Destinations.All(r => r.Updating))
+            {
+                Task.Delay(33, Token).Wait(Token);
             }
         }
 
-        public void Stop()
+        public override int Read(byte[] buffer, int offset, int count)
         {
-            StopCopying = true;
+            throw new NotSupportedException();
         }
+
+        public override long Seek(long offset, SeekOrigin origin)
+        {
+            throw new NotSupportedException();
+        }
+
+        public override void SetLength(long value)
+        {
+            throw new NotSupportedException();
+        }
+
+        public override void Write(byte[] buffer, int offset, int count)
+        {
+            foreach (var feedableStream in Destinations)
+            {
+                if (Token.IsCancellationRequested) return;
+                feedableStream.Write(buffer, offset, count);
+            }
+        }
+
+        public override ValueTask WriteAsync(ReadOnlyMemory<byte> buffer, CancellationToken cancellationToken = new())
+        {
+            foreach (var feedableStream in Destinations)
+            {
+                if (Token.IsCancellationRequested) return new ValueTask();
+                feedableStream.Write(buffer.ToArray());
+            }
+
+            return new ValueTask();
+        }
+
+        public override bool CanRead => false;
+        public override bool CanSeek => false;
+        public override bool CanWrite => true;
+        public override long Length => 0;
+        public override long Position { get; set; }
     }
 }
