@@ -35,6 +35,14 @@ namespace DiscordBot.Tools
             }
         }
 
+        public override async Task FlushAsync(CancellationToken cancellationToken)
+        {
+            while (Destinations.All(r => r.Updating))
+            {
+                await Task.Delay(33, Token);
+            }
+        }
+
         public override int Read(byte[] buffer, int offset, int count)
         {
             throw new NotSupportedException();

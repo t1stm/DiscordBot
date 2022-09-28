@@ -2,6 +2,7 @@ using System;
 using System.IO;
 using System.Threading.Tasks;
 using DiscordBot.Abstract;
+using DiscordBot.Methods;
 using DiscordBot.Readers;
 
 namespace DiscordBot.Audio.Objects
@@ -10,9 +11,18 @@ namespace DiscordBot.Audio.Objects
     {
         public string Id { get; init; }
 
-        public override async Task GetAudioData(params Stream[] outputs)
+        public override async Task<bool> GetAudioData(params Stream[] outputs)
         {
-            await HttpClient.ChunkedDownloaderToStream(HttpClient.WithCookies(), new Uri(Location), false, outputs);
+            try
+            {
+                await HttpClient.ChunkedDownloaderToStream(HttpClient.WithCookies(), new Uri(Location), false, outputs);
+                return true;
+            }
+            catch (Exception e)
+            {
+                await Debug.WriteAsync($"OnlineFile GetAudioData method failed: \"{e}\"");
+                return false;
+            }
         }
 
         public override string GetThumbnailUrl()

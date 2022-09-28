@@ -1,6 +1,8 @@
+using System;
 using System.IO;
 using System.Threading.Tasks;
 using DiscordBot.Abstract;
+using DiscordBot.Methods;
 using TagLib;
 using File = TagLib.File;
 
@@ -58,10 +60,19 @@ namespace DiscordBot.Audio.Objects
             return Task.CompletedTask;
         }
 
-        public override async Task GetAudioData(params Stream[] outputs)
+        public override async Task<bool> GetAudioData(params Stream[] outputs)
         {
-            var file = System.IO.File.OpenRead(GetLocation());
-            foreach (var stream in outputs) await file.CopyToAsync(stream);
+            try
+            {
+                var file = System.IO.File.OpenRead(GetLocation());
+                foreach (var stream in outputs) await file.CopyToAsync(stream);
+                return true;
+            }
+            catch (Exception e)
+            {
+                await Debug.WriteAsync($"OnlineFile GetAudioData method failed: \"{e}\"");
+                return false;
+            }
         }
 
         public override string GetId()

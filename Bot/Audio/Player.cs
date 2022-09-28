@@ -9,6 +9,7 @@ using System.Timers;
 using DiscordBot.Abstract;
 using DiscordBot.Audio.Objects;
 using DiscordBot.Audio.Platforms;
+using DiscordBot.Audio.Platforms.Youtube;
 using DiscordBot.Data.Models;
 using DiscordBot.Enums;
 using DiscordBot.Messages;
@@ -71,7 +72,7 @@ namespace DiscordBot.Audio
         public Stopwatch WaitingStopwatch { get; } = new();
         public List<DiscordMember> VoiceUsers { get; set; } = new();
         private bool Die { get; set; }
-        public string StatusbarMessage { get; } = "";
+        public static string StatusbarMessage { get; } = "";
         private double Volume { get; set; } = 100;
         public string? QueueToken { get; set; }
         public bool SavedQueue { get; set; }
@@ -130,11 +131,14 @@ namespace DiscordBot.Audio
                         switch (CurrentItem)
                         {
                             case SpotifyTrack tr:
-                                var list = await Search.Get(tr);
-                                var track = list.First();
-                                await track.GetAudioData();
-                                Queue.Current -= 1;
-                                continue;
+                                var track = await Video.Search(tr);
+                                lock (Queue.Items)
+                                {
+                                    Queue.Items[Queue.Current] = track;
+                                }
+                                CurrentItem = track;
+                                await PlayTrack(track, Stopwatch.Elapsed.ToString(@"c"));
+                                break;
 
                             default:
                                 //await CurrentItem.Download();

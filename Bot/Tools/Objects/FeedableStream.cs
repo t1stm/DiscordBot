@@ -52,7 +52,8 @@ namespace DiscordBot.Tools.Objects
                 {
                     StreamData? data;
                     lock (Cache) data = Cache.Dequeue();
-                    BackingStream.WriteAsync(data.Data, data.Offset, data.Count);
+                    BackingStream.WriteAsync(data.Data, data.Offset, data.Count).Wait(); 
+                    // Ironic I know. Some streams don't support synchronized writing. Too bad!
                 }
 
                 Updating = false;
@@ -65,6 +66,7 @@ namespace DiscordBot.Tools.Objects
 
         public override void Flush()
         {
+            UpdateTask();
             BackingStream.Flush();
         }
 

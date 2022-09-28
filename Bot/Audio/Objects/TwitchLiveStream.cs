@@ -83,9 +83,10 @@ namespace DiscordBot.Audio.Objects
             }
         }
 
-        public override async Task GetAudioData(params Stream[] outputs)
+        public override async Task<bool> GetAudioData(params Stream[] outputs)
         {
             if (Location == null) await ProcessInfo();
+            return true;
         }
 
         public override string GetId()

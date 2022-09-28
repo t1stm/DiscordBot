@@ -60,7 +60,11 @@ namespace DiscordBot.Audio.Objects
                 var ended = false;
                 var yes = new Task(async () =>
                 {
-                    await item.GetAudioData(ms);
+                    var success = await item.GetAudioData(ms);
+                    if (success == false)
+                    {
+                        await Kill();
+                    }
                     ended = true;
                 });
                 yes.Start();

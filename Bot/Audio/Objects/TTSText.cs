@@ -1,8 +1,11 @@
 using System;
 using System.Diagnostics;
 using System.IO;
+using System.Threading;
 using System.Threading.Tasks;
 using DiscordBot.Abstract;
+using DiscordBot.Tools;
+using Debug = DiscordBot.Methods.Debug;
 
 namespace DiscordBot.Audio.Objects
 {
@@ -40,9 +43,7 @@ namespace DiscordBot.Audio.Objects
             Title = Title.Replace('\n', ' ');
         }
 
-        public MemoryStream DataStream { get; } = new();
-
-        public override async Task GetAudioData(params Stream[] outputs)
+        public override async Task<bool> GetAudioData(params Stream[] outputs)
         {
             var process = new Process
             {
@@ -60,19 +61,21 @@ namespace DiscordBot.Audio.Objects
             await process.StandardInput.WriteLineAsync(_textToSay);
             process.StandardInput.Close();
             var baseStream = process.StandardOutput.BaseStream;
+            var streamSpreader = new StreamSpreader(CancellationToken.None, outputs);
             var task = new Task(async () =>
             {
                 try
                 {
-                    await baseStream.CopyToAsync(DataStream);
-                    Length = (ulong) (DataStream.Length / 4);
+                    await baseStream.CopyToAsync(streamSpreader);
+                    //Length = (ulong) (streamSpreader.Length / 4); Current implementation doesn't support length.
                 }
-                catch (Exception)
+                catch (Exception e)
                 {
-                    // Ignored
+                    await Debug.WriteAsync($"TTS Reader copy task failed: \"{e}\"");
                 }
             });
             task.Start();
+            return true;
         }
 
         private static string LanguageToString(Language chars)

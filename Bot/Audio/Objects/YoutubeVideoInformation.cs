@@ -46,7 +46,7 @@ namespace DiscordBot.Audio.Objects
         }
 
         //This is a bad way to implement this feature, but I cannot currently implement it in a better way... Well, too bad!
-        public override async Task GetAudioData(params Stream[] outputs)
+        public override async Task<bool> GetAudioData(params Stream[] outputs)
         {
             TriesToDownload++;
             Errored = TriesToDownload > 3;
@@ -69,7 +69,7 @@ namespace DiscordBot.Audio.Objects
                         }
                     }
                     fs.Close();
-                    return;
+                    return true;
                 }
 
                 try
@@ -92,6 +92,7 @@ namespace DiscordBot.Audio.Objects
                         {
                             await Debug.WriteAsync($"No downloadable audio for {YoutubeId}, With error {exc}",
                                 true);
+                            return false;
                         }
                     }
                 }
@@ -99,7 +100,10 @@ namespace DiscordBot.Audio.Objects
             catch (Exception e)
             {
                 await Debug.WriteAsync($"Failed to download. {YoutubeId}, Exception: \"{e}\"");
+                return false;
             }
+
+            return true;
         }
 
         public override string GetId()
@@ -162,14 +166,11 @@ namespace DiscordBot.Audio.Objects
             var results = videoInfos.ToList();
             var audioInfo = results.Where(vi => vi.Resolution == 0 && vi.AudioType == AudioType.Opus)
                 .OrderBy(vi => vi.AudioBitrate).Last();
-
             if (audioInfo.RequiresDecryption)
                 DownloadUrlResolver.DecryptDownloadUrl(audioInfo);
-
-            var audioPath = $"{DownloadDirectory}/{id}{audioInfo.VideoExtension}";
             if (Length < 1800000) outs.Add(File.Open($"{DownloadDirectory}/{id}.webm", FileMode.Create));
             await Debug.WriteAsync("Starting download task.");
-            await HttpClient.ChunkedDownloaderToStream(HttpClient.WithCookies(), new Uri(audioPath), false,
+            await HttpClient.ChunkedDownloaderToStream(HttpClient.WithCookies(), new Uri(audioInfo.DownloadUrl), false,
                 outs.ToArray());
             Location = audioInfo.DownloadUrl;
         }

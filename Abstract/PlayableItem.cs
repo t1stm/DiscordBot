@@ -31,7 +31,7 @@ namespace DiscordBot.Abstract
             return Location;
         }
 
-        public abstract Task GetAudioData(params Stream[] outputs);
+        public abstract Task<bool> GetAudioData(params Stream[] outputs);
 
         public virtual Task ProcessInfo()
         {

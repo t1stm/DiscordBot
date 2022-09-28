@@ -90,10 +90,19 @@ namespace DiscordBot.Audio.Objects
             return Authors[0];
         }
 
-        public override async Task GetAudioData(params Stream[] outputs)
+        public override async Task<bool> GetAudioData(params Stream[] outputs)
         {
-            var file = File.OpenRead(Location);
-            foreach (var stream in outputs) await file.CopyToAsync(stream);
+            try
+            {
+                var file = File.OpenRead(Location);
+                foreach (var stream in outputs) await file.CopyToAsync(stream);
+                return true;
+            }
+            catch (Exception e)
+            {
+                await Debug.WriteAsync($"OnlineFile GetAudioData method failed: \"{e}\"");
+                return false;
+            }
         }
 
         public override string? GetId()
