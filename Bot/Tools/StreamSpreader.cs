@@ -10,7 +10,7 @@ namespace DiscordBot.Tools
     public class StreamSpreader : Stream
     {
         private FeedableStream[] Destinations { get; }
-        private CancellationToken Token { get; set; }
+        private CancellationToken Token { get; }
 
         public StreamSpreader(CancellationToken token, params Stream[] destinations)
         {
