@@ -76,30 +76,32 @@ namespace DiscordBot.Audio.Objects
                 {
                     await DownloadYtDlp(YoutubeId, false, outputs);
                 }
-                catch (Exception)
+                catch (Exception e)
                 {
+                    await Debug.WriteAsync($"Download yt-dlp failed: \"{e}\"");
                     try
                     {
                         await DownloadExplode(YoutubeId, outputs);
                     }
-                    catch (Exception)
+                    catch (Exception exc)
                     {
+                        await Debug.WriteAsync($"Download Youtube Explode failed: \"{exc}\"");
                         try
                         {
                             await DownloadOtherApi(YoutubeId, outputs);
                         }
-                        catch (Exception exc)
+                        catch (Exception except)
                         {
-                            await Debug.WriteAsync($"No downloadable audio for {YoutubeId}, With error {exc}",
+                            await Debug.WriteAsync($"Download Other Api failed for: \'{YoutubeId}\', with error \"{except}\"",
                                 true);
                             return false;
                         }
                     }
                 }
             }
-            catch (Exception e)
+            catch (Exception exception)
             {
-                await Debug.WriteAsync($"Failed to download. {YoutubeId}, Exception: \"{e}\"");
+                await Debug.WriteAsync($"Failed to download. {YoutubeId}, Exception: \"{exception}\"");
                 return false;
             }
 
@@ -168,11 +170,11 @@ namespace DiscordBot.Audio.Objects
                 .OrderBy(vi => vi.AudioBitrate).Last();
             if (audioInfo.RequiresDecryption)
                 DownloadUrlResolver.DecryptDownloadUrl(audioInfo);
+            Location = audioInfo.DownloadUrl;
             if (Length < 1800000) outs.Add(File.Open($"{DownloadDirectory}/{id}.webm", FileMode.Create));
             await Debug.WriteAsync("Starting download task.");
             await HttpClient.ChunkedDownloaderToStream(HttpClient.WithCookies(), new Uri(audioInfo.DownloadUrl), false,
                 outs.ToArray());
-            Location = audioInfo.DownloadUrl;
         }
 
         private async Task DownloadExplode(string id, params Stream[] outputs)
@@ -182,11 +184,11 @@ namespace DiscordBot.Audio.Objects
             var streamManifest = await client.Videos.Streams.GetManifestAsync(id);
             var streamInfo = streamManifest.GetAudioOnlyStreams().GetWithHighestBitrate();
             var filepath = $"{DownloadDirectory}/{id}.{streamInfo.Container}";
+            Location = streamInfo.Url;
             if (Length < 1800000) outs.Add(File.Open($"{DownloadDirectory}/{id}.webm", FileMode.Create));
             await Debug.WriteAsync("Starting download task.");
             await HttpClient.ChunkedDownloaderToStream(HttpClient.WithCookies(), new Uri(filepath), false,
                 outs.ToArray());
-            Location = streamInfo.Url;
         }
     }
 }

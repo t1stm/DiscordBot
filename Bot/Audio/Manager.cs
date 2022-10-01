@@ -144,13 +144,13 @@ namespace DiscordBot.Audio
                 if (select && !term.StartsWith("http"))
                 {
                     var results = await Search.Get(term, returnAllResults: true);
-                    if (results?.Count < 1)
+                    if (results == null || results.Count < 1)
                     {
                         await messageChannel.SendMessageAsync(lang.NoResultsFound(term).CodeBlocked());
                         return;
                     }
 
-                    var options = results?.Select(item =>
+                    var options = results.Select(item =>
                             new DiscordSelectComponentOption(item.GetName(), item.GetAddUrl(), item.Author))
                         .ToList();
                     var dropdown = new DiscordSelectComponent("dropdown", null, options);

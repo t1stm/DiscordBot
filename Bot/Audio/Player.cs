@@ -534,6 +534,7 @@ namespace DiscordBot.Audio
             {
                 lock (Manager.Main)
                 {
+                    Debug.Write("Destructor was called in Player.cs");
                     Disconnect();
                     if (Manager.Main.Contains(this)) Manager.Main.Remove(this);
                 }
