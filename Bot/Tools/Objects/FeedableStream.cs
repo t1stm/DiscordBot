@@ -52,7 +52,9 @@ namespace DiscordBot.Tools.Objects
                 {
                     StreamData? data;
                     lock (Cache) data = Cache.Dequeue();
-                    BackingStream.WriteAsync(data.Data, data.Offset, data.Count).Wait(); 
+                    var task = BackingStream.WriteAsync(data.Data).AsTask();
+                    task.Start();
+                    task.Wait();
                     // Ironic I know. Some streams don't support synchronized writing. Too bad!
                 }
 

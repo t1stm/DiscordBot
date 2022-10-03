@@ -29,7 +29,7 @@ namespace DiscordBot.Tools
 
         public override void Flush()
         {
-            while (Destinations.All(r => r.Updating))
+            while (Destinations.Any(r => r.Updating))
             {
                 Task.Delay(33, Token).Wait(Token);
             }
@@ -37,7 +37,7 @@ namespace DiscordBot.Tools
 
         public override async Task FlushAsync(CancellationToken cancellationToken)
         {
-            while (Destinations.All(r => r.Updating))
+            while (Destinations.Any(r => r.Updating))
             {
                 await Task.Delay(33, Token);
             }
