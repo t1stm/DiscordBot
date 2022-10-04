@@ -41,3 +41,7 @@ Probably done, haven't checked thoroughly for bugs. 20 Jun 2022
 ~~Add changing languages as an option.~~ Done 25 Jun 2022
 
 ~~Make them be selectable in the per guild options.~~ Done Sometime in July
+
+4 Oct 2022: 
+Standalone API sometimes returns corrupted audio.
+Spotify tracks sometimes cause the player to become stuck.
