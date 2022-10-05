@@ -95,8 +95,8 @@ namespace DiscordBot.Standalone
 
                 var stream = useOpus switch
                 {
-                    true => await ff.Convert(first, codec: "-c:a libopus", addParameters: $"-b:a {bitrate}k"),
-                    false => await ff.Convert(first, codec: "-c:a libvorbis", addParameters: $"-b:a {bitrate}k")
+                    true => ff.Convert(first, codec: "-c:a libopus", addParameters: $"-b:a {bitrate}k"),
+                    false => ff.Convert(first, codec: "-c:a libvorbis", addParameters: $"-b:a {bitrate}k")
                 };
                 var el = new EncodedAudio
                 {
@@ -133,19 +133,25 @@ namespace DiscordBot.Standalone
             }
         }
 
-        public async Task<IActionResult> GetUserPlaylists(string userToken)
+        public IActionResult GetUserPlaylists(string userToken)
         {
             return Ok();
         }
         
         [HttpPost]
-        public async Task<IActionResult> UploadPlaylist()
+        public IActionResult UploadPlaylist(string token, string name)
         {
             var uploadedFiles = Request.Form.Files;
-            if (uploadedFiles.Count < 1)
+            switch (uploadedFiles.Count)
             {
-                return NoContent();
+                case < 1:
+                    return NoContent();
+                case > 1:
+                    return BadRequest();
             }
+            
+            var file = uploadedFiles[0];
+            var stream = file.OpenReadStream();
             
             return Ok();
         }
@@ -153,6 +159,7 @@ namespace DiscordBot.Standalone
         public async Task<IActionResult> Search(string term)
         {
             var items = await DiscordBot.Audio.Platforms.Search.Get(term, returnAllResults: true);
+            if (items == null) return Ok("[]"); // Empty Array
             var list = new List<SearchResult>();
             foreach (var item in items)
             {
@@ -189,7 +196,6 @@ namespace DiscordBot.Standalone
             };
             lock (GeneratedSocketSessions)
             {
-                while (GeneratedSocketSessions.Any(r => r.Id == newSession.Id)) newSession.Id = Guid.NewGuid(); // Practically impossible
                 GeneratedSocketSessions.Add(newSession);
             }
 

@@ -11,14 +11,11 @@ namespace DiscordBot.Audio.Objects
     {
         private new string Title { get; set; } = "";
 
-        private string Description { get; set; } = "";
         private new string Location { get; set; }
 
         private bool Running { get; set; }
 
         public string Url { get; init; }
-
-        private new bool Errored { get; set; }
 
         public override string GetName(bool settingsShowOriginalInfo = false)
         {
@@ -69,7 +66,6 @@ namespace DiscordBot.Audio.Objects
                 await Debug.WriteAsync($"Url: \"{Url}\"");
                 var text = await pr.StandardOutput.ReadToEndAsync();
                 var spl = text.Split("\n");
-                Description = spl[0];
                 Location = spl[1];
                 Title = spl[2];
 

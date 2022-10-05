@@ -12,6 +12,8 @@ namespace DiscordBot.Tools
         private FeedableStream[] Destinations { get; }
         private CancellationToken Token { get; }
 
+        private long _length = 0;
+
         public StreamSpreader(CancellationToken token, params Stream[] destinations)
         {
             Destinations = destinations.Select(r => new FeedableStream(r)).ToArray();
@@ -65,23 +67,24 @@ namespace DiscordBot.Tools
                 if (Token.IsCancellationRequested) return;
                 feedableStream.Write(buffer, offset, count);
             }
+            _length += buffer.Length;
         }
 
-        public override ValueTask WriteAsync(ReadOnlyMemory<byte> buffer, CancellationToken cancellationToken = new())
+        public override async ValueTask WriteAsync(ReadOnlyMemory<byte> buffer, CancellationToken cancellationToken = new())
         {
             foreach (var feedableStream in Destinations)
             {
-                if (Token.IsCancellationRequested) return new ValueTask();
-                feedableStream.Write(buffer.ToArray());
+                if (Token.IsCancellationRequested) return;
+                await feedableStream.WriteAsync(buffer, cancellationToken);
             }
-
-            return new ValueTask();
+            _length += buffer.Length;
+            
         }
 
         public override bool CanRead => false;
         public override bool CanSeek => false;
         public override bool CanWrite => true;
-        public override long Length => 0;
+        public override long Length => _length;
         public override long Position { get; set; }
     }
 }

@@ -1,3 +1,4 @@
+#nullable enable
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -14,7 +15,8 @@ namespace DiscordBot.Data
         private List<T> Data { get; set; } = new();
         private readonly string FileLocation;
         private readonly string ObjectName;
-        private FileStream FileStream { get; set; }
+        private FileStream? FileStream { get; set; }
+        private readonly object LockObject = new();
         private readonly Timer SaveTimer = new();
         private bool Modified;
 
@@ -29,7 +31,7 @@ namespace DiscordBot.Data
             FileLocation = $"{Bot.WorkingDirectory}/Databases/{ObjectName}.json";
         }
 
-        private void ElapsedEvent(object sender, ElapsedEventArgs e)
+        private void ElapsedEvent(object? sender, ElapsedEventArgs e)
         {
             if (!Modified) return;
             if (Bot.DebugMode) Debug.Write($"Saving \"{ObjectName}\" database.");
@@ -48,9 +50,9 @@ namespace DiscordBot.Data
             Modified = true;
         }
 
-        public T Read(T searchData)
+        public T? Read(T searchData)
         {
-            T data;
+            T? data;
             lock (Data)
             {
                 data = searchData.SearchFrom(Data); // This makes me go over the rainbow.
@@ -76,18 +78,18 @@ namespace DiscordBot.Data
                 Data.Add(addModel);
                 Modified = true;
             }
-            if (addModel != null) addModel.SetModified = ModifiedAction;
+            addModel.SetModified = ModifiedAction;
             return addModel;
         }
 
         private void ReadFile()
         {
-            lock (FileStream ?? new object())
+            lock (LockObject)
             {
                 try
                 {
                     FileStream = File.Open(FileLocation, FileMode.Open);
-                    Data = JsonSerializer.Deserialize<List<T>>(FileStream);
+                    Data = JsonSerializer.Deserialize<List<T>>(FileStream) ?? Enumerable.Empty<T>().ToList();
                     FileStream.Close();
                 }
                 catch (Exception e)

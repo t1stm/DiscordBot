@@ -11,7 +11,7 @@ namespace DiscordBot.Audio.Objects
     public class SystemFile : PlayableItem
     {
         public bool IsDiscordAttachment { get; init; }
-        public ulong Guild { get; set; }
+        public ulong Guild { get; init; }
 
         public override string GetThumbnailUrl()
         {

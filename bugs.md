@@ -45,3 +45,7 @@ Probably done, haven't checked thoroughly for bugs. 20 Jun 2022
 4 Oct 2022: 
 Standalone API sometimes returns corrupted audio.
 Spotify tracks sometimes cause the player to become stuck.
+
+TODO: Very important
+
+Make caching audios public so that there's no problems sharing files.

@@ -27,7 +27,7 @@ namespace DiscordBot.Standalone
             return FfMpegProcess?.StandardOutput.BaseStream;
         }
 
-        public async Task<Stream> Convert(PlayableItem item, string format = "-f ogg", string codec = "-c:a copy",
+        public Stream Convert(PlayableItem item, string format = "-f ogg", string codec = "-c:a copy",
             string addParameters = " ")
         {
             var ffmpegStartInfo = new ProcessStartInfo

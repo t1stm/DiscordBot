@@ -1,4 +1,4 @@
-using System;
+#nullable enable
 using System.Collections.Generic;
 using System.Linq;
 using DiscordBot.Audio.Objects;
@@ -7,13 +7,13 @@ namespace DiscordBot.Data.Models
 {
     public class VideoInformationModel : Model<VideoInformationModel>
     {
-        public string VideoId { get; set; }
-        public string Title { get; set; }
-        public string Author { get; set; }
+        public string VideoId { get; set; } = null!;
+        public string Title { get; set; } = null!;
+        public string Author { get; set; } = null!;
         public ulong Length { get; set; }
-        public string ThumbnailUrl { get; set; }
+        public string ThumbnailUrl { get; set; } = null!;
 
-        public override VideoInformationModel SearchFrom(IEnumerable<VideoInformationModel> source)
+        public override VideoInformationModel? SearchFrom(IEnumerable<VideoInformationModel> source)
         {
             return source.AsParallel().FirstOrDefault(r => VideoId == r.VideoId);
         }

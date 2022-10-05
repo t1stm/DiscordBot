@@ -827,7 +827,7 @@ namespace DiscordBot.Audio
             try
             {
                 resp = await client.SendAsync(new HttpRequestMessage(HttpMethod.Get,
-                    $"{apiMusicResponse.result.First().api_lyrics}?apikey={apiKey}"));
+                    $"{apiMusicResponse.Result?.First().ApiLyrics}?apikey={apiKey}"));
             }
             catch (Exception)
             {
@@ -837,7 +837,7 @@ namespace DiscordBot.Audio
             response = await resp.Content.ReadAsStringAsync();
             var lyricsResponse = JsonSerializer.Deserialize<LyricsApiStuff.HappiApiLyricsResponse>(response);
             if (lyricsResponse is null) throw new InvalidOperationException();
-            return lyricsResponse.result.lyrics;
+            return lyricsResponse.Result?.Lyrics;
         }
     }
 }

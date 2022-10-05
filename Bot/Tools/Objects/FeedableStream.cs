@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Threading;
 using System.Threading.Tasks;
 using DiscordBot.Methods;
 
@@ -42,7 +43,7 @@ namespace DiscordBot.Tools.Objects
             }
         }
         
-        private void UpdateTask()
+        private async void UpdateTask()
         {
             try
             {
@@ -52,9 +53,7 @@ namespace DiscordBot.Tools.Objects
                 {
                     StreamData? data;
                     lock (Cache) data = Cache.Dequeue();
-                    var task = BackingStream.WriteAsync(data.Data).AsTask();
-                    task.Start();
-                    task.Wait();
+                    await BackingStream.WriteAsync(data.Data.AsMemory(data.Offset, data.Count));
                     // Ironic I know. Some streams don't support synchronized writing. Too bad!
                 }
 
@@ -62,7 +61,8 @@ namespace DiscordBot.Tools.Objects
             }
             catch (Exception e)
             {
-                Debug.Write($"Feedable stream update task failed: \"{e}\"");
+                await Debug.WriteAsync($"Feedable stream update task failed: \"{e}\"");
+                Updating = false;
             }
         }
 
@@ -97,14 +97,36 @@ namespace DiscordBot.Tools.Objects
             });
         }
 
+        public override Task WriteAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken)
+        {
+            FillBuffer(new StreamData
+            {
+                Data = buffer,
+                Offset = offset,
+                Count = count
+            });
+            return Task.CompletedTask;
+        }
+        
+        public override ValueTask WriteAsync(ReadOnlyMemory<byte> buffer, CancellationToken cancellationToken = new())
+        {
+            FillBuffer(new StreamData
+            {
+                Data = buffer.ToArray(),
+                Offset = 0,
+                Count = buffer.Length
+            });
+            return ValueTask.CompletedTask;
+        }
+
         public override bool CanRead => BackingStream.CanRead;
         public override bool CanSeek => BackingStream.CanSeek;
         public override bool CanWrite => BackingStream.CanWrite;
         public override long Length => BackingStream.Length;
-        public override long Position 
-        { 
-            get => BackingStream.Position; 
-            set => BackingStream.Position = value; 
+        public override long Position
+        {
+            get => 0;
+            set { }
         }
     }
 }

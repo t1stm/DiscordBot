@@ -67,7 +67,7 @@ namespace DiscordBot.Audio.Objects
                 try
                 {
                     await baseStream.CopyToAsync(streamSpreader);
-                    //Length = (ulong) (streamSpreader.Length / 4); Current implementation doesn't support length.
+                    Length = (ulong) (streamSpreader.Length / 4);
                 }
                 catch (Exception e)
                 {

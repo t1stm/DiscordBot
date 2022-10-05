@@ -357,7 +357,7 @@ namespace DiscordBot
                         if (Clients.All(c => c.CurrentUser.Id != args.User.Id)) return;
                         if (Manager.Main.Count < 1) return;
                         if (args.Before == null) return;
-                        var cl = Manager.Main.FirstOrDefault(c => c.VoiceChannel.Id == args.Before.Channel.Id);
+                        var cl = Manager.Main.FirstOrDefault(c => c.VoiceChannel?.Id == args.Before.Channel.Id);
                         if (cl == null) return;
                         if (args.After.Channel == null && !cl.UpdatedChannel)
                         {

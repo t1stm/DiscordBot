@@ -3,9 +3,11 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using DiscordBot.Abstract;
 using DiscordBot.Readers;
+using DiscordBot.Tools;
 using YouTubeApiSharp;
 using YoutubeExplode;
 using YoutubeExplode.Videos.Streams;
@@ -133,30 +135,24 @@ namespace DiscordBot.Audio.Objects
             var sett = new ProcessStartInfo
             {
                 RedirectStandardOutput = true,
-                RedirectStandardError = true,
+                RedirectStandardError = false,
                 Arguments =
-                    $"--no-warnings -u None -p None -g {live switch {true => "", false => "-f bestaudio "}}--cookies \"{HttpClient.CookieDestinations.GetRandom()}\" {id}",
+                    $"-q --no-warnings -u None -p None -r 4.0M {live switch {true => "", false => "-f bestaudio "}}--cookies \"{HttpClient.CookieDestinations.GetRandom()}\" {id} --output -",
                 FileName = "yt-dlp"
             };
             var pr = Process.Start(sett);
             if (pr == null) throw new NullReferenceException();
-            await pr.WaitForExitAsync();
-            var url = await pr.StandardOutput.ReadLineAsync();
-            var err = await pr.StandardError.ReadLineAsync();
+
             if (live)
             {
                 IsLiveStream = true;
-                Location = url;
                 return;
             }
-
-            if (!string.IsNullOrEmpty(err) && err.Contains("Requested format is not available"))
-                await DownloadYtDlp(id, true);
-
-            Location = url ?? throw new NullReferenceException();
+            
             if (Length < 1800000) outs.Add(File.Open($"{DownloadDirectory}/{id}.webm", FileMode.Create));
             await Debug.WriteAsync("Starting download task.");
-            await HttpClient.ChunkedDownloaderToStream(HttpClient.WithCookies(), new Uri(url), false, outs.ToArray());
+            var streamSpreader = new StreamSpreader(CancellationToken.None, outs.ToArray());
+            await pr.StandardOutput.BaseStream.CopyToAsync(streamSpreader);
         }
 
         private async Task DownloadOtherApi(string id, params Stream[] outputs)

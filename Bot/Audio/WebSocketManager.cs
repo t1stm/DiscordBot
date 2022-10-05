@@ -3,10 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
-using DiscordBot.Abstract;
 using DiscordBot.Audio.Objects;
 using DiscordBot.Audio.Platforms;
 using DiscordBot.Data;
+using DiscordBot.Data.Models;
 using DiscordBot.Methods;
 using DiscordBot.Objects;
 using vtortola.WebSockets;
@@ -47,10 +47,10 @@ namespace DiscordBot.Audio
                     return;
                 case "search":
                     var results = await Search.Get(string.Join(':', command[1..]), returnAllResults: true);
-                    await Send(ws, $"Search:{JsonSerializer.Serialize(results.Select(r => r.ToSearchResult()))}");
+                    await Send(ws, $"Search:{JsonSerializer.Serialize(results?.Select(r => r.ToSearchResult()))}");
                     return;
                 case "set":
-                    await SettingsParser(WebSockets[ws], string.Join(":", command[1..]));
+                    SettingsParser(WebSockets[ws], string.Join(":", command[1..]));
                     return;
             }
 
@@ -339,14 +339,6 @@ namespace DiscordBot.Audio
             await ws.WriteStringAsync(message);
         }
 
-        private static string SerializeIPlayableItem(PlayableItem item)
-        {
-            return JsonSerializer.Serialize(item.ToSearchResult(), new JsonSerializerOptions
-            {
-                WriteIndented = false
-            });
-        }
-
         private static async Task SendSettings(WebSocket ws, string token)
         {
             var user = await User.FromToken(token);
@@ -360,9 +352,22 @@ namespace DiscordBot.Audio
             await Send(ws, $"Settings:{JsonSerializer.Serialize(user.ToWebUISettings())}");
         }
 
-        private static async Task SettingsParser(string token, string setting)
+        private static void SettingsParser(string token, string json)
         {
+            var data = JsonSerializer.Deserialize<UsersModel>(json);
+            var request = new UsersModel
+            {
+                Token = token
+            };
+            var readUser = Databases.UserDatabase.Read(request);
+            if (readUser == null) return;
             
+            readUser.Language = data?.Language ?? readUser.Language;
+            readUser.UiScroll = data?.UiScroll ?? readUser.UiScroll;
+            readUser.ForceUiScroll = data?.ForceUiScroll ?? readUser.ForceUiScroll;
+            readUser.VerboseMessages = data?.VerboseMessages ?? readUser.VerboseMessages;
+            readUser.LowSpec = data?.LowSpec ?? readUser.LowSpec;
+            readUser.SetModified?.Invoke();
         }
 
         private static string SerializeQueue(Queue queue)
