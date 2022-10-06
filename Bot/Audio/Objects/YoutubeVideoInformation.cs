@@ -137,7 +137,7 @@ namespace DiscordBot.Audio.Objects
                 RedirectStandardOutput = true,
                 RedirectStandardError = false,
                 Arguments =
-                    $"-q --no-warnings -u None -p None -r 4.0M {live switch {true => "", false => "-f bestaudio "}}--cookies \"{HttpClient.CookieDestinations.GetRandom()}\" {id} --output -",
+                    $"-q --no-warnings -u None -p None -r 4.0M {live switch {true => "", false => "-f bestaudio "}}--cookies \"{HttpClient.CookieDestinations.GetRandom()}\" '{id}' --output -",
                 FileName = "yt-dlp"
             };
             var pr = Process.Start(sett);
