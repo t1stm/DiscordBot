@@ -7,7 +7,7 @@ using ImageMagick;
 
 namespace DiscordBot.Methods
 {
-    public class ImageMagick
+    public static class ImageMagick
     {
         private static async Task<Stream> GenerateComposite(string image1, int x1, int y1, int res,
             string image2 = null, int? x2 = null, int? y2 = null, string baseImage = "cursed_touch2.jpg")

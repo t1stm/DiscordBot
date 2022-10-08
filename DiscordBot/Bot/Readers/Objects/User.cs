@@ -17,7 +17,7 @@ namespace DiscordBot.Objects
                 Model.SetModified?.Invoke();
             }
         }
-        public string Token
+        public string? Token
         {
             get => Model.Token;
             set

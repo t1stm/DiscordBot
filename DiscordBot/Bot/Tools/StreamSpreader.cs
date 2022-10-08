@@ -12,7 +12,8 @@ namespace DiscordBot.Tools
         private FeedableStream[] Destinations { get; }
         private CancellationToken Token { get; }
 
-        private long _length = 0;
+        private long _length;
+        private long _position;
 
         public StreamSpreader(CancellationToken token, params Stream[] destinations)
         {
@@ -67,7 +68,7 @@ namespace DiscordBot.Tools
                 if (Token.IsCancellationRequested) return;
                 feedableStream.Write(buffer, offset, count);
             }
-            _length += buffer.Length;
+            _position = _length += count;
         }
 
         public override async ValueTask WriteAsync(ReadOnlyMemory<byte> buffer, CancellationToken cancellationToken = new())
@@ -77,14 +78,18 @@ namespace DiscordBot.Tools
                 if (Token.IsCancellationRequested) return;
                 await feedableStream.WriteAsync(buffer, cancellationToken);
             }
-            _length += buffer.Length;
-            
+            _position = _length += buffer.Length;
         }
 
         public override bool CanRead => false;
         public override bool CanSeek => false;
         public override bool CanWrite => true;
         public override long Length => _length;
-        public override long Position { get; set; }
+
+        public override long Position
+        {
+            get => _position;
+            set => _position = value;
+        }
     }
 }
