@@ -35,17 +35,15 @@ namespace DiscordBot
             Beta = 1
         }
 
-        private const string BotRelease = "NzMxMjQ5MjMwNjEzNzA4OTMz.XwjS6g.4ciJLulvPl212VFvelwL9d9wBkw",
+        private const string 
+            BotRelease = "NzMxMjQ5MjMwNjEzNzA4OTMz.XwjS6g.4ciJLulvPl212VFvelwL9d9wBkw",
             BotBeta = "NjcxMDg3NjM4NjM1MDg1ODUy.Xi31EQ.v-QjHqPT6BAQhans6bveYhNC9CU",
             SecondaryBot = "OTAzMjg3NzM3Nzc4NTg5NzA2.YXqyQg.F3cDKz-icUbYYMUJXwLxT-BX574";
 
-        public const string WorkingDirectory = "/home/kris/BatTosho";
+        public const string WorkingDirectory = "/nvme0/DiscordBot";
         public const string SiteDomain = "https://dankest.gq";
         public const string WebUiPage = "WebUi";
         public const string Name = "Slavi Trifonov";
-
-        public const string SqlConnectionQuery =
-            "SERVER=localhost;DATABASE=data;UID=root;PASSWORD=123;SSL Mode=None;Port=3306;";
 
         public const int UpdateDelay = 3200; //Milliseconds
 
@@ -262,7 +260,7 @@ namespace DiscordBot
                 }
         }
 
-        private static void LoadDatabases()
+        public static void LoadDatabases()
         {
             Databases.FuckYoutubeDatabase.ReadDatabase();
             Databases.VideoDatabase.ReadDatabase();

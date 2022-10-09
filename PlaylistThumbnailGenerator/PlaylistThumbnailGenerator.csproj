@@ -1,0 +1,33 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net6.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+        <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <PackageReference Include="Magick.NET-Q8-AnyCPU" Version="12.2.0" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <None Remove="AndadaPro.ttf" />
+      <Content Include="AndadaPro.ttf">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </Content>
+      <None Remove="NoGuildImage.png" />
+      <Content Include="NoGuildImage.png">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </Content>
+      <None Remove="PlaylistImageGradient.png" />
+      <Content Include="PlaylistImageGradient.png">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </Content>
+    </ItemGroup>
+    
+    <ItemGroup>
+        <ProjectReference Include="../CustomPlaylistFormat/CustomPlaylistFormat.csproj" />
+    </ItemGroup>
+
+</Project>

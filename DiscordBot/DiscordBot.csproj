@@ -28,8 +28,7 @@
       <PackageReference Include="K4os.Compression.LZ4" Version="1.2.16" />
       <PackageReference Include="K4os.Compression.LZ4.Streams" Version="1.2.16" />
       <PackageReference Include="K4os.Hash.xxHash" Version="1.0.7" />
-      <PackageReference Include="Magick.NET-Q16-AnyCPU" Version="12.1.0" />
-      <PackageReference Include="Magick.NET.Core" Version="12.1.0" />
+      <PackageReference Include="Magick.NET.Core" Version="12.2.0" />
       <PackageReference Include="MessagePack" Version="2.4.35" />
       <PackageReference Include="MessagePack.Annotations" Version="2.4.35" />
       <PackageReference Include="MessagePackAnalyzer" Version="2.4.35">
@@ -279,5 +278,10 @@
     <ItemGroup>
       <UpToDateCheckInput Remove="Pages\Bot\Index.cshtml" />
     </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="../CustomPlaylistFormat/CustomPlaylistFormat.csproj" />
+    <ProjectReference Include="../PlaylistThumbnailGenerator/PlaylistThumbnailGenerator.csproj" />
+  </ItemGroup>
 
 </Project>

@@ -1,8 +1,10 @@
+using CustomPlaylistFormat.Objects;
+
 namespace DiscordBot.Playlists
 {
     public static class PlaylistPageGenerator
     {
-        public static string GenerateNormalPage()
+        public static string GenerateNormalPage(Playlist playlist)
         {
             var value = "";
 
