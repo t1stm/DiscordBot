@@ -97,6 +97,16 @@ namespace DiscordBot.Tools.Objects
             });
         }
 
+        public override void Write(ReadOnlySpan<byte> buffer)
+        {
+            FillBuffer(new StreamData
+            {
+                Data = buffer.ToArray(),
+                Count = buffer.Length,
+                Offset = 0
+            });
+        }
+
         public override Task WriteAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken)
         {
             FillBuffer(new StreamData
