@@ -21,6 +21,12 @@ namespace DiscordBot.Tools
             Token = token;
         }
 
+        public async Task Finish()
+        {
+            await FlushAsync(Token);
+            Close();
+        }
+
         public override void Close()
         {
             foreach (var feedableStream in Destinations)
@@ -35,6 +41,11 @@ namespace DiscordBot.Tools
             while (Destinations.Any(r => r.Updating))
             {
                 Task.Delay(33, Token).Wait(Token);
+            }
+
+            foreach (var stream in Destinations)
+            {
+                stream.FlushAsync(Token);
             }
         }
 
@@ -71,6 +82,26 @@ namespace DiscordBot.Tools
             _position = _length += count;
         }
 
+        public override async Task WriteAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken)
+        {
+            foreach (var feedableStream in Destinations)
+            {
+                if (Token.IsCancellationRequested) return;
+                await feedableStream.WriteAsync(buffer.AsMemory(offset, count), cancellationToken);
+            }
+            _position = _length += count;
+        }
+
+        public override void Write(ReadOnlySpan<byte> buffer)
+        {
+            foreach (var feedableStream in Destinations)
+            {
+                if (Token.IsCancellationRequested) return;
+                feedableStream.Write(buffer);
+            }
+            _position = _length += buffer.Length;
+        }
+
         public override async ValueTask WriteAsync(ReadOnlyMemory<byte> buffer, CancellationToken cancellationToken = new())
         {
             foreach (var feedableStream in Destinations)
@@ -88,7 +119,7 @@ namespace DiscordBot.Tools
 
         public override long Position
         {
-            get => _position;
+            get => 0;
             set => _position = value;
         }
     }

@@ -21,7 +21,7 @@ namespace PlaylistThumbnailGenerator
 
             using var magickImage = new MagickImage(imageArray)
             {
-                Format = MagickFormat.Png,
+                Format = MagickFormat.Bmp,
                 HasAlpha = true
             };
             using var overlayImage = new MagickImage(playlistImage);

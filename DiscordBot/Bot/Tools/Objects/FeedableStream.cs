@@ -11,7 +11,7 @@ namespace DiscordBot.Tools.Objects
     public class FeedableStream : Stream
     {
         private readonly Stream BackingStream;
-        private readonly Queue<StreamData> Cache = new();
+        private readonly Queue<IWriteAction> Cache = new();
         public bool Updating;
         private bool Closed { get; set; }
         public bool WaitCopy { get; init; } = false;
@@ -27,7 +27,7 @@ namespace DiscordBot.Tools.Objects
             base.Close();
         }
 
-        public void FillBuffer(StreamData data)
+        public void FillBuffer(IWriteAction data)
         {
             lock (Cache) Cache.Enqueue(data);
             var updateTask = new Task(UpdateTask);
@@ -51,9 +51,9 @@ namespace DiscordBot.Tools.Objects
                 Updating = true;
                 while (CacheCount() != 0)
                 {
-                    StreamData? data;
+                    IWriteAction? data;
                     lock (Cache) data = Cache.Dequeue();
-                    await BackingStream.WriteAsync(data.Data.AsMemory(data.Offset, data.Count));
+                    await data.WriteToStreamAsync(BackingStream);
                     // Ironic I know. Some streams don't support synchronized writing. Too bad!
                 }
 
@@ -89,43 +89,23 @@ namespace DiscordBot.Tools.Objects
 
         public override void Write(byte[] buffer, int offset, int count)
         {
-            FillBuffer(new StreamData
-            {
-                Data = buffer,
-                Offset = offset,
-                Count = count
-            });
+            FillBuffer(new ByteArrayData(buffer, offset, count));
         }
 
         public override void Write(ReadOnlySpan<byte> buffer)
         {
-            FillBuffer(new StreamData
-            {
-                Data = buffer.ToArray(),
-                Count = buffer.Length,
-                Offset = 0
-            });
+            FillBuffer(new MemoryData(buffer.ToArray()));
         }
 
         public override Task WriteAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken)
         {
-            FillBuffer(new StreamData
-            {
-                Data = buffer,
-                Offset = offset,
-                Count = count
-            });
+            FillBuffer(new ByteArrayData(buffer, offset, count));
             return Task.CompletedTask;
         }
         
         public override ValueTask WriteAsync(ReadOnlyMemory<byte> buffer, CancellationToken cancellationToken = new())
         {
-            FillBuffer(new StreamData
-            {
-                Data = buffer.ToArray(),
-                Offset = 0,
-                Count = buffer.Length
-            });
+            FillBuffer(new MemoryData(buffer));
             return ValueTask.CompletedTask;
         }
 

@@ -2,6 +2,7 @@
 using System;
 using System.Threading.Tasks;
 using DiscordBot.Methods;
+using DiscordBot.Tools;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Net.Http.Headers;
 
@@ -28,26 +29,31 @@ namespace DiscordBot.Playlists
             try
             {
                 Response.StatusCode = 200;
-                Response.Headers.Add(HeaderNames.ContentDisposition, "filename=image.png");
-                Response.Headers.Add( HeaderNames.ContentType, "image/png");
+                Response.Headers.Add(HeaderNames.ContentDisposition, "filename=image.bmp");
+                Response.Headers.Add( HeaderNames.ContentType, "image/bmp");
                 var output = Response.Body;
-                
+                StreamSpreader? spreader;
                 if (!Guid.TryParse(id, out var guid))
                 {
-                    PlaylistThumbnail.GetNotFoundImage(output);
                     Response.StatusCode = 404;
+                    spreader = PlaylistThumbnail.GetNotFoundImage(output);
+                    await (spreader?.Finish() ?? Task.CompletedTask);
+                    await Response.CompleteAsync();
                     return;
                 }
                 var playlist = PlaylistManager.GetIfExists(guid);
                 if (playlist?.Info == null)
                 {
-                    PlaylistThumbnail.GetNotFoundImage(output);
                     Response.StatusCode = 404;
+                    spreader = PlaylistThumbnail.GetNotFoundImage(output);
+                    await (spreader?.Finish() ?? Task.CompletedTask);
+                    await Response.CompleteAsync();
                     return;
                 }
 
-                PlaylistThumbnail.GetImage(guid.ToString(), playlist.Value.Info, false, output);
-
+                spreader = PlaylistThumbnail.GetImage(guid.ToString(), playlist.Value.Info, false, output);
+                await (spreader?.Finish() ?? Task.CompletedTask);
+                
                 await Response.CompleteAsync();
             }
             catch (Exception e)

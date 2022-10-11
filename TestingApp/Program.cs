@@ -3,4 +3,4 @@ using TestingApp;
 
 Bot.LoadDatabases();
 
-new PlaylistTest().Test();
+new WritingQueueTest().Test();
