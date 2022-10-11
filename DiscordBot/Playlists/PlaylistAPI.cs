@@ -4,38 +4,40 @@ using System.Threading.Tasks;
 using DiscordBot.Methods;
 using DiscordBot.Tools;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Primitives;
 using Microsoft.Net.Http.Headers;
 
 namespace DiscordBot.Playlists
 {
     public class PlaylistAPI : Controller
     {
-        [HttpGet]
-        public ActionResult Index(string? list)
+        
+        [HttpGet,Route("/PlaylistAPI/Playlist/{**id}")]
+        public ContentResult Playlist(string? id)
         {
-            if (!Guid.TryParse(list, out var guid)) return BadRequest();
+            Debug.Write($"Playlist ID is: \"{id}\"");
+            if (!Guid.TryParse(id, out var guid))
+                return base.Content(PlaylistPageGenerator.GenerateNotFoundPage(), "text/html");
 
             var playlist = PlaylistManager.GetIfExists(guid);
             
-            if (playlist is null) 
-                return NotFound(PlaylistPageGenerator.GenerateNotFoundPage());
-
-            return Ok(PlaylistPageGenerator.GenerateNormalPage(playlist.Value));
+            return base.Content(playlist is null ? 
+                PlaylistPageGenerator.GenerateNotFoundPage() : 
+                PlaylistPageGenerator.GenerateNormalPage(playlist.Value), "text/html");
         }
 
-        [HttpGet]
+        [HttpGet,Route("/PlaylistAPI/Thumbnail/{**id}")]
         public async Task Thumbnail(string? id)
         {
             try
             {
                 Response.StatusCode = 200;
-                Response.Headers.Add(HeaderNames.ContentDisposition, "filename=image.png");
-                Response.Headers.Add( HeaderNames.ContentType, "image/png");
+                Response.Headers.Add(HeaderNames.ContentType, "image/png");
                 var output = Response.Body;
                 StreamSpreader? spreader;
                 if (!Guid.TryParse(id, out var guid))
                 {
-                    Response.StatusCode = 404;
+                    Response.Headers.Add(HeaderNames.ContentDisposition, "filename=not-found.png");
                     spreader = await PlaylistThumbnail.GetNotFoundImage(output);
                     await (spreader?.Finish() ?? Task.CompletedTask);
                     await Response.CompleteAsync();
@@ -44,12 +46,13 @@ namespace DiscordBot.Playlists
                 var playlist = PlaylistManager.GetIfExists(guid);
                 if (playlist?.Info == null)
                 {
-                    Response.StatusCode = 404;
+                    Response.Headers.Add(HeaderNames.ContentDisposition, "filename=not-found.png");
                     spreader = await PlaylistThumbnail.GetNotFoundImage(output);
                     await (spreader?.Finish() ?? Task.CompletedTask);
                     await Response.CompleteAsync();
                     return;
                 }
+                Response.Headers.Add(HeaderNames.ContentDisposition, $"filename={id}.png");
 
                 spreader = await PlaylistThumbnail.GetImage(guid.ToString(), playlist.Value.Info, false, output);
                 await (spreader?.Finish() ?? Task.CompletedTask);

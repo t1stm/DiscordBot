@@ -36,7 +36,7 @@ namespace PlaylistThumbnailGenerator
         {
             var titleSettings = GetTextSettings(64, 510, 150, Gravity.Southwest);
             var makerSettings = GetTextSettings(32, 510, 78, Gravity.Northwest);
-            var descriptionSettings = GetTextSettings(32, 500, 160, Gravity.Southwest);
+            var descriptionSettings = GetTextSettings(32, 500, 200, Gravity.Northwest);
             var countSettings = GetTextSettings(24, 150, 30, Gravity.East);
 
             GenerateImageEntry(info.Name, 620, 19, titleSettings, image);

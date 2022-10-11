@@ -1,6 +1,5 @@
 #nullable enable
 using System.IO;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using CustomPlaylistFormat.Objects;
@@ -21,13 +20,14 @@ namespace DiscordBot.Playlists
         public static async Task<StreamSpreader?> GetImage(string? id, PlaylistInfo info, bool overwrite, Stream destination)
         {
             var filename = $"{WorkingDirectory}/{id ?? info.Guid.ToString()}.png";
+            //TODO: Generate code that checks for playlist image.
             if (File.Exists(filename) && !overwrite)
             {
                 await using var file = File.Open(filename, FileMode.Open, FileAccess.ReadWrite, FileShare.ReadWrite);
                 await file.CopyToAsync(destination);
                 return null;
             }
-            var newFile = File.Open(filename, FileMode.Create, FileAccess.ReadWrite);
+            var newFile = File.Open(filename, FileMode.Create, FileAccess.ReadWrite, FileShare.ReadWrite);
             var streamSpreader = new StreamSpreader(CancellationToken.None, newFile, destination);
             var thumbnailGenerator = new PlaylistThumbnailGenerator.Generator(streamSpreader);
             await thumbnailGenerator.Generate(info);
@@ -38,7 +38,7 @@ namespace DiscordBot.Playlists
         {
             Name = "Not found.",
             Maker = "You?",
-            Description = "The requested playlist wasn't found in the database. Please check the request or I'll kindly come to your house.",
+            Description = "The requested playlist wasn't found in the database. Please check the request or I'll kindly come knock on your house with an axe.",
             Count = 0,
             IsPublic = true
         };

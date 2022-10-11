@@ -22,7 +22,10 @@ namespace DiscordBot.Playlists
             
             var file = File.Open(filename, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
             var decoder = new Decoder(file);
-            return decoder.Read();
+            var read = decoder.Read();
+            if (read.Info != null)
+                read.Info.Guid = guid;
+            return read;
         }
 
         public static Playlist? SavePlaylist(IEnumerable<PlayableItem> list, PlaylistInfo info)

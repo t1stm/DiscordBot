@@ -3,4 +3,7 @@ using TestingApp;
 
 Bot.LoadDatabases();
 
-new WritingQueueTest().Test();
+for (int i = 0; i < 50; i++)
+{
+    new PlaylistTest().Test();
+}
