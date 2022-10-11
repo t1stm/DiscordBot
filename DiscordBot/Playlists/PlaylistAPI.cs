@@ -29,14 +29,14 @@ namespace DiscordBot.Playlists
             try
             {
                 Response.StatusCode = 200;
-                Response.Headers.Add(HeaderNames.ContentDisposition, "filename=image.bmp");
-                Response.Headers.Add( HeaderNames.ContentType, "image/bmp");
+                Response.Headers.Add(HeaderNames.ContentDisposition, "filename=image.png");
+                Response.Headers.Add( HeaderNames.ContentType, "image/png");
                 var output = Response.Body;
                 StreamSpreader? spreader;
                 if (!Guid.TryParse(id, out var guid))
                 {
                     Response.StatusCode = 404;
-                    spreader = PlaylistThumbnail.GetNotFoundImage(output);
+                    spreader = await PlaylistThumbnail.GetNotFoundImage(output);
                     await (spreader?.Finish() ?? Task.CompletedTask);
                     await Response.CompleteAsync();
                     return;
@@ -45,13 +45,13 @@ namespace DiscordBot.Playlists
                 if (playlist?.Info == null)
                 {
                     Response.StatusCode = 404;
-                    spreader = PlaylistThumbnail.GetNotFoundImage(output);
+                    spreader = await PlaylistThumbnail.GetNotFoundImage(output);
                     await (spreader?.Finish() ?? Task.CompletedTask);
                     await Response.CompleteAsync();
                     return;
                 }
 
-                spreader = PlaylistThumbnail.GetImage(guid.ToString(), playlist.Value.Info, false, output);
+                spreader = await PlaylistThumbnail.GetImage(guid.ToString(), playlist.Value.Info, false, output);
                 await (spreader?.Finish() ?? Task.CompletedTask);
                 
                 await Response.CompleteAsync();

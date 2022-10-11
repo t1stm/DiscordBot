@@ -94,7 +94,7 @@ namespace DiscordBot.Tools.Objects
 
         public override void Write(ReadOnlySpan<byte> buffer)
         {
-            FillBuffer(new MemoryData(buffer.ToArray()));
+            FillBuffer(new ByteArrayData(buffer.ToArray(), 0, buffer.Length));
         }
 
         public override Task WriteAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken)
@@ -105,7 +105,7 @@ namespace DiscordBot.Tools.Objects
         
         public override ValueTask WriteAsync(ReadOnlyMemory<byte> buffer, CancellationToken cancellationToken = new())
         {
-            FillBuffer(new MemoryData(buffer));
+            FillBuffer(new ByteArrayData(buffer.ToArray(), 0, buffer.Length));
             return ValueTask.CompletedTask;
         }
 

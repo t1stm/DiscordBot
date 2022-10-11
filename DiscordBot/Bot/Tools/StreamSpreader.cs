@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using DiscordBot.Tools.Objects;
+using Microsoft.CodeAnalysis;
 
 namespace DiscordBot.Tools
 {
@@ -14,6 +15,7 @@ namespace DiscordBot.Tools
 
         private long _length;
         private long _position;
+        private readonly object LockObject = new();
 
         public StreamSpreader(CancellationToken token, params Stream[] destinations)
         {
@@ -74,42 +76,56 @@ namespace DiscordBot.Tools
 
         public override void Write(byte[] buffer, int offset, int count)
         {
-            foreach (var feedableStream in Destinations)
+            lock (LockObject)
             {
-                if (Token.IsCancellationRequested) return;
-                feedableStream.Write(buffer, offset, count);
+                foreach (var feedableStream in Destinations)
+                {
+                    if (Token.IsCancellationRequested) return;
+                    feedableStream.Write(buffer, offset, count);
+                }
+                _position = _length += count;
             }
-            _position = _length += count;
         }
 
-        public override async Task WriteAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken)
+        public override Task WriteAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken)
         {
-            foreach (var feedableStream in Destinations)
+            lock (LockObject)
             {
-                if (Token.IsCancellationRequested) return;
-                await feedableStream.WriteAsync(buffer.AsMemory(offset, count), cancellationToken);
+                foreach (var feedableStream in Destinations)
+                {
+                    if (Token.IsCancellationRequested) return Task.CompletedTask;
+                    feedableStream.WriteAsync(buffer.AsMemory(offset, count), cancellationToken);
+                }
+                _position = _length += count;
             }
-            _position = _length += count;
+            return Task.CompletedTask;
         }
 
         public override void Write(ReadOnlySpan<byte> buffer)
         {
-            foreach (var feedableStream in Destinations)
+            lock (LockObject)
             {
-                if (Token.IsCancellationRequested) return;
-                feedableStream.Write(buffer);
+                foreach (var feedableStream in Destinations)
+                {
+                    if (Token.IsCancellationRequested) return;
+                    feedableStream.Write(buffer);
+                }
+                _position = _length += buffer.Length;
             }
-            _position = _length += buffer.Length;
         }
 
-        public override async ValueTask WriteAsync(ReadOnlyMemory<byte> buffer, CancellationToken cancellationToken = new())
+        public override ValueTask WriteAsync(ReadOnlyMemory<byte> buffer, CancellationToken cancellationToken = new())
         {
-            foreach (var feedableStream in Destinations)
+            lock (LockObject)
             {
-                if (Token.IsCancellationRequested) return;
-                await feedableStream.WriteAsync(buffer, cancellationToken);
+                foreach (var feedableStream in Destinations)
+                {
+                    if (Token.IsCancellationRequested) return ValueTask.CompletedTask;
+                    feedableStream.WriteAsync(buffer, cancellationToken);
+                }
+                _position = _length += buffer.Length;
             }
-            _position = _length += buffer.Length;
+            return ValueTask.CompletedTask;
         }
 
         public override bool CanRead => false;

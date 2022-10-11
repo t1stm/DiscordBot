@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using System.Threading.Tasks;
 using CustomPlaylistFormat.Objects;
 using ImageMagick;
 
@@ -13,22 +14,22 @@ namespace PlaylistThumbnailGenerator
         {
             _backingStream = backingStream;
         }
-        public void Generate(PlaylistInfo playlistInfo)
+        public async Task Generate(PlaylistInfo playlistInfo)
         {
             MagickNET.SetDefaultFontFile("./AndadaPro.ttf");
-            var imageArray = File.ReadAllBytes("./PlaylistImageGradient.png");
-            var playlistImage = File.ReadAllBytes("./NoGuildImage.png");
+            var imageArray = await File.ReadAllBytesAsync("./PlaylistImageGradient.png");
+            var playlistImage = await File.ReadAllBytesAsync("./NoGuildImage.png");
 
             using var magickImage = new MagickImage(imageArray)
             {
-                Format = MagickFormat.Bmp,
+                Format = MagickFormat.Png,
                 HasAlpha = true
             };
             using var overlayImage = new MagickImage(playlistImage);
             GeneratePlaylistImage(overlayImage);
             magickImage.Composite(overlayImage, 71, 59, CompositeOperator.Over);
             GenerateText(magickImage, playlistInfo);
-            magickImage.Write(_backingStream);
+            await magickImage.WriteAsync(_backingStream);
         }
 
         private static void GenerateText(IMagickImage image, PlaylistInfo info)

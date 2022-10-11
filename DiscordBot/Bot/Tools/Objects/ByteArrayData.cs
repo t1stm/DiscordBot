@@ -1,6 +1,5 @@
 using System.IO;
 using System.Threading.Tasks;
-using System;
 
 namespace DiscordBot.Tools.Objects
 {
@@ -23,7 +22,7 @@ namespace DiscordBot.Tools.Objects
         }
         public async Task WriteToStreamAsync(Stream destination)
         {
-            await destination.WriteAsync(Data.AsMemory(Offset, Count));
+            await destination.WriteAsync(Data, Offset, Count);
         }
     }
 }
