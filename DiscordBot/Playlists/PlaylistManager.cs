@@ -7,6 +7,8 @@ using CustomPlaylistFormat;
 using CustomPlaylistFormat.Objects;
 using DiscordBot.Abstract;
 using DiscordBot.Audio.Objects;
+using DiscordBot.Data;
+using DiscordBot.Data.Models;
 using DiscordBot.Methods;
 
 namespace DiscordBot.Playlists

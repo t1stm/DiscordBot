@@ -7,6 +7,7 @@ using System.Text.Json;
 using System.Timers;
 using DiscordBot.Data.Models;
 using DiscordBot.Methods;
+using Microsoft.CodeAnalysis.VisualBasic.Syntax;
 
 namespace DiscordBot.Data
 {
@@ -43,6 +44,17 @@ namespace DiscordBot.Data
             if (!File.Exists(FileLocation))
                 SaveToFile(Enumerable.Empty<T>().ToList());
             ReadFile();
+            CallLoadedMethod();
+        }
+
+        private void CallLoadedMethod()
+        {
+            var copy = Data.ToList();
+
+            foreach (var item in copy)
+            {
+                item.OnLoaded();
+            }
         }
 
         protected void ModifiedAction()

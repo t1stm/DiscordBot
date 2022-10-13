@@ -8,6 +8,10 @@ namespace DiscordBot.Data.Models
     {
         public abstract T? SearchFrom(IEnumerable<T> source);
 
+        public virtual void OnLoaded()
+        {
+            // To be overridden.
+        }
         public Action? SetModified;
     }
 }
