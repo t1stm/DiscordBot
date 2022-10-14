@@ -7,17 +7,21 @@ using CustomPlaylistFormat.Objects;
 
 namespace CustomPlaylistFormat
 {
+    public enum ReadMode
+    {
+        Whole,
+        InfoOnly
+    }
     public class Decoder
     {
         private readonly BinaryReader Reader;
 
-        
         public Decoder(Stream fileStream)
         {
             Reader = new BinaryReader(fileStream);
         }
 
-        public Playlist Read(bool infoOnly = false)
+        public Playlist Read(ReadMode readMode = ReadMode.Whole)
         {
             var playlist = new Playlist
             {
@@ -33,7 +37,7 @@ namespace CustomPlaylistFormat
             {
                 playlist.Info = ReadInfo();
                 Reader.Read(tag);
-                if (infoOnly) return playlist;
+                if (readMode == ReadMode.InfoOnly) return playlist;
             }
             
             if (ArraysEqual(tag, FormatConstants.PlaylistBeginHeader)) return ReadItems(playlist);

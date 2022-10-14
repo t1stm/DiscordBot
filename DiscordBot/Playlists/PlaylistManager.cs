@@ -7,8 +7,6 @@ using CustomPlaylistFormat;
 using CustomPlaylistFormat.Objects;
 using DiscordBot.Abstract;
 using DiscordBot.Audio.Objects;
-using DiscordBot.Data;
-using DiscordBot.Data.Models;
 using DiscordBot.Methods;
 
 namespace DiscordBot.Playlists
@@ -16,6 +14,19 @@ namespace DiscordBot.Playlists
     public static class PlaylistManager
     {
         public const string PlaylistDirectory = $"{Bot.WorkingDirectory}/NewPlaylists";
+
+        public static Playlist? GetDataIfExists(Guid guid)
+        {
+            var filename = $"{PlaylistDirectory}/{guid.ToString()}.play";
+            if (!File.Exists(filename)) return null;
+            
+            var file = File.Open(filename, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
+            var decoder = new Decoder(file);
+            var read = decoder.Read(ReadMode.InfoOnly);
+            if (read.Info != null)
+                read.Info.Guid = guid;
+            return read;
+        }
         
         public static Playlist? GetIfExists(Guid guid)
         {
@@ -99,6 +110,20 @@ namespace DiscordBot.Playlists
             TwitchLiveStream => 08,
             YoutubeOverride => 09,
             _ => 255
+        };
+        
+        public static string ItemTypeToString(byte it) => it switch
+        {
+            01 => "yt",
+            02 => "spt",
+            03 => "file",
+            04 => "dis-att",
+            05 => "vb7",
+            06 => "onl",
+            07 => "tts",
+            08 => "ttv",
+            09 => "yt-ov",
+            _ => ""
         };
     }
 }

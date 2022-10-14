@@ -1,10 +1,13 @@
+using System.Linq;
+using System.Threading.Tasks;
 using CustomPlaylistFormat.Objects;
+using DiscordBot.Audio.Platforms;
 
 namespace DiscordBot.Playlists
 {
     public static class PlaylistPageGenerator
     {
-        public static string GenerateNormalPage(Playlist playlist)
+        public static async Task<string> GenerateNormalPage(Playlist playlist)
         {
             var name = playlist.Info?.Name;
             var description = playlist.Info?.Description;
@@ -120,6 +123,7 @@ namespace DiscordBot.Playlists
         font-weight: bold;
         user-select: none;
         transition-duration: 100ms;
+        margin-bottom: 1em;
     }}
     #showMore::before {{
         content: ""Toggle playlist items.""
@@ -220,11 +224,14 @@ namespace DiscordBot.Playlists
             if (playlist.PlaylistItems != null)
             foreach (var entry in playlist.PlaylistItems)
             {
+                var video = $"{PlaylistManager.ItemTypeToString(entry.Type)}://{entry.Data}";
+                var search = await Search.Get(video);
+                var result = search?.First();
                 value += $@"<li class=""playlistItem"">
-            <img src=""https://dankest.gq/WebUi/NoVideoImage.png"" alt=""Item Image"">
+            <img src=""{(string.IsNullOrEmpty(result?.GetThumbnailUrl()) ? "https://dankest.gq/WebUi/NoVideoImage.png" : result.GetThumbnailUrl())}"" alt=""Item Image"">
             <div class=""info"">
-                <p class=""playlistItemTitle"">{entry.Data}</p>
-                <p class=""playlistItemAuthor""></p>
+                <p class=""playlistItemTitle"">{result?.GetTitle()}</p>
+                <p class=""playlistItemAuthor"">{result?.GetAuthor()}</p>
             </div>
         </li>";
             }

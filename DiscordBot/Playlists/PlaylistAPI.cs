@@ -13,9 +13,9 @@ namespace DiscordBot.Playlists
     {
         
         [HttpGet,Route("/PlaylistAPI/Playlist/{**id}")]
-        public ContentResult Playlist(string? id)
+        public async Task<ContentResult> Playlist(string? id)
         {
-            Debug.Write($"Playlist ID is: \"{id}\"");
+            await Debug.WriteAsync($"Playlist ID is: \"{id}\"");
             if (!Guid.TryParse(id, out var guid))
                 return base.Content(PlaylistPageGenerator.GenerateNotFoundPage(), "text/html");
 
@@ -23,7 +23,7 @@ namespace DiscordBot.Playlists
             
             return base.Content(playlist is null ? 
                 PlaylistPageGenerator.GenerateNotFoundPage() : 
-                PlaylistPageGenerator.GenerateNormalPage(playlist.Value), "text/html");
+                await PlaylistPageGenerator.GenerateNormalPage(playlist.Value), "text/html");
         }
 
         [HttpGet,Route("/PlaylistAPI/Thumbnail/{**id}")]
