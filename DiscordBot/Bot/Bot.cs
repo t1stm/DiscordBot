@@ -11,6 +11,7 @@ using DiscordBot.Data;
 using DiscordBot.Messages;
 using DiscordBot.Methods;
 using DiscordBot.Objects;
+using DiscordBot.Playlists;
 using DiscordBot.Readers;
 using DiscordBot.Readers.MariaDB;
 using DSharpPlus;
@@ -41,7 +42,8 @@ namespace DiscordBot
             SecondaryBot = "OTAzMjg3NzM3Nzc4NTg5NzA2.YXqyQg.F3cDKz-icUbYYMUJXwLxT-BX574";
 
         public const string WorkingDirectory = "/nvme0/DiscordBot";
-        public const string SiteDomain = "https://dankest.gq";
+        public const string MainDomain = "dankest.gq";
+        public const string SiteDomain = $"https://{MainDomain}";
         public const string WebUiPage = "WebUi";
         public const string Name = "Slavi Trifonov";
 
@@ -56,6 +58,7 @@ namespace DiscordBot
         public static async Task Initialize(RunType token)
         {
             LoadDatabases();
+            PlaylistManager.LoadPlaylistInfos(); 
             UpdateLoop.Elapsed += (_, _) => OnUpdate();
             UpdateLoop.Start();
             await Controllers.Bot.LoadUsers(true);
@@ -268,7 +271,7 @@ namespace DiscordBot
             Databases.GuildDatabase.ReadDatabase();
         }
 
-        private static void SaveDatabases()
+        public static void SaveDatabases()
         {
             Databases.FuckYoutubeDatabase.SaveToFile();
             Databases.VideoDatabase.SaveToFile();

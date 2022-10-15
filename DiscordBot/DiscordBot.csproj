@@ -284,4 +284,10 @@
     <ProjectReference Include="../PlaylistThumbnailGenerator/PlaylistThumbnailGenerator.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Content Include="RobotoSlab.ttf">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
 </Project>

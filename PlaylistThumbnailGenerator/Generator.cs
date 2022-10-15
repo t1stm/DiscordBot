@@ -9,23 +9,24 @@ namespace PlaylistThumbnailGenerator
     public class Generator
     {
         private readonly Stream _backingStream;
+        private readonly Stream _playlistImageStream;
 
-        public Generator(Stream backingStream)
+        public Generator(Stream backingStream, Stream playlistImageStream)
         {
             _backingStream = backingStream;
+            _playlistImageStream = playlistImageStream;
         }
         public async Task Generate(PlaylistInfo playlistInfo)
         {
-            MagickNET.SetDefaultFontFile("./AndadaPro.ttf");
+            MagickNET.SetDefaultFontFile("./RobotoSlab.ttf");
             var imageArray = await File.ReadAllBytesAsync("./PlaylistImageGradient.png");
-            var playlistImage = await File.ReadAllBytesAsync("./NoGuildImage.png");
 
             using var magickImage = new MagickImage(imageArray)
             {
                 Format = MagickFormat.Png,
                 HasAlpha = true
             };
-            using var overlayImage = new MagickImage(playlistImage);
+            using var overlayImage = new MagickImage(_playlistImageStream);
             GeneratePlaylistImage(overlayImage);
             magickImage.Composite(overlayImage, 71, 59, CompositeOperator.Over);
             GenerateText(magickImage, playlistInfo);
@@ -67,12 +68,15 @@ namespace PlaylistThumbnailGenerator
         private static void GeneratePlaylistImage(MagickImage? overlayImage)
         {
             if (overlayImage == null) throw new NullReferenceException($"Variable \'{nameof(overlayImage)}\' in AddPlaylistImage method is null.");
-            overlayImage.Scale(420,420);
-            using var mask = new MagickImage(MagickColors.Black, overlayImage.Width, overlayImage.Height);
+            overlayImage.Scale(-1, 420);
+            overlayImage.Crop(420,420, Gravity.Center);
+            using var mask = new MagickImage(MagickColors.Black, overlayImage.Height, overlayImage.Height);
             new Drawables()
                 .FillColor(MagickColors.White)
                 .StrokeColor(MagickColors.White)
-                .RoundRectangle(0,0,overlayImage.Width,overlayImage.Height, overlayImage.Width * 0.5,overlayImage.Height * 0.5)
+                .RoundRectangle(0,0,
+                    overlayImage.Height,overlayImage.Height, 
+                    overlayImage.Height * 0.5,overlayImage.Height * 0.5)
                 .Draw(mask);
             
             mask.HasAlpha = false;

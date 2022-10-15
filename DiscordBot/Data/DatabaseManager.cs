@@ -126,7 +126,7 @@ namespace DiscordBot.Data
             {
                 try
                 {
-                    FileStream = File.Open(FileLocation, FileMode.OpenOrCreate);
+                    FileStream = File.Open(FileLocation, FileMode.Create);
                     JsonSerializer.Serialize(FileStream, data);
                     FileStream.Close();
                 }

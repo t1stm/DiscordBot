@@ -1,4 +1,5 @@
 #nullable enable
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -10,6 +11,7 @@ using DiscordBot.Audio.Platforms.Spotify;
 using DiscordBot.Audio.Platforms.Vbox7;
 using DiscordBot.Audio.Platforms.Youtube;
 using DiscordBot.Methods;
+using DiscordBot.Playlists;
 using DSharpPlus.Entities;
 using Playlist = DiscordBot.Audio.Platforms.Spotify.Playlist;
 
@@ -18,7 +20,7 @@ namespace DiscordBot.Audio.Platforms
     public static class Search
     {
         public static async Task<List<PlayableItem>?> Get(string? searchTerm, ulong length = 0,
-            bool returnAllResults = false)
+            bool returnAllResults = false, Action<string>? onError = null)
         {
             if (Bot.DebugMode) await Debug.WriteAsync($"Search term is: \"{searchTerm}\"");
             if (searchTerm == null) return null;
@@ -79,6 +81,12 @@ namespace DiscordBot.Audio.Platforms
                         Url = searchTerm
                     }
                 };
+
+            if (searchTerm.Contains($"playlists.{Bot.MainDomain}/"))
+            {
+                return await PlaylistManager.FromLink(searchTerm, onError);
+            }
+            
             if (searchTerm.StartsWith("http") || searchTerm.StartsWith("https"))
                 return new List<PlayableItem>
                 {
@@ -88,9 +96,9 @@ namespace DiscordBot.Audio.Platforms
                     }
                 };
 
-            var res = await HandleBotProtocols(searchTerm);
+            var res = await SearchBotProtocols(searchTerm);
             if (res != null)
-                switch (res) // "Work smart, not hard."
+                switch (res)
                 {
                     case List<PlayableItem> list:
                         return list;
@@ -111,7 +119,7 @@ namespace DiscordBot.Audio.Platforms
             };
         }
 
-        private static async Task<object?> HandleBotProtocols(string search)
+        public static async Task<object?> SearchBotProtocols(string search)
         {
             var split = search.Split("://");
             if (split.Length < 2) return null;

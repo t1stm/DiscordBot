@@ -13,19 +13,22 @@ namespace DiscordBot.Playlists
             var description = playlist.Info?.Description;
             var guid = playlist.Info?.Guid.ToString();
             var maker = playlist.Info?.Maker;
-            var thumbnail = $"\'{name}\' \nMade by: \'{maker}'";
-            var value = $@"<!DOCTYPE html>
+            var pageTitle = $"\'{name}\' \nMade by: \'{maker}'";
+            var image = $"https://playlists.dankest.gq/Image/{guid}";
+            var value =  
+                #region HTML Boilerplate
+                $@"<!DOCTYPE html>
 <html lang=""en"">
 <head>
 <meta charset=""UTF-8"">
-    <title>{thumbnail}</title>
+    <title>{pageTitle}</title>
     <meta content=""#0E5445"" name=""theme-color"">
     <meta property=""og:site_name"" content=""dankest.gq Playlists"">
     <meta property=""og:type"" content=""website"">
     <meta property=""og:url"" content=""https://playlists.dankest.gq/"">
-    <meta name=""title"" content=""{thumbnail}"">
+    <meta name=""title"" content=""{pageTitle}"">
     <meta name=""description"" content=""{description}"">
-    <meta property=""og:title"" content=""{thumbnail}"">
+    <meta property=""og:title"" content=""{pageTitle}"">
     <meta property=""og:description"" content=""{description}"">
     <meta property=""og:image"" content=""https://playlists.dankest.gq/Thumbnail/{guid}"">
     <meta property=""image"" content=""https://playlists.dankest.gq/Thumbnail/{guid}"">
@@ -34,7 +37,7 @@ namespace DiscordBot.Playlists
     <meta content=""summary_large_image"" name=""twitter:card"">
     <meta content=""@t1stm"" name=""twitter:creator"">
     <meta content=""@t1stm"" name=""twitter:site"">
-    <meta content=""{thumbnail}"" name=""twitter:title"">
+    <meta content=""{pageTitle}"" name=""twitter:title"">
     <meta content=""{description}"" name=""twitter:description""> 
     <meta property=""twitter:image"" content=""https://playlists.dankest.gq/Thumbnail/{guid}"">
     <meta name=""viewport"" content=""width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=4""/>
@@ -213,7 +216,7 @@ namespace DiscordBot.Playlists
 <input id=""showMoreButton"" type=""checkbox""/>
 <div id=""box"">
     <div id=""playlistInfo"">
-        <img src=""https://dankest.gq/WebUi/NoVideoImage.png"" alt=""Playlist image here."" id=""playlistImage"">
+        <img src=""{image}"" alt=""Playlist image here."" id=""playlistImage"">
         <p id=""playlistName"">{name}</p>
         <p id=""playlistCreator"">{maker}</p>
         <p id=""playlistDescription"">{description}</p>
@@ -221,6 +224,7 @@ namespace DiscordBot.Playlists
     </div>
     <ul id=""playlist"">
 ";
+            #endregion
             if (playlist.PlaylistItems != null)
             foreach (var entry in playlist.PlaylistItems)
             {
@@ -236,16 +240,16 @@ namespace DiscordBot.Playlists
         </li>";
             }
 
-            value += "</ul>\n</div>\n<div id=\"bkg\"></div>\n</body>\n</html>\"";
-
-            
+            value += "</ul>\n</div>\n<div id=\"bkg\"></div>\n</body>\n</html>";
             
             return value;
         }
         
         public static string GenerateNotFoundPage()
         {
-            const string value = @"<!DOCTYPE html>
+            const string value = 
+                #region HTML File
+                @"<!DOCTYPE html>
 <html lang=""en"">
 <head>
     <meta charset=""UTF-8"">
@@ -325,6 +329,7 @@ namespace DiscordBot.Playlists
 <div id=""bkg""></div>
 </body>
 </html>";
+            #endregion
             return value;
         }
     }

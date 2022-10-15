@@ -1,3 +1,4 @@
+#nullable enable
 namespace CustomPlaylistFormat.Objects
 {
     public struct Playlist

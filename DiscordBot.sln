@@ -8,6 +8,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PlaylistThumbnailGenerator"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestingApp", "TestingApp\TestingApp.csproj", "{5893EC60-7C6B-4239-992D-154CD230DD32}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestingAPI", "TestingAPI\TestingAPI.csproj", "{66867527-1D21-4B89-8ACA-A048839BAE39}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -30,5 +32,9 @@ Global
 		{5893EC60-7C6B-4239-992D-154CD230DD32}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5893EC60-7C6B-4239-992D-154CD230DD32}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5893EC60-7C6B-4239-992D-154CD230DD32}.Release|Any CPU.Build.0 = Release|Any CPU
+		{66867527-1D21-4B89-8ACA-A048839BAE39}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{66867527-1D21-4B89-8ACA-A048839BAE39}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{66867527-1D21-4B89-8ACA-A048839BAE39}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{66867527-1D21-4B89-8ACA-A048839BAE39}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
