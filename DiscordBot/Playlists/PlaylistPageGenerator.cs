@@ -95,6 +95,7 @@ namespace DiscordBot.Playlists
         height: auto;
         object-fit: contain;
         margin-bottom: 0;
+        transition-duration: 300ms;
     }}
     #playlistName {{
         color: white;
@@ -117,6 +118,7 @@ namespace DiscordBot.Playlists
         font-size: 1rem;
         opacity: .80;
         text-align: center;
+        transition-duration: 300ms;
     }}
     #showMore {{
         background-color: #75507B;
@@ -124,9 +126,7 @@ namespace DiscordBot.Playlists
         border-radius: 10px;
         color: #FFFFFFCC;
         font-weight: bold;
-        user-select: none;
         transition-duration: 100ms;
-        margin-bottom: 1em;
     }}
     #showMore::before {{
         content: ""Toggle playlist items.""
@@ -134,9 +134,21 @@ namespace DiscordBot.Playlists
     #showMoreButton {{
         z-index: 5;
     }}
+    #playSiteButton {{
+        background-color: #75507B;
+        padding: 0.5rem;
+        border-radius: 10px;
+        color: #FFFFFFCC;
+        font-weight: bold;
+        transition-duration: 100ms;
+        border-style: none;
+        margin: 1rem;
+    }}
     #showMore:focus,
-    #showMore:hover {{
-        outline: solid rgba(255, 255, 255, 0.5) 4px;
+    #showMore:hover,
+    #playSiteButton:focus,
+    #playSiteButton:hover{{
+        outline: solid rgba(255, 243, 243, 0.5) 4px;
         cursor: pointer;
     }}
     #showMoreButton:checked ~ #box {{
@@ -147,8 +159,6 @@ namespace DiscordBot.Playlists
     }}
     #showMoreButton:checked ~ #box #playlist {{
         width: 90%;
-        border-top-left-radius: 0;
-        border-bottom-left-radius: 0;
     }}
     #playlist {{
         position: relative;
@@ -168,7 +178,7 @@ namespace DiscordBot.Playlists
         position: relative;
         display: flex;
         width: auto;
-        height: 5rem;
+        height: auto;
         background: transparent;
         align-items: center;
         margin: 0.5rem;
@@ -211,6 +221,50 @@ namespace DiscordBot.Playlists
         object-fit: contain;
         border-radius: 10px;
     }}
+
+    @media screen and (orientation: portrait) {{
+        #box {{
+            width: calc(90% - 4rem);
+            height: 50%;
+            flex-direction: column;
+        }}
+
+        #playlistInfo {{
+            width: 100%;
+            height: 100%;
+        }}
+
+        #showMoreButton:checked ~ #box {{
+            height: 90%;
+            width: 90%;
+            padding: 0;
+        }}
+
+        #showMoreButton:checked ~ #box #playlistInfo {{
+            width: 100%;
+            height: 30%;
+        }}
+
+        #showMoreButton:checked ~ #box #playlistInfo #playlistImage {{
+            opacity: 0;
+            transform: scaleY(0);
+            height: 0;
+        }}
+
+        #showMoreButton:checked ~ #box #playlistInfo #playlistDescription {{
+            opacity: 0;
+            height: 0;
+            transform: scaleY(0);
+            display: none;
+        }}
+        #playlist {{
+            width: 100%;
+            height: 0;
+        }}
+        #showMoreButton:checked ~ #box #playlist {{
+            height: 100%;
+        }}
+    }}
 </style>
 <body>
 <input id=""showMoreButton"" type=""checkbox""/>
@@ -221,6 +275,7 @@ namespace DiscordBot.Playlists
         <p id=""playlistCreator"">{maker}</p>
         <p id=""playlistDescription"">{description}</p>
         <label id=""showMore"" for=""showMoreButton""></label>
+        <a href=""{Bot.SiteDomain}/{Bot.WebUiPage}?play={guid}""><button id=""playSiteButton"">Play here.</button></a>
     </div>
     <ul id=""playlist"">
 ";

@@ -51,7 +51,7 @@ namespace CustomPlaylistFormat
         {
             var info = new PlaylistInfo();
             var features = (byte) (ReadByte() << 4);
-            bool hasMaker = (features & 2) == 0,
+            bool hasMaker = (features & 1) == 0,
                 hasName = (features & 2) == 0,
                 hasDescription = (features & 4) == 0,
                 isCountInt = (features & 16) == 0;

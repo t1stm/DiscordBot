@@ -68,7 +68,7 @@ namespace PlaylistThumbnailGenerator
         private static void GeneratePlaylistImage(MagickImage? overlayImage)
         {
             if (overlayImage == null) throw new NullReferenceException($"Variable \'{nameof(overlayImage)}\' in AddPlaylistImage method is null.");
-            overlayImage.Scale(-1, 420);
+            overlayImage.Resize(overlayImage.Width, 420);
             overlayImage.Crop(420,420, Gravity.Center);
             using var mask = new MagickImage(MagickColors.Black, overlayImage.Height, overlayImage.Height);
             new Drawables()

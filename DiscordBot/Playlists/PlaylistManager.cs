@@ -70,7 +70,6 @@ namespace DiscordBot.Playlists
             
             onError?.Invoke("Playlist doesn't exist.");
             return null;
-
         }
 
         public static async Task<List<PlayableItem>> ParsePlaylist(Playlist playlist)
