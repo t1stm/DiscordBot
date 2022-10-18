@@ -35,7 +35,7 @@ namespace DiscordBot.Messages
         public async Task UpdateStatusbar()
         {
             var users = Player?.VoiceChannel?.Users;
-            if (Player != null) Player.VoiceUsers = (List<DiscordMember>) users;
+            if (Player != null) Player.VoiceUsers = (List<DiscordMember>) users ?? Enumerable.Empty<DiscordMember>().ToList();
             switch (Mode)
             {
                 case StatusbarMode.Stopped:
@@ -152,7 +152,7 @@ namespace DiscordBot.Messages
                 : $"\n\n{Player.StatusbarMessage}";
             if (Bot.DebugMode)
                 Debug.Write(
-                    $"Updated Statusbar in guild \"{Player.CurrentGuild.Name}\": Track: \"{Player.CurrentItem?.GetName()}\", Time: {Time(Player.Stopwatch.Elapsed)} - {Time(TimeSpan.FromMilliseconds(length))}");
+                    $"Updated Statusbar in guild \"{Player.CurrentGuild?.Name}\": Track: \"{Player.CurrentItem?.GetName()}\", Time: {Time(Player.Stopwatch.Elapsed)} - {Time(TimeSpan.FromMilliseconds(length))}");
 
             return
                 $"```{Language.Playing()}: \"{Player.CurrentItem?.GetTypeOf(Language)}\"\n" +
@@ -200,7 +200,8 @@ namespace DiscordBot.Messages
                     }),
                     new(new []
                     {
-                        new DiscordButtonComponent(ButtonStyle.Secondary, "webui", "Web UI")
+                        new DiscordButtonComponent(ButtonStyle.Secondary, "webui", "Web UI"),
+                        new DiscordButtonComponent(ButtonStyle.Secondary, "vote", "Vote")
                     })
                 }
             );

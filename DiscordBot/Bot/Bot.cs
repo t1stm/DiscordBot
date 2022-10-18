@@ -425,7 +425,7 @@ namespace DiscordBot
                 }
 
                 var user = await User.FromId(eventArgs.User.Id);
-                if (pl == null && !eventArgs.Id.StartsWith("resume:"))
+                if (pl == null && !eventArgs.Id.StartsWith("resume:") && !eventArgs.Id.StartsWith("vote:"))
                 {
                     await eventArgs.Interaction.CreateFollowupMessageAsync(
                         new DiscordFollowupMessageBuilder {IsEphemeral = true}.WithContent(
@@ -537,6 +537,24 @@ namespace DiscordBot
                             }
                         });
                         task.Start();
+                        break;
+                    case "vote":
+                        var responseBuilder = new DiscordInteractionResponseBuilder()
+                            .WithTitle("Vote for the next name of the bot.");
+
+                        var selectComponent = new DiscordSelectComponent("selectBot", "Select a name.", 
+                            new DiscordSelectComponentOption[]
+                            {
+                                new("Bai Tosho", "tosho", isDefault: true),
+                                new("Slavi Trifonov", "slavi"),
+                                new ("Custom choice.", "custom")
+                            });
+
+                        responseBuilder.AddComponents(selectComponent, 
+                            new TextInputComponent("Enter your custom choice here.", "customText", 
+                                "Na Penka Protivniq Glas", required: false, min_length: 5));
+                        
+                        await eventArgs.Interaction.CreateResponseAsync(InteractionResponseType.Modal, responseBuilder);
                         break;
                 }
             }
