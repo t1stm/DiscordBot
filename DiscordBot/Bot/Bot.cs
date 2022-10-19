@@ -458,7 +458,13 @@ namespace DiscordBot
                         "Will you ever end the support of this bot?\n" +
                         "I think I will continue developing this bot until I get a well paying job, " +
                         "or if someone from the copyright department came knocking on my apartment's door with a leg. " +
-                        "Until then you can stay still and know that I'll keep an eye on it.\n\n";
+                        "Until then you can stay still and know that I'll keep an eye on it.\n\n" +
+                        "Will you read this box if I changed it?\n" +
+                        "No. I will only look at the results of the vote alone.\n\n" +
+                        "Is this anonymous?\n" +
+                        "As much as I've wanted to make this anonymous, I can't, because I can't know whether one person " +
+                        "has submitted 20 different answers swaying the scale, so I tied the votes to your Discord profile ID. " +
+                        "(it's just a nubmer. I can't know who you are, unless I want to bother myself with useless stuff.)";
                     #endregion
                     
                     var qna = new TextInputComponent(
