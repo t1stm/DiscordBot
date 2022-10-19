@@ -442,8 +442,8 @@ namespace DiscordBot
                         "Before I start to answer questions I've thought over in my brain I want to tell you something.\n\n" +
                         "The bot has a feature to change the languages if you'd like. You can change the guild's language or " +
                         "your own language if you wanted to. I'm writing this in here because I don't think that many people " +
-                        "know about it.\n" +
-                        "Now starting with the imaginary Q&A.\n\n" +
+                        "know about it. You can change your language using the /settings command.\n\n" +
+                        "Now starting with the imaginary Q&A.\n" +
                         "Why are you making this change?\n" +
                         "Because I think it's best for the bot to change every year and because some people missed the old name. " +
                         "For those people, now's the chance for them to vote and choose the bot's name.\n\n" +
