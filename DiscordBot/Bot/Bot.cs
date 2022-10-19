@@ -452,7 +452,13 @@ namespace DiscordBot
                         "Why didn't you make it a drop-down menu, instead of having us select the box.\n" +
                         "OK, that's a good question. Because a recent Discord API change removed the ability for bots to add " +
                         "select components to the modal you're currently entering. The funny thing is that the code for this " +
-                        "feature to work on this bot is already there, but Discord doesn't allow me to use it.";
+                        "feature to work on this bot is already there, but Discord doesn't allow me to use it.\n\n" +
+                        "Do you honestly think that someone will read this Q&A?\n" +
+                        "Well I know that at least one or two people will read it (I think)...\n\n" +
+                        "Will you ever end the support of this bot?\n" +
+                        "I think I will continue developing this bot until I get a well paying job, " +
+                        "or if someone from the copyright department came knocking on my apartment's door with a leg. " +
+                        "Until then you can stay still and know that I'll keep an eye on it.\n\n";
                     #endregion
                     
                     var qna = new TextInputComponent(
