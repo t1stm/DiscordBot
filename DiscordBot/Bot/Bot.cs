@@ -436,7 +436,7 @@ namespace DiscordBot
                     var textComponent = new TextInputComponent(
                         "Choose a name", 
                         "customTextInput",
-                        "Bai Tosho", "", min_length: 5, max_length: 20, style: TextInputStyle.Short, required: true);
+                        "\"Bai Tosho\", \"Slavi Trifonov\" or a custom name.", "", min_length: 5, max_length: 20, style: TextInputStyle.Short, required: true);
                     const string qnaString = 
                         #region Q&A String
                         "Before I start to answer questions I've thought over in my brain I want to tell you something.\n\n" +
