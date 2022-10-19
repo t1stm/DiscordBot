@@ -41,9 +41,7 @@ namespace DiscordBot.Objects
 
         public string SavedQueueAfterLeavingMessage(string cmd)
         {
-            return "The queue of this instance has been saved successfully. " +
-                   $"You can play it back again with the command \"{cmd}\" or by clicking the button below this message while in a voice channel.\n" +
-                   "If you want to deactivate this feature use the \"/settings\" slash command";
+            return "IMPORTANT NOTE: \nThe voting for the new name of the bot has started. If you'd want to vote, use the button below this message.";
         }
 
         #region Mixed Commands
@@ -293,7 +291,7 @@ namespace DiscordBot.Objects
         {
             return
                 "The bot is currently being reworked majorly, so please note that there may be many bugs. Sorry for any bugs in advance.\n\n" +
-                "By the way, you can now change some settings of the bot (ex. the response language) with the slash command \"/settings\"";
+                "IMPORTANT MESSAGE: \nThe voting for the new bot name has started. Please vote using the button below this message.";
         }
 
         public string DiscordDidTheFunny()

@@ -8,5 +8,6 @@ namespace DiscordBot.Data
         public static readonly DatabaseManager<GuildsModel> GuildDatabase = new();
         public static readonly DatabaseManager<UsersModel> UserDatabase = new();
         public static readonly DatabaseManager<VideoInformationModel> VideoDatabase = new();
+        public static readonly DatabaseManager<VotesModel> VotesDatabase = new();
     }
 }

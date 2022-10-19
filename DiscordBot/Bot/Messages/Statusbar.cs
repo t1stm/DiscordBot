@@ -201,7 +201,7 @@ namespace DiscordBot.Messages
                     new(new []
                     {
                         new DiscordButtonComponent(ButtonStyle.Secondary, "webui", "Web UI"),
-                        new DiscordButtonComponent(ButtonStyle.Secondary, "vote", "Vote")
+                        new DiscordButtonComponent(ButtonStyle.Danger, "vote", "Vote")
                     })
                 }
             );
@@ -226,7 +226,9 @@ namespace DiscordBot.Messages
                     builder.AddComponents(new List<DiscordComponent>
                     {
                         new DiscordButtonComponent(ButtonStyle.Success, $"resume:{Player.QueueToken}",
-                            "Play Saved Queue")
+                            "Play Saved Queue"),
+                        new DiscordButtonComponent(ButtonStyle.Danger, "vote:",
+                            "Vote")
                     });
                 await Message.ModifyAsync(builder);
             }

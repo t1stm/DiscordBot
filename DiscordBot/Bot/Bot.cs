@@ -8,6 +8,7 @@ using System.Timers;
 using DiscordBot.Audio;
 using DiscordBot.Audio.Objects;
 using DiscordBot.Data;
+using DiscordBot.Data.Models;
 using DiscordBot.Messages;
 using DiscordBot.Methods;
 using DiscordBot.Objects;
@@ -269,6 +270,7 @@ namespace DiscordBot
             Databases.VideoDatabase.ReadDatabase();
             Databases.UserDatabase.ReadDatabase();
             Databases.GuildDatabase.ReadDatabase();
+            Databases.VotesDatabase.ReadDatabase();
         }
 
         public static void SaveDatabases()
@@ -277,6 +279,7 @@ namespace DiscordBot
             Databases.VideoDatabase.SaveToFile();
             Databases.UserDatabase.SaveToFile();
             Databases.GuildDatabase.SaveToFile();
+            Databases.VotesDatabase.SaveToFile();
         }
 
         private static async Task ReadStatus(DiscordClient client)
@@ -399,6 +402,7 @@ namespace DiscordBot
                     true, Debug.DebugColor.Warning);
             };
             client.ComponentInteractionCreated += MessageInteractionHandler;
+            client.ModalSubmitted += OnModalResponse;
             if (!useSlashCommands) return client;
             var ext = client.UseSlashCommands();
             ext.RegisterCommands<CommandsSlash>();
@@ -415,6 +419,58 @@ namespace DiscordBot
             try
             {
                 eventArgs.Handled = true;
+                if (eventArgs.Id.StartsWith("vote"))
+                {
+                    var responseBuilder = new DiscordInteractionResponseBuilder()
+                        .WithTitle("Vote for the next name of the bot")
+                        .WithCustomId("voteModal:funnyId");
+
+                    /*var selectComponent = new DiscordSelectComponent("selectBot", "Select a name", 
+                        new DiscordSelectComponentOption[]
+                        {
+                            new("Bai Tosho", "tosho", "This is the original name of the bot", true, new DiscordComponentEmoji("🔴")),
+                            new("Slavi Trifonov", "slavi", "This is the current name of the bot", false, new DiscordComponentEmoji("🔵")),
+                            new ("Custom choice", "custom", "Choose a name yourself", false, new DiscordComponentEmoji("🟣"))
+                        }, minOptions:1, maxOptions: 1);*/ // Funny new API change broke this amazing before it even was used. feature.
+
+                    var textComponent = new TextInputComponent(
+                        "Choose a name", 
+                        "customTextInput",
+                        "Bai Tosho", "", min_length: 5, max_length: 20, style: TextInputStyle.Short, required: true);
+                    const string qnaString = 
+                        #region Q&A String
+                        "Before I start to answer questions I've thought over in my brain I want to tell you something.\n\n" +
+                        "The bot has a feature to change the languages if you'd like. You can change the guild's language or " +
+                        "your own language if you wanted to. I'm writing this in here because I don't think that many people " +
+                        "know about it.\n" +
+                        "Now starting with the imaginary Q&A.\n\n" +
+                        "Why are you making this change?\n" +
+                        "Because I think it's best for the bot to change every year and because some people missed the old name. " +
+                        "For those people, now's the chance for them to vote and choose the bot's name.\n\n" +
+                        "Why is this important?\n" +
+                        "Well you can choose how the bot can continue looking in the future. This won't change how it works.\n\n" +
+                        "Why didn't you make it a drop-down menu, instead of having us select the box.\n" +
+                        "OK, that's a good question. Because a recent Discord API change removed the ability for bots to add " +
+                        "select components to the modal you're currently entering. The funny thing is that the code for this " +
+                        "feature to work on this bot is already there, but Discord doesn't allow me to use it.";
+                    #endregion
+                    
+                    var qna = new TextInputComponent(
+                        "Q&A", 
+                        "qna",
+                        "Why did you even bother deleting this...", qnaString, style: TextInputStyle.Paragraph, required: false); 
+
+                    responseBuilder.AddComponents(new List<DiscordActionRowComponent>
+                    {
+                        new(new[] {textComponent}),
+                        new(new[] {qna})
+                        //new(new[] {selectComponent})
+                    });
+
+                    await eventArgs.Interaction.CreateResponseAsync(InteractionResponseType.Modal, responseBuilder);
+                    return;
+                }
+                
                 await eventArgs.Interaction.CreateResponseAsync(InteractionResponseType.DeferredMessageUpdate);
 
                 Player pl;
@@ -538,29 +594,44 @@ namespace DiscordBot
                         });
                         task.Start();
                         break;
-                    case "vote":
-                        var responseBuilder = new DiscordInteractionResponseBuilder()
-                            .WithTitle("Vote for the next name of the bot.");
-
-                        var selectComponent = new DiscordSelectComponent("selectBot", "Select a name.", 
-                            new DiscordSelectComponentOption[]
-                            {
-                                new("Bai Tosho", "tosho", isDefault: true),
-                                new("Slavi Trifonov", "slavi"),
-                                new ("Custom choice.", "custom")
-                            });
-
-                        responseBuilder.AddComponents(selectComponent, 
-                            new TextInputComponent("Enter your custom choice here.", "customText", 
-                                "Na Penka Protivniq Glas", required: false, min_length: 5));
-                        
-                        await eventArgs.Interaction.CreateResponseAsync(InteractionResponseType.Modal, responseBuilder);
-                        break;
+                    
                 }
             }
             catch (Exception e)
             {
                 await Debug.WriteAsync($"Message interaction failed: \"{e}\"", false, Debug.DebugColor.Error);
+            }
+        }
+
+        private static async Task OnModalResponse(DiscordClient sender, ModalSubmitEventArgs e)
+        {
+            try
+            {
+                e.Handled = true;
+                var interaction = e.Interaction;
+                var user = interaction.User;
+
+                var searchData = new VotesModel
+                {
+                    UserId = user.Id
+                };
+                var userInDatabase = Databases.VotesDatabase.Read(searchData);
+                if (userInDatabase is null)
+                {
+                    searchData.Choice = e.Values["customTextInput"];
+                    Databases.VotesDatabase.Add(searchData);
+                    await e.Interaction.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, new DiscordInteractionResponseBuilder()
+                        .WithContent("```Vote applied successfully. Thank you for voting.```").AsEphemeral());
+                    return;
+                }
+                userInDatabase.Choice = e.Values["customTextInput"];
+                userInDatabase.SetModified?.Invoke();
+                await e.Interaction.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, new DiscordInteractionResponseBuilder()
+                    .WithContent("```Vote edited successfully. Thank you for voting.```").AsEphemeral());
+            }
+            catch (Exception ex)
+            {
+                await Debug.WriteAsync($"Modal interaction failed: \"{ex}\"", false, Debug.DebugColor.Error);
             }
         }
 
