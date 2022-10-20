@@ -1,5 +1,7 @@
 #nullable enable
 using System;
+using System.Linq;
+using System.Text.Json;
 using System.Threading.Tasks;
 using DiscordBot.Methods;
 using DiscordBot.Tools;
@@ -23,6 +25,23 @@ namespace DiscordBot.Playlists
             return base.Content(playlist is null ? 
                 PlaylistPageGenerator.GenerateNotFoundPage() : 
                 await PlaylistPageGenerator.GenerateNormalPage(playlist.Value), "text/html");
+        }
+
+        [HttpGet, Route("/PlaylistAPI/JSON/{**id}")]
+        public async Task<ActionResult> Json(string id)
+        {
+            if (!Guid.TryParse(id, out var guid)) return BadRequest();
+            var playlist = PlaylistManager.GetIfExists(guid);
+            return playlist is null ? BadRequest() : Ok(JsonSerializer.Serialize(new // Anonymous object poggers.
+            {
+                info = new
+                {
+                    name = playlist.Value.Info?.Name,
+                    maker = playlist.Value.Info?.Maker,
+                    description = playlist.Value.Info?.Description
+                },
+                data = (await PlaylistManager.ParsePlaylist(playlist.Value)).Select(r => r.ToSearchResult())
+            }));
         }
 
         [HttpGet,Route("/PlaylistAPI/Thumbnail/{**id}")]

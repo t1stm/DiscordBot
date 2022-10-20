@@ -96,7 +96,7 @@ namespace TestingApp
         public async Task WriteToNewFileWithInfo(string name, string description, string maker, bool isPublic, IEnumerable<PlayableItem> items)
         {
             var guid = Guid.NewGuid();
-            var path = $"{PlaylistManager.PlaylistDirectory}/{guid}.play";
+            var path = $"{PlaylistManager.PlaylistDirectory}/{guid}-new.play";
             await using var file = File.Open(path, FileMode.Create);
             await Debug.WriteAsync($"Creating new playlist: \"{path}\"");
             var playlistInfo = new PlaylistInfo

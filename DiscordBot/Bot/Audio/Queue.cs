@@ -212,7 +212,8 @@ namespace DiscordBot.Audio
         {
             lock (Items)
             {
-                var queue = Items.OrderBy(_ => new Random().Next()).ToList();
+                var random = new Random();
+                var queue = Items.OrderBy(_ => random.Next()).ToList();
                 var current = GetCurrent();
                 queue.Remove(current);
                 queue.Insert(0, current);

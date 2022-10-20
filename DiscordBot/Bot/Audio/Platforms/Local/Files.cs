@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using DiscordBot.Abstract;
 
 namespace DiscordBot.Audio.Platforms.Local
@@ -17,7 +16,10 @@ namespace DiscordBot.Audio.Platforms.Local
                 };
 
             var files = Directory.GetFileSystemEntries(path);
-            list.AddRange(files.Select(File.GetInfo));
+            foreach (var file in files)
+            {
+                list.AddRange(Get(file));
+            }
             return list;
         }
     }
