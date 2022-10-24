@@ -31,7 +31,7 @@ namespace DiscordBot.Standalone
         public WebSocket Admin { get; set; }
         public List<Client> Clients { get; } = new();
         public Guid SessionId { get; init; }
-        private int Current { get; } = 0;
+        private int Current { get; set; }
         private bool Paused { get; set; }
 
         private void ClearReady()
@@ -103,6 +103,9 @@ namespace DiscordBot.Standalone
 
                 switch (command)
                 {
+                    case "get":
+                        
+                        break;
                     case "pause":
                         Paused = !Paused;
                         await Broadcast($"Pause:{Paused}");
@@ -134,6 +137,7 @@ namespace DiscordBot.Standalone
                         if (Current + 1 != Queue.Count)
                             return;
                         ClearReady();
+                        Current++;
                         await Broadcast("Skip:");
                         return;
 
@@ -149,6 +153,7 @@ namespace DiscordBot.Standalone
                             return;
                         ClearReady();
                         await Broadcast($"GoTo:{num}");
+                        Current = num;
                         return;
 
                     case "options" when client.Socket != Admin:

@@ -12,6 +12,17 @@ namespace DiscordBot.Playlists
 {
     public class PlaylistAPI : Controller
     {
+        [HttpGet,Route("/PlaylistAPI")]
+        public ActionResult Index()
+        {
+            return View();
+        }
+
+        [HttpGet,Route("/PlaylistAPI/Editor/{**id}")]
+        public ActionResult Editor(string? id)
+        {
+            return View();
+        }
         
         [HttpGet,Route("/PlaylistAPI/{**id}")]
         public async Task<ContentResult> Playlist(string? id)

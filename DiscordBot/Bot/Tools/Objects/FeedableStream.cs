@@ -14,6 +14,7 @@ namespace DiscordBot.Tools.Objects
         private readonly Queue<IWriteAction> Cache = new();
         public bool Updating;
         private bool Closed { get; set; }
+        public bool AsynchroniousCopying { get; init; } = true;
         public bool WaitCopy { get; init; } = false;
 
         public FeedableStream(Stream backingBackingStream)
@@ -42,7 +43,7 @@ namespace DiscordBot.Tools.Objects
                 return Cache.Count;
             }
         }
-        
+
         private async void UpdateTask()
         {
             try
@@ -53,7 +54,10 @@ namespace DiscordBot.Tools.Objects
                 {
                     IWriteAction? data;
                     lock (Cache) data = Cache.Dequeue();
-                    await data.WriteToStreamAsync(BackingStream);
+                    if (AsynchroniousCopying)
+                        await data.WriteToStreamAsync(BackingStream);
+                    else
+                        CopySync(data);
                     // Ironic I know. Some streams don't support synchronized writing. Too bad!
                 }
 
@@ -65,6 +69,8 @@ namespace DiscordBot.Tools.Objects
                 Updating = false;
             }
         }
+        
+        private void CopySync(IWriteAction data) => data.WriteToStream(BackingStream);
 
         public override void Flush()
         {
@@ -87,6 +93,8 @@ namespace DiscordBot.Tools.Objects
             BackingStream.SetLength(value);
         }
 
+        public void Write(IWriteAction action) => FillBuffer(action);
+        
         public override void Write(byte[] buffer, int offset, int count)
         {
             FillBuffer(new ByteArrayData(buffer, offset, count));
@@ -102,7 +110,7 @@ namespace DiscordBot.Tools.Objects
             FillBuffer(new ByteArrayData(buffer, offset, count));
             return Task.CompletedTask;
         }
-        
+
         public override ValueTask WriteAsync(ReadOnlyMemory<byte> buffer, CancellationToken cancellationToken = new())
         {
             FillBuffer(new ByteArrayData(buffer.ToArray(), 0, buffer.Length));
@@ -113,6 +121,7 @@ namespace DiscordBot.Tools.Objects
         public override bool CanSeek => BackingStream.CanSeek;
         public override bool CanWrite => BackingStream.CanWrite;
         public override long Length => BackingStream.Length;
+
         public override long Position
         {
             get => 0;

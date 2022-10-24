@@ -1,16 +1,17 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using DiscordBot.Tools.Objects;
-using Microsoft.CodeAnalysis;
 
 namespace DiscordBot.Tools
 {
     public class StreamSpreader : Stream
     {
-        private FeedableStream[] Destinations { get; }
+        private List<FeedableStream> Destinations { get; }
+        private Queue<IWriteAction> DataWritten { get; } = new();
         private CancellationToken Token { get; }
 
         private long _length;
@@ -19,7 +20,7 @@ namespace DiscordBot.Tools
 
         public StreamSpreader(CancellationToken token, params Stream[] destinations)
         {
-            Destinations = destinations.Select(r => new FeedableStream(r)).ToArray();
+            Destinations = destinations.Select(r => new FeedableStream(r)).ToList();
             Token = token;
         }
 
@@ -78,6 +79,7 @@ namespace DiscordBot.Tools
         {
             lock (LockObject)
             {
+                DataWritten.Enqueue(new ByteArrayData(buffer, offset, count));
                 foreach (var feedableStream in Destinations)
                 {
                     if (Token.IsCancellationRequested) return;
@@ -91,10 +93,11 @@ namespace DiscordBot.Tools
         {
             lock (LockObject)
             {
+                DataWritten.Enqueue(new ByteArrayData(buffer, offset, count));
                 foreach (var feedableStream in Destinations)
                 {
                     if (Token.IsCancellationRequested) return Task.CompletedTask;
-                    feedableStream.WriteAsync(buffer.AsMemory(offset, count), cancellationToken);
+                    feedableStream.WriteAsync(buffer.AsMemory(offset, count), cancellationToken).AsTask().Wait(cancellationToken);
                 }
                 _position = _length += count;
             }
@@ -105,6 +108,7 @@ namespace DiscordBot.Tools
         {
             lock (LockObject)
             {
+                DataWritten.Enqueue(new MemoryData(buffer.ToArray()));
                 foreach (var feedableStream in Destinations)
                 {
                     if (Token.IsCancellationRequested) return;
@@ -118,14 +122,28 @@ namespace DiscordBot.Tools
         {
             lock (LockObject)
             {
+                DataWritten.Enqueue(new MemoryData(buffer));
                 foreach (var feedableStream in Destinations)
                 {
                     if (Token.IsCancellationRequested) return ValueTask.CompletedTask;
-                    feedableStream.WriteAsync(buffer, cancellationToken);
+                    feedableStream.WriteAsync(buffer, cancellationToken).AsTask().Wait(cancellationToken);
                 }
                 _position = _length += buffer.Length;
             }
             return ValueTask.CompletedTask;
+        }
+
+        public void AddDestination(Stream destination)
+        {
+            lock (LockObject)
+            {
+                var feedableStream = new FeedableStream(destination);
+                foreach (var action in DataWritten.ToArray())
+                {
+                    feedableStream.Write(action);
+                }
+                Destinations.Add(feedableStream);
+            }
         }
 
         public override bool CanRead => false;
@@ -135,7 +153,7 @@ namespace DiscordBot.Tools
 
         public override long Position
         {
-            get => 0;
+            get => _position;
             set => _position = value;
         }
     }
