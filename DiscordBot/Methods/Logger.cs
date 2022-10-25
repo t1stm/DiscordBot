@@ -23,6 +23,7 @@ namespace DiscordBot.Methods
 
     public class Logger : ILogger
     {
+        public bool Enabled { get; set; } = Bot.DebugMode;
         public IDisposable BeginScope<TState>(TState state)
         {
             return default!;
@@ -46,9 +47,9 @@ namespace DiscordBot.Methods
         public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception? exception,
             Func<TState, Exception?, string> formatter)
         {
-            if (!Bot.DebugMode) return;
+            if (!Bot.DebugMode && !Enabled) return;
             if (!IsEnabled(logLevel)) return;
-            var task = new Task(async () => await Debug.WriteAsync($"[DSharpPlus] - {formatter(state, exception)}"));
+            var task = new Task(async () => await Debug.WriteAsync($"[Logger] - {formatter(state, exception)}"));
             task.Start();
         }
     }

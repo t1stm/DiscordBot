@@ -15,12 +15,14 @@ namespace DiscordBot.Tools.Objects
 
         public void WriteToStream(Stream destination)
         {
-            destination.Write(Data.Span);
+            if (destination.CanWrite)
+                destination.Write(Data.Span);
         }
 
         public async Task WriteToStreamAsync(Stream destination)
         {
-            await destination.WriteAsync(Data);
+            if (destination.CanWrite)
+                await destination.WriteAsync(Data);
         }
     }
 }

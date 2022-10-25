@@ -1,8 +1,11 @@
+#nullable enable
 using System;
 using System.Diagnostics;
 using System.IO;
+using System.Threading;
 using System.Threading.Tasks;
 using DiscordBot.Abstract;
+using DiscordBot.Tools;
 using DSharpPlus.VoiceNext;
 using Debug = DiscordBot.Methods.Debug;
 
@@ -10,7 +13,9 @@ namespace DiscordBot.Audio.Objects
 {
     public class FfMpeg
     {
-        private Process FfMpegProcess { get; set; }
+        private Process? FfMpegProcess { get; set; }
+        private StreamSpreader? Spreader { get; set; }
+        private CancellationTokenSource Source { get; } = new();
 
         public Stream PathToPcm(string videoPath, string startingTime = "00:00:00.000", bool normalize = false)
         {
@@ -30,7 +35,7 @@ namespace DiscordBot.Audio.Objects
                 UseShellExecute = false
             };
             FfMpegProcess = Process.Start(ffmpegStartInfo);
-            return FfMpegProcess?.StandardOutput.BaseStream;
+            return FfMpegProcess == null ? Stream.Null : FfMpegProcess.StandardOutput.BaseStream;
         }
 
         public async Task ItemToPcm(PlayableItem item, VoiceTransmitSink destination,
@@ -40,7 +45,7 @@ namespace DiscordBot.Audio.Objects
             {
                 FileName = "ffmpeg",
                 Arguments = @"-nostats " +
-                            "-v error " + //This line is going to be changed very often, I fucking know it.
+                            //"-v error " + //This line is going to be changed very often, I fucking know it.
                             "-hide_banner " +
                             $@"-i - -ss {startingTime.Trim()} " +
                             "-user_agent \"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/71.0.3554.0 Safari/537.36\" " +
@@ -56,49 +61,21 @@ namespace DiscordBot.Audio.Objects
             if (FfMpegProcess == null) return;
             try
             {
-                var ms = new MemoryStream();
-                var ended = false;
+                while (!FfMpegProcess.StandardInput.BaseStream.CanWrite)
+                {
+                    await Task.Delay(16);
+                }
+                Spreader = new StreamSpreader(Source.Token, FfMpegProcess.StandardInput.BaseStream);
+                
                 var yes = new Task(async () =>
                 {
-                    var success = await item.GetAudioData(ms);
+                    var success = await item.GetAudioData(Spreader);
                     if (success == false)
                     {
                         await Kill();
                     }
-                    ended = true;
                 });
                 yes.Start();
-                var task = new Task(async () =>
-                {
-                    try
-                    {
-                        while (ms.Length < 10) await Task.Delay(4);
-                        for (var i = 0; i < ms.Length; i++)
-                        {
-                            while (i == ms.Length - 2 && !ended)
-                                await Task.Delay(3); // These are the spaghetti code fixes I adore.
-                            var by = ms.GetBuffer()[i]; // I am starting to think that this method is quite slow.
-                            try
-                            {
-                                FfMpegProcess.StandardInput.BaseStream.WriteByte(by);
-                            }
-                            catch (Exception e)
-                            {
-                                if (e.Message.ToLower().Contains("broken pipe")) break;
-                                await Debug.WriteAsync($"Writing byte falure: {e}");
-                                break;
-                            }
-                        }
-
-                        FfMpegProcess.StandardInput.Close();
-                    }
-                    catch (Exception e)
-                    {
-                        if (e.Message.ToLower().Contains("broken") && e.Message.ToLower().Contains("pipe")) return;
-                        await Debug.WriteAsync($"Writing byte falure: {e}");
-                    }
-                });
-                task.Start();
                 await FfMpegProcess.StandardOutput.BaseStream.CopyToAsync(destination);
             }
             catch (Exception e)
@@ -109,6 +86,8 @@ namespace DiscordBot.Audio.Objects
 
         public async Task Kill(bool wait = false, bool display = true)
         {
+            Source.Cancel();
+            Spreader?.Close();
             if (wait) await Task.Delay(100);
             if (display) await Debug.WriteAsync("Killing FFMpeg");
             KillSync();
@@ -118,8 +97,8 @@ namespace DiscordBot.Audio.Objects
         {
             try
             {
-                FfMpegProcess.StandardOutput.DiscardBufferedData();
-                FfMpegProcess.StandardOutput.BaseStream.Flush();
+                FfMpegProcess?.StandardOutput.DiscardBufferedData();
+                FfMpegProcess?.StandardOutput.BaseStream.Flush();
             }
             catch (Exception)
             {
@@ -132,7 +111,7 @@ namespace DiscordBot.Audio.Objects
             CancelStream();
             try
             {
-                FfMpegProcess.Kill();
+                FfMpegProcess?.Kill();
             }
             catch (Exception)
             {

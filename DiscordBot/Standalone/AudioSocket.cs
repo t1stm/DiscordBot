@@ -1,3 +1,4 @@
+#nullable enable
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -7,7 +8,10 @@ using System.Text;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Timers;
 using DiscordBot.Audio.Objects;
+using DiscordBot.Audio.Platforms;
+using DiscordBot.Tools;
 using vtortola.WebSockets;
 using Debug = DiscordBot.Methods.Debug;
 
@@ -18,7 +22,8 @@ namespace DiscordBot.Standalone
         public Stopwatch InactiveStopwatch { get; } = new();
         private Settings Options;
         private List<SearchResult> Queue = Enumerable.Empty<SearchResult>().ToList();
-
+        private readonly List<EncodedAudio> Audios = new();
+        private readonly System.Timers.Timer Timer = new();
         public AudioSocket()
         {
             Options = new Settings
@@ -26,14 +31,26 @@ namespace DiscordBot.Standalone
                 AllowNonAdminControl = false,
                 AllowAnonymousJoining = true
             };
+            Timer.Elapsed += TimerOnElapsed;
+            Timer.Interval = 10 * 1000; // Ten seconds
+            Timer.Start();
         }
 
-        public WebSocket Admin { get; set; }
+        public WebSocket? Admin { get; set; }
         public List<Client> Clients { get; } = new();
         public Guid SessionId { get; init; }
         private int Current { get; set; }
         private bool Paused { get; set; }
 
+        private void TimerOnElapsed(object? sender, ElapsedEventArgs e)
+        {
+            var now = DateTime.UtcNow.Ticks;
+            lock (Audios)
+            {
+                Audios.RemoveAll(r => r.Expire >= now);
+            }
+        }
+        
         private void ClearReady()
         {
             lock (Clients)
@@ -62,6 +79,52 @@ namespace DiscordBot.Standalone
                 bool all;
                 switch (command)
                 {
+                    case "get":
+                        var search = await Search.Get(joined);
+                        var first = search?.First();
+                        if (first == null)
+                        {
+                            await Respond(client.Socket, "Get:NotFound");
+                            return;
+                        }
+                        var addUrl = first.GetAddUrl();
+                        EncodedAudio? existing;
+
+                        lock (Audios)
+                        {
+                            existing = Audios.FirstOrDefault(r => r.AddUrl == addUrl);
+                        }
+
+                        if (existing is not null)
+                        {
+                            //await Respond(client.Socket, $"Get:{addUrl}");
+                            existing.Spreader.AddDestination(client.Socket.CreateMessageWriter(WebSocketMessageType.Binary));
+                            return;
+                        }
+
+                        //await Respond(client.Socket, $"Get:{addUrl}");
+                        
+                        var destination = client.Socket.CreateMessageWriter(WebSocketMessageType.Binary);
+                        var streamSpreader = new StreamSpreader(CancellationToken.None, destination)
+                        {
+                            KeepCached = true
+                        };
+
+                        var ffmpeg = new FfMpeg2();
+                        var stream = ffmpeg.Convert(first, codec: "-c:a libopus", addParameters: $"-b:a {96}k");
+                        await stream.CopyToAsync(streamSpreader).ConfigureAwait(false);
+                        lock (Audios)
+                        {
+                            Audios.Add(new EncodedAudio
+                            {
+                                Spreader = streamSpreader,
+                                AddUrl = addUrl
+                            });
+                        }
+
+                        await streamSpreader.Finish().ConfigureAwait(false);
+                        return;
+                    
                     case "current":
                         await Respond(client.Socket, $"Current:{Current}");
                         return;
@@ -103,17 +166,15 @@ namespace DiscordBot.Standalone
 
                 switch (command)
                 {
-                    case "get":
-                        
-                        break;
                     case "pause":
                         Paused = !Paused;
                         await Broadcast($"Pause:{Paused}");
                         return;
+                    
                     case "queue":
                         lock (Queue)
                         {
-                            Queue = JsonSerializer.Deserialize<List<SearchResult>>(joined);
+                            Queue = JsonSerializer.Deserialize<List<SearchResult>>(joined) ?? Enumerable.Empty<SearchResult>().ToList();
                         }
 
                         await Broadcast($"Queue:{JsonSerializer.Serialize(Queue)}", client);
@@ -158,10 +219,11 @@ namespace DiscordBot.Standalone
 
                     case "options" when client.Socket != Admin:
                         return;
+                    
                     case "options":
                         lock (Options)
                         {
-                            Options = JsonSerializer.Deserialize<Settings>(joined);
+                            Options = JsonSerializer.Deserialize<Settings>(joined) ?? new Settings();
                         }
 
                         return;
@@ -199,7 +261,7 @@ namespace DiscordBot.Standalone
                 }
         }
 
-        private async Task Broadcast(string message, Client exclude)
+        private async Task Broadcast(string message, Client? exclude)
         {
             if (Bot.DebugMode)
                 await Debug.WriteAsync($"AudioSocket Broadcasting message: \"{message}\"");
@@ -245,7 +307,7 @@ namespace DiscordBot.Standalone
             }
         }
 
-        public async Task AddClient(WebSocket ws, string suppliedToken)
+        public async Task AddClient(WebSocket ws, string? suppliedToken)
         {
             try
             {
@@ -302,7 +364,7 @@ namespace DiscordBot.Standalone
             }
         }
 
-        public async Task SetAdmin(WebSocket ws, string suppliedToken = null)
+        public async Task SetAdmin(WebSocket ws, string? suppliedToken = null)
         {
             try
             {
@@ -317,11 +379,18 @@ namespace DiscordBot.Standalone
 
         public class Client
         {
-            public WebSocket Socket { get; init; }
-            public string Token { get; init; }
+            public WebSocket Socket { get; init; } = null!;
+            public string? Token { get; init; }
             public bool IsAnon => string.IsNullOrEmpty(Token) || Token is "null" or "undefined";
             public bool Ready { get; set; }
             public bool Ended { get; set; }
+        }
+        
+        private class EncodedAudio
+        {
+            public string? AddUrl { get; init; }
+            public StreamSpreader Spreader { get; init; } = null!;
+            public long Expire { get; init; } = DateTime.UtcNow.AddMinutes(Audio.AudioCacheTimeout).Ticks;
         }
 
         public class Settings

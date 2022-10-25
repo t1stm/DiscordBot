@@ -36,6 +36,9 @@ namespace DiscordBot
         {
             var options = new WebSocketListenerOptions();
             options.Standards.RegisterRfc6455();
+            options.Logger = new DebugLogger();
+            options.PingMode = PingMode.LatencyControl;
+            options.PingTimeout = new TimeSpan(0, 1, 0);
             var server = new WebSocketListener(new IPEndPoint(IPAddress.Any, ListeningPort), options);
             await server.StartAsync();
             await Loop(server, CancellationToken.None);

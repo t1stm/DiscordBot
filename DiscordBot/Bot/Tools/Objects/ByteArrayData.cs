@@ -18,11 +18,13 @@ namespace DiscordBot.Tools.Objects
 
         public void WriteToStream(Stream destination)
         {
-            destination.Write(Data, Offset, Count);
+            if (destination.CanWrite) 
+                destination.Write(Data, Offset, Count);
         }
         public async Task WriteToStreamAsync(Stream destination)
         {
-            await destination.WriteAsync(Data, Offset, Count);
+            if (destination.CanWrite)
+                await destination.WriteAsync(Data, Offset, Count);
         }
     }
 }

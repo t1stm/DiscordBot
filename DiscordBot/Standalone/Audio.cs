@@ -17,7 +17,7 @@ namespace DiscordBot.Standalone
 {
     public class Audio : Controller
     {
-        private const int AudioCacheTimeout = 15;
+        internal const int AudioCacheTimeout = 15;
         public static readonly List<EncodedAudio> EncodedAudio = new();
         public static readonly List<SocketSession> GeneratedSocketSessions = new();
 

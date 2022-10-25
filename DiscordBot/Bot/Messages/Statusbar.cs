@@ -240,7 +240,7 @@ namespace DiscordBot.Messages
 
         private string GenerateProgressbar(Player player)
         {
-            var total = (long) player.Queue.GetCurrent().GetLength();
+            var total = (long) (player.Queue.GetCurrent()?.GetLength() ?? 0);
             var current = player.Stopwatch.ElapsedMilliseconds;
             return GenerateProgressbar(current, total);
         }

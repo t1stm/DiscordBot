@@ -17,11 +17,15 @@ namespace DiscordBot.Tools
         private long _length;
         private long _position;
         private readonly object LockObject = new();
+        public bool KeepCached { get; init; }
 
         public StreamSpreader(CancellationToken token, params Stream[] destinations)
         {
-            Destinations = destinations.Select(r => new FeedableStream(r)).ToList();
-            Token = token;
+            lock (LockObject)
+            {
+                Destinations = destinations.Select(r => new FeedableStream(r)).ToList();
+                Token = token;
+            }
         }
 
         public async Task Finish()
@@ -56,7 +60,13 @@ namespace DiscordBot.Tools
         {
             while (Destinations.Any(r => r.Updating))
             {
+                if (cancellationToken.IsCancellationRequested) return;
                 await Task.Delay(33, Token);
+            }
+            
+            foreach (var stream in Destinations)
+            {
+                await stream.FlushAsync(Token);
             }
         }
 
@@ -79,7 +89,7 @@ namespace DiscordBot.Tools
         {
             lock (LockObject)
             {
-                DataWritten.Enqueue(new ByteArrayData(buffer, offset, count));
+                if (KeepCached) DataWritten.Enqueue(new ByteArrayData(buffer, offset, count));
                 foreach (var feedableStream in Destinations)
                 {
                     if (Token.IsCancellationRequested) return;
@@ -93,11 +103,11 @@ namespace DiscordBot.Tools
         {
             lock (LockObject)
             {
-                DataWritten.Enqueue(new ByteArrayData(buffer, offset, count));
+                if (KeepCached) DataWritten.Enqueue(new ByteArrayData(buffer, offset, count));
                 foreach (var feedableStream in Destinations)
                 {
                     if (Token.IsCancellationRequested) return Task.CompletedTask;
-                    feedableStream.WriteAsync(buffer.AsMemory(offset, count), cancellationToken).AsTask().Wait(cancellationToken);
+                    feedableStream.WriteAsync(buffer.AsMemory(offset, count), cancellationToken);
                 }
                 _position = _length += count;
             }
@@ -108,7 +118,7 @@ namespace DiscordBot.Tools
         {
             lock (LockObject)
             {
-                DataWritten.Enqueue(new MemoryData(buffer.ToArray()));
+                if (KeepCached) DataWritten.Enqueue(new MemoryData(buffer.ToArray()));
                 foreach (var feedableStream in Destinations)
                 {
                     if (Token.IsCancellationRequested) return;
@@ -122,11 +132,11 @@ namespace DiscordBot.Tools
         {
             lock (LockObject)
             {
-                DataWritten.Enqueue(new MemoryData(buffer));
+                if (KeepCached) DataWritten.Enqueue(new MemoryData(buffer));
                 foreach (var feedableStream in Destinations)
                 {
                     if (Token.IsCancellationRequested) return ValueTask.CompletedTask;
-                    feedableStream.WriteAsync(buffer, cancellationToken).AsTask().Wait(cancellationToken);
+                    feedableStream.WriteAsync(buffer, cancellationToken);
                 }
                 _position = _length += buffer.Length;
             }
@@ -138,7 +148,7 @@ namespace DiscordBot.Tools
             lock (LockObject)
             {
                 var feedableStream = new FeedableStream(destination);
-                foreach (var action in DataWritten.ToArray())
+                if (KeepCached) foreach (var action in DataWritten.ToArray())
                 {
                     feedableStream.Write(action);
                 }

@@ -1,3 +1,4 @@
+#nullable enable
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,7 +16,7 @@ namespace DiscordBot.Audio
     {
         private int _downloadTasks;
         public List<PlayableItem> Items = new();
-        public WebSocketManager Manager { get; set; }
+        public WebSocketManager? Manager { get; set; }
         public int Current { get; set; }
 
         public long Count
@@ -215,8 +216,11 @@ namespace DiscordBot.Audio
                 var random = new Random();
                 var queue = Items.OrderBy(_ => random.Next()).ToList();
                 var current = GetCurrent();
-                queue.Remove(current);
-                queue.Insert(0, current);
+                if (current is not null)
+                {
+                    queue.Remove(current);
+                    queue.Insert(0, current);
+                }
                 Items = queue;
                 Current = 0;
                 Broadcast();
@@ -229,7 +233,8 @@ namespace DiscordBot.Audio
             lock (Items)
             {
                 Current = 0;
-                Items = new List<PlayableItem> {current};
+                Items = new List<PlayableItem>();
+                if (current is not null) Items.Add(current);
             }
 
             Broadcast();
@@ -242,23 +247,26 @@ namespace DiscordBot.Audio
                 if (seed == -555) seed = new Random().Next(int.MaxValue);
                 var queue = Items.OrderBy(_ => new Random(seed).Next()).ToList();
                 var current = GetCurrent();
-                queue.Remove(current);
-                queue.Insert(0, current);
+                if (current is not null)
+                {
+                    queue.Remove(current);
+                    queue.Insert(0, current);
+                }
                 Items = queue;
                 Current = 0;
                 RandomSeed = seed;
             }
         }
 
-        public PlayableItem GetCurrent()
+        public PlayableItem? GetCurrent()
         {
             lock (Items)
             {
-                return Items.Count == 0 ? null : Current >= Items.Count ? null : Items[Current];
+                return Items.Count == 0 ? null : Current >= Items.Count || Current < 0 ? null : Items[Current];
             }
         }
 
-        public PlayableItem GetNext()
+        public PlayableItem? GetNext()
         {
             lock (Items)
             {
@@ -268,7 +276,7 @@ namespace DiscordBot.Audio
 
         public bool Move(int result, int thing2, out PlayableItem item)
         {
-            item = null;
+            item = null!;
             try
             {
                 lock (Items)
@@ -316,8 +324,8 @@ namespace DiscordBot.Audio
 
         public bool Move(string result, string thing2, out PlayableItem item1, out PlayableItem item2)
         {
-            item1 = null;
-            item2 = null;
+            item1 = null!;
+            item2 = null!;
             try
             {
                 lock (Items)
