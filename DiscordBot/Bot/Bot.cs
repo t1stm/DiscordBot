@@ -3,8 +3,8 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text.Json;
+using System.Threading;
 using System.Threading.Tasks;
-using System.Timers;
 using DiscordBot.Audio;
 using DiscordBot.Audio.Objects;
 using DiscordBot.Data;
@@ -15,6 +15,7 @@ using DiscordBot.Objects;
 using DiscordBot.Playlists;
 using DiscordBot.Readers;
 using DiscordBot.Readers.MariaDB;
+using DiscordBot.Tools;
 using DSharpPlus;
 using DSharpPlus.CommandsNext;
 using DSharpPlus.Entities;
@@ -26,6 +27,7 @@ using DSharpPlus.SlashCommands;
 using DSharpPlus.VoiceNext;
 using Microsoft.Extensions.Logging;
 using LoggerFactory = DiscordBot.Methods.LoggerFactory;
+using Timer = System.Timers.Timer;
 
 namespace DiscordBot
 {

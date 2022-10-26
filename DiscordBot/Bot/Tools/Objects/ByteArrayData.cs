@@ -1,5 +1,8 @@
+using System;
 using System.IO;
+using System.Threading;
 using System.Threading.Tasks;
+using DiscordBot.Methods;
 
 namespace DiscordBot.Tools.Objects
 {
@@ -16,15 +19,31 @@ namespace DiscordBot.Tools.Objects
             Count = count;
         }
 
-        public void WriteToStream(Stream destination)
+        public void WriteToStream(Stream destination, CancellationToken? cancellationToken = null)
         {
-            if (destination.CanWrite) 
-                destination.Write(Data, Offset, Count);
+            try
+            {
+                if (destination.CanWrite && !(cancellationToken?.IsCancellationRequested ?? false))
+                    destination.Write(Data, Offset, Count);
+            }
+            catch (Exception e)
+            {
+                if (!(cancellationToken?.IsCancellationRequested ?? false))
+                    Debug.Write($"ByteArrayData WriteToStreamAsync failed: \"{e}\"");
+            }
         }
-        public async Task WriteToStreamAsync(Stream destination)
+        public async Task WriteToStreamAsync(Stream destination, CancellationToken? cancellationToken = null)
         {
-            if (destination.CanWrite)
-                await destination.WriteAsync(Data, Offset, Count);
+            try
+            {
+                if (destination.CanWrite && !(cancellationToken?.IsCancellationRequested ?? false))
+                    await destination.WriteAsync(Data, Offset, Count, cancellationToken ?? CancellationToken.None);
+            }
+            catch (Exception e)
+            {
+                if (!(cancellationToken?.IsCancellationRequested ?? false))
+                    await Debug.WriteAsync($"ByteArrayData WriteToStreamAsync failed: \"{e}\"");
+            }
         }
     }
 }

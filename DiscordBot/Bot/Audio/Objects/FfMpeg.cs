@@ -14,7 +14,7 @@ namespace DiscordBot.Audio.Objects
     public class FfMpeg
     {
         private Process? FfMpegProcess { get; set; }
-        private StreamSpreader? Spreader { get; set; }
+        private StreamSpreader? Spreader { get; set; } = new(CancellationToken.None);
         private CancellationTokenSource Source { get; } = new();
 
         public Stream PathToPcm(string videoPath, string startingTime = "00:00:00.000", bool normalize = false)
@@ -38,7 +38,7 @@ namespace DiscordBot.Audio.Objects
             return FfMpegProcess == null ? Stream.Null : FfMpegProcess.StandardOutput.BaseStream;
         }
 
-        public async Task ItemToPcm(PlayableItem item, VoiceTransmitSink destination,
+        public async Task ItemToPcm(PlayableItem item, VoiceTransmitSink? destination,
             string startingTime = "00:00:00.000", bool normalize = true)
         {
             var ffmpegStartInfo = new ProcessStartInfo
@@ -61,19 +61,25 @@ namespace DiscordBot.Audio.Objects
             if (FfMpegProcess == null) return;
             try
             {
-                while (!FfMpegProcess.StandardInput.BaseStream.CanWrite)
+                Spreader = new StreamSpreader(Source.Token)
                 {
-                    await Task.Delay(16);
-                }
-                Spreader = new StreamSpreader(Source.Token, FfMpegProcess.StandardInput.BaseStream);
-                
+                    KeepCached = true
+                };
+                Spreader.AddDestination(FfMpegProcess.StandardInput.BaseStream); // HOW DOES THIS WORK AND ADDING IT IN THE StreamSpreader INITIALIZER NOT WORK?
+                await Task.Delay(100);
                 var yes = new Task(async () =>
                 {
+                    while (!FfMpegProcess.StandardInput.BaseStream.CanWrite)
+                    {
+                        await Task.Delay(16);
+                    }
                     var success = await item.GetAudioData(Spreader);
                     if (success == false)
                     {
                         await Kill();
                     }
+                    await Spreader.CloseWhenCopied();
+                    await Debug.WriteAsync("Copying audio data to stream finished.");
                 });
                 yes.Start();
                 await FfMpegProcess.StandardOutput.BaseStream.CopyToAsync(destination);
@@ -86,8 +92,6 @@ namespace DiscordBot.Audio.Objects
 
         public async Task Kill(bool wait = false, bool display = true)
         {
-            Source.Cancel();
-            Spreader?.Close();
             if (wait) await Task.Delay(100);
             if (display) await Debug.WriteAsync("Killing FFMpeg");
             KillSync();
@@ -97,6 +101,8 @@ namespace DiscordBot.Audio.Objects
         {
             try
             {
+                Spreader?.Close();
+                Source.Cancel();
                 FfMpegProcess?.StandardOutput.DiscardBufferedData();
                 FfMpegProcess?.StandardOutput.BaseStream.Flush();
             }

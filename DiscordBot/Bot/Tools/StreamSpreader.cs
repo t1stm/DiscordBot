@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using DiscordBot.Methods;
 using DiscordBot.Tools.Objects;
 
 namespace DiscordBot.Tools
@@ -32,6 +33,26 @@ namespace DiscordBot.Tools
         {
             await FlushAsync(Token);
             Close();
+        }
+
+        public async Task CloseWhenCopied()
+        {
+            try
+            {
+                while (Destinations.Any(r => r.Updating))
+                {
+                    if (Token.IsCancellationRequested) break;
+                    await Task.Delay(250, Token);
+                }
+
+                await FlushAsync(Token);
+                Close();
+            }
+            catch (Exception e)
+            {
+                if (!Token.IsCancellationRequested)
+                    await Debug.WriteAsync($"StreamSpreader CloseWhenCopied failed: \"{e}\"");
+            }
         }
 
         public override void Close()

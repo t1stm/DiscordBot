@@ -87,6 +87,7 @@ namespace DiscordBot.Audio
                     }
 
                     var search = await Search.Get(searchTerm);
+                    if (search == null) return;
                     Queue.AddToQueue(search);
                     return;
                 case "playnext":
@@ -98,6 +99,7 @@ namespace DiscordBot.Audio
                     }
 
                     var resulted = await Search.Get(searchTerm2);
+                    if (resulted == null) return;
                     Queue.AddToQueueNext(resulted);
                     return;
                 case "goto":

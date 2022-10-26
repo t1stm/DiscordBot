@@ -25,6 +25,7 @@ namespace DiscordBot.Tools.Objects
         public override void Close()
         {
             Closed = true;
+            BackingStream.Close();
             base.Close();
         }
 
@@ -50,7 +51,7 @@ namespace DiscordBot.Tools.Objects
             {
                 if (Updating || Closed) return;
                 Updating = true;
-                while (CacheCount() != 0)
+                while (CacheCount() != 0 && !Closed)
                 {
                     IWriteAction? data;
                     lock (Cache) data = Cache.Dequeue();

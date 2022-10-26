@@ -64,6 +64,7 @@ namespace DiscordBot.Audio.Objects
         {
             try
             {
+                if (!System.IO.File.Exists(GetLocation())) return false;
                 var file = System.IO.File.OpenRead(GetLocation());
                 foreach (var stream in outputs) await file.CopyToAsync(stream);
                 return true;
