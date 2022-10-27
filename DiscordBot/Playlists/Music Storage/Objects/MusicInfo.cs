@@ -1,6 +1,4 @@
-using System.Collections.Generic;
 using System.Text.Json.Serialization;
-using DiscordBot.Data.Models;
 
 #nullable enable
 namespace DiscordBot.Playlists.Music_Storage.Objects

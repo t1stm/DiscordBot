@@ -112,7 +112,7 @@ namespace DiscordBot.Standalone
 
                         var ffmpeg = new FfMpeg2();
                         var stream = ffmpeg.Convert(first, codec: "-c:a libopus", addParameters: $"-b:a {96}k");
-                        await stream.CopyToAsync(streamSpreader).ConfigureAwait(false);
+                        await stream.CopyToAsync(streamSpreader);
                         lock (Audios)
                         {
                             Audios.Add(new EncodedAudio

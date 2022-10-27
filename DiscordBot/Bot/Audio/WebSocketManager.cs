@@ -88,6 +88,24 @@ namespace DiscordBot.Audio
 
                     var search = await Search.Get(searchTerm);
                     if (search == null) return;
+                    var requesterToken = WebSockets[ws];
+                    var searchData = new UsersModel
+                    {
+                        Token = requesterToken
+                    };
+                    var user = Databases.UserDatabase.Read(searchData);
+                    if (user == null)
+                    {
+                        Queue.AddToQueue(search);
+                        return;
+                    }
+
+                    var discordUser = Player.VoiceUsers.FirstOrDefault(r => r.Id == user.Id);
+                    if (discordUser != null)
+                        foreach (var item in search)
+                        {
+                            item.SetRequester(discordUser);
+                        }
                     Queue.AddToQueue(search);
                     return;
                 case "playnext":
@@ -100,6 +118,24 @@ namespace DiscordBot.Audio
 
                     var resulted = await Search.Get(searchTerm2);
                     if (resulted == null) return;
+                    var requesterToken2 = WebSockets[ws];
+                    var searchData2 = new UsersModel
+                    {
+                        Token = requesterToken2
+                    };
+                    var user2 = Databases.UserDatabase.Read(searchData2);
+                    if (user2 == null)
+                    {
+                        Queue.AddToQueueNext(resulted);
+                        return;
+                    }
+
+                    var discordUser2 = Player.VoiceUsers.FirstOrDefault(r => r.Id == user2.Id);
+                    if (discordUser2 != null)
+                        foreach (var item in resulted)
+                        {
+                            item.SetRequester(discordUser2);
+                        }
                     Queue.AddToQueueNext(resulted);
                     return;
                 case "goto":
