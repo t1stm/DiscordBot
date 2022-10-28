@@ -27,6 +27,7 @@ namespace TestingApp.Search_Algorithm_Tests
         private static double CalculateScore(PlayableItem ov, string term)
         {
             var score = 0d;
+            if (string.IsNullOrEmpty(term)) return score;
             //TODO: Implement score by title and then author.
             var authorIndex = -1;
             

@@ -103,16 +103,11 @@ namespace DiscordBot.Standalone
                         }
 
                         //await Respond(client.Socket, $"Get:{addUrl}");
-                        
-                        var destination = client.Socket.CreateMessageWriter(WebSocketMessageType.Binary);
-                        var streamSpreader = new StreamSpreader(CancellationToken.None, destination)
+                        var streamSpreader = new StreamSpreader(CancellationToken.None)
                         {
                             KeepCached = true
                         };
-
-                        var ffmpeg = new FfMpeg2();
-                        var stream = ffmpeg.Convert(first, codec: "-c:a libopus", addParameters: $"-b:a {96}k");
-                        await stream.CopyToAsync(streamSpreader);
+                        
                         lock (Audios)
                         {
                             Audios.Add(new EncodedAudio
@@ -121,8 +116,14 @@ namespace DiscordBot.Standalone
                                 AddUrl = addUrl
                             });
                         }
+                        
+                        streamSpreader.AddDestination(client.Socket.CreateMessageWriter(WebSocketMessageType.Binary));
 
-                        await streamSpreader.Finish().ConfigureAwait(false);
+                        var ffmpeg = new FfMpeg2();
+                        var stream = ffmpeg.Convert(first, codec: "-c:a libopus", addParameters: $"-b:a {96}k");
+                        await stream.CopyToAsync(streamSpreader);
+
+                        await streamSpreader.CloseWhenCopied().ConfigureAwait(false);
                         return;
                     
                     case "current":
