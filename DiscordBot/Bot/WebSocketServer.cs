@@ -60,7 +60,7 @@ namespace DiscordBot
                 }
         }
 
-        private static async Task HandleConnectionAsync(WebSocket ws)
+        public static async Task HandleConnectionAsync(WebSocket ws)
         {
             try
             {
@@ -136,9 +136,9 @@ namespace DiscordBot
                         await Debug.WriteAsync($"Exception reading WebSocket message: \"{e}\"");
                     }
             }
-            catch (Exception)
+            catch (Exception e)
             {
-                // Ignored
+                await Debug.WriteAsync($"Exception in WebSocketServer HandleConnectionAsync: \"{e}\"");
             }
         }
 

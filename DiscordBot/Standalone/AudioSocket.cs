@@ -80,6 +80,7 @@ namespace DiscordBot.Standalone
                 switch (command)
                 {
                     case "get":
+                        await Debug.WriteAsync($"Audio WebSocket Get: \'{joined}\'");
                         var search = await Search.Get(joined);
                         var first = search?.First();
                         if (first == null)
@@ -116,14 +117,20 @@ namespace DiscordBot.Standalone
                                 AddUrl = addUrl
                             });
                         }
-                        
-                        streamSpreader.AddDestination(client.Socket.CreateMessageWriter(WebSocketMessageType.Binary));
 
                         var ffmpeg = new FfMpeg2();
                         var stream = ffmpeg.Convert(first, codec: "-c:a libopus", addParameters: $"-b:a {96}k");
-                        await stream.CopyToAsync(streamSpreader);
-
-                        await streamSpreader.CloseWhenCopied().ConfigureAwait(false);
+                        /*streamSpreader.AddDestination(dest);*/
+                        var buffer = new byte[1 << 16];
+                        while (await stream.ReadAsync(buffer) != 0)
+                        {
+                            var dest = client.Socket.CreateMessageWriter(WebSocketMessageType.Binary);
+                            await dest.WriteAsync(buffer, CancellationToken.None);
+                            await dest.FlushAsync();
+                            await dest.CloseAsync();
+                        }
+                        /*await streamSpreader.FlushAsync();
+                        streamSpreader.Close();*/
                         return;
                     
                     case "current":

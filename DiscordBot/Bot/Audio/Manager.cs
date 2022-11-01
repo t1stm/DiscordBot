@@ -783,8 +783,8 @@ namespace DiscordBot.Audio
                     }
 
                     var item = player.Queue.GetCurrent();
-                    query = $"{Regex.Replace(Regex.Replace(item.GetTitle(), @"\([^()]*\)", ""), @"\[[^]]*\]", "")}" +
-                            $"{item.GetTitle().Contains('-') switch {true => "", false => $" - {Regex.Replace(Regex.Replace(item.GetAuthor(), "- Topic", ""), @"\([^()]*\)", "")}"}}";
+                    query = $"{Regex.Replace(Regex.Replace(item?.GetTitle() ?? "", @"\([^()]*\)", ""), @"\[[^]]*\]", "")}" +
+                            $"{(item?.GetTitle() ?? "").Contains('-') switch {true => "", false => $" - {Regex.Replace(Regex.Replace(item?.GetAuthor() ?? "", "- Topic", ""), @"\([^()]*\)", "")}"}}";
                     break;
 
                 case false:

@@ -17,6 +17,7 @@ namespace DiscordBot.Tools
 
         private long _length;
         private long _position;
+        private bool _closed;
         private readonly object LockObject = new();
         public bool KeepCached { get; init; }
 
@@ -61,7 +62,8 @@ namespace DiscordBot.Tools
             {
                 feedableStream.Close();
             }
-            base.Close();
+
+            _closed = true;
         }
 
         public override void Flush()

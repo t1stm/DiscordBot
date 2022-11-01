@@ -156,7 +156,7 @@ namespace DiscordBot.Controllers
                     };
                     stats.ThumbnailUrl = player.CurrentItem?.GetThumbnailUrl();
                     stats.Paused = player.Paused;
-                    stats.Index = player.Queue.Items.ToList().IndexOf(player.CurrentItem);
+                    stats.Index = player.CurrentItem == null ? 0 : player.Queue.Items.ToList().IndexOf(player.CurrentItem);
                 }
                 catch (Exception e)
                 {
