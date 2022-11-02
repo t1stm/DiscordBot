@@ -120,7 +120,6 @@ namespace DiscordBot.Standalone
 
                         var ffmpeg = new FfMpeg2();
                         var stream = ffmpeg.Convert(first, codec: "-c:a libopus", addParameters: $"-b:a {96}k");
-                        /*streamSpreader.AddDestination(dest);*/
                         var buffer = new byte[1 << 16];
                         while (await stream.ReadAsync(buffer) != 0)
                         {
@@ -129,8 +128,6 @@ namespace DiscordBot.Standalone
                             await dest.FlushAsync();
                             await dest.CloseAsync();
                         }
-                        /*await streamSpreader.FlushAsync();
-                        streamSpreader.Close();*/
                         return;
                     
                     case "current":
