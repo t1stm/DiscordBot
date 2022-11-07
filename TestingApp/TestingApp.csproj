@@ -13,4 +13,8 @@
         <ProjectReference Include="../PlaylistThumbnailGenerator/PlaylistThumbnailGenerator.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Folder Include="Music Database" />
+    </ItemGroup>
+
 </Project>
