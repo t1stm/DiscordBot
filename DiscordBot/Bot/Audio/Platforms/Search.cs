@@ -12,6 +12,7 @@ using DiscordBot.Audio.Platforms.Vbox7;
 using DiscordBot.Audio.Platforms.Youtube;
 using DiscordBot.Methods;
 using DiscordBot.Playlists;
+using DiscordBot.Playlists.Music_Storage;
 using DSharpPlus.Entities;
 using Playlist = DiscordBot.Audio.Platforms.Spotify.Playlist;
 
@@ -139,6 +140,8 @@ namespace DiscordBot.Audio.Platforms
                 case "vb7":
                     var result = await Vbox7SearchClient.SearchUrl($"https://vbox7.com/play:{split[1]}");
                     return result.ToVbox7Video();
+                case "audio":
+                    return MusicManager.SearchById(split[1])?.ToMusicObject();
                 case "onl":
                     return new OnlineFile
                     {

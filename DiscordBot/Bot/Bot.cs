@@ -13,6 +13,7 @@ using DiscordBot.Messages;
 using DiscordBot.Methods;
 using DiscordBot.Objects;
 using DiscordBot.Playlists;
+using DiscordBot.Playlists.Music_Storage;
 using DiscordBot.Readers;
 using DiscordBot.Readers.MariaDB;
 using DiscordBot.Tools;
@@ -61,6 +62,7 @@ namespace DiscordBot
         public static async Task Initialize(RunType token)
         {
             LoadDatabases();
+            MusicManager.LoadItems();
             PlaylistManager.LoadPlaylistInfos(); 
             UpdateLoop.Elapsed += (_, _) => OnUpdate();
             UpdateLoop.Start();

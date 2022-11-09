@@ -1,5 +1,6 @@
 #nullable enable
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Threading;
@@ -16,6 +17,8 @@ namespace DiscordBot.Audio.Objects
         private Process? FfMpegProcess { get; set; }
         private StreamSpreader? Spreader { get; set; } = new(CancellationToken.None);
         private CancellationTokenSource Source { get; } = new();
+
+        private static Dictionary<string, StreamSpreader> ActiveWriteSessions = new();
 
         public Stream PathToPcm(string videoPath, string startingTime = "00:00:00.000", bool normalize = false)
         {
@@ -36,6 +39,30 @@ namespace DiscordBot.Audio.Objects
             };
             FfMpegProcess = Process.Start(ffmpegStartInfo);
             return FfMpegProcess == null ? Stream.Null : FfMpegProcess.StandardOutput.BaseStream;
+        }
+
+        private static StreamSpreader? FindExisting(string videoId)
+        {
+            lock (ActiveWriteSessions)
+            {
+                return ActiveWriteSessions.ContainsKey(videoId) ? ActiveWriteSessions["videoId"] : null;
+            }
+        }
+
+        private static void AddSpreader(string videoId, StreamSpreader spreader)
+        {
+            lock (ActiveWriteSessions)
+            {
+                ActiveWriteSessions.Add(videoId, spreader);
+            }
+        }
+
+        private static void RemoveSpreader(string videoId)
+        {
+            lock (ActiveWriteSessions)
+            {
+                ActiveWriteSessions.Remove(videoId);
+            }
         }
 
         public async Task ItemToPcm(PlayableItem item, VoiceTransmitSink? destination,
@@ -61,12 +88,16 @@ namespace DiscordBot.Audio.Objects
             if (FfMpegProcess == null) return;
             try
             {
-                Spreader = new StreamSpreader(Source.Token)
+                Spreader = FindExisting(item.GetAddUrl());
+                if (Spreader == null)
                 {
-                    KeepCached = true
-                };
+                    Spreader = new StreamSpreader(Source.Token)
+                    {
+                        KeepCached = true
+                    };
+                    AddSpreader(item.GetAddUrl(), Spreader);
+                }
                 Spreader.AddDestination(FfMpegProcess.StandardInput.BaseStream); // HOW DOES THIS WORK AND ADDING IT IN THE StreamSpreader INITIALIZER NOT WORK?
-                await Task.Delay(100);
                 var yes = new Task(async () =>
                 {
                     while (!FfMpegProcess.StandardInput.BaseStream.CanWrite)
@@ -76,9 +107,11 @@ namespace DiscordBot.Audio.Objects
                     var success = await item.GetAudioData(Spreader);
                     if (success == false)
                     {
+                        await Debug.WriteAsync("Reading Audio Data wasn't successful.");
                         await Kill();
                     }
                     await Spreader.CloseWhenCopied();
+                    RemoveSpreader(item.GetAddUrl());
                     await Debug.WriteAsync("Copying audio data to stream finished.");
                 });
                 yes.Start();

@@ -1,8 +1,10 @@
+#nullable enable
 using System;
 using System.Diagnostics;
 using System.Text.Json;
 using System.Threading.Tasks;
 using DiscordBot.Playlists.Music_Storage.Objects;
+using Debug = DiscordBot.Methods.Debug;
 
 namespace DiscordBot.Playlists.Music_Storage
 {
@@ -10,6 +12,7 @@ namespace DiscordBot.Playlists.Music_Storage
     {
         public static async Task<MusicInfo> GetInformation(string location)
         {
+            await Debug.WriteAsync($"MediaInfo: Checking \"{location}\"");
             var musicInfo = new MusicInfo();
             var program = Process.Start(new ProcessStartInfo
             {
@@ -17,15 +20,21 @@ namespace DiscordBot.Playlists.Music_Storage
                 Arguments = $"--Output=JSON \"{location}\"",
                 RedirectStandardOutput = true
             });
-            if (program == null) throw new NullReferenceException("MediaInfo process is null.");
+            if (program == null) return musicInfo;
             await program.WaitForExitAsync();
             var json = await JsonDocument.ParseAsync(program.StandardOutput.BaseStream);
-            var media = json.RootElement.GetProperty("media");
-            var infoArray = media.GetProperty("track");
-            var general = infoArray[0];
-            musicInfo.OriginalTitle = general.GetProperty("Title").GetString();
-            musicInfo.OriginalAuthor = general.GetProperty("Performer").GetString();
-            musicInfo.Length = (ulong) (general.GetProperty("Duration").GetDouble() * 60);
+            if (!json.RootElement.TryGetProperty("media", out var media)) return musicInfo;
+            if (!media.TryGetProperty("track", out var infoArray)) return musicInfo;
+            var isAudio = infoArray.GetArrayLength() == 2;
+            var general = isAudio ? infoArray[1] : infoArray[0];
+            if (isAudio)
+            {
+                if (general.TryGetProperty("Title", out var title))
+                    musicInfo.OriginalTitle = title.GetString();
+                if (general.TryGetProperty("Performer", out var author))
+                    musicInfo.OriginalAuthor = author.GetString();
+            }
+            musicInfo.Length = (ulong) (double.Parse(general.GetProperty("Duration").GetString() ?? "0") * 1000);
             return musicInfo;
         }
     }

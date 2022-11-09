@@ -1,4 +1,5 @@
 using System.Text.Json.Serialization;
+using DiscordBot.Audio.Objects;
 
 #nullable enable
 namespace DiscordBot.Playlists.Music_Storage.Objects
@@ -14,9 +15,11 @@ namespace DiscordBot.Playlists.Music_Storage.Objects
         [JsonInclude, JsonPropertyName("authorRomanized")]
         public string? RomanizedAuthor;
         [JsonInclude, JsonPropertyName("location")]
-        public string RelativeLocation = null!;
-        [JsonInclude, JsonPropertyName("id")]
-        private string? Id;
+        public string? RelativeLocation;
+        [JsonInclude, JsonPropertyName("id")] 
+        public string? Id;
+        [JsonInclude, JsonPropertyName("coverUrl")] 
+        public string? CoverUrl;
         [JsonInclude, JsonPropertyName("length")]
         public ulong Length;
 
@@ -25,13 +28,35 @@ namespace DiscordBot.Playlists.Music_Storage.Objects
             RomanizedTitle ??= OriginalTitle;
             RomanizedAuthor ??= OriginalAuthor;
         }
-        
-        public string AddId => Id ??= GenerateRandomId();
-        private string GenerateRandomId()
+
+        public string GenerateRandomId()
         {
-            return $"{RomanizedAuthor?[..2].ToLower()}{RomanizedTitle?[..2].ToLower()}{RomanizedTitle?[..6].ToLower()}-{Bot.RandomString(2)}";
+            return $"{(RomanizedAuthor?.Length > 2 ? RomanizedAuthor?[..2] : RomanizedAuthor)?.ToLower()}" +
+                   $"{(RomanizedTitle?.Length > 6 ? RomanizedTitle?[..6] : RomanizedTitle + new string('0', 6-RomanizedTitle?.Length ?? 0))?.ToLower().Replace(' ', '-')}-{Bot.RandomString(2)}";
         }
 
+        public void UpdateRandomId(bool force = false) => Id = force || Id == null ? GenerateRandomId() : Id;
+        [JsonIgnore]
         public bool IsTitleInEnglish => RomanizedTitle == null && RomanizedAuthor == null;
+
+        public override string ToString()
+        {
+            return $"\"{OriginalTitle} - {OriginalAuthor}\":\'{RomanizedTitle} - {RomanizedAuthor}\':\"{RelativeLocation}\"";
+        }
+
+        public MusicObject ToMusicObject()
+        {
+            return new()
+            {
+                RomanizedTitle = RomanizedTitle,
+                RomanizedAuthor = RomanizedAuthor,
+                RelativeLocation = RelativeLocation,
+                AddId = Id,
+                Title = OriginalTitle,
+                Author = OriginalAuthor,
+                Length = Length,
+                CoverUrl = CoverUrl
+            };
+        }
     }
 }

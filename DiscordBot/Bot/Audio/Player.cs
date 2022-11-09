@@ -306,7 +306,6 @@ namespace DiscordBot.Audio
                     };
                     Sink = Connection.GetTransmitSink();
                     await Skip(0);
-                    CancelSource.Cancel();
                 }
                 catch (Exception e)
                 {

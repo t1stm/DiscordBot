@@ -130,7 +130,7 @@ namespace DiscordBot.Tools
                 foreach (var feedableStream in Destinations)
                 {
                     if (Token.IsCancellationRequested) return Task.CompletedTask;
-                    feedableStream.WriteAsync(buffer.AsMemory(offset, count), cancellationToken);
+                    feedableStream.WriteAsync(buffer, offset, count, cancellationToken);
                 }
                 _position = _length += count;
             }

@@ -281,6 +281,7 @@ namespace DiscordBot.Objects
                 TtsText => "Text to Speech",
                 TwitchLiveStream => "Twitch Live Stream",
                 YoutubeOverride => "Избран Запис",
+                MusicObject => "Музика",
                 _ => "Нещо"
             };
         }

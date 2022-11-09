@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Text.Json;
 using DiscordBot.Language;
+using DiscordBot.Methods;
 using DiscordBot.Playlists.Music_Storage.Objects;
 
 namespace DiscordBot.Playlists.Music_Storage
@@ -21,7 +22,7 @@ namespace DiscordBot.Playlists.Music_Storage
                 Items = new List<MusicInfo>();
                 foreach (var artist in artists)
                 {
-                    Items.AddRange(GetSongs(artist));   
+                    Items.AddRange(GetSongs(artist.Split('/').Last()));   
                 }
             }
         }
@@ -29,16 +30,21 @@ namespace DiscordBot.Playlists.Music_Storage
         private static IEnumerable<MusicInfo> GetSongs(string artist)
         {
             var dir = $"{WorkingDirectory}/{artist}";
+            Debug.Write($"Directory is: {dir}");
             var file = $"{dir}/Info.json";
             var songs = Directory.GetFiles(dir);
-            var bg = File.Exists($"{dir}/BG");
+            var bg = !File.Exists($"{dir}/EN");
             if (File.Exists(file))
             {
-                var items = JsonSerializer.Deserialize<List<MusicInfo>>(File.OpenRead(file))!;
-                return items.Count == songs.Length + 1 ? items : UpdateData(items, songs, bg);
+                using var read = File.OpenRead(file); 
+                var items = JsonSerializer.Deserialize<List<MusicInfo>>(read)!;
+                return items.Count == songs.Length - 1 ? items : UpdateData(items, songs, bg);
             }
             
             var list = songs.Select(r => ParseFile(r, bg)).ToList();
+            using var fs = File.Open(file, FileMode.Create, FileAccess.ReadWrite, FileShare.ReadWrite);
+            JsonSerializer.Serialize(fs, list);
+            fs.Close();
             return list;
         }
 
@@ -52,15 +58,15 @@ namespace DiscordBot.Playlists.Music_Storage
             var author = filenameSplit[0];
             var title = string.Join('.', 
                 string.Join('-', filenameSplit[1..]).Split('.')[..^1]); // This line makes me feel infuriated.
-
-            return new MusicInfo
-            {
-                OriginalTitle = title,
-                OriginalAuthor = author,
-                RelativeLocation = string.Join('/', split[^2..]),
-                RomanizedTitle = isBulgarian ? Romanize.FromBulgarian(title) : title,
-                RomanizedAuthor = romanizedAuthor
-            };
+            var entry = MediaInfo.GetInformation(location).GetAwaiter().GetResult();
+            entry.OriginalTitle ??= title.Trim();
+            entry.OriginalAuthor ??= author.Trim();
+            entry.RomanizedTitle ??= isBulgarian ? Romanize.FromBulgarian(title).Trim() : title.Trim();
+            entry.RomanizedAuthor ??= romanizedAuthor.Trim();
+            entry.RelativeLocation ??= string.Join('/', split[^2..]);
+            entry.UpdateRandomId();
+            Debug.Write($"Generated entry: \"{entry.OriginalTitle} - {entry.OriginalAuthor}\" - \'{entry.RomanizedTitle} - {entry.RomanizedAuthor}\'");
+            return entry;
         }
 
         private static List<MusicInfo> UpdateData(IEnumerable<MusicInfo> existing, IEnumerable<string> files, bool isBulgarian = true)
@@ -68,29 +74,43 @@ namespace DiscordBot.Playlists.Music_Storage
             var list = new List<MusicInfo>();
             list.AddRange(existing);
             var newFiles = files.Where(location => list.All(r => r.RelativeLocation != string.Join('/', location.Split('/')[^2..])));
-            list.AddRange(from newFile in newFiles
-            select newFile.Split('/')
-            into split
-            let filename = split[^1]
-            let romanizedAuthor = split[^2]
-            let filenameSplit = filename.Split('-')
-            let author = filenameSplit[0]
-            let title = string.Join('.', string.Join('-', filenameSplit[1..]).Split('.')[..^1])
-            select new MusicInfo
+            foreach (var newFile in newFiles)
             {
-                OriginalTitle = title,
-                OriginalAuthor = author,
-                RelativeLocation = string.Join('/', split[^2..]),
-                RomanizedTitle = isBulgarian ? Romanize.FromBulgarian(title) : title,
-                RomanizedAuthor = romanizedAuthor
-            });
+                var split = newFile.Split('/');
+                var filename = split[^1];
+                var romanizedAuthor = split[^2];
 
+                var filenameSplit = filename.Split('-');
+                var author = filenameSplit[0];
+                var title = string.Join('.', 
+                    string.Join('-', filenameSplit[1..]).Split('.')[..^1]); // This line makes me feel infuriated.
+                var entry = MediaInfo.GetInformation(newFile).GetAwaiter().GetResult();
+                entry.OriginalTitle ??= title.Trim();
+                entry.OriginalAuthor ??= author.Trim();
+                entry.RomanizedTitle ??= isBulgarian ? Romanize.FromBulgarian(title).Trim() : title.Trim();
+                entry.RomanizedAuthor ??= romanizedAuthor.Trim();
+                entry.RelativeLocation ??= string.Join('/', split[^2..]);
+            }
+            foreach (var item in list)
+            {
+                item.Id ??= item.GenerateRandomId();
+            }
             return list;
         }
 
-        public static MusicInfo? SearchByTerm(string term)
+        public static MusicInfo? SearchOneByTerm(string term)
         {
-            return Items.AsParallel().OrderByDescending(r => ScoreTerm(r, term)).FirstOrDefault();
+            return SearchByTerm(term).FirstOrDefault();
+        }
+
+        public static IEnumerable<MusicInfo> SearchByTerm(string term)
+        {
+            return Items.AsParallel().OrderByDescending(r => ScoreTerm(r, term));
+        }
+
+        public static MusicInfo? SearchById(string id)
+        {
+            return Items.AsParallel().FirstOrDefault(r => r.Id == id);
         }
 
         private static int ScoreTerm(MusicInfo info, string term)
@@ -100,7 +120,5 @@ namespace DiscordBot.Playlists.Music_Storage
             
             return 0;
         }
-
-        private static bool IsEmpty() => Items.Count < 1;
     }
 }
