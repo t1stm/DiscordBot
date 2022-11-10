@@ -12,7 +12,7 @@ namespace DiscordBot.Playlists.Music_Storage
     public static class MusicManager
     {
         public const string WorkingDirectory = $"{Bot.WorkingDirectory}/Music Database";
-        private static List<MusicInfo> Items = new();
+        public static List<MusicInfo> Items = new();
 
         public static void LoadItems()
         {
@@ -30,7 +30,7 @@ namespace DiscordBot.Playlists.Music_Storage
         private static IEnumerable<MusicInfo> GetSongs(string artist)
         {
             var dir = $"{WorkingDirectory}/{artist}";
-            Debug.Write($"Directory is: {dir}");
+            Debug.Write($"Reading database directory is: {dir}");
             var file = $"{dir}/Info.json";
             var songs = Directory.GetFiles(dir);
             var bg = !File.Exists($"{dir}/EN");
@@ -38,13 +38,19 @@ namespace DiscordBot.Playlists.Music_Storage
             {
                 using var read = File.OpenRead(file); 
                 var items = JsonSerializer.Deserialize<List<MusicInfo>>(read)!;
-                return items.Count == songs.Length - 1 ? items : UpdateData(items, songs, bg);
+                if (items.Count == songs.Length - 1 - (bg ? 0 : 1)) return items;
+                var data = UpdateData(items, songs, bg);
+                using var rfs = File.Open(file, FileMode.Create, FileAccess.ReadWrite, FileShare.ReadWrite);
+                JsonSerializer.Serialize(rfs, data);
+                rfs.Close();
+                return data;
             }
             
             var list = songs.Select(r => ParseFile(r, bg)).ToList();
             using var fs = File.Open(file, FileMode.Create, FileAccess.ReadWrite, FileShare.ReadWrite);
             JsonSerializer.Serialize(fs, list);
             fs.Close();
+
             return list;
         }
 
@@ -93,7 +99,7 @@ namespace DiscordBot.Playlists.Music_Storage
             }
             foreach (var item in list)
             {
-                item.Id ??= item.GenerateRandomId();
+                item.UpdateRandomId(); // Updates item.Id if is null or boolean is parsed to force it.
             }
             return list;
         }

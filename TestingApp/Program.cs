@@ -9,10 +9,9 @@ using DiscordBot.Playlists.Music_Storage;
 using TestingApp.Search_Algorithm_Tests;
 
 Bot.LoadDatabases();
-/*YoutubeOverride.UpdateOverrides();
+YoutubeOverride.UpdateOverrides();
 
-RankOverrides.Rank();*/
-MusicManager.LoadItems();
+RankOverrides.Rank();
 /*Audio.GeneratedSocketSessions.Add(new SocketSession
 {
     Id = Guid.Empty,

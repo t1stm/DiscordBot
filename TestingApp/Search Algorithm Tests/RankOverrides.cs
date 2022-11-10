@@ -1,7 +1,10 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using DiscordBot.Abstract;
 using DiscordBot.Audio.Objects;
+using DiscordBot.Playlists.Music_Storage;
+using DiscordBot.Playlists.Music_Storage.Objects;
 
 namespace TestingApp.Search_Algorithm_Tests
 {
@@ -9,8 +12,9 @@ namespace TestingApp.Search_Algorithm_Tests
     {
         public static void Rank()
         {
+            MusicManager.LoadItems();
             string? read;
-            var copy = YoutubeOverride.Overrides.ToList();
+            var copy = MusicManager.Items.ToList();
             while ((read = Console.ReadLine()) is not "exit" or null)
             {
                 var term = read;
@@ -24,16 +28,13 @@ namespace TestingApp.Search_Algorithm_Tests
             
         }
 
-        private static List<YoutubeOverride> ReturnBestMatches(IReadOnlyCollection<YoutubeOverride> database, string? term)
+        private static List<YoutubeOverride> ReturnBestMatches(IReadOnlyCollection<MusicInfo> database, string? term)
         {
             var scored = new List<YoutubeOverride>();
             if (string.IsNullOrEmpty(term)) return scored;
             //TODO: Implement score by title and then author.
             var termSplit = term.Split(' ');
             var currentIndex = 0;
-            
-            var authors = database.AsParallel().Select(r => r.GetAuthor()).OrderBy(r => r.Length).ToList();
-            var titles = database.AsParallel().Select(r => r.GetTitle()).OrderBy(r => r.Length).ToList();
             var score = new Score();
 
             return scored;

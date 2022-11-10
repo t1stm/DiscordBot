@@ -34,7 +34,10 @@ namespace DiscordBot.Playlists.Music_Storage
                 if (general.TryGetProperty("Performer", out var author))
                     musicInfo.OriginalAuthor = author.GetString();
             }
-            musicInfo.Length = (ulong) (double.Parse(general.GetProperty("Duration").GetString() ?? "0") * 1000);
+
+            if (!general.TryGetProperty("Duration", out var duration)) return musicInfo;
+            if (double.TryParse(duration.GetString(), out var length))
+                musicInfo.Length = (ulong) length * 1000;
             return musicInfo;
         }
     }
