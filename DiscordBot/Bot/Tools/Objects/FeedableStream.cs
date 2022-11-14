@@ -11,6 +11,7 @@ namespace DiscordBot.Tools.Objects
     public class FeedableStream : Stream
     {
         private readonly Stream BackingStream;
+        private readonly SemaphoreSlim semaphore = new(1);
         private readonly Queue<IWriteAction> Cache = new();
         public bool Updating;
         private bool Closed { get; set; }
@@ -94,28 +95,39 @@ namespace DiscordBot.Tools.Objects
             BackingStream.SetLength(value);
         }
 
-        public void Write(IWriteAction action) => FillBuffer(action);
+        public void Write(IWriteAction action)
+        {
+            semaphore.Wait();
+            FillBuffer(action);
+            semaphore.Release();
+        }
         
         public override void Write(byte[] buffer, int offset, int count)
         {
+            semaphore.Wait();
             FillBuffer(new ByteArrayData(buffer, offset, count));
+            semaphore.Release();
         }
 
         public override void Write(ReadOnlySpan<byte> buffer)
         {
+            semaphore.Wait();
             FillBuffer(new ByteArrayData(buffer.ToArray(), 0, buffer.Length));
+            semaphore.Release();
         }
 
-        public override Task WriteAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken)
+        public override async Task WriteAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken)
         {
+            await semaphore.WaitAsync(cancellationToken);
             FillBuffer(new ByteArrayData(buffer, offset, count));
-            return Task.CompletedTask;
+            semaphore.Release();
         }
 
-        public override ValueTask WriteAsync(ReadOnlyMemory<byte> buffer, CancellationToken cancellationToken = new())
+        public override async ValueTask WriteAsync(ReadOnlyMemory<byte> buffer, CancellationToken cancellationToken = new())
         {
+            await semaphore.WaitAsync(cancellationToken);
             FillBuffer(new ByteArrayData(buffer.ToArray(), 0, buffer.Length));
-            return ValueTask.CompletedTask;
+            semaphore.Release();
         }
 
         public override bool CanRead => BackingStream.CanRead;

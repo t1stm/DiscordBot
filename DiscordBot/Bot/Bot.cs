@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text.Json;
-using System.Threading;
 using System.Threading.Tasks;
 using DiscordBot.Audio;
 using DiscordBot.Audio.Objects;
@@ -16,7 +15,6 @@ using DiscordBot.Playlists;
 using DiscordBot.Playlists.Music_Storage;
 using DiscordBot.Readers;
 using DiscordBot.Readers.MariaDB;
-using DiscordBot.Tools;
 using DSharpPlus;
 using DSharpPlus.CommandsNext;
 using DSharpPlus.Entities;
@@ -435,7 +433,7 @@ namespace DiscordBot
                             new("Bai Tosho", "tosho", "This is the original name of the bot", true, new DiscordComponentEmoji("🔴")),
                             new("Slavi Trifonov", "slavi", "This is the current name of the bot", false, new DiscordComponentEmoji("🔵")),
                             new ("Custom choice", "custom", "Choose a name yourself", false, new DiscordComponentEmoji("🟣"))
-                        }, minOptions:1, maxOptions: 1);*/ // Funny new API change broke this amazing before it even was used. feature.
+                        }, minOptions:1, maxOptions: 1);*/ // Funny new API change broke this amazing feature before it even was used.
 
                     var textComponent = new TextInputComponent(
                         "Choose a name", 

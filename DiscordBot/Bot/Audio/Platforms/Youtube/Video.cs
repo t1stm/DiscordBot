@@ -169,14 +169,14 @@ namespace DiscordBot.Audio.Platforms.Youtube
                     var source = searchTerm.Split(new[] {'.', '?', '!', ' ', ';', ':', ',', '(', ')'},
                         StringSplitOptions.RemoveEmptyEntries);
                     var times = from word in source
-                        where string.Equals(word, term, StringComparison.CurrentCultureIgnoreCase)
+                        where LevenshteinDistance.ComputeLean(word, term) < Math.Ceiling(word.Length * 0.25)
                         select word;
                     if (times.Count() == 1) continue;
                     var things = li.Where(r => r.Title.ToLower().Contains(term.ToLower())).ToList();
-                    foreach (var th in things)
+                    foreach (var thing in things)
                     {
-                        li.Remove(th);
-                        Debug.Write($"Removed result: {th.Title}", false, Debug.DebugColor.Warning);
+                        li.Remove(thing);
+                        Debug.Write($"Removed result: {thing.Title}", false, Debug.DebugColor.Warning);
                     }
                 }
             }

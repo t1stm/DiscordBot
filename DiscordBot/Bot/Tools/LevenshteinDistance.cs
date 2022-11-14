@@ -6,7 +6,12 @@ namespace DiscordBot.Tools
     //Source StackOverflow: https://stackoverflow.com/questions/6944056/c-sharp-compare-string-similarity
     public static class LevenshteinDistance
     {
-        public static int Compute(string? s, string? t)
+        public static int ComputeLean(string? s, string? t)
+        {
+            return ComputeStrict(s?.ToLower(), t?.ToLower()); // I know. No need to kill me over it.
+        }
+        
+        public static int ComputeStrict(string? s, string? t)
         {
             if (string.IsNullOrEmpty(s)) return string.IsNullOrEmpty(t) ? 0 : t.Length;
 

@@ -141,7 +141,7 @@ namespace DiscordBot.Audio
         {
             lock (Items)
             {
-                var item = Items.First(vi => LevenshteinDistance.Compute(vi.GetName(), name) < 3);
+                var item = Items.First(vi => LevenshteinDistance.ComputeStrict(vi.GetName(), name) < 3);
                 Items.Remove(item);
                 Broadcast();
                 return item;
@@ -152,7 +152,7 @@ namespace DiscordBot.Audio
         {
             lock (Items)
             {
-                return Items.First(vi => LevenshteinDistance.Compute(vi.GetName(), name) < 3);
+                return Items.First(vi => LevenshteinDistance.ComputeLean(vi.GetName(), name) < 3);
             }
         }
 
@@ -331,15 +331,15 @@ namespace DiscordBot.Audio
                 lock (Items)
                 {
                     var one = Items.FirstOrDefault(vi =>
-                        LevenshteinDistance.Compute(vi.GetName(), result.Trim()) < vi.GetName().Length * 0.2);
+                        LevenshteinDistance.ComputeStrict(vi.GetName(), result.Trim()) < vi.GetName().Length * 0.2);
                     var two = Items.FirstOrDefault(vi =>
-                        LevenshteinDistance.Compute(vi.GetName(), thing2.Trim()) < vi.GetName().Length * 0.2);
+                        LevenshteinDistance.ComputeStrict(vi.GetName(), thing2.Trim()) < vi.GetName().Length * 0.2);
                     if (one == null || two == null)
                     {
                         one = Items.OrderBy(vi =>
-                            LevenshteinDistance.Compute(vi.GetTitle(), result.Trim())).FirstOrDefault();
+                            LevenshteinDistance.ComputeStrict(vi.GetTitle(), result.Trim())).FirstOrDefault();
                         two = Items.OrderBy(vi =>
-                            LevenshteinDistance.Compute(vi.GetTitle(), thing2.Trim())).FirstOrDefault();
+                            LevenshteinDistance.ComputeStrict(vi.GetTitle(), thing2.Trim())).FirstOrDefault();
                         if (one == null || two == null) return false;
                     }
 

@@ -9,14 +9,15 @@ using DiscordBot.Playlists.Music_Storage;
 using TestingApp.Search_Algorithm_Tests;
 
 Bot.LoadDatabases();
-YoutubeOverride.UpdateOverrides();
+MusicManager.LoadItems();
+/*YoutubeOverride.UpdateOverrides();
 
-RankOverrides.Rank();
-/*Audio.GeneratedSocketSessions.Add(new SocketSession
+RankOverrides.Rank();*/
+Audio.GeneratedSocketSessions.Add(new SocketSession
 {
     Id = Guid.Empty,
     StartExpire = DateTime.UtcNow.AddDays(1).Ticks
 });
 await TestingServer.Start();
 
-await Task.Delay(-1);*/
+await Task.Delay(-1);

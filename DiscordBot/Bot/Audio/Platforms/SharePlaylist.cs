@@ -45,6 +45,7 @@ namespace DiscordBot.Audio.Platforms
                     TtsText => 07,
                     TwitchLiveStream => 08,
                     YoutubeOverride => 09,
+                    MusicObject => 10,
                     _ => throw new ArgumentOutOfRangeException($"Item is not supported in: \"{nameof(list)}\"")
                 };
                 if (acc == 03 && urlSplit[0] == "dis-att") acc = 04;
@@ -99,6 +100,7 @@ namespace DiscordBot.Audio.Platforms
                 07 => "tts://",
                 08 => "twitch://",
                 09 => "yt-ov://",
+                10 => "audio://",
                 _ => ""
             } + info.Information;
         }

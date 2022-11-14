@@ -18,7 +18,7 @@ namespace DiscordBot.Audio.Objects
         private StreamSpreader? Spreader { get; set; } = new(CancellationToken.None);
         private CancellationTokenSource Source { get; } = new();
 
-        private static Dictionary<string, StreamSpreader> ActiveWriteSessions = new();
+        private static readonly Dictionary<string, StreamSpreader> ActiveWriteSessions = new();
 
         public Stream PathToPcm(string videoPath, string startingTime = "00:00:00.000", bool normalize = false)
         {
@@ -26,7 +26,7 @@ namespace DiscordBot.Audio.Objects
             {
                 FileName = "ffmpeg",
                 Arguments = @"-nostats " +
-                            "-v error " + //This line is going to be changed very often, I fucking know it.
+                            "-v error " +
                             "-hide_banner " +
                             $@"-i ""{videoPath}"" -ss {startingTime.Trim()} " +
                             "-user_agent \"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/71.0.3554.0 Safari/537.36\" " +
@@ -45,7 +45,7 @@ namespace DiscordBot.Audio.Objects
         {
             lock (ActiveWriteSessions)
             {
-                return ActiveWriteSessions.ContainsKey(videoId) ? ActiveWriteSessions["videoId"] : null;
+                return ActiveWriteSessions.TryGetValue(videoId, out var found) ? found : null;
             }
         }
 
@@ -72,7 +72,7 @@ namespace DiscordBot.Audio.Objects
             {
                 FileName = "ffmpeg",
                 Arguments = @"-nostats " +
-                            //"-v error " + //This line is going to be changed very often, I fucking know it.
+                            "-v warning " + //This line is going to be changed very often, I fucking know it.
                             "-hide_banner " +
                             $@"-i - -ss {startingTime.Trim()} " +
                             "-user_agent \"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/71.0.3554.0 Safari/537.36\" " +

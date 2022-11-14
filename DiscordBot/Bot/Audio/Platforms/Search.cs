@@ -23,7 +23,7 @@ namespace DiscordBot.Audio.Platforms
         public static async Task<List<PlayableItem>?> Get(string? searchTerm, ulong length = 0,
             bool returnAllResults = false, Action<string>? onError = null)
         {
-            if (Bot.DebugMode) await Debug.WriteAsync($"Search term is: \"{searchTerm}\"");
+            await Debug.WriteAsync($"Search term is: \"{searchTerm}\"");
             if (searchTerm == null) return null;
             if (searchTerm.Contains("open.spotify.com/"))
             {
@@ -99,6 +99,7 @@ namespace DiscordBot.Audio.Platforms
 
             var res = await SearchBotProtocols(searchTerm);
             if (res != null)
+            {
                 switch (res)
                 {
                     case List<PlayableItem> list:
@@ -106,6 +107,7 @@ namespace DiscordBot.Audio.Platforms
                     case PlayableItem item:
                         return new List<PlayableItem> {item};
                 }
+            }
 
             if (searchTerm.StartsWith("pl:"))
                 return await SharePlaylist.Get(searchTerm[3..]);
@@ -141,7 +143,11 @@ namespace DiscordBot.Audio.Platforms
                     var result = await Vbox7SearchClient.SearchUrl($"https://vbox7.com/play:{split[1]}");
                     return result.ToVbox7Video();
                 case "audio":
-                    return MusicManager.SearchById(split[1])?.ToMusicObject();
+                    if (split[1] != "*") return MusicManager.SearchById(split[1])?.ToMusicObject();
+                    var audios = MusicManager.GetAll();
+                    List<PlayableItem> audioItems = new();
+                    audioItems.AddRange(audios.Select(r => r.ToMusicObject()));
+                    return audioItems;
                 case "onl":
                     return new OnlineFile
                     {

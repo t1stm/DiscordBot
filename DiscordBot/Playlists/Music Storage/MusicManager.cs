@@ -16,30 +16,36 @@ namespace DiscordBot.Playlists.Music_Storage
 
         public static void LoadItems()
         {
-            var artists = Directory.GetDirectories(WorkingDirectory);
+
             lock (Items)
             {
+                var startingDirectories = Directory.GetDirectories(WorkingDirectory);
                 Items = new List<MusicInfo>();
-                foreach (var artist in artists)
+                foreach (var directory in startingDirectories) // This is bad, but I can't think of a better solution.
                 {
-                    Items.AddRange(GetSongs(artist.Split('/').Last()));   
+                    var artists = Directory.GetDirectories(directory);
+                    foreach (var artist in artists)
+                    {
+                        Items.AddRange(GetSongs(directory, artist.Split('/').Last()));
+                    }
                 }
             }
         }
 
-        private static IEnumerable<MusicInfo> GetSongs(string artist)
+        private static IEnumerable<MusicInfo> GetSongs(string directory, string artist)
         {
-            var dir = $"{WorkingDirectory}/{artist}";
-            Debug.Write($"Reading database directory is: {dir}");
+            var dir = $"{directory}/{artist}";
+            Debug.Write($"Reading database directory: {dir}");
             var file = $"{dir}/Info.json";
+
             var songs = Directory.GetFiles(dir);
             var bg = !File.Exists($"{dir}/EN");
             if (File.Exists(file))
             {
                 using var read = File.OpenRead(file); 
-                var items = JsonSerializer.Deserialize<List<MusicInfo>>(read)!;
+                var items = JsonSerializer.Deserialize<List<MusicInfo>>(read) ?? Enumerable.Empty<MusicInfo>().ToList();
                 if (items.Count == songs.Length - 1 - (bg ? 0 : 1)) return items;
-                var data = UpdateData(items, songs, bg);
+                var data = UpdateData(items, songs, bg).ToList();
                 using var rfs = File.Open(file, FileMode.Create, FileAccess.ReadWrite, FileShare.ReadWrite);
                 JsonSerializer.Serialize(rfs, data);
                 rfs.Close();
@@ -54,6 +60,24 @@ namespace DiscordBot.Playlists.Music_Storage
             return list;
         }
 
+        private static IEnumerable<MusicInfo> UpdateData(IEnumerable<MusicInfo> existing, IEnumerable<string> files, bool isBulgarian = true)
+        {
+            var existingList = existing.ToList();
+            foreach (var mi in existingList)
+            {
+                yield return mi;
+            }
+            
+            var newFiles = files.Where(location => 
+                !location.EndsWith(".json") && !location.EndsWith("EN") && 
+                existingList.All(r => r.RelativeLocation != string.Join('/', location.Split('/')[^2..])));
+            
+            foreach (var newFile in newFiles)
+            {
+                yield return ParseFile(newFile, isBulgarian);
+            }
+        }
+        
         private static MusicInfo ParseFile(string location, bool isBulgarian = true)
         {
             var split = location.Split('/');
@@ -69,39 +93,10 @@ namespace DiscordBot.Playlists.Music_Storage
             entry.OriginalAuthor ??= author.Trim();
             entry.RomanizedTitle ??= isBulgarian ? Romanize.FromBulgarian(title).Trim() : title.Trim();
             entry.RomanizedAuthor ??= romanizedAuthor.Trim();
-            entry.RelativeLocation ??= string.Join('/', split[^2..]);
+            entry.RelativeLocation ??= string.Join('/', split[^3..]);
             entry.UpdateRandomId();
             Debug.Write($"Generated entry: \"{entry.OriginalTitle} - {entry.OriginalAuthor}\" - \'{entry.RomanizedTitle} - {entry.RomanizedAuthor}\'");
             return entry;
-        }
-
-        private static List<MusicInfo> UpdateData(IEnumerable<MusicInfo> existing, IEnumerable<string> files, bool isBulgarian = true)
-        {
-            var list = new List<MusicInfo>();
-            list.AddRange(existing);
-            var newFiles = files.Where(location => list.All(r => r.RelativeLocation != string.Join('/', location.Split('/')[^2..])));
-            foreach (var newFile in newFiles)
-            {
-                var split = newFile.Split('/');
-                var filename = split[^1];
-                var romanizedAuthor = split[^2];
-
-                var filenameSplit = filename.Split('-');
-                var author = filenameSplit[0];
-                var title = string.Join('.', 
-                    string.Join('-', filenameSplit[1..]).Split('.')[..^1]); // This line makes me feel infuriated.
-                var entry = MediaInfo.GetInformation(newFile).GetAwaiter().GetResult();
-                entry.OriginalTitle ??= title.Trim();
-                entry.OriginalAuthor ??= author.Trim();
-                entry.RomanizedTitle ??= isBulgarian ? Romanize.FromBulgarian(title).Trim() : title.Trim();
-                entry.RomanizedAuthor ??= romanizedAuthor.Trim();
-                entry.RelativeLocation ??= string.Join('/', split[^2..]);
-            }
-            foreach (var item in list)
-            {
-                item.UpdateRandomId(); // Updates item.Id if is null or boolean is parsed to force it.
-            }
-            return list;
         }
 
         public static MusicInfo? SearchOneByTerm(string term)
@@ -117,6 +112,12 @@ namespace DiscordBot.Playlists.Music_Storage
         public static MusicInfo? SearchById(string id)
         {
             return Items.AsParallel().FirstOrDefault(r => r.Id == id);
+        }
+
+        public static IEnumerable<MusicInfo> GetAll()
+        {
+            var copy = Items.ToList();
+            return copy;
         }
 
         private static int ScoreTerm(MusicInfo info, string term)

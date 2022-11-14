@@ -1,3 +1,4 @@
+#nullable enable
 using System;
 using System.Diagnostics;
 using System.IO;
@@ -9,7 +10,7 @@ namespace DiscordBot.Standalone
 {
     public class FfMpeg2
     {
-        public Process FfMpegProcess { get; set; }
+        public Process? FfMpegProcess { get; set; }
 
         public Stream Convert(string path, string format = "-f ogg", string codec = "-c:a copy",
             string addParameters = " ")
@@ -24,7 +25,7 @@ namespace DiscordBot.Standalone
                 UseShellExecute = false
             };
             FfMpegProcess = Process.Start(ffmpegStartInfo);
-            return FfMpegProcess?.StandardOutput.BaseStream;
+            return FfMpegProcess?.StandardOutput.BaseStream ?? Stream.Null;
         }
 
         public Stream Convert(PlayableItem item, string format = "-f ogg", string codec = "-c:a copy",
@@ -61,7 +62,7 @@ namespace DiscordBot.Standalone
                         var by = ms.GetBuffer()[i]; // I am starting to think that this method is quite slow.
                         try
                         {
-                            FfMpegProcess.StandardInput.BaseStream.WriteByte(by);
+                            FfMpegProcess?.StandardInput.BaseStream.WriteByte(by);
                         }
                         catch (Exception e)
                         {
@@ -71,7 +72,7 @@ namespace DiscordBot.Standalone
                         }
                     }
 
-                    FfMpegProcess.StandardInput.Close();
+                    FfMpegProcess?.StandardInput.Close();
                 }
                 catch (Exception e)
                 {
@@ -80,7 +81,7 @@ namespace DiscordBot.Standalone
                 }
             });
             task.Start();
-            return FfMpegProcess?.StandardOutput.BaseStream;
+            return FfMpegProcess?.StandardOutput.BaseStream ?? Stream.Null;
         }
     }
 }

@@ -85,7 +85,7 @@ namespace DiscordBot.Standalone
                         var first = search?.First();
                         if (first == null)
                         {
-                            await Respond(client.Socket, "Get:NotFound");
+                            await Respond(client.Socket, "Get:Not Found");
                             return;
                         }
                         var addUrl = first.GetAddUrl();
@@ -93,41 +93,51 @@ namespace DiscordBot.Standalone
 
                         lock (Audios)
                         {
-                            existing = Audios.FirstOrDefault(r => r.AddUrl == addUrl);
+                            existing = Audios.AsParallel().FirstOrDefault(r => r.AddUrl == addUrl);
                         }
 
-                        if (existing is not null)
+                        if (existing is null)
                         {
-                            //await Respond(client.Socket, $"Get:{addUrl}");
-                            existing.Spreader.AddDestination(client.Socket.CreateMessageWriter(WebSocketMessageType.Binary));
-                            return;
-                        }
-
-                        //await Respond(client.Socket, $"Get:{addUrl}");
-                        var streamSpreader = new StreamSpreader(CancellationToken.None)
-                        {
-                            KeepCached = true
-                        };
-                        
-                        lock (Audios)
-                        {
-                            Audios.Add(new EncodedAudio
+                            StreamSpreader streamSpreader;
+                            lock (Audios)
                             {
-                                Spreader = streamSpreader,
-                                AddUrl = addUrl
+                                streamSpreader = new StreamSpreader(CancellationToken.None)
+                                {
+                                    KeepCached = true
+                                };
+                                Audios.Add(existing = new EncodedAudio
+                                {
+                                    Spreader = streamSpreader,
+                                    AddUrl = addUrl
+                                });
+                            }
+
+                            var task = new Task(async () =>
+                            {
+                                var ffmpeg = new FfMpeg2();
+                                await streamSpreader.ReadStream(ffmpeg.Convert(first, codec: "-c:a libopus",
+                                    addParameters: $"-b:a {96}k"));
                             });
+                            task.Start();
                         }
 
-                        var ffmpeg = new FfMpeg2();
-                        var stream = ffmpeg.Convert(first, codec: "-c:a libopus", addParameters: $"-b:a {96}k");
-                        var buffer = new byte[1 << 16];
+                        var stream = new MemoryStream();
+                        existing.Spreader.AddDestination(stream);
+                        var buffer = new byte[1 << 13]; // I can't go any higher because the javascript decoder goes mad. i know, it's a dumb reason
                         while (await stream.ReadAsync(buffer) != 0)
                         {
-                            var dest = client.Socket.CreateMessageWriter(WebSocketMessageType.Binary);
-                            await dest.WriteAsync(buffer, CancellationToken.None);
+                            var obj = new
+                            {
+                                forId = addUrl,
+                                data = Convert.ToBase64String(buffer)
+                            };
+                            var dest = client.Socket.CreateMessageWriter(WebSocketMessageType.Text);
+                            //await new StreamWriter(dest).WriteAsync("Data:");
+                            await JsonSerializer.SerializeAsync(dest, obj);
                             await dest.FlushAsync();
                             await dest.CloseAsync();
                         }
+                        await stream.DisposeAsync();
                         return;
                     
                     case "current":

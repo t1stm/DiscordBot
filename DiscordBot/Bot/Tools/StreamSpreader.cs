@@ -6,6 +6,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using DiscordBot.Methods;
 using DiscordBot.Tools.Objects;
+using YoutubeExplode.Videos.Streams;
 
 namespace DiscordBot.Tools
 {
@@ -14,19 +15,29 @@ namespace DiscordBot.Tools
         private List<FeedableStream> Destinations { get; }
         private Queue<IWriteAction> DataWritten { get; } = new();
         private CancellationToken Token { get; }
-
+        private readonly SemaphoreSlim semaphore = new(1);
         private long _length;
         private long _position;
-        private bool _closed;
-        private readonly object LockObject = new();
         public bool KeepCached { get; init; }
 
         public StreamSpreader(CancellationToken token, params Stream[] destinations)
         {
-            lock (LockObject)
+            Destinations = destinations.Select(r => new FeedableStream(r)).ToList();
+            Token = token;
+        }
+
+        public async Task ReadStream(Stream stream, bool close = true)
+        {
+            var buffer = new byte[1 << 12];
+            while (await stream.ReadAsync(buffer, Token) != 0)
             {
-                Destinations = destinations.Select(r => new FeedableStream(r)).ToList();
-                Token = token;
+                await WriteAsync(buffer, Token);
+            }
+
+            if (close)
+            {
+                await stream.DisposeAsync();
+                stream.Close();
             }
         }
 
@@ -62,8 +73,6 @@ namespace DiscordBot.Tools
             {
                 feedableStream.Close();
             }
-
-            _closed = true;
         }
 
         public override void Flush()
@@ -110,73 +119,74 @@ namespace DiscordBot.Tools
 
         public override void Write(byte[] buffer, int offset, int count)
         {
-            lock (LockObject)
+            semaphore.Wait(Token);
+            if (KeepCached) DataWritten.Enqueue(new ByteArrayData(buffer, offset, count));
+            foreach (var feedableStream in Destinations)
             {
-                if (KeepCached) DataWritten.Enqueue(new ByteArrayData(buffer, offset, count));
-                foreach (var feedableStream in Destinations)
-                {
-                    if (Token.IsCancellationRequested) return;
-                    feedableStream.Write(buffer, offset, count);
-                }
-                _position = _length += count;
+                if (Token.IsCancellationRequested) return;
+                feedableStream.Write(buffer, offset, count);
             }
+            _position = _length += count;
+            semaphore.Release();
         }
 
-        public override Task WriteAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken)
+        public override async Task WriteAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken)
         {
-            lock (LockObject)
+            await semaphore.WaitAsync(cancellationToken);
+            if (KeepCached) DataWritten.Enqueue(new ByteArrayData(buffer, offset, count));
+            foreach (var feedableStream in Destinations)
             {
-                if (KeepCached) DataWritten.Enqueue(new ByteArrayData(buffer, offset, count));
-                foreach (var feedableStream in Destinations)
+                if (Token.IsCancellationRequested)
                 {
-                    if (Token.IsCancellationRequested) return Task.CompletedTask;
-                    feedableStream.WriteAsync(buffer, offset, count, cancellationToken);
+                    semaphore.Release();
+                    return;
                 }
-                _position = _length += count;
+                await feedableStream.WriteAsync(buffer, offset, count, cancellationToken);
             }
-            return Task.CompletedTask;
+            _position = _length += count;
+            semaphore.Release();
         }
 
         public override void Write(ReadOnlySpan<byte> buffer)
         {
-            lock (LockObject)
+            semaphore.Wait(Token);
+            if (KeepCached) DataWritten.Enqueue(new MemoryData(buffer.ToArray()));
+            foreach (var feedableStream in Destinations)
             {
-                if (KeepCached) DataWritten.Enqueue(new MemoryData(buffer.ToArray()));
-                foreach (var feedableStream in Destinations)
-                {
-                    if (Token.IsCancellationRequested) return;
-                    feedableStream.Write(buffer);
-                }
-                _position = _length += buffer.Length;
+                if (Token.IsCancellationRequested) return;
+                feedableStream.Write(buffer);
             }
+            _position = _length += buffer.Length;
+            semaphore.Release();
         }
 
-        public override ValueTask WriteAsync(ReadOnlyMemory<byte> buffer, CancellationToken cancellationToken = new())
+        public override async ValueTask WriteAsync(ReadOnlyMemory<byte> buffer, CancellationToken cancellationToken = new())
         {
-            lock (LockObject)
+            await semaphore.WaitAsync(cancellationToken);
+            if (KeepCached) DataWritten.Enqueue(new MemoryData(buffer));
+            foreach (var feedableStream in Destinations)
             {
-                if (KeepCached) DataWritten.Enqueue(new MemoryData(buffer));
-                foreach (var feedableStream in Destinations)
+                if (Token.IsCancellationRequested)
                 {
-                    if (Token.IsCancellationRequested) return ValueTask.CompletedTask;
-                    feedableStream.WriteAsync(buffer, cancellationToken);
+                    semaphore.Release();
+                    return;
                 }
-                _position = _length += buffer.Length;
+                await feedableStream.WriteAsync(buffer, cancellationToken);
             }
-            return ValueTask.CompletedTask;
+            _position = _length += buffer.Length;
+            semaphore.Release();
         }
 
-        public void AddDestination(Stream destination)
+        public void AddDestination(Stream destination, CancellationToken? token = null)
         {
-            lock (LockObject)
+            semaphore.Wait(token ?? CancellationToken.None);
+            var feedableStream = new FeedableStream(destination);
+            if (KeepCached) foreach (var action in DataWritten.ToArray())
             {
-                var feedableStream = new FeedableStream(destination);
-                if (KeepCached) foreach (var action in DataWritten.ToArray())
-                {
-                    feedableStream.Write(action);
-                }
-                Destinations.Add(feedableStream);
+                feedableStream.Write(action);
             }
+            Destinations.Add(feedableStream);
+            semaphore.Release();
         }
 
         public override bool CanRead => false;
