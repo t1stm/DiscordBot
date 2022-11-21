@@ -15,7 +15,7 @@ namespace DiscordBot.Playlists
 {
     public static class PlaylistManager
     {
-        public const string PlaylistDirectory = $"{Bot.WorkingDirectory}/NewPlaylists";
+        public static readonly string PlaylistDirectory = $"{Bot.WorkingDirectory}/NewPlaylists";
 
         public static List<PlaylistInfo> Infos { get; } = new();
 

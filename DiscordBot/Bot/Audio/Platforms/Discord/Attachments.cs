@@ -13,7 +13,7 @@ namespace DiscordBot.Audio.Platforms.Discord
 {
     public static class Attachments
     {
-        private const string DownloadDirectory = $"{Bot.WorkingDirectory}/dll/Discord Attachments/";
+        private static readonly string DownloadDirectory = $"{Bot.WorkingDirectory}/dll/Discord Attachments/";
 
         public static async Task<List<PlayableItem>?> GetAttachments(IEnumerable<DiscordAttachment> attachments,
             ulong guild = 0)

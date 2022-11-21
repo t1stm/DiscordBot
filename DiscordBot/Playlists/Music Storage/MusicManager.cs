@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text.Json;
+using System.Text.RegularExpressions;
 using DiscordBot.Language;
 using DiscordBot.Methods;
 using DiscordBot.Playlists.Music_Storage.Objects;
@@ -11,7 +12,7 @@ namespace DiscordBot.Playlists.Music_Storage
 {
     public static class MusicManager
     {
-        public const string WorkingDirectory = $"{Bot.WorkingDirectory}/Music Database";
+        public static readonly string WorkingDirectory = $"{Bot.WorkingDirectory}/Music Database";
         public static List<MusicInfo> Items = new();
 
         public static void LoadItems()
@@ -52,7 +53,7 @@ namespace DiscordBot.Playlists.Music_Storage
                 return data;
             }
             
-            var list = songs.Select(r => ParseFile(r, bg)).ToList();
+            var list = songs.Where(r => !r.EndsWith("EN")).Select(r => ParseFile(r, bg)).ToList();
             using var fs = File.Open(file, FileMode.Create, FileAccess.ReadWrite, FileShare.ReadWrite);
             JsonSerializer.Serialize(fs, list);
             fs.Close();
@@ -70,7 +71,7 @@ namespace DiscordBot.Playlists.Music_Storage
             
             var newFiles = files.Where(location => 
                 !location.EndsWith(".json") && !location.EndsWith("EN") && 
-                existingList.All(r => r.RelativeLocation != string.Join('/', location.Split('/')[^2..])));
+                existingList.All(r => r.RelativeLocation != string.Join('/', location.Split('/')[^3..])));
             
             foreach (var newFile in newFiles)
             {
@@ -107,6 +108,15 @@ namespace DiscordBot.Playlists.Music_Storage
         public static IEnumerable<MusicInfo> SearchByTerm(string term)
         {
             return Items.AsParallel().OrderByDescending(r => ScoreTerm(r, term));
+        }
+
+        public static IEnumerable<MusicInfo> SearchByPattern(string search)
+        {
+            var pattern = search;
+            if (pattern.Length == 0) return Enumerable.Empty<MusicInfo>();
+            pattern = pattern[0] == '/' ? pattern : "/" + pattern;
+            pattern = pattern.Replace("*", ".*");
+            return Items.AsParallel().Where(r => Regex.IsMatch(r.RelativeLocation ?? "", pattern));
         }
 
         public static MusicInfo? SearchById(string id)

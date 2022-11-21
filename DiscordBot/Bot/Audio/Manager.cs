@@ -68,8 +68,7 @@ namespace DiscordBot.Audio
                     var list = Bot.Clients.Where(cl => cl.CurrentUser.Id != client.CurrentUser.Id)
                         .Where(cl => cl.Guilds.ContainsKey(channel.Guild.Id));
                     foreach (var cl in from cl in list
-                        let con = cl.GetVoiceNext().GetConnection(channel.Guild)
-                        where con is null
+                        where cl.GetVoiceNext().GetConnection(channel.Guild) is null
                         select cl)
                     {
                         Debug.Write($"Client is: {cl.CurrentUser.Id}, {cl.CurrentUser.Username}");

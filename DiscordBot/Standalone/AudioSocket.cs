@@ -24,16 +24,21 @@ namespace DiscordBot.Standalone
         private List<SearchResult> Queue = Enumerable.Empty<SearchResult>().ToList();
         private readonly List<EncodedAudio> Audios = new();
         private readonly System.Timers.Timer Timer = new();
+        private readonly System.Timers.Timer ReadyTimer = new();
+        
         public AudioSocket()
         {
             Options = new Settings
             {
-                AllowNonAdminControl = false,
+                AllowNonAdminControl = true,
                 AllowAnonymousJoining = true
             };
             Timer.Elapsed += TimerOnElapsed;
             Timer.Interval = 10 * 1000; // Ten seconds
             Timer.Start();
+            ReadyTimer.Elapsed += ReadyTimerOnElapsed;
+            ReadyTimer.Interval = 50; // Miliseconds
+            ReadyTimer.Start();
         }
 
         public WebSocket? Admin { get; set; }
@@ -51,6 +56,24 @@ namespace DiscordBot.Standalone
             }
         }
         
+        private async void ReadyTimerOnElapsed(object? sender, ElapsedEventArgs e)
+        {
+            List<Client> clients;
+            lock (Clients)
+            {
+                clients = Clients.ToList();
+            }
+            var all = clients.AsParallel().All(r => r.Ready) && Clients.Count != 0;
+            foreach (var client in clients)
+            {
+                await client.Socket.SendPingAsync();
+            }
+            if (!all) return;
+            
+            ClearReady();
+            await Broadcast("Play:");
+            await Debug.WriteAsync("Ready: Broadcasting play message.");
+        }
         private void ClearReady()
         {
             lock (Clients)
@@ -159,16 +182,8 @@ namespace DiscordBot.Standalone
                         return;
 
                     case "ready":
+                        await Debug.WriteAsync("A client is ready.");
                         client.Ready = true;
-                        lock (Clients)
-                        {
-                            all = Clients.AsParallel().All(r => r.Ready);
-                        }
-
-                        if (!all || Current < Queue.Count) return;
-
-                        await Broadcast("Play:");
-
                         return;
                 }
 
@@ -204,16 +219,23 @@ namespace DiscordBot.Standalone
 
                     case "back":
                         if (Current - 1 < 0)
+                        {
+                            await Debug.WriteAsync($"Skip current: {Current} is = to Queue.Count {Queue.Count} when --.");
                             return;
+                        }
+                        Current--;
                         ClearReady();
                         await Broadcast("Back:");
                         return;
 
                     case "skip":
-                        if (Current + 1 != Queue.Count)
+                        if (Current + 1 == Queue.Count)
+                        {
+                            await Debug.WriteAsync($"Skip current: {Current} is = to Queue.Count {Queue.Count} when ++.");
                             return;
-                        ClearReady();
+                        }
                         Current++;
+                        ClearReady();
                         await Broadcast("Skip:");
                         return;
 
@@ -225,11 +247,19 @@ namespace DiscordBot.Standalone
                             return;
                         }
 
-                        if (Current + 1 == Queue.Count || Current - 1 < 0)
+                        if (Current == Queue.Count || Current < 0)
+                        {
+                            await Debug.WriteAsync($"GoTo number was out of range. {Current} - {Queue.Count}");
+                            Current = 0;
                             return;
+                        }
                         ClearReady();
                         await Broadcast($"GoTo:{num}");
                         Current = num;
+                        return;
+                    
+                    case "stop":
+                        
                         return;
 
                     case "options" when client.Socket != Admin:
@@ -264,7 +294,8 @@ namespace DiscordBot.Standalone
                 clients = Clients.ToList();
             }
 
-            foreach (var client in clients)
+            var tasks = clients.Select(client => new Task(async () =>
+            {
                 try
                 {
                     await Respond(client.Socket, message);
@@ -274,6 +305,12 @@ namespace DiscordBot.Standalone
                     await Debug.WriteAsync(
                         $"Sending broadcast message to client: \"{(client.IsAnon ? "Anonymous" : client.Token)}\" failed. \"{e}\"");
                 }
+            })).ToList();
+            foreach (var task in tasks)
+            {
+                task.Start();
+            }
+            await Task.WhenAll(tasks);
         }
 
         private async Task Broadcast(string message, Client? exclude)

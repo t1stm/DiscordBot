@@ -14,6 +14,7 @@ namespace DiscordBot.Tools.Objects
         private readonly SemaphoreSlim semaphore = new(1);
         private readonly Queue<IWriteAction> Cache = new();
         public bool Updating;
+        public readonly List<Action> FinishedUpdating = new();
         private bool Closed { get; set; }
         public bool AsynchroniousCopying { get; init; } = true;
         public bool WaitCopy { get; init; } = false;
@@ -62,7 +63,15 @@ namespace DiscordBot.Tools.Objects
                         CopySync(data);
                     // Ironic I know. Some streams don't support synchronized writing. Too bad!
                 }
+                lock (FinishedUpdating) 
+                {
+                    foreach (var action in FinishedUpdating)
+                    {
+                        action.Invoke();
+                    }
 
+                    FinishedUpdating.Clear();
+                }
                 Updating = false;
             }
             catch (Exception e)
@@ -71,6 +80,21 @@ namespace DiscordBot.Tools.Objects
                 Updating = false;
             }
         }
+
+        public Task AwaitFinish(CancellationToken? token = null)
+        {
+            TaskCompletionSource source = new();
+            var action = new Action(() =>
+            {
+                source.SetResult();
+            });
+            token?.Register(() =>
+            {
+                source.SetCanceled();
+            });
+            lock (FinishedUpdating) FinishedUpdating.Add(action);
+            return source.Task;
+        }
         
         private void CopySync(IWriteAction data) => data.WriteToStream(BackingStream);
 
@@ -78,6 +102,12 @@ namespace DiscordBot.Tools.Objects
         {
             UpdateTask();
             BackingStream.Flush();
+        }
+
+        public override Task FlushAsync(CancellationToken cancellationToken)
+        {
+            UpdateTask();
+            return BackingStream.FlushAsync(cancellationToken);
         }
 
         public override int Read(byte[] buffer, int offset, int count)
@@ -109,17 +139,17 @@ namespace DiscordBot.Tools.Objects
             semaphore.Release();
         }
 
-        public override void Write(ReadOnlySpan<byte> buffer)
-        {
-            semaphore.Wait();
-            FillBuffer(new ByteArrayData(buffer.ToArray(), 0, buffer.Length));
-            semaphore.Release();
-        }
-
         public override async Task WriteAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken)
         {
             await semaphore.WaitAsync(cancellationToken);
             FillBuffer(new ByteArrayData(buffer, offset, count));
+            semaphore.Release();
+        }
+        
+        /*public override void Write(ReadOnlySpan<byte> buffer)
+        {
+            semaphore.Wait();
+            FillBuffer(new ByteArrayData(buffer.ToArray(), 0, buffer.Length));
             semaphore.Release();
         }
 
@@ -128,7 +158,7 @@ namespace DiscordBot.Tools.Objects
             await semaphore.WaitAsync(cancellationToken);
             FillBuffer(new ByteArrayData(buffer.ToArray(), 0, buffer.Length));
             semaphore.Release();
-        }
+        }*/
 
         public override bool CanRead => BackingStream.CanRead;
         public override bool CanSeek => BackingStream.CanSeek;

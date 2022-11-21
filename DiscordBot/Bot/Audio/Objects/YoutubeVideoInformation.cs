@@ -17,7 +17,7 @@ namespace DiscordBot.Audio.Objects
 {
     public class YoutubeVideoInformation : PlayableItem
     {
-        private const string DownloadDirectory = $"{Bot.WorkingDirectory}/dll/audio";
+        private static readonly string DownloadDirectory = $"{Bot.WorkingDirectory}/dll/audio";
         private bool IsLiveStream { get; set; }
         public string SearchTerm { get; init; }
         public string YoutubeId { get; set; }
@@ -154,6 +154,7 @@ namespace DiscordBot.Audio.Objects
             await Debug.WriteAsync("Starting download task.");
             var streamSpreader = new StreamSpreader(CancellationToken.None, outs.ToArray());
             await pr.StandardOutput.BaseStream.CopyToAsync(streamSpreader);
+            await Debug.WriteAsync("Download task finished.");
         }
 
         private async Task DownloadOtherApi(string id, params Stream[] outputs)

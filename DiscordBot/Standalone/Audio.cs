@@ -72,6 +72,7 @@ namespace DiscordBot.Standalone
                 if (Bot.DebugMode) await Debug.WriteAsync("Using Audio Controller");
                 var res = await DiscordBot.Audio.Platforms.Search.Get(id);
                 var first = res?.First();
+                if (first == null) return NotFound();
                 FfMpeg2 ff = new();
                 EncodedAudio? foundEnc;
                 lock (EncodedAudio)
@@ -83,9 +84,9 @@ namespace DiscordBot.Standalone
                 if (foundEnc != null)
                 {
                     foundEnc.Expire = DateTime.UtcNow.AddMinutes(AudioCacheTimeout).Ticks;
-                    while (foundEnc.Data == null && !foundEnc.Encoded) await Task.Delay(16);
-                    if (foundEnc.Data == null) return BadRequest();
-                    await Response.Body.WriteAsync(foundEnc.Data);
+                    if (foundEnc.Spreader == null) return BadRequest();
+                    var feedableStream = await foundEnc.Spreader.AddDestinationAsync(Response.Body);
+                    await feedableStream.AwaitFinish();
                     if (Bot.DebugMode)
                         await Debug.WriteAsync(
                             $"Retuning already encoded audio for search term \"{foundEnc.SearchTerm}\".");
@@ -98,10 +99,14 @@ namespace DiscordBot.Standalone
                     true => ff.Convert(first, codec: "-c:a libopus", addParameters: $"-b:a {bitrate}k"),
                     false => ff.Convert(first, codec: "-c:a libvorbis", addParameters: $"-b:a {bitrate}k")
                 };
+                var streamSpreader = new StreamSpreader(CancellationToken.None, Response.Body)
+                {
+                    KeepCached = true
+                };
                 var el = new EncodedAudio
                 {
                     SearchTerm = id,
-                    Data = null,
+                    Spreader = streamSpreader,
                     Expire = DateTime.UtcNow.AddMinutes(AudioCacheTimeout).Ticks,
                     Encoded = false,
                     Bitrate = bitrate
@@ -110,18 +115,9 @@ namespace DiscordBot.Standalone
                 {
                     EncodedAudio.Add(el);
                 }
-                
-                var ms = new MemoryStream();
-                while (!stream.CanRead)
-                {
-                    await Task.Delay(16);
-                    if (Bot.DebugMode) await Debug.WriteAsync("Waiting for readable stream.");
-                }
-                
-                var streamSpreader = new StreamSpreader(CancellationToken.None, ms, Response.Body);
-                await stream.CopyToAsync(streamSpreader);
-                
-                el.Data = ms.ToArray();
+
+                await streamSpreader.ReadStream(stream);
+                await streamSpreader.Finish();
                 el.Encoded = true;
                 await Response.CompleteAsync();
                 return null;
@@ -135,7 +131,7 @@ namespace DiscordBot.Standalone
 
         public IActionResult GetUserPlaylists(string userToken)
         {
-            return Ok();
+            return Ok(userToken);
         }
         
         [HttpPost]
@@ -207,7 +203,7 @@ namespace DiscordBot.Standalone
     {
         public string? SearchTerm { get; init; }
         public int Bitrate { get; set; }
-        public byte[]? Data { get; set; }
+        public StreamSpreader? Spreader { get; set; }
         public long Expire { get; set; }
         public bool Encoded { get; set; }
     }

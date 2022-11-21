@@ -13,7 +13,7 @@ namespace DiscordBot.Audio.Objects
 {
     public class YoutubeOverride : PlayableItem
     {
-        private const string FileLocation = $"{Bot.WorkingDirectory}/dll/YoutubeOverrides.json";
+        private static readonly string FileLocation = $"{Bot.WorkingDirectory}/dll/YoutubeOverrides.json";
         public static List<YoutubeOverride> Overrides { get; set; } = new();
         public string[]? YoutubeIds { get; init; }
         public string[] Titles { get; init; } = Array.Empty<string>();

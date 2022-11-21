@@ -143,7 +143,11 @@ namespace DiscordBot.Audio.Platforms
                     var result = await Vbox7SearchClient.SearchUrl($"https://vbox7.com/play:{split[1]}");
                     return result.ToVbox7Video();
                 case "audio":
-                    if (split[1] != "*") return MusicManager.SearchById(split[1])?.ToMusicObject();
+                    if (split[1] != "*")
+                    {
+                        var patternSearch = MusicManager.SearchByPattern(split[1]).ToList();
+                        return patternSearch.Count == 0 ? MusicManager.SearchById(split[1])?.ToMusicObject() : patternSearch.Select(r => r.ToMusicObject());
+                    }
                     var audios = MusicManager.GetAll();
                     List<PlayableItem> audioItems = new();
                     audioItems.AddRange(audios.Select(r => r.ToMusicObject()));

@@ -9,7 +9,7 @@ namespace DiscordBot.Playlists
 {
     public static class PlaylistThumbnail
     {
-        public const string WorkingDirectory = $"{PlaylistManager.PlaylistDirectory}/Thumbnails";
+        public static readonly string WorkingDirectory = $"{PlaylistManager.PlaylistDirectory}/Thumbnails";
         public const string NotFoundImageFilename = "not-found";
 
         public static Task<StreamSpreader?> GetNotFoundInfo(Stream destination)

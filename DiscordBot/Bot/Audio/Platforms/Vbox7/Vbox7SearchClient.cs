@@ -24,19 +24,16 @@ namespace DiscordBot.Audio.Platforms.Vbox7
         // D.. ZA DJ MECHO TESKIQ,
         // HA HA HA Ha ha ha
         // https://www.vbox7.com/play:a3769b5b6b - Suraikata 2014 mix
-        public static async Task<List<Vbox7Object>> GetResultsFromSearch(string term)
+        public static async IAsyncEnumerable<Vbox7Object> GetResultsFromSearch(string term)
         {
-            var list = new List<Vbox7Object>();
             var call = await HttpClient.DownloadStream($"https://www.vbox7.com/search?vbox_q={term}");
             var yes = Encoding.UTF8.GetString(call.GetBuffer());
             var yes1 = yes.Split(@"class=""info-cont""")[1].Split("\n");
             foreach (var line in yes1)
             {
                 if (!line.Contains(@"a href=""/play")) continue;
-                list.Add(await SearchById(line.Split("/play:")[1].Split("\"")[0]));
+                yield return await SearchById(line.Split("/play:")[1].Split("\"")[0]);
             }
-
-            return list;
         }
 
         public static async Task<Vbox7Object> SearchUrl(string url)
@@ -79,9 +76,8 @@ namespace DiscordBot.Audio.Platforms.Vbox7
                 await Debug.WriteAsync($"Vbox Url is: https://www.vbox7.com/ajax/video/nextvideo.php?vid={id}");
                 var call = await HttpClient.DownloadStream($"https://www.vbox7.com/ajax/video/nextvideo.php?vid={id}");
                 var text = Encoding.UTF8.GetString(call.GetBuffer());
-                var obj = JsonSerializer.Deserialize<Vbox7Object>(text,
+                return JsonSerializer.Deserialize<Vbox7Object>(text,
                     new JsonSerializerOptions {PropertyNameCaseInsensitive = true});
-                return obj;
             }
             catch (Exception e)
             {

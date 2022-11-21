@@ -45,7 +45,7 @@ namespace DiscordBot
 
         public const string WorkingDirectory = "/nvme0/DiscordBot";
         public const string MainDomain = "dankest.gq";
-        public const string SiteDomain = $"https://{MainDomain}";
+        public static readonly string SiteDomain = $"https://{MainDomain}";
         public const string WebUiPage = "WebUi";
         public const string Name = "Slavi Trifonov";
 
