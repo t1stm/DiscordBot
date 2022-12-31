@@ -7,17 +7,14 @@ using System.Text.Json;
 using System.Timers;
 using DiscordBot.Data.Models;
 using DiscordBot.Methods;
-using Microsoft.CodeAnalysis.VisualBasic.Syntax;
 
 namespace DiscordBot.Data
 {
-    public class DatabaseManager <T> where T : Model<T>
+    public class DatabaseManager<T> where T : Model<T>
     {
-        private List<T> Data { get; set; } = new();
         private readonly string FileLocation;
-        private readonly string ObjectName;
-        private FileStream? FileStream { get; set; }
         private readonly object LockObject = new();
+        private readonly string ObjectName;
         private readonly Timer SaveTimer = new();
         private bool Modified;
 
@@ -31,6 +28,9 @@ namespace DiscordBot.Data
             ObjectName = name.Length > 5 && name[^5..] is "Model" or "model" ? name[..^5] : name;
             FileLocation = $"{Bot.WorkingDirectory}/Databases/{ObjectName}.json";
         }
+
+        private List<T> Data { get; set; } = new();
+        private FileStream? FileStream { get; set; }
 
         private void ElapsedEvent(object? sender, ElapsedEventArgs e)
         {
@@ -51,10 +51,7 @@ namespace DiscordBot.Data
         {
             var copy = Data.ToList();
 
-            foreach (var item in copy)
-            {
-                item.OnLoaded();
-            }
+            foreach (var item in copy) item.OnLoaded();
         }
 
         protected void ModifiedAction()
@@ -81,7 +78,7 @@ namespace DiscordBot.Data
                 return Data.ToList();
             }
         }
-        
+
         public T Add(T addModel)
         {
             lock (Data)
@@ -90,6 +87,7 @@ namespace DiscordBot.Data
                 Data.Add(addModel);
                 Modified = true;
             }
+
             addModel.SetModified = ModifiedAction;
             return addModel;
         }
@@ -119,7 +117,7 @@ namespace DiscordBot.Data
                 SaveToFile(copy);
             }
         }
-        
+
         private void SaveToFile(List<T> data)
         {
             lock (FileStream ?? new object())

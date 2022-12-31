@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
+using System.Timers;
 using DiscordBot.Audio;
 using DiscordBot.Audio.Objects;
 using DiscordBot.Data;
@@ -26,7 +27,6 @@ using DSharpPlus.SlashCommands;
 using DSharpPlus.VoiceNext;
 using Microsoft.Extensions.Logging;
 using LoggerFactory = DiscordBot.Methods.LoggerFactory;
-using Timer = System.Timers.Timer;
 
 namespace DiscordBot
 {
@@ -38,18 +38,18 @@ namespace DiscordBot
             Beta = 1
         }
 
-        private const string 
+        private const string
             BotRelease = "NzMxMjQ5MjMwNjEzNzA4OTMz.XwjS6g.4ciJLulvPl212VFvelwL9d9wBkw",
             BotBeta = "NjcxMDg3NjM4NjM1MDg1ODUy.Xi31EQ.v-QjHqPT6BAQhans6bveYhNC9CU",
             SecondaryBot = "OTAzMjg3NzM3Nzc4NTg5NzA2.YXqyQg.F3cDKz-icUbYYMUJXwLxT-BX574";
 
         public const string WorkingDirectory = "/nvme0/DiscordBot";
         public const string MainDomain = "dankest.gq";
-        public static readonly string SiteDomain = $"https://{MainDomain}";
         public const string WebUiPage = "WebUi";
         public const string Name = "Slavi Trifonov";
 
         public const int UpdateDelay = 3200; //Milliseconds
+        public static readonly string SiteDomain = $"https://{MainDomain}";
 
         public static readonly Random Rng = new();
         private static Timer UpdateLoop { get; } = new(UpdateDelay);
@@ -61,7 +61,7 @@ namespace DiscordBot
         {
             LoadDatabases();
             MusicManager.LoadItems();
-            PlaylistManager.LoadPlaylistInfos(); 
+            PlaylistManager.LoadPlaylistInfos();
             UpdateLoop.Elapsed += (_, _) => OnUpdate();
             UpdateLoop.Start();
             await Controllers.Bot.LoadUsers(true);
@@ -433,14 +433,18 @@ namespace DiscordBot
                             new("Bai Tosho", "tosho", "This is the original name of the bot", true, new DiscordComponentEmoji("🔴")),
                             new("Slavi Trifonov", "slavi", "This is the current name of the bot", false, new DiscordComponentEmoji("🔵")),
                             new ("Custom choice", "custom", "Choose a name yourself", false, new DiscordComponentEmoji("🟣"))
-                        }, minOptions:1, maxOptions: 1);*/ // Funny new API change broke this amazing feature before it even was used.
+                        }, minOptions:1, maxOptions: 1);*/
+                    // Funny new API change broke this amazing feature before it even was used.
 
                     var textComponent = new TextInputComponent(
-                        "Choose a name", 
+                        "Choose a name",
                         "customTextInput",
-                        "\"Bai Tosho\", \"Slavi Trifonov\" or a custom name.", "", min_length: 5, max_length: 20, style: TextInputStyle.Short, required: true);
-                    const string qnaString = 
+                        "\"Bai Tosho\", \"Slavi Trifonov\" or a custom name.", "", min_length: 5, max_length: 20,
+                        style: TextInputStyle.Short, required: true);
+                    const string qnaString =
+
                         #region Q&A String
+
                         "Before I start to answer questions I've thought over in my brain I want to tell you something.\n\n" +
                         "The bot has a feature to change the languages if you'd like. You can change the guild's language or " +
                         "your own language if you wanted to. I'm writing this in here because I don't think that many people " +
@@ -467,12 +471,14 @@ namespace DiscordBot
                         "As much as I've wanted to make this anonymous, I can't, because I can't know whether one person " +
                         "has submitted 20 different answers swaying the scale, so I tied the votes to your Discord profile ID. " +
                         "(it's just a nubmer. I can't know who you are, unless I want to bother myself with useless stuff.)";
+
                     #endregion
-                    
+
                     var qna = new TextInputComponent(
-                        "Q&A", 
+                        "Q&A",
                         "qna",
-                        "Why did you even bother deleting this...", qnaString, style: TextInputStyle.Paragraph, required: false); 
+                        "Why did you even bother deleting this...", qnaString, style: TextInputStyle.Paragraph,
+                        required: false);
 
                     responseBuilder.AddComponents(new List<DiscordActionRowComponent>
                     {
@@ -484,7 +490,7 @@ namespace DiscordBot
                     await eventArgs.Interaction.CreateResponseAsync(InteractionResponseType.Modal, responseBuilder);
                     return;
                 }
-                
+
                 await eventArgs.Interaction.CreateResponseAsync(InteractionResponseType.DeferredMessageUpdate);
 
                 Player pl;
@@ -608,7 +614,6 @@ namespace DiscordBot
                         });
                         task.Start();
                         break;
-                    
                 }
             }
             catch (Exception e)
@@ -634,14 +639,17 @@ namespace DiscordBot
                 {
                     searchData.Choice = e.Values["customTextInput"];
                     Databases.VotesDatabase.Add(searchData);
-                    await e.Interaction.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, new DiscordInteractionResponseBuilder()
-                        .WithContent("```Vote applied successfully. Thank you for voting.```").AsEphemeral());
+                    await e.Interaction.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource,
+                        new DiscordInteractionResponseBuilder()
+                            .WithContent("```Vote applied successfully. Thank you for voting.```").AsEphemeral());
                     return;
                 }
+
                 userInDatabase.Choice = e.Values["customTextInput"];
                 userInDatabase.SetModified?.Invoke();
-                await e.Interaction.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, new DiscordInteractionResponseBuilder()
-                    .WithContent("```Vote edited successfully. Thank you for voting.```").AsEphemeral());
+                await e.Interaction.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource,
+                    new DiscordInteractionResponseBuilder()
+                        .WithContent("```Vote edited successfully. Thank you for voting.```").AsEphemeral());
             }
             catch (Exception ex)
             {

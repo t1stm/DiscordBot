@@ -89,15 +89,15 @@ namespace DiscordBot.Audio
                 Statusbar.Player = this;
                 Statusbar.Channel = Channel;
                 if (Connection != null)
-                Connection.VoiceSocketErrored += async (_, args) =>
-                {
-                    await Debug.WriteAsync(
-                        $"VoiceSocket Errored in Guild: \"{CurrentGuild?.Name}\" with arguments \"{args.Exception}\"\n\nAttempting to reconnect.",
-                        true, Debug.DebugColor.Urgent);
-                    UpdateChannel(VoiceChannel);
-                    await (CurrentClient?.SendMessageAsync(Channel,
-                        Language.DiscordDidTheFunny().CodeBlocked()) ?? Task.CompletedTask);
-                };
+                    Connection.VoiceSocketErrored += async (_, args) =>
+                    {
+                        await Debug.WriteAsync(
+                            $"VoiceSocket Errored in Guild: \"{CurrentGuild?.Name}\" with arguments \"{args.Exception}\"\n\nAttempting to reconnect.",
+                            true, Debug.DebugColor.Urgent);
+                        UpdateChannel(VoiceChannel);
+                        await (CurrentClient?.SendMessageAsync(Channel,
+                            Language.DiscordDidTheFunny().CodeBlocked()) ?? Task.CompletedTask);
+                    };
 
                 var statusbar = new Task(async () => { await Statusbar.Start(); });
                 statusbar.Start();
@@ -136,6 +136,7 @@ namespace DiscordBot.Audio
                                 {
                                     Queue.Items[Queue.Current] = track;
                                 }
+
                                 CurrentItem = track;
                                 await PlayTrack(track, Stopwatch.Elapsed.ToString(@"c"));
                                 break;

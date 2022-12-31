@@ -24,7 +24,8 @@ namespace DiscordBot.Tools
                         3 => q * 3600000,
                         4 => q * 86400000,
                         5 => q * 604800000,
-                        _ => throw new ArgumentOutOfRangeException(nameof(i), new Exception("Millisecond steps are more than a decade."))
+                        _ => throw new ArgumentOutOfRangeException(nameof(i),
+                            new Exception("Millisecond steps are more than a decade."))
                     };
                 }
                 catch (Exception)

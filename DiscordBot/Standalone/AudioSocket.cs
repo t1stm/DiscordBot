@@ -14,18 +14,18 @@ using DiscordBot.Audio.Platforms;
 using DiscordBot.Tools;
 using vtortola.WebSockets;
 using Debug = DiscordBot.Methods.Debug;
+using Timer = System.Timers.Timer;
 
 namespace DiscordBot.Standalone
 {
     public class AudioSocket
     {
-        public Stopwatch InactiveStopwatch { get; } = new();
+        private readonly List<EncodedAudio> Audios = new();
+        private readonly Timer ReadyTimer = new();
+        private readonly Timer Timer = new();
         private Settings Options;
         private List<SearchResult> Queue = Enumerable.Empty<SearchResult>().ToList();
-        private readonly List<EncodedAudio> Audios = new();
-        private readonly System.Timers.Timer Timer = new();
-        private readonly System.Timers.Timer ReadyTimer = new();
-        
+
         public AudioSocket()
         {
             Options = new Settings
@@ -41,6 +41,8 @@ namespace DiscordBot.Standalone
             ReadyTimer.Start();
         }
 
+        public Stopwatch InactiveStopwatch { get; } = new();
+
         public WebSocket? Admin { get; set; }
         public List<Client> Clients { get; } = new();
         public Guid SessionId { get; init; }
@@ -55,7 +57,7 @@ namespace DiscordBot.Standalone
                 Audios.RemoveAll(r => r.Expire >= now);
             }
         }
-        
+
         private async void ReadyTimerOnElapsed(object? sender, ElapsedEventArgs e)
         {
             List<Client> clients;
@@ -63,17 +65,16 @@ namespace DiscordBot.Standalone
             {
                 clients = Clients.ToList();
             }
+
             var all = clients.AsParallel().All(r => r.Ready) && Clients.Count != 0;
-            foreach (var client in clients)
-            {
-                await client.Socket.SendPingAsync();
-            }
+            foreach (var client in clients) await client.Socket.SendPingAsync();
             if (!all) return;
-            
+
             ClearReady();
             await Broadcast("Play:");
             await Debug.WriteAsync("Ready: Broadcasting play message.");
         }
+
         private void ClearReady()
         {
             lock (Clients)
@@ -111,6 +112,7 @@ namespace DiscordBot.Standalone
                             await Respond(client.Socket, "Get:Not Found");
                             return;
                         }
+
                         var addUrl = first.GetAddUrl();
                         EncodedAudio? existing;
 
@@ -146,7 +148,9 @@ namespace DiscordBot.Standalone
 
                         var stream = new MemoryStream();
                         existing.Spreader.AddDestination(stream);
-                        var buffer = new byte[1 << 13]; // I can't go any higher because the javascript decoder goes mad. i know, it's a dumb reason
+                        var buffer =
+                            new byte[1 <<
+                                     13]; // I can't go any higher because the javascript decoder goes mad. i know, it's a dumb reason
                         while (await stream.ReadAsync(buffer) != 0)
                         {
                             var obj = new
@@ -160,9 +164,10 @@ namespace DiscordBot.Standalone
                             await dest.FlushAsync();
                             await dest.CloseAsync();
                         }
+
                         await stream.DisposeAsync();
                         return;
-                    
+
                     case "current":
                         await Respond(client.Socket, $"Current:{Current}");
                         return;
@@ -200,11 +205,12 @@ namespace DiscordBot.Standalone
                         Paused = !Paused;
                         await Broadcast($"Pause:{Paused}");
                         return;
-                    
+
                     case "queue":
                         lock (Queue)
                         {
-                            Queue = JsonSerializer.Deserialize<List<SearchResult>>(joined) ?? Enumerable.Empty<SearchResult>().ToList();
+                            Queue = JsonSerializer.Deserialize<List<SearchResult>>(joined) ??
+                                    Enumerable.Empty<SearchResult>().ToList();
                         }
 
                         await Broadcast($"Queue:{JsonSerializer.Serialize(Queue)}", client);
@@ -220,9 +226,11 @@ namespace DiscordBot.Standalone
                     case "back":
                         if (Current - 1 < 0)
                         {
-                            await Debug.WriteAsync($"Skip current: {Current} is = to Queue.Count {Queue.Count} when --.");
+                            await Debug.WriteAsync(
+                                $"Skip current: {Current} is = to Queue.Count {Queue.Count} when --.");
                             return;
                         }
+
                         Current--;
                         ClearReady();
                         await Broadcast("Back:");
@@ -231,9 +239,11 @@ namespace DiscordBot.Standalone
                     case "skip":
                         if (Current + 1 == Queue.Count)
                         {
-                            await Debug.WriteAsync($"Skip current: {Current} is = to Queue.Count {Queue.Count} when ++.");
+                            await Debug.WriteAsync(
+                                $"Skip current: {Current} is = to Queue.Count {Queue.Count} when ++.");
                             return;
                         }
+
                         Current++;
                         ClearReady();
                         await Broadcast("Skip:");
@@ -253,18 +263,19 @@ namespace DiscordBot.Standalone
                             Current = 0;
                             return;
                         }
+
                         ClearReady();
                         await Broadcast($"GoTo:{num}");
                         Current = num;
                         return;
-                    
+
                     case "stop":
-                        
+
                         return;
 
                     case "options" when client.Socket != Admin:
                         return;
-                    
+
                     case "options":
                         lock (Options)
                         {
@@ -306,10 +317,7 @@ namespace DiscordBot.Standalone
                         $"Sending broadcast message to client: \"{(client.IsAnon ? "Anonymous" : client.Token)}\" failed. \"{e}\"");
                 }
             })).ToList();
-            foreach (var task in tasks)
-            {
-                task.Start();
-            }
+            foreach (var task in tasks) task.Start();
             await Task.WhenAll(tasks);
         }
 
@@ -437,12 +445,12 @@ namespace DiscordBot.Standalone
             public bool Ready { get; set; }
             public bool Ended { get; set; }
         }
-        
+
         private class EncodedAudio
         {
             public string? AddUrl { get; init; }
             public StreamSpreader Spreader { get; init; } = null!;
-            public long Expire { get; init; } = DateTime.UtcNow.AddMinutes(Audio.AudioCacheTimeout).Ticks;
+            public long Expire { get; } = DateTime.UtcNow.AddMinutes(Audio.AudioCacheTimeout).Ticks;
         }
 
         public class Settings

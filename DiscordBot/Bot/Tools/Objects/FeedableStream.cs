@@ -11,17 +11,43 @@ namespace DiscordBot.Tools.Objects
     public class FeedableStream : Stream
     {
         private readonly Stream BackingStream;
-        private readonly SemaphoreSlim semaphore = new(1);
         private readonly Queue<IWriteAction> Cache = new();
-        public bool Updating;
         public readonly List<Action> FinishedUpdating = new();
-        private bool Closed { get; set; }
-        public bool AsynchroniousCopying { get; init; } = true;
-        public bool WaitCopy { get; init; } = false;
+        private readonly SemaphoreSlim semaphore = new(1);
+        public bool Updating;
 
         public FeedableStream(Stream backingBackingStream)
         {
             BackingStream = backingBackingStream;
+        }
+
+        private bool Closed { get; set; }
+        public bool AsynchroniousCopying { get; init; } = true;
+        public bool WaitCopy { get; init; } = false;
+
+        /*public override void Write(ReadOnlySpan<byte> buffer)
+        {
+            semaphore.Wait();
+            FillBuffer(new ByteArrayData(buffer.ToArray(), 0, buffer.Length));
+            semaphore.Release();
+        }
+
+        public override async ValueTask WriteAsync(ReadOnlyMemory<byte> buffer, CancellationToken cancellationToken = new())
+        {
+            await semaphore.WaitAsync(cancellationToken);
+            FillBuffer(new ByteArrayData(buffer.ToArray(), 0, buffer.Length));
+            semaphore.Release();
+        }*/
+
+        public override bool CanRead => BackingStream.CanRead;
+        public override bool CanSeek => BackingStream.CanSeek;
+        public override bool CanWrite => BackingStream.CanWrite;
+        public override long Length => BackingStream.Length;
+
+        public override long Position
+        {
+            get => 0;
+            set { }
         }
 
         public override void Close()
@@ -33,7 +59,11 @@ namespace DiscordBot.Tools.Objects
 
         public void FillBuffer(IWriteAction data)
         {
-            lock (Cache) Cache.Enqueue(data);
+            lock (Cache)
+            {
+                Cache.Enqueue(data);
+            }
+
             var updateTask = new Task(UpdateTask);
             updateTask.Start();
             if (WaitCopy) updateTask.Wait();
@@ -56,22 +86,25 @@ namespace DiscordBot.Tools.Objects
                 while (CacheCount() != 0 && !Closed)
                 {
                     IWriteAction? data;
-                    lock (Cache) data = Cache.Dequeue();
+                    lock (Cache)
+                    {
+                        data = Cache.Dequeue();
+                    }
+
                     if (AsynchroniousCopying)
                         await data.WriteToStreamAsync(BackingStream);
                     else
                         CopySync(data);
                     // Ironic I know. Some streams don't support synchronized writing. Too bad!
                 }
-                lock (FinishedUpdating) 
+
+                lock (FinishedUpdating)
                 {
-                    foreach (var action in FinishedUpdating)
-                    {
-                        action.Invoke();
-                    }
+                    foreach (var action in FinishedUpdating) action.Invoke();
 
                     FinishedUpdating.Clear();
                 }
+
                 Updating = false;
             }
             catch (Exception e)
@@ -84,19 +117,20 @@ namespace DiscordBot.Tools.Objects
         public Task AwaitFinish(CancellationToken? token = null)
         {
             TaskCompletionSource source = new();
-            var action = new Action(() =>
+            var action = new Action(() => { source.SetResult(); });
+            token?.Register(() => { source.SetCanceled(); });
+            lock (FinishedUpdating)
             {
-                source.SetResult();
-            });
-            token?.Register(() =>
-            {
-                source.SetCanceled();
-            });
-            lock (FinishedUpdating) FinishedUpdating.Add(action);
+                FinishedUpdating.Add(action);
+            }
+
             return source.Task;
         }
-        
-        private void CopySync(IWriteAction data) => data.WriteToStream(BackingStream);
+
+        private void CopySync(IWriteAction data)
+        {
+            data.WriteToStream(BackingStream);
+        }
 
         public override void Flush()
         {
@@ -131,7 +165,7 @@ namespace DiscordBot.Tools.Objects
             FillBuffer(action);
             semaphore.Release();
         }
-        
+
         public override void Write(byte[] buffer, int offset, int count)
         {
             semaphore.Wait();
@@ -144,31 +178,6 @@ namespace DiscordBot.Tools.Objects
             await semaphore.WaitAsync(cancellationToken);
             FillBuffer(new ByteArrayData(buffer, offset, count));
             semaphore.Release();
-        }
-        
-        /*public override void Write(ReadOnlySpan<byte> buffer)
-        {
-            semaphore.Wait();
-            FillBuffer(new ByteArrayData(buffer.ToArray(), 0, buffer.Length));
-            semaphore.Release();
-        }
-
-        public override async ValueTask WriteAsync(ReadOnlyMemory<byte> buffer, CancellationToken cancellationToken = new())
-        {
-            await semaphore.WaitAsync(cancellationToken);
-            FillBuffer(new ByteArrayData(buffer.ToArray(), 0, buffer.Length));
-            semaphore.Release();
-        }*/
-
-        public override bool CanRead => BackingStream.CanRead;
-        public override bool CanSeek => BackingStream.CanSeek;
-        public override bool CanWrite => BackingStream.CanWrite;
-        public override long Length => BackingStream.Length;
-
-        public override long Position
-        {
-            get => 0;
-            set { }
         }
     }
 }

@@ -12,19 +12,22 @@ namespace DiscordBot.Playlists
 {
     public class PlaylistAPI : Controller
     {
-        [HttpGet,Route("/PlaylistAPI")]
+        [HttpGet]
+        [Route("/PlaylistAPI")]
         public ActionResult Index()
         {
             return View();
         }
 
-        [HttpGet,Route("/PlaylistAPI/Editor/{**id}")]
+        [HttpGet]
+        [Route("/PlaylistAPI/Editor/{**id}")]
         public ActionResult Editor(string? id)
         {
             return View();
         }
-        
-        [HttpGet,Route("/PlaylistAPI/{**id}")]
+
+        [HttpGet]
+        [Route("/PlaylistAPI/{**id}")]
         public async Task<ContentResult> Playlist(string? id)
         {
             await Debug.WriteAsync($"Playlist ID request is: \"{id}\"");
@@ -32,30 +35,35 @@ namespace DiscordBot.Playlists
                 return base.Content(PlaylistPageGenerator.GenerateNotFoundPage(), "text/html");
 
             var playlist = PlaylistManager.GetIfExists(guid);
-            
-            return base.Content(playlist is null ? 
-                PlaylistPageGenerator.GenerateNotFoundPage() : 
-                await PlaylistPageGenerator.GenerateNormalPage(playlist.Value), "text/html");
+
+            return base.Content(
+                playlist is null
+                    ? PlaylistPageGenerator.GenerateNotFoundPage()
+                    : await PlaylistPageGenerator.GenerateNormalPage(playlist.Value), "text/html");
         }
 
-        [HttpGet, Route("/PlaylistAPI/JSON/{**id}")]
+        [HttpGet]
+        [Route("/PlaylistAPI/JSON/{**id}")]
         public async Task<ActionResult> Json(string id)
         {
             if (!Guid.TryParse(id, out var guid)) return BadRequest();
             var playlist = PlaylistManager.GetIfExists(guid);
-            return playlist is null ? BadRequest() : Ok(JsonSerializer.Serialize(new // Anonymous object poggers.
-            {
-                info = new
+            return playlist is null
+                ? BadRequest()
+                : Ok(JsonSerializer.Serialize(new // Anonymous object poggers.
                 {
-                    name = playlist.Value.Info?.Name,
-                    maker = playlist.Value.Info?.Maker,
-                    description = playlist.Value.Info?.Description
-                },
-                data = (await PlaylistManager.ParsePlaylist(playlist.Value)).Select(r => r.ToSearchResult())
-            }));
+                    info = new
+                    {
+                        name = playlist.Value.Info?.Name,
+                        maker = playlist.Value.Info?.Maker,
+                        description = playlist.Value.Info?.Description
+                    },
+                    data = (await PlaylistManager.ParsePlaylist(playlist.Value)).Select(r => r.ToSearchResult())
+                }));
         }
 
-        [HttpGet,Route("/PlaylistAPI/Thumbnail/{**id}")]
+        [HttpGet]
+        [Route("/PlaylistAPI/Thumbnail/{**id}")]
         public async Task Thumbnail(string? id)
         {
             try
@@ -72,6 +80,7 @@ namespace DiscordBot.Playlists
                     await Response.CompleteAsync();
                     return;
                 }
+
                 var playlist = PlaylistManager.GetIfExists(guid);
                 if (playlist?.Info == null)
                 {
@@ -81,11 +90,12 @@ namespace DiscordBot.Playlists
                     await Response.CompleteAsync();
                     return;
                 }
+
                 Response.Headers.Add(HeaderNames.ContentDisposition, $"filename={id}.png");
 
                 spreader = await PlaylistThumbnail.GetImage(guid.ToString(), playlist.Value.Info, false, output);
                 await (spreader?.Finish() ?? Task.CompletedTask);
-                
+
                 await Response.CompleteAsync();
             }
             catch (Exception e)
@@ -96,9 +106,9 @@ namespace DiscordBot.Playlists
             }
         }
 
-        
-        
-        [HttpGet, Route("/PlaylistAPI/Image/{**id}")]
+
+        [HttpGet]
+        [Route("/PlaylistAPI/Image/{**id}")]
         public async Task Image(string? id)
         {
             try
@@ -115,6 +125,7 @@ namespace DiscordBot.Playlists
                     await Response.CompleteAsync();
                     return;
                 }
+
                 var playlist = PlaylistManager.GetIfExists(guid);
                 if (playlist?.Info == null)
                 {
@@ -124,6 +135,7 @@ namespace DiscordBot.Playlists
                     await Response.CompleteAsync();
                     return;
                 }
+
                 Response.Headers.Add(HeaderNames.ContentDisposition, $"filename={id}.png");
 
                 spreader = await PlaylistThumbnail.PlaylistImageSpreader(playlist.Value.Info, output);

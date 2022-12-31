@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using CustomPlaylistFormat.Objects;
 using DiscordBot.Abstract;
@@ -18,12 +17,10 @@ namespace TestingApp
             Console.WriteLine($"Non existant playlist is: \"{notExistant}\"");
             var demoPlaylist = new List<PlayableItem>();
             for (var i = 0; i < 12; i++)
-            {
                 demoPlaylist.Add(new YoutubeVideoInformation
                 {
                     YoutubeId = Guid.NewGuid().ToString()[..10]
                 });
-            }
 
             var saved = PlaylistManager.SavePlaylist(demoPlaylist, new PlaylistInfo
             {
@@ -33,7 +30,8 @@ namespace TestingApp
             });
             var guid = saved?.Info?.Guid ?? Guid.Empty;
             var exists = PlaylistManager.GetIfExists(guid);
-            Console.WriteLine($"({exists?.PlaylistItems?.Length}): \"{string.Concat(exists?.PlaylistItems?.Select(r => $"{r.Data},") ?? Array.Empty<string>())}\"");
+            Console.WriteLine(
+                $"({exists?.PlaylistItems?.Length}): \"{string.Concat(exists?.PlaylistItems?.Select(r => $"{r.Data},") ?? Array.Empty<string>())}\"");
         }
     }
 }

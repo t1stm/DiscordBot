@@ -84,10 +84,8 @@ namespace DiscordBot.Audio.Platforms
                 };
 
             if (searchTerm.Contains($"playlists.{Bot.MainDomain}/"))
-            {
                 return await PlaylistManager.FromLink(searchTerm, onError);
-            }
-            
+
             if (searchTerm.StartsWith("http") || searchTerm.StartsWith("https"))
                 return new List<PlayableItem>
                 {
@@ -99,7 +97,6 @@ namespace DiscordBot.Audio.Platforms
 
             var res = await SearchBotProtocols(searchTerm);
             if (res != null)
-            {
                 switch (res)
                 {
                     case List<PlayableItem> list:
@@ -107,10 +104,15 @@ namespace DiscordBot.Audio.Platforms
                     case PlayableItem item:
                         return new List<PlayableItem> {item};
                 }
-            }
 
             if (searchTerm.StartsWith("pl:"))
                 return await SharePlaylist.Get(searchTerm[3..]);
+
+            var databaseItem = MusicManager.SearchOneByTerm(searchTerm);
+            if (databaseItem is not null) return new List<PlayableItem>
+            {
+                databaseItem.ToMusicObject()
+            };
 
             return returnAllResults switch
             {
@@ -143,13 +145,19 @@ namespace DiscordBot.Audio.Platforms
                     var result = await Vbox7SearchClient.SearchUrl($"https://vbox7.com/play:{split[1]}");
                     return result.ToVbox7Video();
                 case "audio":
+                    List<PlayableItem> audioItems;
                     if (split[1] != "*")
                     {
+                        var foundById = MusicManager.SearchById(split[1])?.ToMusicObject();
+                        if (foundById != null) return foundById;
                         var patternSearch = MusicManager.SearchByPattern(split[1]).ToList();
-                        return patternSearch.Count == 0 ? MusicManager.SearchById(split[1])?.ToMusicObject() : patternSearch.Select(r => r.ToMusicObject());
+                        audioItems = new List<PlayableItem>();
+                        audioItems.AddRange(patternSearch.Select(r => r.ToMusicObject()));
+                        return audioItems;
                     }
+
                     var audios = MusicManager.GetAll();
-                    List<PlayableItem> audioItems = new();
+                    audioItems = new List<PlayableItem>();
                     audioItems.AddRange(audios.Select(r => r.ToMusicObject()));
                     return audioItems;
                 case "onl":
@@ -174,7 +182,8 @@ namespace DiscordBot.Audio.Platforms
         {
             if (attachments == null || attachments.Count < 1) return await Get(searchTerm);
             var list = new List<PlayableItem>();
-            list.AddRange(await Attachments.GetAttachments(attachments, guild ?? 0) ?? Enumerable.Empty<PlayableItem>());
+            list.AddRange(await Attachments.GetAttachments(attachments, guild ?? 0) ??
+                          Enumerable.Empty<PlayableItem>());
             return list;
         }
 

@@ -8,8 +8,10 @@ namespace DiscordBot.Language
             foreach (var bg in bulgarianText)
             {
                 var yes = BulgarianToRomanSwitch(bg);
-                romanizedText += char.IsLower(bg) ? yes : yes.Length > 1 ? char.ToUpper(yes[0]) + yes[1..] : char.ToUpper(yes[0]);
+                romanizedText += char.IsLower(bg) ? yes :
+                    yes.Length > 1 ? char.ToUpper(yes[0]) + yes[1..] : char.ToUpper(yes[0]);
             }
+
             return romanizedText;
         }
 

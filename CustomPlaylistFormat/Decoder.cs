@@ -12,6 +12,7 @@ namespace CustomPlaylistFormat
         Whole,
         InfoOnly
     }
+
     public class Decoder
     {
         private readonly BinaryReader Reader;
@@ -32,21 +33,20 @@ namespace CustomPlaylistFormat
 
             Span<byte> tag = stackalloc byte[4];
             Reader.Read(tag);
-            
+
             if (ArraysEqual(tag, FormatConstants.InfoBeginHeader))
             {
                 playlist.Info = ReadInfo();
                 Reader.Read(tag);
                 if (readMode == ReadMode.InfoOnly) return playlist;
             }
-            
+
             if (ArraysEqual(tag, FormatConstants.PlaylistBeginHeader)) return ReadItems(playlist);
-            
+
             playlist.FailedToParse = true;
             return playlist;
-
         }
-        
+
         private PlaylistInfo ReadInfo()
         {
             var info = new PlaylistInfo();
@@ -56,7 +56,7 @@ namespace CustomPlaylistFormat
                 hasDescription = (features & 4) == 0,
                 isCountInt = (features & 16) == 0;
             info.IsPublic = (features & 8) == 0;
-            
+
             if (hasMaker) info.Maker = ReadString(ReadByte());
             if (hasName) info.Name = ReadString(ReadByte());
             if (hasDescription) info.Description = ReadString(ReadByte());
@@ -91,14 +91,13 @@ namespace CustomPlaylistFormat
             var read = Reader.Read(data);
             return read == data.Length && ArraysEqual(data, header);
         }
-        
+
         private static bool ArraysEqual(Span<byte> arr1, IReadOnlyList<char> arr2)
         {
             if (arr1.Length != arr2.Count) return false;
             for (var i = 0; i < arr1.Length; i++)
-            {
-                if ((char) arr1[i] != arr2[i]) return false;
-            }
+                if ((char) arr1[i] != arr2[i])
+                    return false;
             return true;
         }
 
@@ -111,6 +110,7 @@ namespace CustomPlaylistFormat
             if (readCount < 1) throw new InvalidDataException("Reading Playlist Stream: Reading one byte failed.");
             return oneByte[0];
         }
+
         private ushort ReadUShort()
         {
             byte[] bytes = new byte[2];
@@ -118,7 +118,7 @@ namespace CustomPlaylistFormat
             if (readCount < 2) throw new InvalidDataException("Reading Playlist Stream: Reading ushort failed.");
             return BitConverter.ToUInt16(bytes, 0);
         }
-        
+
         private uint ReadUInt()
         {
             byte[] bytes = new byte[4];
@@ -126,7 +126,7 @@ namespace CustomPlaylistFormat
             if (readCount < 4) throw new InvalidDataException("Reading Playlist Stream: Reading uint failed.");
             return BitConverter.ToUInt16(bytes, 0);
         }
-        
+
         private long ReadLong()
         {
             byte[] bytes = new byte[8];
@@ -134,13 +134,14 @@ namespace CustomPlaylistFormat
             if (readCount < 8) throw new InvalidDataException("Reading Playlist Stream: Reading short failed.");
             return BitConverter.ToInt64(bytes, 0);
         }
-        
+
         private string ReadString(int bytes)
         {
             Span<byte> readData = stackalloc byte[bytes];
             var readCount = Reader.Read(readData);
-            if (readCount != bytes) 
-            throw new InvalidDataException($"Reading Playlist Stream: Variable \"{nameof(readCount)}\" value is not equal to the number of bytes to be read. ReadCount: {readCount}, Bytes: {bytes}");
+            if (readCount != bytes)
+                throw new InvalidDataException(
+                    $"Reading Playlist Stream: Variable \"{nameof(readCount)}\" value is not equal to the number of bytes to be read. ReadCount: {readCount}, Bytes: {bytes}");
             return Encoding.UTF8.GetString(readData);
         }
 

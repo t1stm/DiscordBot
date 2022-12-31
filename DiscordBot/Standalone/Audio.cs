@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text.Json;
-using System.Threading;
 using System.Threading.Tasks;
 using DiscordBot.Audio.Objects;
 using DiscordBot.Audio.Platforms.Youtube;
@@ -74,7 +73,7 @@ namespace DiscordBot.Standalone
                 var first = res?.First();
                 if (first == null) return NotFound();
                 FfMpeg2 ff = new();
-                EncodedAudio? foundEnc;
+                /*EncodedAudio? foundEnc;
                 lock (EncodedAudio)
                 {
                     foundEnc = EncodedAudio.AsParallel()
@@ -92,14 +91,15 @@ namespace DiscordBot.Standalone
                             $"Retuning already encoded audio for search term \"{foundEnc.SearchTerm}\".");
                     await Response.CompleteAsync();
                     return null;
-                }
+                }*/
 
                 var stream = useOpus switch
                 {
                     true => ff.Convert(first, codec: "-c:a libopus", addParameters: $"-b:a {bitrate}k"),
                     false => ff.Convert(first, codec: "-c:a libvorbis", addParameters: $"-b:a {bitrate}k")
                 };
-                var streamSpreader = new StreamSpreader(CancellationToken.None, Response.Body)
+                await stream.CopyToAsync(Response.Body);
+                /*var streamSpreader = new StreamSpreader(CancellationToken.None, Response.Body)
                 {
                     KeepCached = true
                 };
@@ -118,7 +118,7 @@ namespace DiscordBot.Standalone
 
                 await streamSpreader.ReadStream(stream);
                 await streamSpreader.Finish();
-                el.Encoded = true;
+                el.Encoded = true;*/
                 await Response.CompleteAsync();
                 return null;
             }
@@ -133,7 +133,7 @@ namespace DiscordBot.Standalone
         {
             return Ok(userToken);
         }
-        
+
         [HttpPost]
         public IActionResult UploadPlaylist(string token, string name)
         {
@@ -145,10 +145,10 @@ namespace DiscordBot.Standalone
                 case > 1:
                     return BadRequest();
             }
-            
+
             var file = uploadedFiles[0];
             var stream = file.OpenReadStream();
-            
+
             return Ok();
         }
 

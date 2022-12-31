@@ -103,9 +103,7 @@ namespace DiscordBot.Audio
                     var discordUser = Player.VoiceUsers.FirstOrDefault(r => r.Id == user.Id);
                     if (discordUser != null)
                         foreach (var item in search)
-                        {
                             item.SetRequester(discordUser);
-                        }
                     Queue.AddToQueue(search);
                     return;
                 case "playnext":
@@ -133,9 +131,7 @@ namespace DiscordBot.Audio
                     var discordUser2 = Player.VoiceUsers.FirstOrDefault(r => r.Id == user2.Id);
                     if (discordUser2 != null)
                         foreach (var item in resulted)
-                        {
                             item.SetRequester(discordUser2);
-                        }
                     Queue.AddToQueueNext(resulted);
                     return;
                 case "goto":
@@ -399,7 +395,7 @@ namespace DiscordBot.Audio
             };
             var readUser = Databases.UserDatabase.Read(request);
             if (readUser == null) return;
-            
+
             readUser.Language = data?.Language ?? readUser.Language;
             readUser.UiScroll = data?.UiScroll ?? readUser.UiScroll;
             readUser.ForceUiScroll = data?.ForceUiScroll ?? readUser.ForceUiScroll;

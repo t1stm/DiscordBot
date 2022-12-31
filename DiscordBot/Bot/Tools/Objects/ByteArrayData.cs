@@ -8,9 +8,9 @@ namespace DiscordBot.Tools.Objects
 {
     public class ByteArrayData : IWriteAction
     {
+        private readonly int Count;
         private readonly byte[] Data;
         private readonly int Offset;
-        private readonly int Count;
 
         public ByteArrayData(byte[] data, int offset, int count)
         {
@@ -32,6 +32,7 @@ namespace DiscordBot.Tools.Objects
                     Debug.Write($"ByteArrayData WriteToStreamAsync failed: \"{e}\"");
             }
         }
+
         public async Task WriteToStreamAsync(Stream destination, CancellationToken? cancellationToken = null)
         {
             try

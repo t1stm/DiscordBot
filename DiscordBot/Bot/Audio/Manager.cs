@@ -114,10 +114,11 @@ namespace DiscordBot.Audio
             try
             {
                 await Play(term, select, player, userVoiceS, ctx.Member, ctx.Message.Attachments.ToList(), ctx.Channel);
-                if (!player.Started) lock (Main)
-                {
-                    if (Main.Contains(player)) Main.Remove(player);
-                }
+                if (!player.Started)
+                    lock (Main)
+                    {
+                        if (Main.Contains(player)) Main.Remove(player);
+                    }
             }
             catch (Exception e)
             {
@@ -164,10 +165,7 @@ namespace DiscordBot.Audio
                     }
 
                     var interaction = response.Result.Values;
-                    if (interaction == null || interaction.Length < 1)
-                    {
-                        return;
-                    }
+                    if (interaction == null || interaction.Length < 1) return;
 
                     items = new List<PlayableItem>();
                     var result = (await Search.Get(interaction.First()) ?? Enumerable.Empty<PlayableItem>())
@@ -192,14 +190,15 @@ namespace DiscordBot.Audio
                     await messageChannel.SendMessageAsync(lang.NoResultsFound(term).CodeBlocked());
                     return;
                 }
-                
+
                 items.ForEach(it => it.SetRequester(user));
                 player.Queue.AddToQueue(items);
-                
+
                 if (player.Started)
                 {
                     if (items.Count > 1)
-                        await player.CurrentClient!.SendMessageAsync(messageChannel, lang.AddedItem(term).CodeBlocked());
+                        await player.CurrentClient!.SendMessageAsync(messageChannel,
+                            lang.AddedItem(term).CodeBlocked());
                     else
                         await player.CurrentClient!.SendMessageAsync(messageChannel,
                             lang.AddedItem(
@@ -236,6 +235,7 @@ namespace DiscordBot.Audio
                         player.Disconnect();
                         player.Statusbar.Stop();
                     }
+
                     await Debug.WriteAsync($"Error in Play: {e}");
                 }
                 catch (Exception exception)
@@ -415,7 +415,7 @@ namespace DiscordBot.Audio
             var attachmentsList = ctx.Message.Attachments.ToList();
 
             var items = await Search.Get(term, attachmentsList, ctx.Guild.Id);
-            
+
             term = attachmentsList.Count switch
             {
                 1 => ctx.Message.Attachments.ToList()[0].FileName, _ => "Discord Attachments"
@@ -782,8 +782,9 @@ namespace DiscordBot.Audio
                     }
 
                     var item = player.Queue.GetCurrent();
-                    query = $"{Regex.Replace(Regex.Replace(item?.GetTitle() ?? "", @"\([^()]*\)", ""), @"\[[^]]*\]", "")}" +
-                            $"{(item?.GetTitle() ?? "").Contains('-') switch {true => "", false => $" - {Regex.Replace(Regex.Replace(item?.GetAuthor() ?? "", "- Topic", ""), @"\([^()]*\)", "")}"}}";
+                    query =
+                        $"{Regex.Replace(Regex.Replace(item?.GetTitle() ?? "", @"\([^()]*\)", ""), @"\[[^]]*\]", "")}" +
+                        $"{(item?.GetTitle() ?? "").Contains('-') switch {true => "", false => $" - {Regex.Replace(Regex.Replace(item?.GetAuthor() ?? "", "- Topic", ""), @"\([^()]*\)", "")}"}}";
                     break;
 
                 case false:

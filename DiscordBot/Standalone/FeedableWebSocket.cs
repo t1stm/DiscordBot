@@ -12,18 +12,26 @@ namespace DiscordBot.Standalone
 {
     public class FeedableWebSocket : Stream
     {
+        private const string Message = "This class doesn't support this method.";
         private readonly WebSocketMessageWriteStream BackingStream;
+        private readonly Queue<IWriteAction> Cache = new();
+        public bool Updating;
+
         public FeedableWebSocket(WebSocketMessageWriteStream stream)
         {
             BackingStream = stream;
         }
-        private readonly Queue<IWriteAction> Cache = new();
-        private const string Message = "This class doesn't support this method.";
-        public bool Updating;
+
         private bool Closed { get; set; }
         public bool AsynchroniousCopying { get; init; } = true;
         public bool WaitCopy { get; init; } = false;
-        
+
+        public override bool CanRead => false;
+        public override bool CanSeek => false;
+        public override bool CanWrite => true;
+        public override long Length => 0;
+        public override long Position { get; set; } = 0;
+
         private int CacheCount()
         {
             lock (Cache)
@@ -31,10 +39,14 @@ namespace DiscordBot.Standalone
                 return Cache.Count;
             }
         }
-        
+
         public void FillBuffer(IWriteAction data)
         {
-            lock (Cache) Cache.Enqueue(data);
+            lock (Cache)
+            {
+                Cache.Enqueue(data);
+            }
+
             var updateTask = new Task(UpdateTask);
             updateTask.Start();
             if (WaitCopy) updateTask.Wait();
@@ -49,7 +61,11 @@ namespace DiscordBot.Standalone
                 while (CacheCount() != 0 && !Closed)
                 {
                     IWriteAction? data;
-                    lock (Cache) data = Cache.Dequeue();
+                    lock (Cache)
+                    {
+                        data = Cache.Dequeue();
+                    }
+
                     if (AsynchroniousCopying)
                         await data.WriteToStreamAsync(BackingStream);
                     else
@@ -65,8 +81,11 @@ namespace DiscordBot.Standalone
                 Updating = false;
             }
         }
-        
-        private void CopySync(IWriteAction data) => data.WriteToStream(BackingStream);
+
+        private void CopySync(IWriteAction data)
+        {
+            data.WriteToStream(BackingStream);
+        }
 
         public override void Write(byte[] buffer, int offset, int count)
         {
@@ -82,7 +101,7 @@ namespace DiscordBot.Standalone
         {
             await BackingStream.CloseAsync();
         }
-        
+
         public override void Flush()
         {
             throw new NotSupportedException(Message);
@@ -107,11 +126,5 @@ namespace DiscordBot.Standalone
         {
             throw new NotSupportedException(Message);
         }
-        
-        public override bool CanRead => false;
-        public override bool CanSeek => false;
-        public override bool CanWrite => true;
-        public override long Length => 0;
-        public override long Position { get; set; } = 0;
     }
 }

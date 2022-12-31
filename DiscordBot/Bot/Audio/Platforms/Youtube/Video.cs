@@ -51,7 +51,7 @@ namespace DiscordBot.Audio.Platforms.Youtube
                         data.Author = video.Author;
                         data.Length = (ulong) StringToTimeSpan.Generate(video.Duration).TotalMilliseconds;
                         data.ThumbnailUrl = video.ThumbnailUrl;
-                        
+
                         Databases.VideoDatabase.Add(data);
                     }
                 }
@@ -236,7 +236,7 @@ namespace DiscordBot.Audio.Platforms.Youtube
                         data.Author = vid.Author;
                         data.Length = vid.Length;
                         data.ThumbnailUrl = vid.ThumbnailUrl;
-                        
+
                         Databases.VideoDatabase.Add(data);
                     }
                     catch (Exception e)

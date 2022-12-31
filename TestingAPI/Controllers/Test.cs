@@ -16,8 +16,9 @@ namespace TestingAPI.Controllers
         {
             return Ok("Hello World!");
         }
-        
-        [HttpGet,Route("/Playlist/{**id}")]
+
+        [HttpGet]
+        [Route("/Playlist/{**id}")]
         public async Task<ContentResult> Playlist(string? id)
         {
             await Debug.WriteAsync($"Playlist ID is: \"{id}\"");
@@ -25,13 +26,15 @@ namespace TestingAPI.Controllers
                 return base.Content(PlaylistPageGenerator.GenerateNotFoundPage(), "text/html");
 
             var playlist = PlaylistManager.GetIfExists(guid);
-            
-            return base.Content(playlist is null ? 
-                PlaylistPageGenerator.GenerateNotFoundPage() : 
-                await PlaylistPageGenerator.GenerateNormalPage(playlist.Value), "text/html");
+
+            return base.Content(
+                playlist is null
+                    ? PlaylistPageGenerator.GenerateNotFoundPage()
+                    : await PlaylistPageGenerator.GenerateNormalPage(playlist.Value), "text/html");
         }
 
-        [HttpGet,Route("/Playlist/Thumbnails/{**id}")]
+        [HttpGet]
+        [Route("/Playlist/Thumbnails/{**id}")]
         public async Task Thumbnail(string? id)
         {
             try
@@ -48,6 +51,7 @@ namespace TestingAPI.Controllers
                     await Response.CompleteAsync();
                     return;
                 }
+
                 var playlist = PlaylistManager.GetIfExists(guid);
                 if (playlist?.Info == null)
                 {
@@ -57,11 +61,12 @@ namespace TestingAPI.Controllers
                     await Response.CompleteAsync();
                     return;
                 }
+
                 Response.Headers.Add(HeaderNames.ContentDisposition, $"filename={id}.png");
 
                 spreader = await PlaylistThumbnail.GetImage(guid.ToString(), playlist.Value.Info, false, output);
                 await (spreader?.Finish() ?? Task.CompletedTask);
-                
+
                 await Response.CompleteAsync();
             }
             catch (Exception e)

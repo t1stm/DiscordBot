@@ -16,10 +16,7 @@ namespace DiscordBot.Audio.Platforms.Local
                 };
 
             var files = Directory.GetFileSystemEntries(path);
-            foreach (var file in files)
-            {
-                list.AddRange(Get(file));
-            }
+            foreach (var file in files) list.AddRange(Get(file));
             return list;
         }
     }

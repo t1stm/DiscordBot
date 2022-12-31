@@ -70,6 +70,7 @@ namespace DiscordBot.Audio.Objects
                             // Ignored because Streams are handled worse than my code.
                         }
                     }
+
                     fs.Close();
                     return true;
                 }
@@ -94,7 +95,8 @@ namespace DiscordBot.Audio.Objects
                         }
                         catch (Exception except)
                         {
-                            await Debug.WriteAsync($"Download Other Api failed for: \'{YoutubeId}\', with error \"{except}\"",
+                            await Debug.WriteAsync(
+                                $"Download Other Api failed for: \'{YoutubeId}\', with error \"{except}\"",
                                 true);
                             return false;
                         }
@@ -149,7 +151,7 @@ namespace DiscordBot.Audio.Objects
                 IsLiveStream = true;
                 return;
             }
-            
+
             if (Length < 1800000) outs.Add(File.Open($"{DownloadDirectory}/{id}.webm", FileMode.Create));
             await Debug.WriteAsync("Starting download task.");
             var streamSpreader = new StreamSpreader(CancellationToken.None, outs.ToArray());

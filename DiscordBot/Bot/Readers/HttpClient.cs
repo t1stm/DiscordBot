@@ -52,7 +52,7 @@ namespace DiscordBot.Readers
             await response.CopyToAsync(fs);
             return location;
         }
-        
+
         public static async Task<Stream> OpenAsStream(string url, bool withCookies = true)
         {
             var client = withCookies ? WithCookies() : new System.Net.Http.HttpClient();
@@ -60,7 +60,7 @@ namespace DiscordBot.Readers
             var send = await client.SendAsync(request);
             return await send.Content.ReadAsStreamAsync();
         }
-        
+
         public static async Task<MemoryStream> DownloadStream(string url, bool withCookies = true)
         {
             var client = withCookies ? WithCookies() : new System.Net.Http.HttpClient();
@@ -142,8 +142,9 @@ namespace DiscordBot.Readers
                     await streamSpreader.WriteAsync(buffer.AsMemory(0, bytesCopied));
                 } while (bytesCopied > 0);
             }
+
             if (autoClose) streamSpreader.Close();
-            
+
             await Debug.WriteAsync("Chunked Downloader finished.");
         }
     }

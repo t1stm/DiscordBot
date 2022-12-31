@@ -9,6 +9,7 @@ namespace DiscordBot.Data.Models
     {
         public string SearchTerm { get; set; } = null!;
         public string VideoId { get; set; } = null!;
+
         public override FuckYoutubeModel? SearchFrom(IEnumerable<FuckYoutubeModel> source)
         {
             return source.AsParallel()
@@ -17,6 +18,5 @@ namespace DiscordBot.Data.Models
                                      string.Equals(r.VideoId, VideoId,
                                          StringComparison.InvariantCultureIgnoreCase));
         }
-        
     }
 }

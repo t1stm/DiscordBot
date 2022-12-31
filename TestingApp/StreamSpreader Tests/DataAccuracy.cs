@@ -21,6 +21,7 @@ namespace TestingApp.StreamSpreader_Tests
                 memoryArray[i] = new MemoryStream();
                 streamSpreader.AddDestination(memoryArray[i]);
             }
+
             //streamSpreader.Write(dummyBytes, 0, dummyBytes.Length);
             sourceStream.CopyTo(streamSpreader);
             streamSpreader.Finish().Wait();

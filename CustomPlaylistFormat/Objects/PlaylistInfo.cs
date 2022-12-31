@@ -11,9 +11,9 @@ namespace CustomPlaylistFormat.Objects
         public long LastModified { get; set; }
         public bool IsAnonymous => string.IsNullOrEmpty(Maker);
         public bool IsPublic { get; set; } = true;
-        public bool HasThumbnail { get; set; } = false;
+        public bool HasThumbnail { get; set; }
         public uint Count { get; set; }
-        
+
         public Guid? Guid { get; set; }
 
         public void SetUpdated()

@@ -20,20 +20,14 @@ namespace TestingApp
             foreach (var playlist in oldPlaylists)
             {
                 var channels = Directory.GetDirectories(playlist);
-                foreach (var channelDir in channels)
-                {
-                    ProcessFolder(channelDir);
-                }
+                foreach (var channelDir in channels) ProcessFolder(channelDir);
             }
         }
 
         private async void ProcessFolder(string directory)
         {
             var files = Directory.GetFiles(directory);
-            foreach (var file in files)
-            {
-                await DecodeFile(file);
-            }
+            foreach (var file in files) await DecodeFile(file);
         }
 
         public async Task ProcessMainFolder()
@@ -41,7 +35,6 @@ namespace TestingApp
             var files = Directory.GetFiles("/nvme0/DiscordBot/Playlists").ToArray();
             await Debug.WriteAsync($"Files count is: {files.Length}");
             for (var index = 0; index < files.Length; index++)
-            {
                 try
                 {
                     var file = files[index];
@@ -55,10 +48,9 @@ namespace TestingApp
                     await Debug.WriteAsync($"Exception in for loop: \"{e}\"");
                     throw;
                 }
-            }
         }
 
-        
+
         private async Task DecodeFile(string file)
         {
             // /nvme0/DiscordBot/Playlists
@@ -73,7 +65,8 @@ namespace TestingApp
             var guid = Guid.NewGuid();
             var path = $"{PlaylistManager.PlaylistDirectory}/{guid}.play";
             await using var file = File.Open(path, FileMode.Create);
-            await Debug.WriteAsync($"Creating new playlist: \"{path}\", from old playlist: \"{guild}/{channel}/{token}\"");
+            await Debug.WriteAsync(
+                $"Creating new playlist: \"{path}\", from old playlist: \"{guild}/{channel}/{token}\"");
             var playlistInfo = new PlaylistInfo
             {
                 Name = $"Port:{token}",
@@ -88,12 +81,13 @@ namespace TestingApp
                 Type = PlaylistManager.GetItemType(item),
                 Data = string.Join("://", item.GetAddUrl().Split("://")[1..])
             });
-            
+
             encoder.Encode(entries);
             await file.FlushAsync();
         }
-        
-        public async Task WriteToNewFileWithInfo(string name, string description, string maker, bool isPublic, IEnumerable<PlayableItem> items)
+
+        public async Task WriteToNewFileWithInfo(string name, string description, string maker, bool isPublic,
+            IEnumerable<PlayableItem> items)
         {
             var guid = Guid.NewGuid();
             var path = $"{PlaylistManager.PlaylistDirectory}/{guid}-new.play";
@@ -113,7 +107,7 @@ namespace TestingApp
                 Type = PlaylistManager.GetItemType(item),
                 Data = string.Join("://", item.GetAddUrl().Split("://")[1..])
             });
-            
+
             encoder.Encode(entries);
             await file.FlushAsync();
         }

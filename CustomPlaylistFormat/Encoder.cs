@@ -10,8 +10,8 @@ namespace CustomPlaylistFormat
 {
     public class Encoder
     {
-        private readonly BinaryWriter Writer;
         private readonly PlaylistInfo? Info;
+        private readonly BinaryWriter Writer;
 
         private bool Started;
 
@@ -20,10 +20,12 @@ namespace CustomPlaylistFormat
             Info = info;
             Writer = new BinaryWriter(backingStream);
         }
+
         public void Encode(IEnumerable<Entry> data)
         {
             var list = data.ToList();
-            if (list.Count < 1) throw new InvalidDataException($"Given data count is less than one item. {nameof(data)}: {list.Count}");
+            if (list.Count < 1)
+                throw new InvalidDataException($"Given data count is less than one item. {nameof(data)}: {list.Count}");
             if (!Started)
             {
                 Started = true;
@@ -31,10 +33,8 @@ namespace CustomPlaylistFormat
                 AddInfo(list.Count);
                 AddPlaylistBeginHeader();
             }
-            foreach (var item in list)
-            {
-                EncodePart(item);
-            }
+
+            foreach (var item in list) EncodePart(item);
         }
 
         private void AddFileStartHeader()
@@ -58,33 +58,37 @@ namespace CustomPlaylistFormat
                 features = SetBit(features, position);
                 AddToQueue(writeQueue, Info.Maker);
             }
+
             position++;
             if (Info?.Name != null)
             {
                 features = SetBit(features, position);
                 AddToQueue(writeQueue, Info.Name);
             }
+
             position++;
             if (Info?.Description != null)
             {
                 features = SetBit(features, position);
                 AddToQueue(writeQueue, Info.Description);
             }
+
             position++;
             if (Info?.IsPublic ?? true) features = SetBit(features, position);
             position++;
-            if (listCount > ushort.MaxValue) 
+            if (listCount > ushort.MaxValue)
             {
                 features = SetBit(features, position);
                 AddToQueue(writeQueue, (uint) listCount);
             }
-            else AddToQueue(writeQueue, (ushort) listCount);
+            else
+            {
+                AddToQueue(writeQueue, (ushort) listCount);
+            }
+
             AddToQueue(writeQueue, Info?.LastModified ?? 0);
             Writer.Write(features);
-            while (writeQueue.Count != 0)
-            {
-                Writer.Write(writeQueue.Dequeue());
-            }
+            while (writeQueue.Count != 0) Writer.Write(writeQueue.Dequeue());
         }
 
         private void EncodePart(Entry data)
@@ -100,26 +104,29 @@ namespace CustomPlaylistFormat
         private static void AddToQueue(Queue<byte[]> queue, string info)
         {
             var text = Encoding.UTF8.GetBytes(info);
-            queue.Enqueue(new[]{(byte) text.Length});
+            queue.Enqueue(new[] {(byte) text.Length});
             queue.Enqueue(text.Length > byte.MaxValue ? text[..byte.MaxValue] : text);
         }
-        
+
         private static void AddToQueue(Queue<byte[]> queue, long info)
         {
             queue.Enqueue(BitConverter.GetBytes(info));
         }
-        
+
         private static void AddToQueue(Queue<byte[]> queue, ushort info)
         {
             queue.Enqueue(BitConverter.GetBytes(info));
         }
-        
+
         private static void AddToQueue(Queue<byte[]> queue, uint info)
         {
             queue.Enqueue(BitConverter.GetBytes(info));
         }
 
-        private static byte SetBit(byte startingByte, byte position) => (byte) (startingByte | (1 << position));
+        private static byte SetBit(byte startingByte, byte position)
+        {
+            return (byte) (startingByte | (1 << position));
+        }
 
         #endregion
     }

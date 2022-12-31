@@ -7,95 +7,169 @@ namespace DiscordBot.Audio.Objects
     {
         public record HappiApiResponseMusic
         {
-            [JsonInclude, JsonPropertyName("album")]
+            [JsonInclude]
+            [JsonPropertyName("album")]
             public string? Album { get; set; }
-            [JsonInclude, JsonPropertyName("api_album")]
+
+            [JsonInclude]
+            [JsonPropertyName("api_album")]
             public string? ApiAlbum { get; set; }
-            [JsonInclude, JsonPropertyName("api_albumsm")]
+
+            [JsonInclude]
+            [JsonPropertyName("api_albumsm")]
             public string? ApiAlbumSm { get; set; }
-            [JsonInclude, JsonPropertyName("api_artist")]
+
+            [JsonInclude]
+            [JsonPropertyName("api_artist")]
             public string? ApiArtist { get; set; }
-            [JsonInclude, JsonPropertyName("api_lyrics")]
+
+            [JsonInclude]
+            [JsonPropertyName("api_lyrics")]
             public string? ApiLyrics { get; set; }
-            [JsonInclude, JsonPropertyName("api_track")]
+
+            [JsonInclude]
+            [JsonPropertyName("api_track")]
             public string? ApiTrack { get; set; }
-            [JsonInclude, JsonPropertyName("api_tracks")]
+
+            [JsonInclude]
+            [JsonPropertyName("api_tracks")]
             public string? ApiTracks { get; set; }
-            [JsonInclude, JsonPropertyName("artist")]
+
+            [JsonInclude]
+            [JsonPropertyName("artist")]
             public string? Artist { get; set; }
-            [JsonInclude, JsonPropertyName("bpm")]
+
+            [JsonInclude]
+            [JsonPropertyName("bpm")]
             public int BPM { get; set; }
-            [JsonInclude, JsonPropertyName("cover")]
+
+            [JsonInclude]
+            [JsonPropertyName("cover")]
             public string? Cover { get; set; }
-            [JsonInclude, JsonPropertyName("haslyrics")]
+
+            [JsonInclude]
+            [JsonPropertyName("haslyrics")]
             public bool HasLyrics { get; set; }
-            [JsonInclude, JsonPropertyName("id_album")]
+
+            [JsonInclude]
+            [JsonPropertyName("id_album")]
             public int IdAlbum { get; set; }
-            [JsonInclude, JsonPropertyName("id_artist")]
+
+            [JsonInclude]
+            [JsonPropertyName("id_artist")]
             public int IdArtist { get; set; }
-            [JsonInclude, JsonPropertyName("id_track")]
+
+            [JsonInclude]
+            [JsonPropertyName("id_track")]
             public int IdTrack { get; set; }
-            [JsonInclude, JsonPropertyName("lang")]
+
+            [JsonInclude]
+            [JsonPropertyName("lang")]
             public string? Lang { get; set; }
-            [JsonInclude, JsonPropertyName("track")]
+
+            [JsonInclude]
+            [JsonPropertyName("track")]
             public string? Track { get; set; }
         }
 
         public class HappiApiMusicResponse
         {
-            [JsonInclude, JsonPropertyName("length")]
+            [JsonInclude]
+            [JsonPropertyName("length")]
             public int Length { get; set; }
-            [JsonInclude, JsonPropertyName("result")]
+
+            [JsonInclude]
+            [JsonPropertyName("result")]
             public HappiApiResponseMusic[]? Result { get; set; }
-            [JsonInclude, JsonPropertyName("success")]
+
+            [JsonInclude]
+            [JsonPropertyName("success")]
             public bool Success { get; set; }
         }
 
         public record HappiApiLyricsResponse
         {
-            [JsonInclude, JsonPropertyName("length")]
+            [JsonInclude]
+            [JsonPropertyName("length")]
             public int Length { get; set; }
-            [JsonInclude, JsonPropertyName("result")]
+
+            [JsonInclude]
+            [JsonPropertyName("result")]
             public HappiApiResponseLyrics? Result { get; set; }
-            [JsonInclude, JsonPropertyName("success")]
+
+            [JsonInclude]
+            [JsonPropertyName("success")]
             public bool Success { get; set; }
         }
 
         public class HappiApiResponseLyrics
         {
-            [JsonInclude, JsonPropertyName("album")]
+            [JsonInclude]
+            [JsonPropertyName("album")]
             public string? Album { get; set; }
-            [JsonInclude, JsonPropertyName("api_album")]
+
+            [JsonInclude]
+            [JsonPropertyName("api_album")]
             public string? ApiAlbum { get; set; }
-            [JsonInclude, JsonPropertyName("api_albums")]
+
+            [JsonInclude]
+            [JsonPropertyName("api_albums")]
             public string? ApiAlbums { get; set; }
-            [JsonInclude, JsonPropertyName("api_artist")]
+
+            [JsonInclude]
+            [JsonPropertyName("api_artist")]
             public string? ApiArtist { get; set; }
-            [JsonInclude, JsonPropertyName("api_lyrics")]
+
+            [JsonInclude]
+            [JsonPropertyName("api_lyrics")]
             public string? ApiLyrics { get; set; }
-            [JsonInclude, JsonPropertyName("api_track")]
+
+            [JsonInclude]
+            [JsonPropertyName("api_track")]
             public string? ApiTrack { get; set; }
-            [JsonInclude, JsonPropertyName("api_tracks")]
+
+            [JsonInclude]
+            [JsonPropertyName("api_tracks")]
             public string? ApiTracks { get; set; }
-            [JsonInclude, JsonPropertyName("artist")]
+
+            [JsonInclude]
+            [JsonPropertyName("artist")]
             public string? Artist { get; set; }
-            [JsonInclude, JsonPropertyName("copyright_label")]
+
+            [JsonInclude]
+            [JsonPropertyName("copyright_label")]
             public string? CopyrightLabel { get; set; }
-            [JsonInclude, JsonPropertyName("copyright_notice")]
+
+            [JsonInclude]
+            [JsonPropertyName("copyright_notice")]
             public string? CopyrightNotice { get; set; }
-            [JsonInclude, JsonPropertyName("copyright_text")]
+
+            [JsonInclude]
+            [JsonPropertyName("copyright_text")]
             public string? CopyrightText { get; set; }
-            [JsonInclude, JsonPropertyName("id_album")]
+
+            [JsonInclude]
+            [JsonPropertyName("id_album")]
             private int IdAlbum { get; set; }
-            [JsonInclude, JsonPropertyName("id_artist")]
+
+            [JsonInclude]
+            [JsonPropertyName("id_artist")]
             private int IdArtist { get; set; }
-            [JsonInclude, JsonPropertyName("id_track")]
+
+            [JsonInclude]
+            [JsonPropertyName("id_track")]
             private int IdTrack { get; set; }
-            [JsonInclude, JsonPropertyName("lang")]
+
+            [JsonInclude]
+            [JsonPropertyName("lang")]
             public string? Lang { get; set; }
-            [JsonInclude, JsonPropertyName("lyrics")]
+
+            [JsonInclude]
+            [JsonPropertyName("lyrics")]
             public string? Lyrics { get; set; }
-            [JsonInclude, JsonPropertyName("track")]
+
+            [JsonInclude]
+            [JsonPropertyName("track")]
             public string? Track { get; set; }
         }
     }

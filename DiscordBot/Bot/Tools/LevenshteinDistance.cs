@@ -1,4 +1,4 @@
-#nullable enable 
+#nullable enable
 using System;
 
 namespace DiscordBot.Tools
@@ -10,7 +10,7 @@ namespace DiscordBot.Tools
         {
             return ComputeStrict(s?.ToLower(), t?.ToLower()); // I know. No need to kill me over it.
         }
-        
+
         public static int ComputeStrict(string? s, string? t)
         {
             if (string.IsNullOrEmpty(s)) return string.IsNullOrEmpty(t) ? 0 : t.Length;

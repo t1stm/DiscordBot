@@ -2,7 +2,6 @@ using System;
 
 namespace TestingAPI
 {
-
     public class WeatherForecast
     {
         public DateTime Date { get; set; }

@@ -28,6 +28,7 @@ namespace DiscordBot.Tools.Objects
                     Debug.Write($"ByteArrayData WriteToStreamAsync failed: \"{e}\"");
             }
         }
+
         public async Task WriteToStreamAsync(Stream destination, CancellationToken? cancellationToken = null)
         {
             try

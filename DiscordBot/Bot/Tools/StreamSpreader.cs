@@ -11,13 +11,9 @@ namespace DiscordBot.Tools
 {
     public class StreamSpreader : Stream
     {
-        private List<FeedableStream> Destinations { get; }
-        private Queue<IWriteAction> DataWritten { get; } = new();
-        private CancellationToken Token { get; }
         private readonly SemaphoreSlim semaphore = new(1);
         private long _length;
         private long _position;
-        public bool KeepCached { get; init; }
 
         public StreamSpreader(CancellationToken token, params Stream[] destinations)
         {
@@ -25,13 +21,26 @@ namespace DiscordBot.Tools
             Token = token;
         }
 
+        private List<FeedableStream> Destinations { get; }
+        private Queue<IWriteAction> DataWritten { get; } = new();
+        private CancellationToken Token { get; }
+        public bool KeepCached { get; init; }
+
+        public override bool CanRead => false;
+        public override bool CanSeek => false;
+        public override bool CanWrite => true;
+        public override long Length => _length;
+
+        public override long Position
+        {
+            get => _position;
+            set => _position = value;
+        }
+
         public async Task ReadStream(Stream stream, bool close = true)
         {
             var buffer = new byte[1 << 12];
-            while (await stream.ReadAsync(buffer, Token) != 0)
-            {
-                await WriteAsync(buffer, 0 ,buffer.Length, Token);
-            }
+            while (await stream.ReadAsync(buffer, Token) != 0) await WriteAsync(buffer, 0, buffer.Length, Token);
 
             if (close)
             {
@@ -68,23 +77,14 @@ namespace DiscordBot.Tools
 
         public override void Close()
         {
-            foreach (var feedableStream in Destinations)
-            {
-                feedableStream.Close();
-            }
+            foreach (var feedableStream in Destinations) feedableStream.Close();
         }
 
         public override void Flush()
         {
-            while (Destinations.Any(r => r.Updating))
-            {
-                Task.Delay(33, Token).Wait(Token);
-            }
+            while (Destinations.Any(r => r.Updating)) Task.Delay(33, Token).Wait(Token);
 
-            foreach (var stream in Destinations)
-            {
-                stream.FlushAsync(Token);
-            }
+            foreach (var stream in Destinations) stream.FlushAsync(Token);
         }
 
         public override async Task FlushAsync(CancellationToken cancellationToken)
@@ -94,11 +94,8 @@ namespace DiscordBot.Tools
                 if (cancellationToken.IsCancellationRequested) return;
                 await Task.Delay(33, Token);
             }
-            
-            foreach (var stream in Destinations)
-            {
-                await stream.FlushAsync(Token).ConfigureAwait(false);
-            }
+
+            foreach (var stream in Destinations) await stream.FlushAsync(Token).ConfigureAwait(false);
         }
 
         public override int Read(byte[] buffer, int offset, int count)
@@ -126,6 +123,7 @@ namespace DiscordBot.Tools
                 if (Token.IsCancellationRequested) return;
                 feedableStream.Write(bufferCopy, offset, count);
             }
+
             _position = _length += count;
             semaphore.Release();
         }
@@ -142,8 +140,10 @@ namespace DiscordBot.Tools
                     semaphore.Release();
                     return;
                 }
+
                 await feedableStream.WriteAsync(bufferCopy, offset, count, cancellationToken);
             }
+
             _position = _length += count;
             semaphore.Release();
         }
@@ -182,39 +182,26 @@ namespace DiscordBot.Tools
         {
             semaphore.Wait(token ?? CancellationToken.None);
             var feedableStream = new FeedableStream(destination);
-            if (KeepCached) foreach (var action in DataWritten.ToArray())
-            {
-                feedableStream.Write(action);
-            }
+            if (KeepCached)
+                foreach (var action in DataWritten.ToArray())
+                    feedableStream.Write(action);
             Destinations.Add(feedableStream);
             semaphore.Release();
             return feedableStream;
         }
-        
+
         public async Task<FeedableStream> AddDestinationAsync(Stream destination, CancellationToken? token = null)
         {
             await semaphore.WaitAsync(token ?? CancellationToken.None);
             var feedableStream = new FeedableStream(destination);
-            if (KeepCached) foreach (var action in DataWritten.ToArray())
-            {
-                feedableStream.Write(action);
-            }
+            if (KeepCached)
+                foreach (var action in DataWritten.ToArray())
+                    feedableStream.Write(action);
 
             await feedableStream.FlushAsync(token ?? CancellationToken.None);
             Destinations.Add(feedableStream);
             semaphore.Release();
             return feedableStream;
-        }
-
-        public override bool CanRead => false;
-        public override bool CanSeek => false;
-        public override bool CanWrite => true;
-        public override long Length => _length;
-
-        public override long Position
-        {
-            get => _position;
-            set => _position = value;
         }
     }
 }

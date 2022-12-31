@@ -4,20 +4,35 @@ using System.Threading;
 using System.Threading.Tasks;
 using CustomPlaylistFormat.Objects;
 using DiscordBot.Tools;
+using PlaylistThumbnailGenerator;
 
 namespace DiscordBot.Playlists
 {
     public static class PlaylistThumbnail
     {
-        public static readonly string WorkingDirectory = $"{PlaylistManager.PlaylistDirectory}/Thumbnails";
         public const string NotFoundImageFilename = "not-found";
+        public static readonly string WorkingDirectory = $"{PlaylistManager.PlaylistDirectory}/Thumbnails";
+
+        public static Stream NotFoundPlaylistImage =>
+            File.Open("./NoGuildImage.png", FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
+
+        private static PlaylistInfo NotFoundInfo => new()
+        {
+            Name = "Not found.",
+            Maker = "You?",
+            Description =
+                "The requested playlist wasn't found in the database. Please check the request or I'll kindly come knock on your house with an axe.",
+            Count = 0,
+            IsPublic = true
+        };
 
         public static Task<StreamSpreader?> GetNotFoundInfo(Stream destination)
         {
             return GetImage(NotFoundImageFilename, NotFoundInfo, false, destination);
         }
 
-        public static async Task<StreamSpreader?> GetImage(string? id, PlaylistInfo info, bool overwrite, Stream destination)
+        public static async Task<StreamSpreader?> GetImage(string? id, PlaylistInfo info, bool overwrite,
+            Stream destination)
         {
             var filename = $"{WorkingDirectory}/{id ?? info.Guid.ToString()}.png";
             if (File.Exists(filename) && !overwrite)
@@ -26,9 +41,10 @@ namespace DiscordBot.Playlists
                 await file.CopyToAsync(destination);
                 return null;
             }
+
             var newFile = File.Open(filename, FileMode.Create, FileAccess.ReadWrite, FileShare.ReadWrite);
             var streamSpreader = new StreamSpreader(CancellationToken.None, newFile, destination);
-            var thumbnailGenerator = new PlaylistThumbnailGenerator.Generator(streamSpreader, GetPlaylistImage(info));
+            var thumbnailGenerator = new Generator(streamSpreader, GetPlaylistImage(info));
             await thumbnailGenerator.Generate(info);
             return streamSpreader;
         }
@@ -42,7 +58,7 @@ namespace DiscordBot.Playlists
                 ? File.Open(path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite)
                 : NotFoundPlaylistImage;
         }
-        
+
         public static async Task<StreamSpreader> PlaylistImageSpreader(PlaylistInfo info, Stream destination)
         {
             await using var img = GetPlaylistImage(info);
@@ -50,8 +66,6 @@ namespace DiscordBot.Playlists
             await img.CopyToAsync(streamSpreader);
             return streamSpreader;
         }
-        
-        public static Stream NotFoundPlaylistImage => File.Open("./NoGuildImage.png", FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
 
         public static async Task<StreamSpreader> WriteNotFoundPlaylistImage(Stream destination)
         {
@@ -60,13 +74,5 @@ namespace DiscordBot.Playlists
             await img.CopyToAsync(streamSpreader);
             return streamSpreader;
         }
-        private static PlaylistInfo NotFoundInfo => new()
-        {
-            Name = "Not found.",
-            Maker = "You?",
-            Description = "The requested playlist wasn't found in the database. Please check the request or I'll kindly come knock on your house with an axe.",
-            Count = 0,
-            IsPublic = true
-        };
     }
 }

@@ -15,6 +15,7 @@ namespace DiscordBot.Audio.Objects
         {
             return new(() => false);
         }
+
         public override string GetId()
         {
             return "";

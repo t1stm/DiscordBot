@@ -221,6 +221,7 @@ namespace DiscordBot.Audio
                     queue.Remove(current);
                     queue.Insert(0, current);
                 }
+
                 Items = queue;
                 Current = 0;
                 Broadcast();
@@ -252,6 +253,7 @@ namespace DiscordBot.Audio
                     queue.Remove(current);
                     queue.Insert(0, current);
                 }
+
                 Items = queue;
                 Current = 0;
                 RandomSeed = seed;

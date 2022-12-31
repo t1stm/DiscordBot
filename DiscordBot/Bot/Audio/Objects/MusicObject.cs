@@ -18,9 +18,9 @@ namespace DiscordBot.Audio.Objects
 
         public override string GetName(bool settingsShowOriginalInfo = false)
         {
-            return !settingsShowOriginalInfo && RomanizedTitle != null ? 
-                $"{RomanizedTitle}{(RomanizedAuthor != null ? $" - {RomanizedAuthor}" : "")}" :
-                $"{Title}{(Author != null ? $" - {Author}" : "")}";
+            return !settingsShowOriginalInfo && RomanizedTitle != null
+                ? $"{RomanizedTitle}{(RomanizedAuthor != null ? $" - {RomanizedAuthor}" : "")}"
+                : $"{Title}{(Author != null ? $" - {Author}" : "")}";
         }
 
         public override string GetLocation()

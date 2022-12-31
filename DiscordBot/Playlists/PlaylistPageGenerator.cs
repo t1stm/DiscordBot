@@ -15,8 +15,10 @@ namespace DiscordBot.Playlists
             var maker = playlist.Info?.Maker;
             var pageTitle = $"\'{name}\' \nMade by: \'{maker}'";
             var image = $"https://playlists.dankest.gq/Image/{guid}";
-            var value =  
+            var value =
+
                 #region HTML Boilerplate
+
                 $@"<!DOCTYPE html>
 <html lang=""en"">
 <head>
@@ -279,31 +281,35 @@ namespace DiscordBot.Playlists
     </div>
     <ul id=""playlist"">
 ";
+
             #endregion
+
             if (playlist.PlaylistItems != null)
-            foreach (var entry in playlist.PlaylistItems)
-            {
-                var video = $"{PlaylistManager.ItemTypeToString(entry.Type)}://{entry.Data}";
-                var search = await Search.Get(video);
-                var result = search?.First();
-                value += $@"<li class=""playlistItem"">
+                foreach (var entry in playlist.PlaylistItems)
+                {
+                    var video = $"{PlaylistManager.ItemTypeToString(entry.Type)}://{entry.Data}";
+                    var search = await Search.Get(video);
+                    var result = search?.First();
+                    value += $@"<li class=""playlistItem"">
             <img src=""{(string.IsNullOrEmpty(result?.GetThumbnailUrl()) ? "https://dankest.gq/WebUi/NoVideoImage.png" : result.GetThumbnailUrl())}"" alt=""Item Image"">
             <div class=""info"">
                 <p class=""playlistItemTitle"">{result?.GetTitle()}</p>
                 <p class=""playlistItemAuthor"">{result?.GetAuthor()}</p>
             </div>
         </li>";
-            }
+                }
 
             value += "</ul>\n</div>\n<div id=\"bkg\"></div>\n</body>\n</html>";
-            
+
             return value;
         }
-        
+
         public static string GenerateNotFoundPage()
         {
-            const string value = 
+            const string value =
+
                 #region HTML File
+
                 @"<!DOCTYPE html>
 <html lang=""en"">
 <head>
@@ -384,7 +390,9 @@ namespace DiscordBot.Playlists
 <div id=""bkg""></div>
 </body>
 </html>";
+
             #endregion
+
             return value;
         }
     }

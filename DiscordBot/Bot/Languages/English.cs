@@ -42,7 +42,8 @@ namespace DiscordBot.Objects
 
         public string SavedQueueAfterLeavingMessage(string cmd)
         {
-            return "IMPORTANT NOTE: \nThe voting for the new name of the bot has started. If you'd want to vote, use the button below this message.";
+            return
+                "IMPORTANT NOTE: \nThe voting for the new name of the bot has started. If you'd want to vote, use the button below this message.";
         }
 
         #region Mixed Commands

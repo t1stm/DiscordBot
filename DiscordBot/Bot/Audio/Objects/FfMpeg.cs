@@ -14,11 +14,10 @@ namespace DiscordBot.Audio.Objects
 {
     public class FfMpeg
     {
+        private static readonly Dictionary<string, StreamSpreader> ActiveWriteSessions = new();
         private Process? FfMpegProcess { get; set; }
         private StreamSpreader? Spreader { get; set; } = new(CancellationToken.None);
         private CancellationTokenSource Source { get; } = new();
-
-        private static readonly Dictionary<string, StreamSpreader> ActiveWriteSessions = new();
 
         public Stream PathToPcm(string videoPath, string startingTime = "00:00:00.000", bool normalize = false)
         {
@@ -97,19 +96,19 @@ namespace DiscordBot.Audio.Objects
                     };
                     AddSpreader(item.GetAddUrl(), Spreader);
                 }
-                Spreader.AddDestination(FfMpegProcess.StandardInput.BaseStream); // HOW DOES THIS WORK AND ADDING IT IN THE StreamSpreader INITIALIZER NOT WORK?
+
+                Spreader.AddDestination(FfMpegProcess.StandardInput
+                    .BaseStream); // HOW DOES THIS WORK AND ADDING IT IN THE StreamSpreader INITIALIZER NOT WORK?
                 var yes = new Task(async () =>
                 {
-                    while (!FfMpegProcess.StandardInput.BaseStream.CanWrite)
-                    {
-                        await Task.Delay(16);
-                    }
+                    while (!FfMpegProcess.StandardInput.BaseStream.CanWrite) await Task.Delay(16);
                     var success = await item.GetAudioData(Spreader);
                     if (success == false)
                     {
                         await Debug.WriteAsync("Reading Audio Data wasn't successful.");
                         await Kill();
                     }
+
                     await Spreader.CloseWhenCopied();
                     RemoveSpreader(item.GetAddUrl());
                     await Debug.WriteAsync("Copying audio data to stream finished.");

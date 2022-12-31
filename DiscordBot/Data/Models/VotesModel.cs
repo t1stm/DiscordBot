@@ -7,11 +7,9 @@ namespace DiscordBot.Data.Models
 {
     public class VotesModel : Model<VotesModel>
     {
-        [JsonInclude]
-        public ulong UserId { get; set; }
+        [JsonInclude] public ulong UserId { get; set; }
 
-        [JsonInclude] 
-        public string Choice { get; set; } = null!;
+        [JsonInclude] public string Choice { get; set; } = null!;
 
         public override VotesModel? SearchFrom(IEnumerable<VotesModel> source)
         {

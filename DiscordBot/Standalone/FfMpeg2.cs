@@ -18,7 +18,8 @@ namespace DiscordBot.Standalone
             var ffmpegStartInfo = new ProcessStartInfo
             {
                 FileName = "ffmpeg",
-                Arguments = @"-v quiet -nostats " + $@"-i ""{path}"" {codec} -vn {addParameters} {format} pipe:1",
+                Arguments = @"-v quiet -nostats " +
+                            $@"-i ""{path}"" {codec} -r 48000 -vn {addParameters} {format} pipe:1",
                 RedirectStandardOutput = true,
                 RedirectStandardInput = true,
                 RedirectStandardError = false,
@@ -34,7 +35,7 @@ namespace DiscordBot.Standalone
             var ffmpegStartInfo = new ProcessStartInfo
             {
                 FileName = "ffmpeg",
-                Arguments = @"-v quiet -nostats " + $@"-i - {codec} -vn {addParameters} {format} pipe:1",
+                Arguments = @"-v quiet -nostats " + $@"-i - {codec} -r 48000 -vn {addParameters} {format} pipe:1",
                 RedirectStandardOutput = true,
                 RedirectStandardInput = true,
                 RedirectStandardError = false,

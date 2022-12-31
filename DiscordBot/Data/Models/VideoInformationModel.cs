@@ -17,6 +17,7 @@ namespace DiscordBot.Data.Models
         {
             return source.AsParallel().FirstOrDefault(r => VideoId == r.VideoId);
         }
+
         public YoutubeVideoInformation Convert()
         {
             return new()

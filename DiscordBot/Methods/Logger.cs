@@ -24,6 +24,7 @@ namespace DiscordBot.Methods
     public class Logger : ILogger
     {
         public bool Enabled { get; set; } = Bot.DebugMode;
+
         public IDisposable BeginScope<TState>(TState state)
         {
             return default!;

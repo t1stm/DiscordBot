@@ -35,7 +35,8 @@ namespace DiscordBot.Messages
         public async Task UpdateStatusbar()
         {
             var users = Player?.VoiceChannel?.Users;
-            if (Player != null) Player.VoiceUsers = (List<DiscordMember>) users ?? Enumerable.Empty<DiscordMember>().ToList();
+            if (Player != null)
+                Player.VoiceUsers = (List<DiscordMember>) users ?? Enumerable.Empty<DiscordMember>().ToList();
             switch (Mode)
             {
                 case StatusbarMode.Stopped:
@@ -190,7 +191,7 @@ namespace DiscordBot.Messages
             builder.AddComponents(
                 new List<DiscordActionRowComponent>
                 {
-                    new(new []
+                    new(new[]
                     {
                         new DiscordButtonComponent(ButtonStyle.Secondary, "shuffle", "Shuffle"),
                         new DiscordButtonComponent(ButtonStyle.Success, "back", "Previous"),
@@ -198,7 +199,7 @@ namespace DiscordBot.Messages
                         new DiscordButtonComponent(ButtonStyle.Success, "skip", "Next"),
                         new DiscordButtonComponent(ButtonStyle.Secondary, "leave", "Leave")
                     }),
-                    new(new []
+                    new(new[]
                     {
                         new DiscordButtonComponent(ButtonStyle.Secondary, "webui", "Web UI"),
                         new DiscordButtonComponent(ButtonStyle.Danger, "vote", "Vote")

@@ -9,7 +9,14 @@ namespace DiscordBot.Objects
     public class User
     {
         private readonly UsersModel Model;
-        public ulong Id {
+
+        public User(UsersModel model)
+        {
+            Model = model;
+        }
+
+        public ulong Id
+        {
             get => Model.Id;
             set
             {
@@ -17,6 +24,7 @@ namespace DiscordBot.Objects
                 Model.SetModified?.Invoke();
             }
         }
+
         public string? Token
         {
             get => Model.Token;
@@ -76,11 +84,6 @@ namespace DiscordBot.Objects
                 Model.LowSpec = value;
                 Model.SetModified?.Invoke();
             }
-        }
-
-        public User(UsersModel model)
-        {
-            Model = model;
         }
 
         public WebUISettings ToWebUISettings()

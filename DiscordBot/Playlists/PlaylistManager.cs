@@ -50,6 +50,7 @@ namespace DiscordBot.Playlists
                 return Infos.AsParallel().FirstOrDefault(r => r.Guid == guid);
             }
         }
+
         public static async Task<List<PlayableItem>?> FromLink(string link, Action<string>? onError = null)
         {
             var split = link.Split('/');
@@ -67,7 +68,7 @@ namespace DiscordBot.Playlists
 
             var data = GetIfExists(guid);
             if (data is not null) return await ParsePlaylist(data.Value);
-            
+
             onError?.Invoke("Playlist doesn't exist.");
             return null;
         }
@@ -91,39 +92,40 @@ namespace DiscordBot.Playlists
                             break;
                     }
             }
+
             return items;
         }
-        
+
         public static Playlist? GetDataIfExists(Guid guid)
         {
             var filename = $"{PlaylistDirectory}/{guid.ToString()}.play";
             if (!File.Exists(filename)) return null;
-            
+
             var file = File.Open(filename, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
             var decoder = new Decoder(file);
             var read = decoder.Read(ReadMode.InfoOnly);
             var inMemory = GetInMemory(guid);
             read.Info = inMemory ?? read.Info;
             if (read.Info == null) return read;
-            
+
             read.Info.Guid = guid;
             read.Info.HasThumbnail = File.Exists($"{PlaylistThumbnail.WorkingDirectory}/Thumbnail Images/{guid}.png");
             return read;
         }
-        
+
         public static Playlist? GetIfExists(Guid guid)
         {
             var filename = $"{PlaylistDirectory}/{guid.ToString()}.play";
             if (!File.Exists(filename)) return null;
-            
+
             var file = File.Open(filename, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
             var decoder = new Decoder(file);
             var read = decoder.Read();
-            
+
             var inMemory = GetInMemory(guid);
             read.Info = inMemory ?? read.Info;
             if (read.Info == null) return read;
-            
+
             read.Info.Guid = guid;
             read.Info.HasThumbnail = File.Exists($"{PlaylistThumbnail.WorkingDirectory}/Thumbnail Images/{guid}.png");
             return read;
@@ -164,7 +166,7 @@ namespace DiscordBot.Playlists
 
             return null;
         }
-        
+
         public static Playlist SavePlaylist(IEnumerable<PlayableItem> list, PlaylistInfo info, Guid guid)
         {
             var fileStream = File.Open($"{PlaylistDirectory}/{guid.ToString()}.play", FileMode.Create);
@@ -187,31 +189,37 @@ namespace DiscordBot.Playlists
             };
         }
 
-        public static byte GetItemType(PlayableItem it) => it switch
+        public static byte GetItemType(PlayableItem it)
         {
-            YoutubeVideoInformation => 01,
-            SpotifyTrack => 02,
-            SystemFile => 03,
-            Vbox7Video => 05,
-            OnlineFile => 06,
-            TtsText => 07,
-            TwitchLiveStream => 08,
-            YoutubeOverride => 09,
-            _ => 255
-        };
-        
-        public static string ItemTypeToString(byte it) => it switch
+            return it switch
+            {
+                YoutubeVideoInformation => 01,
+                SpotifyTrack => 02,
+                SystemFile => 03,
+                Vbox7Video => 05,
+                OnlineFile => 06,
+                TtsText => 07,
+                TwitchLiveStream => 08,
+                YoutubeOverride => 09,
+                _ => 255
+            };
+        }
+
+        public static string ItemTypeToString(byte it)
         {
-            01 => "yt",
-            02 => "spt",
-            03 => "file",
-            04 => "dis-att",
-            05 => "vb7",
-            06 => "onl",
-            07 => "tts",
-            08 => "ttv",
-            09 => "yt-ov",
-            _ => ""
-        };
+            return it switch
+            {
+                01 => "yt",
+                02 => "spt",
+                03 => "file",
+                04 => "dis-att",
+                05 => "vb7",
+                06 => "onl",
+                07 => "tts",
+                08 => "ttv",
+                09 => "yt-ov",
+                _ => ""
+            };
+        }
     }
 }
