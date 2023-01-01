@@ -182,6 +182,20 @@ namespace DiscordBot
                                 cancel = false;
                                 break;
                             }
+                            
+                            var main = Manager.Main.ToArray();
+                            foreach (var instance in main)
+                            {
+                                try
+                                {
+                                    await instance.DisconnectAsync("Qutting the channel due to a restart of the bot.");
+                                }
+                                catch (Exception e)
+                                {
+                                    await Debug.WriteAsync($"Exception in disconnecting client: {e}");
+                                }
+                            }
+                            SaveDatabases();
 
                             Environment.Exit(0);
                             break;

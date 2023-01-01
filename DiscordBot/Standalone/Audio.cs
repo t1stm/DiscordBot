@@ -98,7 +98,12 @@ namespace DiscordBot.Standalone
                     true => ff.Convert(first, codec: "-c:a libopus", addParameters: $"-b:a {bitrate}k"),
                     false => ff.Convert(first, codec: "-c:a libvorbis", addParameters: $"-b:a {bitrate}k")
                 };
-                await stream.CopyToAsync(Response.Body);
+                await stream.CopyToAsync(Response.Body, HttpContext.RequestAborted);
+                if (HttpContext.RequestAborted.IsCancellationRequested)
+                {
+                    ff.FfMpegProcess?.Close();
+                    stream.Close();
+                }
                 /*var streamSpreader = new StreamSpreader(CancellationToken.None, Response.Body)
                 {
                     KeepCached = true

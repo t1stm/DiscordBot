@@ -109,7 +109,7 @@ namespace DiscordBot.Audio.Platforms
                 return await SharePlaylist.Get(searchTerm[3..]);
 
             var databaseItem = MusicManager.SearchOneByTerm(searchTerm);
-            if (databaseItem is not null) return new List<PlayableItem>
+            if (databaseItem is not null && !returnAllResults) return new List<PlayableItem>
             {
                 databaseItem.ToMusicObject()
             };
@@ -120,8 +120,17 @@ namespace DiscordBot.Audio.Platforms
                 {
                     await Video.Search(searchTerm, length: length)
                 },
+                true when databaseItem is not null => 
+                    AddDatabaseItemToYoutubeResults(databaseItem.ToMusicObject(), await Video.SearchAllResults(searchTerm, length)),
                 true => new List<PlayableItem>(await Video.SearchAllResults(searchTerm, length))
             };
+        }
+
+        private static List<PlayableItem> AddDatabaseItemToYoutubeResults(PlayableItem item, IEnumerable<YoutubeVideoInformation> list)
+        {
+            var l = new List<PlayableItem> {item};
+            l.AddRange(list);
+            return l;
         }
 
         public static async Task<object?> SearchBotProtocols(string search)
