@@ -27,7 +27,9 @@ namespace DiscordBot.Audio.Objects
 
         public override string GetThumbnailUrl()
         {
-            return null;
+            // Reference:
+            //       https://i49.vbox7.com/o/a5c/a5c864bf710.jpg
+            return $"https://i49.vbox7.com/o/{Id[..3]}/{Id}0.jpg"; // Interesting format indeed.
         }
 
         public override string GetAddUrl()
