@@ -59,73 +59,43 @@ namespace DiscordBot.Standalone
             }
         }
 
-        public async Task<ActionResult?> DownloadTrack(string id, int bitrate = 96, bool useOpus = true)
+        [HttpGet, Route("/Audio/Download/{codec}/{bitrate:int}")]
+        public async Task<ActionResult> DownloadTrack(string codec, int bitrate, string id)
         {
             try
             {
                 Response.StatusCode = 200;
-                Response.ContentType = "audio/ogg";
-                Response.Headers.ContentDisposition = "attachment; filename=audio.ogg; filename*=UTF-8''audio.ogg";
-                Response.Headers.AcceptRanges = "bytes";
+                var type = codec switch
+                {
+                    "Opus" or "Vorbis" => "audio/ogg",
+                    "AAC" => "audio/aac",
+                    _ => "audio/mp3"
+                };
+                Response.ContentType = type;
+                var filename = type.Replace('/', '.'); /* type[..5] + '.' + type[7..]; */
+                Response.Headers.ContentDisposition = $"attachment; filename={filename}; filename*=UTF-8''{filename}";
+                Response.Headers.AcceptRanges = "none";
 
                 if (Bot.DebugMode) await Debug.WriteAsync("Using Audio Controller");
                 var res = await DiscordBot.Audio.Platforms.Search.Get(id);
                 var first = res?.First();
-                if (first == null) return NotFound();
+                if (first == null)
+                {
+                    await Debug.WriteAsync("No found result in DownloadTrack API.");
+                    /*Response.StatusCode = StatusCodes.Status404NotFound;
+                    await Response.CompleteAsync();*/
+                    return NotFound();
+                }
                 FfMpeg2 ff = new();
-                /*EncodedAudio? foundEnc;
-                lock (EncodedAudio)
+                var stream = codec switch
                 {
-                    foundEnc = EncodedAudio.AsParallel()
-                        .FirstOrDefault(r => r?.SearchTerm == id && r.Bitrate == bitrate, null);
-                }
-
-                if (foundEnc != null)
-                {
-                    foundEnc.Expire = DateTime.UtcNow.AddMinutes(AudioCacheTimeout).Ticks;
-                    if (foundEnc.Spreader == null) return BadRequest();
-                    var feedableStream = await foundEnc.Spreader.AddDestinationAsync(Response.Body);
-                    await feedableStream.AwaitFinish();
-                    if (Bot.DebugMode)
-                        await Debug.WriteAsync(
-                            $"Retuning already encoded audio for search term \"{foundEnc.SearchTerm}\".");
-                    await Response.CompleteAsync();
-                    return null;
-                }*/
-
-                var stream = useOpus switch
-                {
-                    true => ff.Convert(first, codec: "-c:a libopus", addParameters: $"-b:a {bitrate}k"),
-                    false => ff.Convert(first, codec: "-c:a libvorbis", addParameters: $"-b:a {bitrate}k")
+                    "Opus" => ff.Convert(first, codec: "-c:a libopus", addParameters: $"-b:a {bitrate}k -d copy"),
+                    "Vorbis" => ff.Convert(first, codec: "-c:a libvorbis", addParameters: $"-b:a {bitrate}k -d copy"),
+                    "AAC" => ff.Convert(first, codec: "-c:a aac", addParameters: $"-b:a {bitrate}k -d copy", format: "-f adts"),
+                    _ => ff.Convert(first, codec: "-c:a libmp3lame", addParameters: $"-b:a {bitrate}k -d copy", format: "-f mp3")
                 };
-                await stream.CopyToAsync(Response.Body, HttpContext.RequestAborted);
-                if (HttpContext.RequestAborted.IsCancellationRequested)
-                {
-                    ff.FfMpegProcess?.Close();
-                    stream.Close();
-                }
-                /*var streamSpreader = new StreamSpreader(CancellationToken.None, Response.Body)
-                {
-                    KeepCached = true
-                };
-                var el = new EncodedAudio
-                {
-                    SearchTerm = id,
-                    Spreader = streamSpreader,
-                    Expire = DateTime.UtcNow.AddMinutes(AudioCacheTimeout).Ticks,
-                    Encoded = false,
-                    Bitrate = bitrate
-                };
-                lock (EncodedAudio)
-                {
-                    EncodedAudio.Add(el);
-                }
 
-                await streamSpreader.ReadStream(stream);
-                await streamSpreader.Finish();
-                el.Encoded = true;*/
-                await Response.CompleteAsync();
-                return null;
+                return File(stream, type, filename, true);
             }
             catch (Exception e)
             {
@@ -134,6 +104,7 @@ namespace DiscordBot.Standalone
             }
         }
 
+        //[HttpGet, Route("/Audio/UserPlaylists/{**userToken}")]
         public IActionResult GetUserPlaylists(string userToken)
         {
             return Ok(userToken);
@@ -156,7 +127,8 @@ namespace DiscordBot.Standalone
 
             return Ok();
         }
-
+        
+        [HttpGet, Route("/Audio/Search")]
         public async Task<IActionResult> Search(string term)
         {
             var items = await DiscordBot.Audio.Platforms.Search.Get(term, returnAllResults: true);
@@ -179,6 +151,7 @@ namespace DiscordBot.Standalone
             return Json(list, new JsonSerializerOptions {PropertyNameCaseInsensitive = false});
         }
 
+        [HttpGet, Route("/Audio/GetRandomDownload")]
         public FileStreamResult GetRandomDownload()
         {
             var files = Directory.EnumerateFiles($"{Bot.WorkingDirectory}/dll/audio").ToList();

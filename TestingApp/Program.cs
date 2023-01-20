@@ -1,6 +1,8 @@
-using TestingApp.StreamSpreader_Tests;
+using DiscordBot;
+using DiscordBot.Playlists.Music_Storage;
+using TestingApp.Music_Database_Tests;
 
-/*Bot.LoadDatabases();
+Bot.LoadDatabases();
 MusicManager.LoadItems();
 /*YoutubeOverride.UpdateOverrides();
 
@@ -14,4 +16,7 @@ await TestingServer.Start();
 
 await Task.Delay(-1);*/
 
-DataAccuracy.Test();
+//DataAccuracy.Test();
+
+//new PlaylistTest().Test();
+ExtractId3v2Images.Test();

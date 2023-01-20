@@ -14,7 +14,7 @@ namespace DiscordBot.Playlists
             var guid = playlist.Info?.Guid.ToString();
             var maker = playlist.Info?.Maker;
             var pageTitle = $"\'{name}\' \nMade by: \'{maker}'";
-            var image = $"https://playlists.dankest.gq/Image/{guid}";
+            var image = $"https://playlists.{Bot.MainDomain}/Image/{guid}";
             var value =
 
                 #region HTML Boilerplate
@@ -25,15 +25,15 @@ namespace DiscordBot.Playlists
 <meta charset=""UTF-8"">
     <title>{pageTitle}</title>
     <meta content=""#0E5445"" name=""theme-color"">
-    <meta property=""og:site_name"" content=""dankest.gq Playlists"">
+    <meta property=""og:site_name"" content=""{Bot.MainDomain} Playlists"">
     <meta property=""og:type"" content=""website"">
-    <meta property=""og:url"" content=""https://playlists.dankest.gq/"">
+    <meta property=""og:url"" content=""https://playlists.{Bot.MainDomain}/"">
     <meta name=""title"" content=""{pageTitle}"">
     <meta name=""description"" content=""{description}"">
     <meta property=""og:title"" content=""{pageTitle}"">
     <meta property=""og:description"" content=""{description}"">
-    <meta property=""og:image"" content=""https://playlists.dankest.gq/Thumbnail/{guid}"">
-    <meta property=""image"" content=""https://playlists.dankest.gq/Thumbnail/{guid}"">
+    <meta property=""og:image"" content=""https://playlists.{Bot.MainDomain}/Thumbnail/{guid}"">
+    <meta property=""image"" content=""https://playlists.{Bot.MainDomain}/Thumbnail/{guid}"">
     <meta property=""og:image:width"" content=""1200"" />
     <meta property=""og:image:height"" content=""540"" />
     <meta content=""summary_large_image"" name=""twitter:card"">
@@ -41,7 +41,7 @@ namespace DiscordBot.Playlists
     <meta content=""@t1stm"" name=""twitter:site"">
     <meta content=""{pageTitle}"" name=""twitter:title"">
     <meta content=""{description}"" name=""twitter:description""> 
-    <meta property=""twitter:image"" content=""https://playlists.dankest.gq/Thumbnail/{guid}"">
+    <meta property=""twitter:image"" content=""https://playlists.{Bot.MainDomain}/Thumbnail/{guid}"">
     <meta name=""viewport"" content=""width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=4""/>
 </head>
 <style>
@@ -291,7 +291,7 @@ namespace DiscordBot.Playlists
                     var search = await Search.Get(video);
                     var result = search?.First();
                     value += $@"<li class=""playlistItem"">
-            <img src=""{(string.IsNullOrEmpty(result?.GetThumbnailUrl()) ? "https://dankest.gq/WebUi/NoVideoImage.png" : result.GetThumbnailUrl())}"" alt=""Item Image"">
+            <img src=""{(string.IsNullOrEmpty(result?.GetThumbnailUrl()) ? $"https://{Bot.MainDomain}/WebUi/NoVideoImage.png" : result.GetThumbnailUrl())}"" alt=""Item Image"">
             <div class=""info"">
                 <p class=""playlistItemTitle"">{result?.GetTitle()}</p>
                 <p class=""playlistItemAuthor"">{result?.GetAuthor()}</p>
@@ -306,25 +306,21 @@ namespace DiscordBot.Playlists
 
         public static string GenerateNotFoundPage()
         {
-            const string value =
-
-                #region HTML File
-
-                @"<!DOCTYPE html>
+            var value = $@"<!DOCTYPE html>
 <html lang=""en"">
 <head>
     <meta charset=""UTF-8"">
     <title>Not Found</title>
     <meta content=""#0E5445"" name=""theme-color"">
-    <meta property=""og:site_name"" content=""dankest.gq Playlists"">
+    <meta property=""og:site_name"" content=""{Bot.MainDomain} Playlists"">
     <meta property=""og:type"" content=""website"">
-    <meta property=""og:url"" content=""https://playlists.dankest.gq/"">
+    <meta property=""og:url"" content=""https://playlists.{Bot.MainDomain}/"">
     <meta name=""title"" content=""Not Found"">
     <meta name=""description"" content=""Requested playlist not found."">
     <meta property=""og:title"" content=""Not Found"">
     <meta property=""og:description"" content=""Requested playlist not found"">
-    <meta property=""og:image"" content=""https://playlists.dankest.gq/Thumbnail?id=none"">
-    <meta property=""image"" content=""https://playlists.dankest.gq/Thumbnail?id=none"">
+    <meta property=""og:image"" content=""https://playlists.{Bot.MainDomain}/Thumbnail?id=none"">
+    <meta property=""image"" content=""https://playlists.{Bot.MainDomain}/Thumbnail?id=none"">
     <meta property=""og:image:width"" content=""1200"" />
     <meta property=""og:image:height"" content=""540"" />
     <meta content=""summary_large_image"" name=""twitter:card"">
@@ -332,10 +328,11 @@ namespace DiscordBot.Playlists
     <meta content=""@t1stm"" name=""twitter:site"">
     <meta content=""Not Found"" name=""twitter:title"">
     <meta content=""Requested playlist not found."" name=""twitter:description""> 
-    <meta property=""twitter:image"" content=""https://playlists.dankest.gq/Thumbnail?id=none"">
+    <meta property=""twitter:image"" content=""https://playlists.{Bot.MainDomain}/Thumbnail?id=none"">
     <meta name=""viewport"" content=""width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=4""/>
 </head>
 <body>
+" + @"
 <style>
     body {
         background-color: black;
@@ -390,8 +387,6 @@ namespace DiscordBot.Playlists
 <div id=""bkg""></div>
 </body>
 </html>";
-
-            #endregion
 
             return value;
         }

@@ -44,7 +44,7 @@ namespace DiscordBot
             SecondaryBot = "OTAzMjg3NzM3Nzc4NTg5NzA2.YXqyQg.F3cDKz-icUbYYMUJXwLxT-BX574";
 
         public const string WorkingDirectory = "/nvme0/DiscordBot";
-        public const string MainDomain = "dankest.gq";
+        public const string MainDomain = "danke.gq";
         public const string WebUiPage = "WebUi";
         public const string Name = "Slavi Trifonov";
 

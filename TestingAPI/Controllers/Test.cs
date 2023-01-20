@@ -1,5 +1,9 @@
 using System;
+using System.Collections.Generic;
+using System.Text.Json;
 using System.Threading.Tasks;
+using DiscordBot.Audio.Objects;
+using DiscordBot.Audio.Platforms.Youtube;
 using DiscordBot.Methods;
 using DiscordBot.Playlists;
 using DiscordBot.Tools;
@@ -15,6 +19,29 @@ namespace TestingAPI.Controllers
         public ActionResult TestAction()
         {
             return Ok("Hello World!");
+        }
+        
+        [HttpGet, Route("/Audio/Search")]
+        public async Task<IActionResult> Search(string term)
+        {
+            var items = await DiscordBot.Audio.Platforms.Search.Get(term, returnAllResults: true);
+            if (items == null) return Ok("[]"); // Empty Array
+            var list = new List<SearchResult>();
+            foreach (var item in items)
+            {
+                if (item is not SpotifyTrack track)
+                {
+                    list.Add(item.ToSearchResult());
+                    continue;
+                }
+
+                var spotify = await Video.Search(track);
+                var res = spotify.ToSearchResult();
+                res.IsSpotify = false;
+                list.Add(res);
+            }
+
+            return Json(list, new JsonSerializerOptions {PropertyNameCaseInsensitive = false});
         }
 
         [HttpGet]

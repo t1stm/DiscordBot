@@ -8,7 +8,23 @@ namespace DiscordBot.Tools
     {
         public static int ComputeLean(string? s, string? t)
         {
-            return ComputeStrict(s?.ToLower(), t?.ToLower()); // I know. No need to kill me over it.
+            return ComputeStrict(RemoveFormatting(s), RemoveFormatting(t)); // I know. No need to kill me over it.
+        }
+
+        private static string? RemoveFormatting(string? str)
+        {
+            return str?
+                .FastRemove('.')
+                .FastRemove('@')
+                .FastRemove('\\')
+                .FastRemove('\'')
+                .FastRemove('\"')
+                .ToLower();
+        }
+
+        public static string FastRemove(this string source, char remove)
+        {
+            return string.Join(string.Empty, source.Split(remove));
         }
 
         public static int ComputeStrict(string? s, string? t)

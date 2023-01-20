@@ -15,6 +15,7 @@ namespace DiscordBot.Playlists.Music_Storage
     public static class MusicManager
     {
         public static readonly string WorkingDirectory = $"{Bot.WorkingDirectory}/Music Database";
+        public static readonly string AlbumCoverAddress = $"{Bot.SiteDomain}/Album_Covers";
         public static List<MusicInfo> Items = new();
 
         public static void LoadItems()
@@ -28,6 +29,11 @@ namespace DiscordBot.Playlists.Music_Storage
                     var artists = Directory.GetDirectories(directory);
                     foreach (var artist in artists) Items.AddRange(GetSongs(directory, artist.Split('/').Last()));
                 }
+
+                foreach (var info in Items)
+                {
+                    info.CoverUrl = info.CoverUrl?.Replace("$[DOMAIN]", AlbumCoverAddress);
+                }
             }
         }
 
@@ -35,24 +41,24 @@ namespace DiscordBot.Playlists.Music_Storage
         {
             var dir = $"{directory}/{artist}";
             Debug.Write($"Reading database directory: {dir}");
-            var file = $"{dir}/Info.json";
+            var jsonFile = $"{dir}/Info.json";
 
             var songs = Directory.GetFiles(dir);
             var bg = !File.Exists($"{dir}/EN");
-            if (File.Exists(file))
+            if (File.Exists(jsonFile))
             {
-                using var read = File.OpenRead(file);
+                using var read = File.OpenRead(jsonFile);
                 var items = JsonSerializer.Deserialize<List<MusicInfo>>(read) ?? Enumerable.Empty<MusicInfo>().ToList();
                 if (items.Count == songs.Length - 1 - (bg ? 0 : 1)) return items;
                 var data = UpdateData(items, songs, bg).ToList();
-                using var rfs = File.Open(file, FileMode.Create, FileAccess.ReadWrite, FileShare.ReadWrite);
+                using var rfs = File.Open(jsonFile, FileMode.Create, FileAccess.ReadWrite, FileShare.ReadWrite);
                 JsonSerializer.Serialize(rfs, data);
                 rfs.Close();
                 return data;
             }
 
             var list = songs.Where(r => !r.EndsWith("EN")).Select(r => ParseFile(r, bg)).ToList();
-            using var fs = File.Open(file, FileMode.Create, FileAccess.ReadWrite, FileShare.ReadWrite);
+            using var fs = File.Open(jsonFile, FileMode.Create, FileAccess.ReadWrite, FileShare.ReadWrite);
             JsonSerializer.Serialize(fs, list);
             fs.Close();
 

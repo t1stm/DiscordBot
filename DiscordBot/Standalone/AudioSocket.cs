@@ -11,7 +11,9 @@ using System.Threading.Tasks;
 using System.Timers;
 using DiscordBot.Audio.Objects;
 using DiscordBot.Audio.Platforms;
+using DiscordBot.Objects;
 using DiscordBot.Tools;
+using MessagePack;
 using vtortola.WebSockets;
 using Debug = DiscordBot.Methods.Debug;
 using Timer = System.Timers.Timer;
@@ -25,6 +27,7 @@ namespace DiscordBot.Standalone
         private readonly Timer Timer = new();
         private Settings Options;
         private List<SearchResult> Queue = Enumerable.Empty<SearchResult>().ToList();
+        private ulong _clientIndex;
 
         public AudioSocket()
         {
@@ -48,6 +51,8 @@ namespace DiscordBot.Standalone
         public Guid SessionId { get; init; }
         private int Current { get; set; }
         private bool Paused { get; set; }
+
+        private List<ChatMessage> Messages = new();
 
         private void TimerOnElapsed(object? sender, ElapsedEventArgs e)
         {
@@ -222,6 +227,30 @@ namespace DiscordBot.Standalone
                         if (!all || Current + 1 == Queue.Count) return;
                         await Broadcast("Skip:");
                         return;
+                    
+                    case "chat":
+                        var chatMessage = new ChatMessage
+                        {
+                            User = client.Name,
+                            Message = joined,
+                            SendTime = DateTime.UtcNow
+                        };
+                        lock (Messages) {
+                            Messages.Add(chatMessage);
+                        }
+                        await Broadcast($"Chat:{JsonSerializer.Serialize(chatMessage)}", client);
+                        return;
+                    
+                    case "seek":
+                        if (!int.TryParse(joined, out var position))
+                        {
+                            await Respond(client.Socket, "Fail:Unable to parse position.");
+                            return;
+                        }
+                        ClearReady();
+                        await Broadcast($"Seek:{position}");
+                        
+                        return;
 
                     case "back":
                         if (Current - 1 < 0)
@@ -309,7 +338,7 @@ namespace DiscordBot.Standalone
             {
                 try
                 {
-                    await Respond(client.Socket, message);
+                    await Respond(client.Socket, message).ConfigureAwait(false);
                 }
                 catch (Exception e)
                 {
@@ -317,7 +346,10 @@ namespace DiscordBot.Standalone
                         $"Sending broadcast message to client: \"{(client.IsAnon ? "Anonymous" : client.Token)}\" failed. \"{e}\"");
                 }
             })).ToList();
-            foreach (var task in tasks) task.Start();
+            Parallel.ForEach(tasks, task =>
+            {
+                task.Start();
+            });
             await Task.WhenAll(tasks);
         }
 
@@ -374,14 +406,41 @@ namespace DiscordBot.Standalone
                 var client = new Client
                 {
                     Socket = ws,
-                    Token = suppliedToken
+                    Token = suppliedToken,
+                    Index = _clientIndex++
                 };
+                if (client.Token != null)
+                {
+                    try
+                    {
+                        var user = await User.FromToken(client.Token);
+                        if (user?.Id != null)
+                        {
+                            var discordUser = await Bot.Clients[0].GetUserAsync(user.Id);
+                            client.Username = $"{discordUser.Username} #{discordUser.Discriminator}";
+                        }
+                    }
+                    catch (Exception e)
+                    {
+                        await Debug.WriteAsync($"Unable to get username when token isn't null: \"{e}\"");
+                    }
+                }
                 lock (Clients)
                 {
                     Clients.Add(client);
                 }
 
+                List<ChatMessage> messages;
+
+                lock (Messages)
+                {
+                    messages = Messages.ToList();
+                }
+                
                 await Respond(ws, $"Queue:{JsonSerializer.Serialize(Queue)}");
+                await Respond(ws, $"OldMessages:{JsonSerializer.Serialize(messages)}");
+                await Broadcast($"UserJoin:{client.Name}", client);
+
                 var task = new Task(async () =>
                 {
                     while (ws.IsConnected)
@@ -396,8 +455,8 @@ namespace DiscordBot.Standalone
                                 }
 
                                 if (Admin == ws) Admin = Clients.FirstOrDefault()?.Socket;
-
                                 await ws.CloseAsync();
+                                await Broadcast($"UserLeave:{client.Name}");
                                 return;
                             }
 
@@ -442,6 +501,9 @@ namespace DiscordBot.Standalone
             public WebSocket Socket { get; init; } = null!;
             public string? Token { get; init; }
             public bool IsAnon => string.IsNullOrEmpty(Token) || Token is "null" or "undefined";
+            public string Username = "";
+            public string Name => IsAnon || string.IsNullOrEmpty(Username) ? $"Anonymous #{Index}" : Username;
+            public ulong Index;
             public bool Ready { get; set; }
             public bool Ended { get; set; }
         }

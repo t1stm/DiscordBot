@@ -15,18 +15,52 @@ namespace TestingApp
             Console.WriteLine("Starting PlaylistTest.");
             var notExistant = PlaylistManager.GetIfExists(new Guid());
             Console.WriteLine($"Non existant playlist is: \"{notExistant}\"");
-            var demoPlaylist = new List<PlayableItem>();
-            for (var i = 0; i < 12; i++)
-                demoPlaylist.Add(new YoutubeVideoInformation
+            var demoPlaylist = new List<PlayableItem>
+            {
+                new YoutubeVideoInformation
                 {
-                    YoutubeId = Guid.NewGuid().ToString()[..10]
-                });
+                    YoutubeId = "OjNpRbNdR7E"
+                },
+                new YoutubeVideoInformation
+                {
+                    YoutubeId = "OjNpRbNdR7E"
+                },
+                new YoutubeVideoInformation
+                {
+                    YoutubeId = "OjNpRbNdR7E"
+                },
+                new YoutubeVideoInformation
+                {
+                    YoutubeId = "OjNpRbNdR7E"
+                },
+                new YoutubeVideoInformation
+                {
+                    YoutubeId = "OjNpRbNdR7E"
+                },
+                new YoutubeVideoInformation
+                {
+                    YoutubeId = "OjNpRbNdR7E"
+                },
+                new YoutubeVideoInformation
+                {
+                    YoutubeId = "OjNpRbNdR7E"
+                },
+                new YoutubeVideoInformation
+                {
+                    YoutubeId = "OjNpRbNdR7E"
+                },
+                new YoutubeVideoInformation
+                {
+                    YoutubeId = "OjNpRbNdR7E"
+                }
+            };
+
 
             var saved = PlaylistManager.SavePlaylist(demoPlaylist, new PlaylistInfo
             {
-                Name = "Test playlist.",
-                Maker = "Anonymous",
-                Description = "le epic. le epic. le epic. le epic. le epic. le epic. le epic. "
+                Name = "Почит за Мао Дзъдун от Малашевци",
+                Maker = "Kristian Gergov",
+                Description = "Жив и здрав да е. Снимката му добре да си я пази."
             });
             var guid = saved?.Info?.Guid ?? Guid.Empty;
             var exists = PlaylistManager.GetIfExists(guid);

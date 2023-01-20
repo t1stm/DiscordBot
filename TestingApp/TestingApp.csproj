@@ -14,7 +14,15 @@
     </ItemGroup>
 
     <ItemGroup>
-      <Folder Include="Music Database" />
+      <Compile Remove="Music Database\**" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <EmbeddedResource Remove="Music Database\**" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <None Remove="Music Database\**" />
     </ItemGroup>
 
 </Project>

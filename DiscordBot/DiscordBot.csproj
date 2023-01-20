@@ -248,7 +248,6 @@
       <PackageReference Include="System.Windows.Extensions" Version="6.0.2-mauipre.1.22054.8" />
       <PackageReference Include="System.Xml.ReaderWriter" Version="4.3.1" />
       <PackageReference Include="System.Xml.XDocument" Version="4.3.0" />
-      <PackageReference Include="taglib-sharp-netstandard2.0" Version="2.1.0" />
       <PackageReference Include="Unosquare.Swan.Lite" Version="3.1.0" />
       <PackageReference Include="YouTubeApiSharp" Version="0.0.5" />
       <PackageReference Include="YoutubeExplode" Version="6.2.2" />
