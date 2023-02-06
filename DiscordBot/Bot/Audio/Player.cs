@@ -131,7 +131,7 @@ namespace DiscordBot.Audio
                         switch (CurrentItem)
                         {
                             case SpotifyTrack tr:
-                                var track = await Video.Search(tr);
+                                var track = await Search.GetSingle(tr);
                                 lock (Queue.Items)
                                 {
                                     Queue.Items[Queue.Current] = track;

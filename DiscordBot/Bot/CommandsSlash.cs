@@ -77,6 +77,8 @@ namespace DiscordBot
                 });
                 return;
             }
+            
+            player.Settings = await GuildSettings.FromId(ctx.Guild.Id);
 
             await ctx.EditResponseAsync(new DiscordWebhookBuilder
             {
