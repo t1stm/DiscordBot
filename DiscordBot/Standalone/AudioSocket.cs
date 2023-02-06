@@ -13,7 +13,6 @@ using DiscordBot.Audio.Objects;
 using DiscordBot.Audio.Platforms;
 using DiscordBot.Objects;
 using DiscordBot.Tools;
-using MessagePack;
 using vtortola.WebSockets;
 using Debug = DiscordBot.Methods.Debug;
 using Timer = System.Timers.Timer;
@@ -72,11 +71,11 @@ namespace DiscordBot.Standalone
             }
 
             var all = clients.AsParallel().All(r => r.Ready) && Clients.Count != 0;
-            foreach (var client in clients) await client.Socket.SendPingAsync();
+            foreach (var client in clients) await client.Socket.SendPingAsync().ConfigureAwait(false);
             if (!all) return;
 
             ClearReady();
-            await Broadcast("Play:");
+            await Broadcast("Play:").ConfigureAwait(false);
             await Debug.WriteAsync("Ready: Broadcasting play message.");
         }
 
@@ -174,7 +173,7 @@ namespace DiscordBot.Standalone
                         return;
 
                     case "current":
-                        await Respond(client.Socket, $"Current:{Current}");
+                        await Respond(client.Socket, $"Current:{Current}").ConfigureAwait(false);
                         return;
 
                     case "end":
@@ -187,7 +186,7 @@ namespace DiscordBot.Standalone
                         if (!all || Current + 1 == Queue.Count) return;
 
                         ClearReady();
-                        await Broadcast("Skip:");
+                        await Broadcast("Skip:").ConfigureAwait(false);
 
                         return;
 
@@ -199,7 +198,7 @@ namespace DiscordBot.Standalone
 
                 if (client.Socket != Admin && !Options.AllowNonAdminControl)
                 {
-                    await Respond(client.Socket, "Invalid permission");
+                    await Respond(client.Socket, "Invalid permission").ConfigureAwait(false);
                     await Debug.WriteAsync("AudioSocket made an unauthorized request.");
                     return;
                 }
@@ -208,7 +207,7 @@ namespace DiscordBot.Standalone
                 {
                     case "pause":
                         Paused = !Paused;
-                        await Broadcast($"Pause:{Paused}");
+                        await Broadcast($"Pause:{Paused}").ConfigureAwait(false);
                         return;
 
                     case "queue":
@@ -238,7 +237,7 @@ namespace DiscordBot.Standalone
                         lock (Messages) {
                             Messages.Add(chatMessage);
                         }
-                        await Broadcast($"Chat:{JsonSerializer.Serialize(chatMessage)}", client);
+                        await Broadcast($"Chat:{JsonSerializer.Serialize(chatMessage)}", client).ConfigureAwait(false);
                         return;
                     
                     case "seek":
@@ -248,7 +247,7 @@ namespace DiscordBot.Standalone
                             return;
                         }
                         ClearReady();
-                        await Broadcast($"Seek:{position}");
+                        await Broadcast($"Seek:{position}").ConfigureAwait(false);
                         
                         return;
 
@@ -262,7 +261,7 @@ namespace DiscordBot.Standalone
 
                         Current--;
                         ClearReady();
-                        await Broadcast("Back:");
+                        await Broadcast("Back:").ConfigureAwait(false);
                         return;
 
                     case "skip":
@@ -275,14 +274,14 @@ namespace DiscordBot.Standalone
 
                         Current++;
                         ClearReady();
-                        await Broadcast("Skip:");
+                        await Broadcast("Skip:").ConfigureAwait(false);
                         return;
 
                     case "goto":
                         var parsed = int.TryParse(joined, out var num);
                         if (!parsed)
                         {
-                            await Respond(client.Socket, "Invalid number syntax");
+                            await Respond(client.Socket, "Invalid number syntax").ConfigureAwait(false);
                             return;
                         }
 
@@ -294,7 +293,7 @@ namespace DiscordBot.Standalone
                         }
 
                         ClearReady();
-                        await Broadcast($"GoTo:{num}");
+                        await Broadcast($"GoTo:{num}").ConfigureAwait(false);
                         Current = num;
                         return;
 
@@ -350,7 +349,7 @@ namespace DiscordBot.Standalone
             {
                 task.Start();
             });
-            await Task.WhenAll(tasks);
+            await Task.WhenAll(tasks).ConfigureAwait(false);
         }
 
         private async Task Broadcast(string message, Client? exclude)
@@ -369,7 +368,7 @@ namespace DiscordBot.Standalone
             foreach (var client in clients)
                 try
                 {
-                    await Respond(client.Socket, message);
+                    await Respond(client.Socket, message).ConfigureAwait(false);
                 }
                 catch (Exception e)
                 {
@@ -391,7 +390,7 @@ namespace DiscordBot.Standalone
 
                 if (Bot.DebugMode)
                     await Debug.WriteAsync($"AudioSocket Respond message: \"{message}\"");
-                await socket.WriteStringAsync(message);
+                await socket.WriteStringAsync(message).ConfigureAwait(false);
             }
             catch (Exception e)
             {
@@ -437,9 +436,9 @@ namespace DiscordBot.Standalone
                     messages = Messages.ToList();
                 }
                 
-                await Respond(ws, $"Queue:{JsonSerializer.Serialize(Queue)}");
-                await Respond(ws, $"OldMessages:{JsonSerializer.Serialize(messages)}");
-                await Broadcast($"UserJoin:{client.Name}", client);
+                await Respond(ws, $"Queue:{JsonSerializer.Serialize(Queue)}").ConfigureAwait(false);
+                await Respond(ws, $"OldMessages:{JsonSerializer.Serialize(messages)}").ConfigureAwait(false);
+                await Broadcast($"UserJoin:{client.Name}", client).ConfigureAwait(false);
 
                 var task = new Task(async () =>
                 {
@@ -456,7 +455,7 @@ namespace DiscordBot.Standalone
 
                                 if (Admin == ws) Admin = Clients.FirstOrDefault()?.Socket;
                                 await ws.CloseAsync();
-                                await Broadcast($"UserLeave:{client.Name}");
+                                await Broadcast($"UserLeave:{client.Name}").ConfigureAwait(false);
                                 return;
                             }
 

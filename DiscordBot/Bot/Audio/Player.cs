@@ -198,7 +198,6 @@ namespace DiscordBot.Audio
         {
             try
             {
-                if (Queue.Items == null) return;
                 QueueToken ??= Manager.GetFreePlaylistToken(CurrentGuild?.Id, VoiceChannel?.Id);
                 lock (Queue.Items)
                 {
@@ -238,11 +237,17 @@ namespace DiscordBot.Audio
                 UpdateVolume();
                 switch (item)
                 {
+                    // Temporary fix to be able to listen to ABBA and Bon Jovi... I know...
+                    case MusicObject obj when obj.GetLocation().ToLower().EndsWith(".wv"):
                     case YoutubeVideoInformation vi when vi.GetIfLiveStream():
                     case TwitchLiveStream:
-                        await FfMpeg.PathToPcm(item.Location, startingTime, Normalize)
+                        await FfMpeg.PathToPcm(item.GetLocation(), startingTime, Normalize)
                             .CopyToAsync(Sink, null, CancelSource.Token);
                         break;
+                    case SpotifyTrack track:
+                        var playable = await Search.GetSingle(track);
+                        await PlayTrack(playable, startingTime);
+                        return;
                     default:
                         await FfMpeg.ItemToPcm(item, Sink, startingTime, Normalize);
                         break;

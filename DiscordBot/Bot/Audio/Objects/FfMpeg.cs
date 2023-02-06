@@ -97,7 +97,7 @@ namespace DiscordBot.Audio.Objects
                     AddSpreader(item.GetAddUrl(), Spreader);
                 }
 
-                Spreader.AddDestination(FfMpegProcess.StandardInput
+                await Spreader.AddDestinationAsync(FfMpegProcess.StandardInput
                     .BaseStream); // HOW DOES THIS WORK AND ADDING IT IN THE StreamSpreader INITIALIZER NOT WORK?
                 var yes = new Task(async () =>
                 {

@@ -114,20 +114,20 @@ namespace DiscordBot.Audio.Platforms
                 return await SharePlaylist.Get(searchTerm[3..]);
 
             var databaseItem = MusicManager.SearchOneByTerm(searchTerm);
-            if (databaseItem is not null && !returnAllResults) return new List<PlayableItem>
-            {
-                databaseItem.ToMusicObject()
-            };
-
+            
             return returnAllResults switch
             {
+                true when databaseItem is not null => 
+                    AddDatabaseItemToYoutubeResults(databaseItem.ToMusicObject(), await Video.SearchAllResults(searchTerm, length)),
+                true => new List<PlayableItem>(await Video.SearchAllResults(searchTerm, length)),
+                false when databaseItem is not null => new List<PlayableItem>
+                {
+                    databaseItem.ToMusicObject()
+                },
                 false => new List<PlayableItem>
                 {
                     await Video.Search(searchTerm, length: length)
-                },
-                true when databaseItem is not null => 
-                    AddDatabaseItemToYoutubeResults(databaseItem.ToMusicObject(), await Video.SearchAllResults(searchTerm, length)),
-                true => new List<PlayableItem>(await Video.SearchAllResults(searchTerm, length))
+                }
             };
         }
 
@@ -201,12 +201,18 @@ namespace DiscordBot.Audio.Platforms
             return list;
         }
 
-        public static async Task<List<PlayableItem>> Get(SpotifyTrack track, bool urgent = false)
+        public static async Task<List<PlayableItem>> GetList(SpotifyTrack track, bool urgent = false)
         {
             return new()
             {
                 await Video.Search(track, urgent)
             };
+        }
+        
+        public static async Task<PlayableItem> GetSingle(SpotifyTrack track)
+        {
+            var result = MusicManager.SearchFromSpotify(track);
+            return result?.ToMusicObject() ?? await Video.Search(track);
         }
     }
 }

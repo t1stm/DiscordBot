@@ -1,8 +1,10 @@
 #nullable enable
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
+using CustomPlaylistFormat.Objects;
 using DiscordBot.Methods;
 using DiscordBot.Tools;
 using Microsoft.AspNetCore.Mvc;
@@ -23,6 +25,16 @@ namespace DiscordBot.Playlists
         [Route("/PlaylistAPI/Editor/{**id}")]
         public ActionResult Editor(string? id)
         {
+            return View();
+        }
+        
+        [HttpGet]
+        [Route("/PlaylistAPI/PublicPlaylists")]
+        public ActionResult Public()
+        {
+            var infos = PlaylistManager.GetAll();
+            var publicPlaylists = infos.AsParallel().Where(r => r.IsPublic).ToArray().AsReadOnly();
+            ViewData.Add("playlists", publicPlaylists);
             return View();
         }
 

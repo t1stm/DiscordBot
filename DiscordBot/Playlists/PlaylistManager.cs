@@ -43,6 +43,18 @@ namespace DiscordBot.Playlists
             }
         }
 
+        public static IEnumerable<PlaylistInfo> GetAll()
+        {
+            List<PlaylistInfo> infos;
+            
+            lock (Infos)
+            {
+                infos = Infos.ToList();
+            }
+
+            return infos;
+        }
+
         private static PlaylistInfo? GetInMemory(Guid guid)
         {
             lock (Infos)

@@ -51,7 +51,7 @@ namespace DiscordBot
                 {
                     var ws = await server.AcceptWebSocketAsync(token).ConfigureAwait(false);
                     if (ws == null) continue;
-                    var task = new Task(async () => await HandleConnectionAsync(ws));
+                    var task = new Task(async () => await HandleConnectionAsync(ws).ConfigureAwait(false));
                     task.Start();
                 }
                 catch (Exception е)
@@ -71,7 +71,7 @@ namespace DiscordBot
                 if (req.StartsWith("/AudioSockets/"))
                 {
                     req = req[14..];
-                    await AudioSocketManager(ws, req);
+                    await AudioSocketManager(ws, req).ConfigureAwait(false);
                     return;
                 }
 
@@ -158,7 +158,7 @@ namespace DiscordBot
             {
                 if (!Guid.TryParse(split[0], out guid))
                 {
-                    new Task(async () => { await Fail(ws, "Invalid request"); }).Start();
+                    new Task(async () => { await Fail(ws, "Invalid request").ConfigureAwait(false); }).Start();
                     return;
                 }
 
@@ -167,7 +167,7 @@ namespace DiscordBot
 
             if (found != null)
             {
-                new Task(async () => { await found.AddClient(ws, token); }).Start();
+                new Task(async () => { await found.AddClient(ws, token).ConfigureAwait(false); }).Start();
                 return;
             }
 
@@ -175,7 +175,7 @@ namespace DiscordBot
             {
                 if (Standalone.Audio.GeneratedSocketSessions.AsParallel().All(r => r.Id != guid))
                 {
-                    new Task(async () => { await Fail(ws, "Not an available session"); }).Start();
+                    new Task(async () => { await Fail(ws, "Not an available session").ConfigureAwait(false); }).Start();
                     return;
                 }
             }

@@ -126,6 +126,40 @@ namespace DiscordBot
 
                             continue;
                         }
+                        
+                        case "rl":
+                            await Debug.WriteAsync("Reloading music database.");
+                            MusicManager.LoadItems();
+                            break;
+                        case "leave":
+                            var sessions = Manager.Main.ToArray();
+                            var playerArray = sessions.Select((player, i) => new Tuple<int, Player>(i, player)).ToArray();
+                            var kickMessage = "Kick mode activated: \n" +
+                                              string.Join('\n', playerArray.Select(r => 
+                                                  $"[{r.Item1}] - ({r.Item2.VoiceChannel?.Id}) \"{r.Item2.VoiceChannel?.Name}\" | \'{r.Item2.VoiceUsers.Count}\' in channel.")) +
+                                              "\nEnter an ID of the guild you want to kick and seperate it with a message. (1:afk)";
+                            await Debug.WriteAsync(kickMessage);
+                            var input = Console.ReadLine();
+                            if (string.IsNullOrEmpty(input) || input == "cancel")
+                            {
+                                await Debug.WriteAsync("Cancelling kick mode.");
+                                break;
+                            }
+                            var kickSplit = input.Split(':');
+                            if (!int.TryParse(kickSplit[0], out var idResult))
+                            {
+                                await Debug.WriteAsync("Invalid kick id format.");
+                                break;
+                            }
+                            if (kickSplit.Length == 1)
+                            {
+                                await playerArray[idResult].Item2.DisconnectAsync("Manually kicked from channel without specified reason.");
+                                break;
+                            }
+                            
+                            var joined = string.Join(':', input[1..]);
+                            await playerArray[idResult].Item2.DisconnectAsync($"Manually kicked from channel with reason \"{joined}\"");
+                            break;
                         case "as":
                             WebSocketServer.PrintAudioSockets();
                             break;

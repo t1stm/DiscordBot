@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Text.Json;
 using System.Text.RegularExpressions;
+using DiscordBot.Audio.Objects;
 using DiscordBot.Language;
 using DiscordBot.Methods;
 using DiscordBot.Playlists.Music_Storage.Objects;
@@ -22,6 +23,7 @@ namespace DiscordBot.Playlists.Music_Storage
         {
             lock (Items)
             {
+                Items.Clear();
                 var startingDirectories = Directory.GetDirectories(WorkingDirectory);
                 Items = new List<MusicInfo>();
                 foreach (var directory in startingDirectories) // This is bad, but I can't think of a better solution.
@@ -115,6 +117,12 @@ namespace DiscordBot.Playlists.Music_Storage
                     LevenshteinDistance.ComputeLean($"{r.OriginalTitle} {r.OriginalAuthor}", term) < 2 ||
                     LevenshteinDistance.ComputeLean($"{r.OriginalAuthor} {r.OriginalTitle}", term) < 2 ||
                     LevenshteinDistance.ComputeLean($"{r.OriginalAuthor} - {r.OriginalTitle}", term) < 2);
+        }
+        
+        public static MusicInfo? SearchFromSpotify(SpotifyTrack track)
+        {
+            var searchTerm = $"{track.Author} - {track.Title}";
+            return SearchOneByTerm(searchTerm);
         }
 
         public static IEnumerable<MusicInfo> SearchByTerm(string term)
