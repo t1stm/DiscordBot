@@ -1,3 +1,4 @@
+#nullable enable
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -18,10 +19,10 @@ namespace DiscordBot.Audio.Platforms.Youtube
 {
     public static class Video
     {
-        public static async Task<PlayableItem> Search(string term, bool urgent = false,
-            ulong length = 0, SpotifyTrack track = null)
+        public static async Task<PlayableItem?> Search(string term, bool urgent = false,
+            ulong length = 0, SpotifyTrack? track = null)
         {
-            PlayableItem info;
+            PlayableItem? info;
             var cachedSearchResult = GetIdFromCachedTerms(term);
             if (cachedSearchResult != null && !string.IsNullOrEmpty(cachedSearchResult.SearchTerm) &&
                 !string.IsNullOrEmpty(cachedSearchResult.VideoId))
@@ -202,7 +203,7 @@ namespace DiscordBot.Audio.Platforms.Youtube
                 }).ToList();
         }
 
-        public static async Task<PlayableItem> SearchById(string id, bool urgent = false)
+        public static async Task<PlayableItem?> SearchById(string id, bool urgent = false)
         {
             try
             {
@@ -217,7 +218,7 @@ namespace DiscordBot.Audio.Platforms.Youtube
                 {
                     Title = video.Title,
                     Author = video.Author.ChannelTitle,
-                    Length = (ulong) video.Duration?.TotalMilliseconds,
+                    Length = (ulong) (video.Duration?.TotalMilliseconds ?? 0),
                     YoutubeId = id,
                     ThumbnailUrl = video.Thumbnails[0].Url
                 };
@@ -255,7 +256,7 @@ namespace DiscordBot.Audio.Platforms.Youtube
             }
         }
 
-        private static FuckYoutubeModel GetIdFromCachedTerms(string term)
+        private static FuckYoutubeModel? GetIdFromCachedTerms(string term)
         {
             //return await new SearchJsonReader().GetVideo(term);
             var vid = new FuckYoutubeModel
@@ -265,7 +266,7 @@ namespace DiscordBot.Audio.Platforms.Youtube
             return Databases.FuckYoutubeDatabase.Read(vid);
         }
 
-        private static PlayableItem GetCachedVideoFromId(string id)
+        private static PlayableItem? GetCachedVideoFromId(string id)
         {
             var alt = YoutubeOverride.FromId(id);
             if (alt is not null) return alt;
@@ -276,13 +277,14 @@ namespace DiscordBot.Audio.Platforms.Youtube
             return Databases.VideoDatabase.Read(search)?.Convert();
         }
 
-        public static async Task<PlayableItem> Search(SpotifyTrack track, bool urgent = false)
+        public static async Task<PlayableItem?> Search(SpotifyTrack track, bool urgent = false)
         {
             await Debug.WriteAsync($"Spotify Track: {track.GetName()}, Length: {track.GetLength()}");
             var result =
                 await Search(
                     $"{track.Title} - {track.Author} {track.Explicit switch {true => "Explicit Version ", false => ""}}- Topic",
                     urgent, track.Length, track);
+            if (result == null) return result;
             result.Requester = track.GetRequester();
             if (urgent) await result.GetAudioData();
             return result;

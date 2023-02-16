@@ -54,7 +54,7 @@ namespace DiscordBot
         public static readonly Random Rng = new();
         private static Timer UpdateLoop { get; } = new(UpdateDelay);
         public static List<DiscordClient> Clients { get; } = new();
-        public static bool DebugMode { get; private set; }
+        public static bool DebugMode { get; private set; } = false;
         private static List<DiscordMessage> BotMessages { get; } = new();
 
         public static async Task Initialize(RunType token)
@@ -81,6 +81,8 @@ namespace DiscordBot
                         Array.Empty<string>()));
                     Clients.Add(MakeClient("OTA2MDc3MjAxMzg3MTEwNDEy.YYTYJg.DDYabJ6mCuI9pjidgkTFPAMVtWg",
                         Array.Empty<string>()));
+                    Clients.Add(MakeClient("OTQwNjMwMzQzNTg3ODcyNzc4.YgKMRQ.EsRo8pmgYCd6Gju23uSgTiqzSqM",
+                        Array.Empty<string>()));
                     await Debug.WriteAsync($"{Name} E Veche Velik! RunType = {token}, Token is: \"{BotRelease}\"");
                     break;
                 case RunType.Beta:
@@ -98,7 +100,7 @@ namespace DiscordBot
                     throw new ArgumentOutOfRangeException(nameof(token), token, null);
             }
 
-            Clients.Add(SpecificContentBot()); //Ah yes, the specific content bot. Thank you very much.
+            //Clients.Add(SpecificContentBot()); // Time to retire this bot.
             foreach (var client in Clients) await client.ConnectAsync();
             string text;
             await ReadStatus(Clients[0]);
@@ -390,6 +392,7 @@ namespace DiscordBot
         {
             var client = new DiscordClient(new DiscordConfiguration
             {
+                Intents = DiscordIntents.All,
                 Token = token,
                 TokenType = TokenType.Bot,
                 MinimumLogLevel = LogLevel.Information,

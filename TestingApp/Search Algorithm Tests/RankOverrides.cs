@@ -13,7 +13,7 @@ namespace TestingApp.Search_Algorithm_Tests
         {
             MusicManager.LoadItems();
             string? read;
-            var copy = MusicManager.Items.ToList();
+            var copy = MusicManager.GetAll().ToList();
             while ((read = Console.ReadLine()) is not "exit" or null)
             {
                 var term = read;

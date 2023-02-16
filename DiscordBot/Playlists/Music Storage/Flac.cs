@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using Debug = DiscordBot.Methods.Debug;
 
 namespace DiscordBot.Playlists.Music_Storage
 {

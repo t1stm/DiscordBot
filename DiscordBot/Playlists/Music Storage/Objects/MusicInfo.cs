@@ -9,7 +9,8 @@ namespace DiscordBot.Playlists.Music_Storage.Objects
         [JsonInclude] [JsonPropertyName("coverUrl")]
         public string? CoverUrl;
 
-        [JsonInclude] [JsonPropertyName("id")] public string? Id;
+        [JsonInclude] [JsonPropertyName("id")] 
+        public string? Id;
 
         [JsonInclude] [JsonPropertyName("length")]
         public ulong Length;

@@ -20,11 +20,13 @@ namespace DiscordBot.Audio.Platforms.Discord
         {
             var list = new List<PlayableItem>();
             foreach (var at in attachments)
-                if (at.FileName.EndsWith(".batp"))
+            {
+                var lower = at.FileName.ToLower();
+                if (lower.EndsWith(".batp"))
                 {
                     list.AddRange(await SharePlaylist.Get(at) ?? throw new InvalidOperationException());
                 }
-                else if (at.FileName.EndsWith(".txt"))
+                else if (lower.EndsWith(".txt"))
                 {
                     var stream = await HttpClient.DownloadStream(at.Url);
                     var text = Encoding.UTF8.GetString(stream.GetBuffer());
@@ -34,7 +36,7 @@ namespace DiscordBot.Audio.Platforms.Discord
                 {
                     list.Add(await GetAttachment(at, guild));
                 }
-
+            }
             return list;
         }
 

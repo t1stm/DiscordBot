@@ -246,7 +246,6 @@ namespace DiscordBot.Standalone
                             await Respond(client.Socket, "Fail:Unable to parse position.");
                             return;
                         }
-                        ClearReady();
                         await Broadcast($"Seek:{position}").ConfigureAwait(false);
                         
                         return;

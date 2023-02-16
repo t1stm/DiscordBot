@@ -1,5 +1,6 @@
 #nullable enable
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -9,6 +10,7 @@ using DiscordBot.Enums;
 using DiscordBot.Methods;
 using DiscordBot.Miscellaneous;
 using DiscordBot.Objects;
+using DiscordBot.Playlists.Music_Storage;
 using DiscordBot.Readers.MariaDB;
 using DSharpPlus;
 using DSharpPlus.Entities;
@@ -530,12 +532,12 @@ namespace DiscordBot
                     str.Position = 0;
                     await ctx.Member.SendMessageAsync(new DiscordMessageBuilder()
                         .WithContent($"```You caught {du.Username}#{du.Discriminator}'s penis.```")
-                        .WithFile("hahaha_funny_peepee.jpg", str));
+                        .AddFile("hahaha_funny_peepee.jpg", str));
                     str.Position = 0;
                     if (du != ctx.Client.CurrentUser)
                         respond = await du.SendMessageAsync(new DiscordMessageBuilder()
                             .WithContent($"```{ctx.User.Username}#{ctx.User.Discriminator} caught your dick.```")
-                            .WithFile("hahaha_funny_peepee.jpg", str));
+                            .AddFile("hahaha_funny_peepee.jpg", str));
                 }
 
                 if (du.IsBot && du.IsCurrent)
@@ -569,7 +571,7 @@ namespace DiscordBot
                         await Task.Delay(3000);
                         respond = await ctx.Member.SendMessageAsync(new DiscordMessageBuilder()
                             .WithContent($"```You caught \"{du.Username}#{du.Discriminator}\"'s dick.```")
-                            .WithFile("hahaha_funny_dick.jpg", await Methods.ImageMagick.DiscordUserHandler
+                            .AddFile("hahaha_funny_dick.jpg", await Methods.ImageMagick.DiscordUserHandler
                                 (du, ctx.User, ImageTypes.Dick)));
                     }
                     else
@@ -609,12 +611,12 @@ namespace DiscordBot
                                 str.Position = 0;
                                 await ctx.Member.SendMessageAsync(new DiscordMessageBuilder()
                                     .WithContent($"```You caught \"{du.Username}#{du.Discriminator}\"'s penis.```")
-                                    .WithFile("hahaha_funny_peepee.jpg", str));
+                                    .AddFile("hahaha_funny_peepee.jpg", str));
                                 str.Position = 0;
                                 respond = await du.SendMessageAsync(new DiscordMessageBuilder()
                                     .WithContent(
                                         $"```{ctx.Member.Username}#{ctx.Member.Discriminator} caught your penis.```")
-                                    .WithFile("hahaha_funny_peepee.jpg", str));
+                                    .AddFile("hahaha_funny_peepee.jpg", str));
                                 break;
                             case true or false when em is 1:
                                 await ctx.Member.SendMessageAsync(
@@ -634,6 +636,61 @@ namespace DiscordBot
             catch (Exception e)
             {
                 await Debug.WriteAsync($"Hvani Me Za Kura Context Menu failed: {e}");
+            }
+        }
+
+        public class ChoiceProvider : IAutocompleteProvider
+        {
+            public Task<IEnumerable<DiscordAutoCompleteChoice>> Provider(AutocompleteContext ctx)
+            {
+                var stringifyed = (string) ctx.OptionValue;
+                if (Bot.DebugMode) Debug.Write($"Auto complete request: \"{stringifyed}\"");
+                var albums = MusicManager.SearchAlbums(stringifyed);
+                return Task.FromResult(albums.Select(album => new DiscordAutoCompleteChoice($"{album.AlbumName} - {album.Artist}", album.AccessString)));
+            }
+        }
+
+        [SlashCommandGroup("add", "Various commands to add stuff to the queue.")]
+        public class AddCommand : ApplicationCommandModule
+        {
+            [SlashCommand("album", "Adds a known album to the queue.")]
+            public async Task AddAlbumCommand(InteractionContext ctx, 
+                [Autocomplete(typeof(ChoiceProvider))]
+                [Option("album", "The album name to be added.", true)] string choice)
+            {
+                await ctx.DeferAsync();
+                var guild = await GuildSettings.FromId(ctx.Guild.Id);
+                var userVoiceS = ctx.Member?.VoiceState?.Channel;
+                if (userVoiceS == null)
+                {
+                    await ctx.CreateResponseAsync(Parser.FromNumber(guild.Language).SlashNotInChannel().CodeBlocked(),
+                        true);
+                    return;
+                }
+
+                var player = Manager.GetPlayer(userVoiceS, ctx.Client);
+                if (player == null)
+                {
+                    await ctx.CreateResponseAsync(
+                        Parser.FromNumber(guild.Language).SlashBotNotInChannel().CodeBlocked(), true);
+                    return;
+                }
+                
+                var val = choice;
+                var album = MusicManager.SearchAlbumById(val);
+                if (album == null)
+                {
+                    await ctx.EditResponseAsync(new DiscordWebhookBuilder().WithContent("Error: Unable to find album.".CodeBlocked()));
+                    return;
+                }
+
+                foreach (var song in album.Songs)
+                {
+                    if (song == null) continue;
+                    player.Queue.AddToQueue(song.ToMusicObject());
+                }
+
+                await ctx.EditResponseAsync(new DiscordWebhookBuilder().WithContent("Added album to queue.".CodeBlocked()));
             }
         }
 

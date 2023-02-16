@@ -9,7 +9,6 @@ using System.Timers;
 using DiscordBot.Abstract;
 using DiscordBot.Audio.Objects;
 using DiscordBot.Audio.Platforms;
-using DiscordBot.Audio.Platforms.Youtube;
 using DiscordBot.Data.Models;
 using DiscordBot.Enums;
 using DiscordBot.Messages;
@@ -540,7 +539,7 @@ namespace DiscordBot.Audio
                 lock (Manager.Main)
                 {
                     Debug.Write("Destructor was called in Player.cs");
-                    Disconnect();
+                    //Disconnect();
                     if (Manager.Main.Contains(this)) Manager.Main.Remove(this);
                 }
             }

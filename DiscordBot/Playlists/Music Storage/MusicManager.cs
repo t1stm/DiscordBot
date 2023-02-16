@@ -17,14 +17,15 @@ namespace DiscordBot.Playlists.Music_Storage
     {
         public static readonly string WorkingDirectory = $"{Bot.WorkingDirectory}/Music Database";
         public static readonly string AlbumCoverAddress = $"{Bot.SiteDomain}/Album_Covers";
-        public static List<MusicInfo> Items = new();
+        private static List<MusicInfo> Items = new();
+        private static List<Album> Albums = new();
 
         public static void LoadItems()
         {
+            var startingDirectories = Directory.GetDirectories(WorkingDirectory);
             lock (Items)
             {
                 Items.Clear();
-                var startingDirectories = Directory.GetDirectories(WorkingDirectory);
                 Items = new List<MusicInfo>();
                 foreach (var directory in startingDirectories) // This is bad, but I can't think of a better solution.
                 {
@@ -37,6 +38,57 @@ namespace DiscordBot.Playlists.Music_Storage
                     info.CoverUrl = info.CoverUrl?.Replace("$[DOMAIN]", AlbumCoverAddress);
                 }
             }
+
+            lock (Albums)
+            {
+                Albums.Clear();
+                Albums = new List<Album>();
+                foreach (var directory in startingDirectories)
+                {
+                    var artists = Directory.GetDirectories(directory);
+                    foreach (var artist in artists) Albums.AddRange(ReadAlbums(artist));
+                }
+            }
+        }
+
+        private static IEnumerable<Album> ReadAlbums(string dir)
+        {
+            var artist = dir.Split('/').Last();
+            var songs = Directory.GetFiles(dir);
+            if (songs.All(IsM3UPlaylist)) 
+                return Enumerable.Empty<Album>();
+            
+            var list = new List<Album>();
+
+            foreach (var playlist in songs.Where(IsM3UPlaylist))
+            {
+                try
+                {
+                    var album = Album.FromM3U(playlist);
+                    album.Artist = artist;
+                    Debug.Write($"Loaded album: \"{album.AlbumName}\" by artist: \'{artist}\'");
+                    list.Add(album);
+                }
+                catch (Exception e)
+                {
+                    Debug.Write($"Adding album to list failed with error: \"{e}\"");
+                }
+            }
+            
+            return list;
+        }
+
+        private static bool IsIgnored(string source)
+        {
+            return source.EndsWith("EN") ||
+                   IsM3UPlaylist(source) ||
+                   source.EndsWith(".txt") ||
+                   source.EndsWith(".pls");
+        }
+
+        private static bool IsM3UPlaylist(string source)
+        {
+            return source.EndsWith(".m3u") || source.EndsWith(".m3u8");
         }
 
         private static IEnumerable<MusicInfo> GetSongs(string directory, string artist)
@@ -59,7 +111,7 @@ namespace DiscordBot.Playlists.Music_Storage
                 return data;
             }
 
-            var list = songs.Where(r => !r.EndsWith("EN")).Select(r => ParseFile(r, bg)).ToList();
+            var list = songs.Where(r => !IsIgnored(r)).Select(r => ParseFile(r, bg)).ToList();
             using var fs = File.Open(jsonFile, FileMode.Create, FileAccess.ReadWrite, FileShare.ReadWrite);
             JsonSerializer.Serialize(fs, list);
             fs.Close();
@@ -153,8 +205,30 @@ namespace DiscordBot.Playlists.Music_Storage
 
         public static IEnumerable<MusicInfo> GetAll()
         {
-            var copy = Items.ToList();
+            var copy = Items.ToArray();
             return copy;
+        }
+
+        public static IEnumerable<Album> GetAllAlbums()
+        {
+            return Albums.ToArray();
+        }
+        
+        public static IEnumerable<Album> SearchAlbums(string term)
+        {
+            if (string.IsNullOrEmpty(term)) return GetAllAlbums();
+            var lower = term.ToLower();
+            var sanitized = Regex.Escape(lower);
+
+            var found = Albums.AsParallel().Where(r => Regex.IsMatch(r.AlbumName.ToLower(), $".*{sanitized}.*"));
+            var ordered = found.OrderBy(r => LevenshteinDistance.ComputeStrict(term, r.AlbumName.ToLower()));
+
+            return ordered;
+        }
+        
+        public static Album? SearchAlbumById(string id)
+        {
+            return Albums.AsParallel().FirstOrDefault(r => r.AccessString == id);
         }
 
         private static int ScoreTerm(MusicInfo info, string term)

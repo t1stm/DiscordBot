@@ -481,7 +481,7 @@ namespace DiscordBot.Audio
         {
             return new DiscordMessageBuilder()
                 .WithContent($"```{text}: {key}```")
-                .WithFile("qr_code.jpg", GetQrCodeForWebUi(key))
+                .AddFile("qr_code.jpg", GetQrCodeForWebUi(key))
                 .WithEmbed(new DiscordEmbedBuilder
                 {
                     Title = $"{Bot.Name} Web Interface",
@@ -614,7 +614,7 @@ namespace DiscordBot.Audio
             }
 
             await Bot.Reply(ctx,
-                new DiscordMessageBuilder().WithContent(player.Language.CurrentQueue().CodeBlocked()).WithFile(
+                new DiscordMessageBuilder().WithContent(player.Language.CurrentQueue().CodeBlocked()).AddFile(
                     "queue.txt",
                     new MemoryStream(Encoding.UTF8.GetBytes(player.Queue + player.Language.TechTip()))));
         }
@@ -734,7 +734,7 @@ namespace DiscordBot.Audio
             await ctx.RespondAsync(
                 new DiscordMessageBuilder()
                     .WithContent(player.Language.QueueSavedSuccessfully(token).CodeBlocked())
-                    .WithFile($"{token}.batp", fs));
+                    .AddFile($"{token}.batp", fs));
         }
 
         public static async Task PlsFix(CommandContext ctx)
@@ -806,7 +806,7 @@ namespace DiscordBot.Audio
                 await Bot.Reply(ctx, new DiscordMessageBuilder()
                     .WithContent(
                         Parser.FromNumber(guild.Language).LyricsLong().CodeBlocked())
-                    .WithFile("lyrics.txt", new MemoryStream(Encoding.UTF8.GetBytes(lyrics)))
+                    .AddFile("lyrics.txt", new MemoryStream(Encoding.UTF8.GetBytes(lyrics)))
                 );
                 return;
             }
