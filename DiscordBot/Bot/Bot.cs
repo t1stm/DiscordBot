@@ -60,7 +60,7 @@ namespace DiscordBot
         public static async Task Initialize(RunType token)
         {
             LoadDatabases();
-            MusicManager.LoadItems();
+            MusicManager.Load();
             PlaylistManager.LoadPlaylistInfos();
             UpdateLoop.Elapsed += (_, _) => OnUpdate();
             UpdateLoop.Start();
@@ -131,7 +131,7 @@ namespace DiscordBot
                         
                         case "rl":
                             await Debug.WriteAsync("Reloading music database.");
-                            MusicManager.LoadItems();
+                            MusicManager.Load();
                             break;
                         case "leave":
                             var sessions = Manager.Main.ToArray();

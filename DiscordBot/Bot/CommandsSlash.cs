@@ -663,21 +663,19 @@ namespace DiscordBot
                 var userVoiceS = ctx.Member?.VoiceState?.Channel;
                 if (userVoiceS == null)
                 {
-                    await ctx.CreateResponseAsync(Parser.FromNumber(guild.Language).SlashNotInChannel().CodeBlocked(),
-                        true);
+                    await ctx.EditResponseAsync(new DiscordWebhookBuilder().WithContent(Parser.FromNumber(guild.Language).SlashNotInChannel().CodeBlocked()));
                     return;
                 }
 
                 var player = Manager.GetPlayer(userVoiceS, ctx.Client);
                 if (player == null)
                 {
-                    await ctx.CreateResponseAsync(
-                        Parser.FromNumber(guild.Language).SlashBotNotInChannel().CodeBlocked(), true);
+                    await ctx.EditResponseAsync(new DiscordWebhookBuilder().WithContent(
+                        Parser.FromNumber(guild.Language).SlashBotNotInChannel().CodeBlocked()));
                     return;
                 }
-                
-                var val = choice;
-                var album = MusicManager.SearchAlbumById(val);
+
+                var album = MusicManager.SearchAlbumById(choice);
                 if (album == null)
                 {
                     await ctx.EditResponseAsync(new DiscordWebhookBuilder().WithContent("Error: Unable to find album.".CodeBlocked()));

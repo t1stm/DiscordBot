@@ -20,9 +20,17 @@ namespace DiscordBot.Playlists.Music_Storage
         private static List<MusicInfo> Items = new();
         private static List<Album> Albums = new();
 
-        public static void LoadItems()
+        public static void Load()
         {
             var startingDirectories = Directory.GetDirectories(WorkingDirectory);
+            LoadItems(startingDirectories);
+            ExtractImages.Run();
+            LoadItems(startingDirectories, true);
+            LoadAlbums(startingDirectories);
+        }
+
+        private static void LoadItems(IEnumerable<string> startingDirectories, bool isVerbose = false)
+        {
             lock (Items)
             {
                 Items.Clear();
@@ -30,7 +38,7 @@ namespace DiscordBot.Playlists.Music_Storage
                 foreach (var directory in startingDirectories) // This is bad, but I can't think of a better solution.
                 {
                     var artists = Directory.GetDirectories(directory);
-                    foreach (var artist in artists) Items.AddRange(GetSongs(directory, artist.Split('/').Last()));
+                    foreach (var artist in artists) Items.AddRange(GetSongs(directory, artist.Split('/').Last(), isVerbose));
                 }
 
                 foreach (var info in Items)
@@ -38,7 +46,10 @@ namespace DiscordBot.Playlists.Music_Storage
                     info.CoverUrl = info.CoverUrl?.Replace("$[DOMAIN]", AlbumCoverAddress);
                 }
             }
+        }
 
+        private static void LoadAlbums(IEnumerable<string> startingDirectories)
+        {
             lock (Albums)
             {
                 Albums.Clear();
@@ -53,9 +64,8 @@ namespace DiscordBot.Playlists.Music_Storage
 
         private static IEnumerable<Album> ReadAlbums(string dir)
         {
-            var artist = dir.Split('/').Last();
             var songs = Directory.GetFiles(dir);
-            if (songs.All(IsM3UPlaylist)) 
+            if (!songs.Any(IsM3UPlaylist)) 
                 return Enumerable.Empty<Album>();
             
             var list = new List<Album>();
@@ -65,8 +75,8 @@ namespace DiscordBot.Playlists.Music_Storage
                 try
                 {
                     var album = Album.FromM3U(playlist);
-                    album.Artist = artist;
-                    Debug.Write($"Loaded album: \"{album.AlbumName}\" by artist: \'{artist}\'");
+                    album.Artist = album.Songs.First().OriginalAuthor;
+                    Debug.Write($"Loaded album: \"{album.AlbumName}\" by artist: \'{album.Artist}\'");
                     list.Add(album);
                 }
                 catch (Exception e)
@@ -83,7 +93,8 @@ namespace DiscordBot.Playlists.Music_Storage
             return source.EndsWith("EN") ||
                    IsM3UPlaylist(source) ||
                    source.EndsWith(".txt") ||
-                   source.EndsWith(".pls");
+                   source.EndsWith(".pls") ||
+                   source.EndsWith(".json");
         }
 
         private static bool IsM3UPlaylist(string source)
@@ -91,19 +102,20 @@ namespace DiscordBot.Playlists.Music_Storage
             return source.EndsWith(".m3u") || source.EndsWith(".m3u8");
         }
 
-        private static IEnumerable<MusicInfo> GetSongs(string directory, string artist)
+        private static IEnumerable<MusicInfo> GetSongs(string directory, string artist, bool isVerbose = false)
         {
             var dir = $"{directory}/{artist}";
-            Debug.Write($"Reading database directory: {dir}");
+            if (isVerbose) Debug.Write($"Reading database directory: {dir}");
             var jsonFile = $"{dir}/Info.json";
 
             var songs = Directory.GetFiles(dir);
-            var bg = !File.Exists($"{dir}/EN");
+            var ignored = songs.Count(IsIgnored);
+            var bg = songs.Any(s => s.EndsWith(".json"));
             if (File.Exists(jsonFile))
             {
                 using var read = File.OpenRead(jsonFile);
                 var items = JsonSerializer.Deserialize<List<MusicInfo>>(read) ?? Enumerable.Empty<MusicInfo>().ToList();
-                if (items.Count == songs.Length - 1 - (bg ? 0 : 1)) return items;
+                if (items.Count == songs.Length - ignored) return items;
                 var data = UpdateData(items, songs, bg).ToList();
                 using var rfs = File.Open(jsonFile, FileMode.Create, FileAccess.ReadWrite, FileShare.ReadWrite);
                 JsonSerializer.Serialize(rfs, data);
@@ -126,7 +138,7 @@ namespace DiscordBot.Playlists.Music_Storage
             foreach (var mi in existingList) yield return mi;
 
             var newFiles = files.Where(location =>
-                !location.EndsWith(".json") && !location.EndsWith("EN") &&
+                !IsIgnored(location) &&
                 existingList.All(r => r.RelativeLocation != string.Join('/', location.Split('/')[^3..])));
 
             foreach (var newFile in newFiles) yield return ParseFile(newFile, isBulgarian);

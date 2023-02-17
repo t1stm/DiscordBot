@@ -11,7 +11,7 @@ namespace TestingApp.Search_Algorithm_Tests
     {
         public static void Rank()
         {
-            MusicManager.LoadItems();
+            MusicManager.Load();
             string? read;
             var copy = MusicManager.GetAll().ToList();
             while ((read = Console.ReadLine()) is not "exit" or null)

@@ -1,9 +1,8 @@
 using DiscordBot;
 using DiscordBot.Playlists.Music_Storage;
-using TestingApp.Music_Database_Tests;
 
 Bot.LoadDatabases();
-MusicManager.LoadItems();
+MusicManager.Load();
 /*YoutubeOverride.UpdateOverrides();
 
 RankOverrides.Rank();#1#
@@ -19,4 +18,3 @@ await Task.Delay(-1);*/
 //DataAccuracy.Test();
 
 //new PlaylistTest().Test();
-ExtractId3v2Images.Test();

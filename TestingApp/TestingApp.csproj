@@ -25,4 +25,8 @@
       <None Remove="Music Database\**" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Folder Include="Music Database Tests" />
+    </ItemGroup>
+
 </Project>
