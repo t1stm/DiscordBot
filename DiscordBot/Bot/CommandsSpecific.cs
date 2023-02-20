@@ -40,7 +40,7 @@ namespace DiscordBot
                     if (dic.Count >= 10)
                     {
                         await ctx.Channel.SendMessageAsync(new DiscordMessageBuilder()
-                            .WithContent($"```Pages: {i - 9} - {i}```").AddFiles(dic));
+                            .WithContent($"```Pages: {i - 9} - {i}```").WithFiles(dic));
                         foreach (var el in dic.Values) await el.DisposeAsync();
                         dic = new Dictionary<string, Stream>();
                         continue;
@@ -51,7 +51,7 @@ namespace DiscordBot
 
                 if (dic.Count > 0)
                     await ctx.Channel.SendMessageAsync(new DiscordMessageBuilder()
-                        .WithContent($"```Pages: {files.Length - dic.Count} - {files.Length}```").AddFiles(dic));
+                        .WithContent($"```Pages: {files.Length - dic.Count} - {files.Length}```").WithFiles(dic));
                 foreach (var el in dic.Values) await el.DisposeAsync();
             }
             catch (Exception e)

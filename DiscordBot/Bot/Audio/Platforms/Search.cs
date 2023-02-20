@@ -24,12 +24,13 @@ namespace DiscordBot.Audio.Platforms
             bool returnAllResults = false, Action<string>? onError = null)
         {
             await Debug.WriteAsync($"Search term is: \"{searchTerm}\"");
-            if (searchTerm == null)
+            if (string.IsNullOrEmpty(searchTerm))
             {
                 await Debug.WriteAsync("Search term is null.");
                 onError?.Invoke("The search term is null.");
                 return null;
             }
+            
             if (searchTerm.Contains("open.spotify.com/"))
             {
                 if (searchTerm.Contains("/playlist/"))

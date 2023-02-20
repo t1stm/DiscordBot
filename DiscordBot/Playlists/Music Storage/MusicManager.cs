@@ -169,29 +169,60 @@ namespace DiscordBot.Playlists.Music_Storage
         public static MusicInfo? SearchOneByTerm(string term)
         {
             return Items.AsParallel()
-                .FirstOrDefault(r =>
-                    LevenshteinDistance.ComputeLean(r.RomanizedTitle, term) < 2 ||
-                    LevenshteinDistance.ComputeLean($"{r.RomanizedTitle} - {r.RomanizedAuthor}", term) < 2 ||
-                    LevenshteinDistance.ComputeLean($"{r.RomanizedTitle} {r.RomanizedAuthor}", term) < 2 ||
-                    LevenshteinDistance.ComputeLean($"{r.RomanizedAuthor} {r.RomanizedTitle}", term) < 2 ||
-                    LevenshteinDistance.ComputeLean($"{r.RomanizedAuthor} - {r.RomanizedTitle}", term) < 2 ||
-                    
-                    LevenshteinDistance.ComputeLean(r.OriginalTitle, term) < 2 ||
-                    LevenshteinDistance.ComputeLean($"{r.OriginalTitle} - {r.OriginalAuthor}", term) < 2 ||
-                    LevenshteinDistance.ComputeLean($"{r.OriginalTitle} {r.OriginalAuthor}", term) < 2 ||
-                    LevenshteinDistance.ComputeLean($"{r.OriginalAuthor} {r.OriginalTitle}", term) < 2 ||
-                    LevenshteinDistance.ComputeLean($"{r.OriginalAuthor} - {r.OriginalTitle}", term) < 2);
+                .FirstOrDefault(r => ScoreSingleTerm(term, r));
         }
-        
+
+        private static bool ScoreSingleTerm(string term, MusicInfo r)
+        {
+            return LevenshteinDistance.ComputeLean(r.RomanizedTitle, term) < 2 ||
+                   LevenshteinDistance.ComputeLean($"{r.RomanizedTitle} - {r.RomanizedAuthor}", term) < 2 ||
+                   LevenshteinDistance.ComputeLean($"{r.RomanizedTitle} {r.RomanizedAuthor}", term) < 2 ||
+                   LevenshteinDistance.ComputeLean($"{r.RomanizedAuthor} {r.RomanizedTitle}", term) < 2 ||
+                   LevenshteinDistance.ComputeLean($"{r.RomanizedAuthor} - {r.RomanizedTitle}", term) < 2 ||
+
+                   LevenshteinDistance.ComputeLean(r.OriginalTitle, term) < 2 ||
+                   LevenshteinDistance.ComputeLean($"{r.OriginalTitle} - {r.OriginalAuthor}", term) < 2 ||
+                   LevenshteinDistance.ComputeLean($"{r.OriginalTitle} {r.OriginalAuthor}", term) < 2 ||
+                   LevenshteinDistance.ComputeLean($"{r.OriginalAuthor} {r.OriginalTitle}", term) < 2 ||
+                   LevenshteinDistance.ComputeLean($"{r.OriginalAuthor} - {r.OriginalTitle}", term) < 2;
+        }
+
         public static MusicInfo? SearchFromSpotify(SpotifyTrack track)
         {
             var searchTerm = $"{track.Author} - {track.Title}";
             return SearchOneByTerm(searchTerm);
         }
 
-        public static IEnumerable<MusicInfo> SearchByTerm(string term)
+        public static IEnumerable<MusicInfo> OrderByTerm(string term)
         {
-            return Items.AsParallel().OrderByDescending(r => ScoreTerm(r, term));
+            if (string.IsNullOrEmpty(term)) return GetAll();
+
+            var ordered = from r in Items.AsParallel()
+                orderby
+                    Min(
+                        // Romanized data pass.
+                        LevenshteinDistance.ComputeLean(r.RomanizedTitle, term),
+                        LevenshteinDistance.ComputeLean($"{r.RomanizedTitle} - {r.RomanizedAuthor}", term),
+                        LevenshteinDistance.ComputeLean($"{r.RomanizedTitle} {r.RomanizedAuthor}", term),
+                        LevenshteinDistance.ComputeLean($"{r.RomanizedAuthor} {r.RomanizedTitle}", term),
+                        LevenshteinDistance.ComputeLean($"{r.RomanizedAuthor} - {r.RomanizedTitle}", term),
+                        // Original data pass.
+                        LevenshteinDistance.ComputeLean(r.OriginalTitle, term),
+                        LevenshteinDistance.ComputeLean($"{r.OriginalTitle} - {r.OriginalAuthor}", term),
+                        LevenshteinDistance.ComputeLean($"{r.OriginalTitle} {r.OriginalAuthor}", term),
+                        LevenshteinDistance.ComputeLean($"{r.OriginalAuthor} {r.OriginalTitle}", term),
+                        LevenshteinDistance.ComputeLean($"{r.OriginalAuthor} - {r.OriginalTitle}", term),
+                        // Added step to help me find songs. I hope this doesn't break anything.
+                        LevenshteinDistance.ComputeLean(r.RomanizedAuthor, term),
+                        LevenshteinDistance.ComputeLean(r.OriginalAuthor, term))
+                select r;
+
+            return ordered;
+        }
+
+        private static int Min(params int[] values)
+        {
+            return values.Min();
         }
 
         public static IEnumerable<MusicInfo> SearchByPattern(string search)

@@ -188,24 +188,29 @@ namespace DiscordBot.Audio
                 if (items == null || items.Count < 1)
                 {
                     await messageChannel.SendMessageAsync(lang.NoResultsFound(term).CodeBlocked());
-                    return;
                 }
 
-                items.ForEach(it => it.SetRequester(user));
-                player.Queue.AddToQueue(items);
+                items?.ForEach(it => it.SetRequester(user));
 
-                if (player.Started)
+                switch (player.Started)
                 {
-                    if (items.Count > 1)
-                        await player.CurrentClient!.SendMessageAsync(messageChannel,
-                            lang.AddedItem(term).CodeBlocked());
-                    else
-                        await player.CurrentClient!.SendMessageAsync(messageChannel,
-                            lang.AddedItem(
-                                    $"({player.Queue.Items.IndexOf(items.First()) + 1}) - {items.First().GetName(player.Settings.ShowOriginalInfo)}")
-                                .CodeBlocked());
-                    return;
+                    case true when items != null:
+                    {
+                        if (items.Count > 1)
+                            await player.CurrentClient!.SendMessageAsync(messageChannel,
+                                lang.AddedItem(term).CodeBlocked());
+                        else
+                            await player.CurrentClient!.SendMessageAsync(messageChannel,
+                                lang.AddedItem(
+                                        $"({player.Queue.Items.IndexOf(items.First()) + 1}) - {items.First().GetName(player.Settings.ShowOriginalInfo)}")
+                                    .CodeBlocked());
+                        return;
+                    }
+                    case true:
+                        return;
                 }
+                
+                if (items != null) player.Queue.AddToQueue(items);
 
                 player.Started = true;
                 player.Connection = await player.CurrentClient.GetVoiceNext()
@@ -481,7 +486,7 @@ namespace DiscordBot.Audio
         {
             return new DiscordMessageBuilder()
                 .WithContent($"```{text}: {key}```")
-                .AddFile("qr_code.jpg", GetQrCodeForWebUi(key))
+                .WithFile("qr_code.jpg", GetQrCodeForWebUi(key))
                 .WithEmbed(new DiscordEmbedBuilder
                 {
                     Title = $"{Bot.Name} Web Interface",
@@ -614,7 +619,7 @@ namespace DiscordBot.Audio
             }
 
             await Bot.Reply(ctx,
-                new DiscordMessageBuilder().WithContent(player.Language.CurrentQueue().CodeBlocked()).AddFile(
+                new DiscordMessageBuilder().WithContent(player.Language.CurrentQueue().CodeBlocked()).WithFile(
                     "queue.txt",
                     new MemoryStream(Encoding.UTF8.GetBytes(player.Queue + player.Language.TechTip()))));
         }
@@ -734,7 +739,7 @@ namespace DiscordBot.Audio
             await ctx.RespondAsync(
                 new DiscordMessageBuilder()
                     .WithContent(player.Language.QueueSavedSuccessfully(token).CodeBlocked())
-                    .AddFile($"{token}.batp", fs));
+                    .WithFile($"{token}.batp", fs));
         }
 
         public static async Task PlsFix(CommandContext ctx)
@@ -806,7 +811,7 @@ namespace DiscordBot.Audio
                 await Bot.Reply(ctx, new DiscordMessageBuilder()
                     .WithContent(
                         Parser.FromNumber(guild.Language).LyricsLong().CodeBlocked())
-                    .AddFile("lyrics.txt", new MemoryStream(Encoding.UTF8.GetBytes(lyrics)))
+                    .WithFile("lyrics.txt", new MemoryStream(Encoding.UTF8.GetBytes(lyrics)))
                 );
                 return;
             }

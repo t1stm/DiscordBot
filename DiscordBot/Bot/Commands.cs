@@ -256,7 +256,7 @@ namespace DiscordBot
             {
                 //var us = ctx.Message.MentionedUsers;
                 await Bot.Reply(ctx,
-                    new DiscordMessageBuilder().WithContent($"```{user.Username}'s avatar```").AddFile(
+                    new DiscordMessageBuilder().WithContent($"```{user.Username}'s avatar```").WithFile(
                         $"{user.Username}.webp",
                         await HttpClient.DownloadStream(user.GetAvatarUrl(ImageFormat.WebP))));
             }
@@ -456,7 +456,7 @@ namespace DiscordBot
                     //await ctx.RespondAsync($"{ctx.User.Mention} хвана {du.Mention} за кура.");
                     respond = await ctx.RespondAsync(new DiscordMessageBuilder()
                         .WithContent($"{ctx.User.Mention} хвана {du.Mention} за кура.")
-                        .AddFile("hahaha_funny_peepee.jpg", pic));
+                        .WithFile("hahaha_funny_peepee.jpg", pic));
                 }
 
                 if (du.IsBot && du.IsCurrent)
@@ -497,7 +497,7 @@ namespace DiscordBot
                         pic.Position = 0;
                         respond = await ctx.RespondAsync(new DiscordMessageBuilder()
                             .WithContent($"{ctx.User.Mention} беше хванат от {du.Mention} за кура.")
-                            .AddFile("hahaha_funny_dick.jpg", pic));
+                            .WithFile("hahaha_funny_dick.jpg", pic));
                     }
                     else
                     {
@@ -533,7 +533,7 @@ namespace DiscordBot
                                 str.Position = 0;
                                 respond = await ctx.RespondAsync(new DiscordMessageBuilder()
                                     .WithContent($"{ctx.User.Mention} беше хванат от {du.Mention} за кура.")
-                                    .AddFile("hahaha_funny_peepee.jpg", await Methods.ImageMagick.DiscordUserHandler
+                                    .WithFile("hahaha_funny_peepee.jpg", await Methods.ImageMagick.DiscordUserHandler
                                         (du, ctx.User, ImageTypes.Dick)));
                                 break;
                             case true or false when em is 1:
@@ -573,7 +573,7 @@ namespace DiscordBot
                 if (du.Mention != null)
                     respond = await ctx.RespondAsync(new DiscordMessageBuilder()
                         .WithContent($"{du.Mention} is now monke.")
-                        .AddFile("haha_funny_monke.jpg", await Methods.ImageMagick.DiscordUserHandler
+                        .WithFile("haha_funny_monke.jpg", await Methods.ImageMagick.DiscordUserHandler
                             (du, null, ImageTypes.Monke)));
 
                 if (du.IsBot && du.IsCurrent)

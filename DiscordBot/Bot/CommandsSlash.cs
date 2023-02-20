@@ -532,12 +532,12 @@ namespace DiscordBot
                     str.Position = 0;
                     await ctx.Member.SendMessageAsync(new DiscordMessageBuilder()
                         .WithContent($"```You caught {du.Username}#{du.Discriminator}'s penis.```")
-                        .AddFile("hahaha_funny_peepee.jpg", str));
+                        .WithFile("hahaha_funny_peepee.jpg", str));
                     str.Position = 0;
                     if (du != ctx.Client.CurrentUser)
                         respond = await du.SendMessageAsync(new DiscordMessageBuilder()
                             .WithContent($"```{ctx.User.Username}#{ctx.User.Discriminator} caught your dick.```")
-                            .AddFile("hahaha_funny_peepee.jpg", str));
+                            .WithFile("hahaha_funny_peepee.jpg", str));
                 }
 
                 if (du.IsBot && du.IsCurrent)
@@ -571,7 +571,7 @@ namespace DiscordBot
                         await Task.Delay(3000);
                         respond = await ctx.Member.SendMessageAsync(new DiscordMessageBuilder()
                             .WithContent($"```You caught \"{du.Username}#{du.Discriminator}\"'s dick.```")
-                            .AddFile("hahaha_funny_dick.jpg", await Methods.ImageMagick.DiscordUserHandler
+                            .WithFile("hahaha_funny_dick.jpg", await Methods.ImageMagick.DiscordUserHandler
                                 (du, ctx.User, ImageTypes.Dick)));
                     }
                     else
@@ -611,12 +611,12 @@ namespace DiscordBot
                                 str.Position = 0;
                                 await ctx.Member.SendMessageAsync(new DiscordMessageBuilder()
                                     .WithContent($"```You caught \"{du.Username}#{du.Discriminator}\"'s penis.```")
-                                    .AddFile("hahaha_funny_peepee.jpg", str));
+                                    .WithFile("hahaha_funny_peepee.jpg", str));
                                 str.Position = 0;
                                 respond = await du.SendMessageAsync(new DiscordMessageBuilder()
                                     .WithContent(
                                         $"```{ctx.Member.Username}#{ctx.Member.Discriminator} caught your penis.```")
-                                    .AddFile("hahaha_funny_peepee.jpg", str));
+                                    .WithFile("hahaha_funny_peepee.jpg", str));
                                 break;
                             case true or false when em is 1:
                                 await ctx.Member.SendMessageAsync(
@@ -639,14 +639,25 @@ namespace DiscordBot
             }
         }
 
-        public class ChoiceProvider : IAutocompleteProvider
+        public class AlbumChoiceProvider : IAutocompleteProvider
         {
             public Task<IEnumerable<DiscordAutoCompleteChoice>> Provider(AutocompleteContext ctx)
             {
                 var stringifyed = (string) ctx.OptionValue;
-                if (Bot.DebugMode) Debug.Write($"Auto complete request: \"{stringifyed}\"");
-                var albums = MusicManager.SearchAlbums(stringifyed);
+                if (Bot.DebugMode) Debug.Write($"Album auto complete request: \"{stringifyed}\"");
+                var albums = MusicManager.SearchAlbums(stringifyed).Take(..20);
                 return Task.FromResult(albums.Select(album => new DiscordAutoCompleteChoice($"{album.AlbumName} - {album.Artist}", album.AccessString)));
+            }
+        }
+        
+        public class SongChoiceProvider : IAutocompleteProvider
+        {
+            public Task<IEnumerable<DiscordAutoCompleteChoice>> Provider(AutocompleteContext ctx)
+            {
+                var stringifyed = (string) ctx.OptionValue;
+                if (Bot.DebugMode) Debug.Write($"Song auto complete request: \"{stringifyed}\"");
+                var albums = MusicManager.OrderByTerm(stringifyed).Take(..20);
+                return Task.FromResult(albums.Select(info => new DiscordAutoCompleteChoice($"{info.OriginalTitle} - {info.OriginalAuthor}", info.Id)));
             }
         }
 
@@ -655,7 +666,7 @@ namespace DiscordBot
         {
             [SlashCommand("album", "Adds a known album to the queue.")]
             public async Task AddAlbumCommand(InteractionContext ctx, 
-                [Autocomplete(typeof(ChoiceProvider))]
+                [Autocomplete(typeof(AlbumChoiceProvider))]
                 [Option("album", "The album name to be added.", true)] string choice)
             {
                 await ctx.DeferAsync();
@@ -689,6 +700,40 @@ namespace DiscordBot
                 }
 
                 await ctx.EditResponseAsync(new DiscordWebhookBuilder().WithContent("Added album to queue.".CodeBlocked()));
+            }
+            
+            [SlashCommand("song", "Adds a known song to the queue.")]
+            public async Task AddSongCommand(InteractionContext ctx, 
+                [Autocomplete(typeof(SongChoiceProvider))]
+                [Option("song", "The song to be added.", true)] string choice)
+            {
+                await ctx.DeferAsync();
+                var guild = await GuildSettings.FromId(ctx.Guild.Id);
+                var userVoiceS = ctx.Member?.VoiceState?.Channel;
+                if (userVoiceS == null)
+                {
+                    await ctx.EditResponseAsync(new DiscordWebhookBuilder().WithContent(Parser.FromNumber(guild.Language).SlashNotInChannel().CodeBlocked()));
+                    return;
+                }
+
+                var player = Manager.GetPlayer(userVoiceS, ctx.Client);
+                if (player == null)
+                {
+                    await ctx.EditResponseAsync(new DiscordWebhookBuilder().WithContent(
+                        Parser.FromNumber(guild.Language).SlashBotNotInChannel().CodeBlocked()));
+                    return;
+                }
+
+                var info = MusicManager.SearchById(choice);
+                if (info == null)
+                {
+                    await ctx.EditResponseAsync(new DiscordWebhookBuilder().WithContent("Error: Unable to find album.".CodeBlocked()));
+                    return;
+                }
+
+                player.Queue.AddToQueue(info.ToMusicObject());
+
+                await ctx.EditResponseAsync(new DiscordWebhookBuilder().WithContent("Added song to queue.".CodeBlocked()));
             }
         }
 
