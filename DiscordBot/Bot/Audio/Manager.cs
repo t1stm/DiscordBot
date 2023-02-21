@@ -191,7 +191,8 @@ namespace DiscordBot.Audio
                 }
 
                 items?.ForEach(it => it.SetRequester(user));
-
+                if (items != null) player.Queue.AddToQueue(items);
+                
                 switch (player.Started)
                 {
                     case true when items != null:
@@ -209,8 +210,6 @@ namespace DiscordBot.Audio
                     case true:
                         return;
                 }
-                
-                if (items != null) player.Queue.AddToQueue(items);
 
                 player.Started = true;
                 player.Connection = await player.CurrentClient.GetVoiceNext()
