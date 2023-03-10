@@ -36,7 +36,8 @@ namespace TestingAPI.Controllers
                 }
 
                 var spotify = await Video.Search(track);
-                var res = spotify.ToSearchResult();
+                var res = spotify?.ToSearchResult();
+                if (res == null) continue;
                 res.IsSpotify = false;
                 list.Add(res);
             }

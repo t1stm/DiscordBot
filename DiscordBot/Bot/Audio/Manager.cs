@@ -412,7 +412,9 @@ namespace DiscordBot.Audio
                             thing.GetName()));
                     return;
                 } while (
+            #pragma warning disable 162
                     false); // This error is tilting me but I can't do anything about it, because it's technically true. Rider cannot contain my intelligence.
+            #pragma warning restore 162
 
             term += ""; // Clear any possible null warnings.
 

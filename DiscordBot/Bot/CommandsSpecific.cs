@@ -123,6 +123,7 @@ namespace DiscordBot
         // ReSharper disable once ClassNeverInstantiated.Local
         // ReSharper disable InconsistentNaming
         // ReSharper disable UnusedMember.Local
+        // ReSharper disable UnusedAutoPropertyAccessor.Local
         // Yes I do like these Rider IDE comments.
         private class RuleObject
         {

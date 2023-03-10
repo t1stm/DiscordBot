@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
-using CustomPlaylistFormat.Objects;
 using DiscordBot.Methods;
 using DiscordBot.Tools;
 using Microsoft.AspNetCore.Mvc;

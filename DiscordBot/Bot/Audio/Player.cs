@@ -131,6 +131,7 @@ namespace DiscordBot.Audio
                         {
                             case SpotifyTrack tr:
                                 var track = await Search.GetSingle(tr);
+                                if (track == null) break;
                                 lock (Queue.Items)
                                 {
                                     Queue.Items[Queue.Current] = track;
@@ -245,6 +246,8 @@ namespace DiscordBot.Audio
                         break;
                     case SpotifyTrack track:
                         var playable = await Search.GetSingle(track);
+                        if (playable == null)
+                            return;
                         await PlayTrack(playable, startingTime);
                         return;
                     default:

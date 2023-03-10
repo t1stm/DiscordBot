@@ -110,20 +110,19 @@ namespace DiscordBot.Playlists.Music_Storage
 
             var songs = Directory.GetFiles(dir);
             var ignored = songs.Count(IsIgnored);
-            var bg = songs.Any(s => s.EndsWith(".json"));
             if (File.Exists(jsonFile))
             {
                 using var read = File.OpenRead(jsonFile);
                 var items = JsonSerializer.Deserialize<List<MusicInfo>>(read) ?? Enumerable.Empty<MusicInfo>().ToList();
                 if (items.Count == songs.Length - ignored) return items;
-                var data = UpdateData(items, songs, bg).ToList();
+                var data = UpdateData(items, songs).ToList();
                 using var rfs = File.Open(jsonFile, FileMode.Create, FileAccess.ReadWrite, FileShare.ReadWrite);
                 JsonSerializer.Serialize(rfs, data);
                 rfs.Close();
                 return data;
             }
 
-            var list = songs.Where(r => !IsIgnored(r)).Select(r => ParseFile(r, bg)).ToList();
+            var list = songs.Where(r => !IsIgnored(r)).Select(ParseFile).ToList();
             using var fs = File.Open(jsonFile, FileMode.Create, FileAccess.ReadWrite, FileShare.ReadWrite);
             JsonSerializer.Serialize(fs, list);
             fs.Close();
@@ -131,8 +130,7 @@ namespace DiscordBot.Playlists.Music_Storage
             return list;
         }
 
-        private static IEnumerable<MusicInfo> UpdateData(IEnumerable<MusicInfo> existing, IEnumerable<string> files,
-            bool isBulgarian = true)
+        private static IEnumerable<MusicInfo> UpdateData(IEnumerable<MusicInfo> existing, IEnumerable<string> files)
         {
             var existingList = existing.ToList();
             foreach (var mi in existingList) yield return mi;
@@ -141,10 +139,10 @@ namespace DiscordBot.Playlists.Music_Storage
                 !IsIgnored(location) &&
                 existingList.All(r => r.RelativeLocation != string.Join('/', location.Split('/')[^3..])));
 
-            foreach (var newFile in newFiles) yield return ParseFile(newFile, isBulgarian);
+            foreach (var newFile in newFiles) yield return ParseFile(newFile);
         }
 
-        private static MusicInfo ParseFile(string location, bool isBulgarian = true)
+        private static MusicInfo ParseFile(string location)
         {
             var split = location.Split('/');
             var filename = split[^1];
@@ -157,7 +155,7 @@ namespace DiscordBot.Playlists.Music_Storage
             var entry = MediaInfo.GetInformation(location).GetAwaiter().GetResult();
             entry.OriginalTitle ??= title.Trim();
             entry.OriginalAuthor ??= author.Trim();
-            entry.RomanizedTitle ??= isBulgarian ? Romanize.FromBulgarian(title).Trim() : title.Trim();
+            entry.RomanizedTitle ??= Romanize.FromBulgarian(title).Trim();
             entry.RomanizedAuthor ??= romanizedAuthor.Trim();
             entry.RelativeLocation ??= string.Join('/', split[^3..]);
             entry.UpdateRandomId();

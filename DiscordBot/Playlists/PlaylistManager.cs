@@ -146,7 +146,19 @@ namespace DiscordBot.Playlists
         public static Playlist? SavePlaylist(IEnumerable<PlayableItem> list, PlaylistInfo info)
         {
             var guid = Guid.NewGuid();
-            var fileStream = File.Open($"{PlaylistDirectory}/{guid.ToString()}.play", FileMode.CreateNew);
+            try
+            {
+                return SavePlaylist(list, info, guid);
+            }
+            catch (Exception)
+            {
+                return null;
+            }
+        }
+
+        public static Playlist? SavePlaylist(IEnumerable<PlayableItem> list, PlaylistInfo info, Guid guid)
+        {
+            var fileStream = File.Open($"{PlaylistDirectory}/{guid.ToString()}.play", FileMode.Create);
             try
             {
                 var playlistEncoder = new Encoder(fileStream, info);
@@ -177,28 +189,6 @@ namespace DiscordBot.Playlists
             }
 
             return null;
-        }
-
-        public static Playlist SavePlaylist(IEnumerable<PlayableItem> list, PlaylistInfo info, Guid guid)
-        {
-            var fileStream = File.Open($"{PlaylistDirectory}/{guid.ToString()}.play", FileMode.Create);
-            var playlistEncoder = new Encoder(fileStream, info);
-
-            var entries = list.Select(r => new Entry
-            {
-                Type = GetItemType(r),
-                Data = string.Join("://", r.GetAddUrl().Split("://")[1..])
-            });
-
-            var items = entries as Entry[] ?? entries.ToArray();
-            playlistEncoder.Encode(items);
-            info.Guid = guid;
-            return new Playlist
-            {
-                FailedToParse = false,
-                PlaylistItems = items,
-                Info = info
-            };
         }
 
         public static byte GetItemType(PlayableItem it)

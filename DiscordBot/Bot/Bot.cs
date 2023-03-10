@@ -54,7 +54,7 @@ namespace DiscordBot
         public static readonly Random Rng = new();
         private static Timer UpdateLoop { get; } = new(UpdateDelay);
         public static List<DiscordClient> Clients { get; } = new();
-        public static bool DebugMode { get; private set; } = false;
+        public static bool DebugMode { get; private set; } // Default: false
         private static List<DiscordMessage> BotMessages { get; } = new();
 
         public static async Task Initialize(RunType token)
@@ -100,8 +100,8 @@ namespace DiscordBot
                     throw new ArgumentOutOfRangeException(nameof(token), token, null);
             }
 
-            //Clients.Add(SpecificContentBot()); // Time to retire this bot.
-            foreach (var client in Clients) await client.ConnectAsync();
+            Clients.Add(SpecificContentBot()); // Time to retire this bot.
+            foreach (var client in Clients) await client.ConnectAsync().ConfigureAwait(false);
             string text;
             await ReadStatus(Clients[0]);
             YoutubeOverride.UpdateOverrides();

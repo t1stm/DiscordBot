@@ -185,7 +185,7 @@ namespace DiscordBot.Controllers
                 if (user == null) return Ok("403");
 
                 var player = Manager.Main.First(ch => ch.VoiceChannel?.Id == channelId);
-                PlayableItem search;
+                PlayableItem? search;
 
                 if (!spotify) search = await Video.SearchById(id);
                 else search = await Track.Get(id, true);

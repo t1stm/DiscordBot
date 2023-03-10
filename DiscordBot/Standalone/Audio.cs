@@ -125,7 +125,7 @@ namespace DiscordBot.Standalone
             var file = uploadedFiles[0];
             var stream = file.OpenReadStream();
 
-            return Ok();
+            return Ok(stream);
         }
         
         [HttpGet, Route("/Audio/Search")]
@@ -143,7 +143,8 @@ namespace DiscordBot.Standalone
                 }
 
                 var spotify = await Video.Search(track);
-                var res = spotify.ToSearchResult();
+                var res = spotify?.ToSearchResult();
+                if (res == null) continue;
                 res.IsSpotify = false;
                 list.Add(res);
             }

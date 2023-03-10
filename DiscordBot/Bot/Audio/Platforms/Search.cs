@@ -54,22 +54,13 @@ namespace DiscordBot.Audio.Platforms
                 }
 
                 if (searchTerm.Contains("watch?v="))
-                    return new List<PlayableItem>
-                    {
-                        await Video.SearchById(searchTerm.Split("watch?v=").Last().Split("&")[0])
-                    };
+                    return ToList(await Video.SearchById(searchTerm.Split("watch?v=").Last().Split("&")[0]));
                 if (searchTerm.Contains("shorts/"))
-                    return new List<PlayableItem>
-                    {
-                        await Video.SearchById(searchTerm.Split("shorts/").Last().Split("&")[0])
-                    };
+                    return ToList(await Video.SearchById(searchTerm.Split("shorts/").Last().Split("&")[0]));
             }
 
             if (searchTerm.Contains("youtu.be/"))
-                return new List<PlayableItem>
-                {
-                    await Video.SearchById(searchTerm.Split("youtu.be/").Last().Split("&")[0])
-                };
+                return ToList(await Video.SearchById(searchTerm.Split("youtu.be/").Last().Split("&")[0]));
             if (searchTerm.Contains("http") && searchTerm.Contains("vbox7.com"))
             {
                 var ser = await Vbox7SearchClient.SearchUrl(searchTerm);
@@ -125,10 +116,7 @@ namespace DiscordBot.Audio.Platforms
                 {
                     databaseItem.ToMusicObject()
                 },
-                false => new List<PlayableItem>
-                {
-                    await Video.Search(searchTerm, length: length)
-                }
+                false => ToList(await Video.Search(searchTerm, length: length))
             };
         }
 
@@ -137,6 +125,16 @@ namespace DiscordBot.Audio.Platforms
             var l = new List<PlayableItem> {item};
             l.AddRange(list);
             return l;
+        }
+
+        private static List<PlayableItem>? ToList(PlayableItem? item)
+        {
+            return item == null
+                ? null
+                : new List<PlayableItem>
+                {
+                    item
+                };
         }
 
         public static async Task<object?> SearchBotProtocols(string search)
@@ -202,7 +200,7 @@ namespace DiscordBot.Audio.Platforms
             return list;
         }
 
-        public static async Task<List<PlayableItem>> GetList(SpotifyTrack track, bool urgent = false)
+        public static async Task<List<PlayableItem?>> GetList(SpotifyTrack track, bool urgent = false)
         {
             return new()
             {
@@ -210,7 +208,7 @@ namespace DiscordBot.Audio.Platforms
             };
         }
         
-        public static async Task<PlayableItem> GetSingle(SpotifyTrack track)
+        public static async Task<PlayableItem?> GetSingle(SpotifyTrack track)
         {
             var result = MusicManager.SearchFromSpotify(track);
             return result?.ToMusicObject() ?? await Video.Search(track);

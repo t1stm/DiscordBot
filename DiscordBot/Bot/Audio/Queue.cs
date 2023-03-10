@@ -183,6 +183,8 @@ namespace DiscordBot.Audio
                         }
 
                         var newI = await Video.Search(tr);
+                        if (newI == null) continue;
+                        
                         lock (Items)
                         {
                             Items[index] = newI;
