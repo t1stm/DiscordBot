@@ -545,6 +545,8 @@ namespace DiscordBot.Audio
                     //Disconnect();
                     if (Manager.Main.Contains(this)) Manager.Main.Remove(this);
                 }
+                // I recently encountered an error where the statusbar didn't stop.
+                Statusbar.Stop();
             }
             catch (Exception e)
             {

@@ -731,9 +731,11 @@ namespace DiscordBot
                     return;
                 }
 
-                player.Queue.AddToQueue(info.ToMusicObject());
+                var song = info.ToMusicObject();
+                
+                player.Queue.AddToQueue(song);
 
-                await ctx.EditResponseAsync(new DiscordWebhookBuilder().WithContent("Added song to queue.".CodeBlocked()));
+                await ctx.EditResponseAsync(new DiscordWebhookBuilder().WithContent($"Added \"{song.GetName(guild.ShowOriginalInfo)}\" to queue.".CodeBlocked()));
             }
         }
 
