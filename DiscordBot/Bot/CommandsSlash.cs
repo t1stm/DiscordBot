@@ -699,7 +699,7 @@ namespace DiscordBot
                     player.Queue.AddToQueue(song.ToMusicObject());
                 }
 
-                await ctx.EditResponseAsync(new DiscordWebhookBuilder().WithContent("Added album to queue.".CodeBlocked()));
+                await ctx.EditResponseAsync(new DiscordWebhookBuilder().WithContent($"Added album \'{album.AlbumName}\' to the queue.".CodeBlocked()));
             }
             
             [SlashCommand("song", "Adds a known song to the queue.")]
@@ -735,7 +735,7 @@ namespace DiscordBot
                 
                 player.Queue.AddToQueue(song);
 
-                await ctx.EditResponseAsync(new DiscordWebhookBuilder().WithContent($"Added \"{song.GetName(guild.ShowOriginalInfo)}\" to queue.".CodeBlocked()));
+                await ctx.EditResponseAsync(new DiscordWebhookBuilder().WithContent($"Added \"{song.GetName(guild.ShowOriginalInfo)}\" to the queue.".CodeBlocked()));
             }
         }
 
