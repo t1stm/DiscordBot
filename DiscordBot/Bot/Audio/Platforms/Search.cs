@@ -85,7 +85,7 @@ namespace DiscordBot.Audio.Platforms
                 }));
 
             var res = await SearchBotProtocols(searchTerm);
-            if (res != null && !returnAllResults)
+            if (res != null)
                 switch (res)
                 {
                     case Result<List<PlayableItem>, Error> list:
