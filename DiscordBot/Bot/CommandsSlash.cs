@@ -696,7 +696,9 @@ namespace DiscordBot
                 foreach (var song in album.Songs)
                 {
                     if (song == null) continue;
-                    player.Queue.AddToQueue(song.ToMusicObject());
+                    var item = song.ToMusicObject();
+                    item.SetRequester(ctx.Member);
+                    player.Queue.AddToQueue(item);
                 }
 
                 await ctx.EditResponseAsync(new DiscordWebhookBuilder().WithContent($"Added album \'{album.AlbumName}\' to the queue.".CodeBlocked()));
@@ -732,6 +734,7 @@ namespace DiscordBot
                 }
 
                 var song = info.ToMusicObject();
+                song.SetRequester(ctx.Member);
                 
                 player.Queue.AddToQueue(song);
 
