@@ -192,7 +192,7 @@ namespace DiscordBot.Audio
                     var search = await Search.Get(term, attachments, user?.Guild.Id);
                     if (search != Status.OK)
                     {
-                        await messageChannel.SendMessageAsync($"Searching failed with error: \'{search.GetError().Stringify(lang)}\'");
+                        await messageChannel.SendMessageAsync($"Searching failed with error: \'{search.GetError().Stringify(lang)}\'".CodeBlocked());
                         return;
                     }
 
