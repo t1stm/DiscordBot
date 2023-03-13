@@ -143,9 +143,14 @@ namespace DiscordBot.Playlists
             return read;
         }
 
+        public static Guid GetGuid()
+        {
+            return Guid.NewGuid();
+        }
+
         public static Playlist? SavePlaylist(IEnumerable<PlayableItem> list, PlaylistInfo info)
         {
-            var guid = Guid.NewGuid();
+            var guid = GetGuid();
             try
             {
                 return SavePlaylist(list, info, guid);

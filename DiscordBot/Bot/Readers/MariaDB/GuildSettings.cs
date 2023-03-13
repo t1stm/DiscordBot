@@ -6,6 +6,7 @@ using DiscordBot.Methods;
 
 namespace DiscordBot.Readers.MariaDB
 {
+    // TODO: Move this from the MariaDB namespace.
     public static class GuildSettings
     {
         public static async Task<GuildsModel> FromId(ulong id)

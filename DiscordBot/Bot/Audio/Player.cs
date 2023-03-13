@@ -6,6 +6,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Timers;
+using CustomPlaylistFormat.Objects;
 using DiscordBot.Abstract;
 using DiscordBot.Audio.Objects;
 using DiscordBot.Audio.Platforms;
@@ -13,6 +14,7 @@ using DiscordBot.Data.Models;
 using DiscordBot.Enums;
 using DiscordBot.Messages;
 using DiscordBot.Objects;
+using DiscordBot.Playlists;
 using DSharpPlus;
 using DSharpPlus.Entities;
 using DSharpPlus.VoiceNext;
@@ -33,6 +35,7 @@ namespace DiscordBot.Audio
             Queue = new Queue();
             WebSocketManager = new WebSocketManager(Queue, this);
             Queue.Manager = WebSocketManager;
+            QueueToken = PlaylistManager.GetGuid();
         }
 
         private FfMpeg FfMpeg { get; set; } = new();
@@ -73,7 +76,7 @@ namespace DiscordBot.Audio
         private bool Die { get; set; }
         public static string StatusbarMessage { get; } = "";
         private double Volume { get; set; } = 100;
-        public string? QueueToken { get; set; }
+        public Guid QueueToken { get; set; }
         public bool SavedQueue { get; set; }
         private object LockObject { get; } = new();
 
@@ -81,12 +84,11 @@ namespace DiscordBot.Audio
         {
             try
             {
-                QueueToken ??= Manager.GetFreePlaylistToken(CurrentGuild?.Id, VoiceChannel?.Id);
                 if (Die) return;
-                Statusbar.Client = CurrentClient;
-                Statusbar.Guild = CurrentGuild;
+                Statusbar.Client = CurrentClient.ThrowIfNull();
+                Statusbar.Guild = CurrentGuild.ThrowIfNull();
                 Statusbar.Player = this;
-                Statusbar.Channel = Channel;
+                Statusbar.Channel = Channel.ThrowIfNull();
                 if (Connection != null)
                     Connection.VoiceSocketErrored += async (_, args) =>
                     {
@@ -198,11 +200,23 @@ namespace DiscordBot.Audio
         {
             try
             {
-                QueueToken ??= Manager.GetFreePlaylistToken(CurrentGuild?.Id, VoiceChannel?.Id);
+                PlayableItem[] items;
                 lock (Queue.Items)
                 {
-                    SharePlaylist.Write(QueueToken, Queue.Items);
+                    items = Queue.Items.ToArray();
                 }
+                
+                var guid = QueueToken.ThrowIfNull();
+                var info = new PlaylistInfo
+                {
+                    Name = $"Discord bot session: {guid.ToString()}",
+                    Maker = null,
+                    Count = (uint) items.Length,
+                    Description = $"A saved session of the channel \'{VoiceChannel?.Name ?? "Unavailable"}\' in server \'{CurrentGuild?.Name ?? "Unavailable"}\'.",
+                    IsPublic = true,
+                    LastModified = DateTime.UtcNow.Ticks
+                };
+                PlaylistManager.SavePlaylist(items, info, guid);
 
                 SavedQueue = true;
             }

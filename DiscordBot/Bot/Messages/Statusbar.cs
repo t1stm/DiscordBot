@@ -1,3 +1,4 @@
+#nullable enable
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -23,20 +24,19 @@ namespace DiscordBot.Messages
 
         public bool HasButtons => NewStatusbar;
         private bool Stopped { get; set; }
-        public Player Player { get; set; }
+        public Player Player { get; set; } = null!;
         private ILanguage Language => Player?.Language ?? Parser.FromNumber(0); // If null, gets the English Language.
-        public DiscordGuild Guild { get; set; }
-        public DiscordChannel Channel { get; set; }
-        public DiscordClient Client { get; set; }
-        public DiscordMessage Message { get; set; }
+        public DiscordGuild Guild { get; set; } = null!;
+        public DiscordChannel Channel { get; set; } = null!;
+        public DiscordClient Client { get; set; } = null!;
+        public DiscordMessage? Message { get; set; }
         private StatusbarMode Mode { get; set; } = StatusbarMode.Stopped;
         private int UpdateDelay { get; set; } = Bot.UpdateDelay;
 
         public async Task UpdateStatusbar()
         {
-            var users = Player?.VoiceChannel?.Users;
-            if (Player != null)
-                Player.VoiceUsers = (List<DiscordMember>) users ?? Enumerable.Empty<DiscordMember>().ToList();
+            var users = Player.VoiceChannel?.Users;
+            Player.VoiceUsers = (List<DiscordMember>?) users ?? Enumerable.Empty<DiscordMember>().ToList();
             switch (Mode)
             {
                 case StatusbarMode.Stopped:
@@ -114,6 +114,7 @@ namespace DiscordBot.Messages
         public async Task UpdatePlacement()
         {
             IReadOnlyList<DiscordMessage> messagesAfter = Array.Empty<DiscordMessage>();
+            if (Message == null) return;
             try
             {
                 messagesAfter = await Channel.GetMessagesAfterAsync(Message.Id);
@@ -134,7 +135,7 @@ namespace DiscordBot.Messages
 
         public string GenerateStatusbar()
         {
-            PlayableItem next;
+            PlayableItem? next;
             try
             {
                 next = Player.Queue.GetNext();
@@ -154,16 +155,22 @@ namespace DiscordBot.Messages
             if (Bot.DebugMode)
                 Debug.Write(
                     $"Updated Statusbar in guild \"{Player.CurrentGuild?.Name}\": Track: \"{Player.CurrentItem?.GetName()}\", Time: {Time(Player.Stopwatch.Elapsed)} - {Time(TimeSpan.FromMilliseconds(length))}");
+            if (Player == null)
+            {
+                throw new NullReferenceException("Player is null");
+            }
+            
+            var text = $"```{Language.Playing()}: \"{Player.CurrentItem?.GetTypeOf(Language)}\"\n" +
+                          $"({Player.Queue.Current + 1} - {Player.Queue.Count}) {Player?.CurrentItem?.GetName(Player.Settings.ShowOriginalInfo) ?? "Something's broken."}\n" +
+                          $"{progress} ( {Player.Paused switch {false => "▶️", true => "⏸️"}} {Time(TimeSpan.FromMilliseconds(time))} - {length switch {0 => "∞", _ => Time(TimeSpan.FromMilliseconds(length))}} )" +
+                          $"{Player.Sink switch {null => "", _ => Player.Sink.VolumeModifier switch {0 => " (🔇", >0 and <.33 => " (🔈", >=.33 and <=.66 => " (🔉", >.66 => " (🔊", _ => " (🔊"} + $" {(int) (Player.Sink.VolumeModifier * 100)}%)"}}" +
+                          $"{Player.LoopStatus switch {Loop.One => " ( 🔂 )", Loop.WholeQueue => " ( 🔁 )", _ => ""}}" +
+                          $"{req switch {null => "", _ => $"\n{Language.RequestedBy()}: {req.Username} #{req.Discriminator}"}}" +
+                          $"{next switch {null => "", _ => $"\n\n{Language.NextUp()}: ({Player.Queue.Current + 2}) {next.GetName(Player.Settings.ShowOriginalInfo)}"}}" +
+                          $"{message}```";
 
-            return
-                $"```{Language.Playing()}: \"{Player.CurrentItem?.GetTypeOf(Language)}\"\n" +
-                $"({Player.Queue.Current + 1} - {Player.Queue.Count}) {Player?.CurrentItem?.GetName(Player.Settings.ShowOriginalInfo) ?? "Something's broken."}\n" +
-                $"{progress} ( {Player.Paused switch {false => "▶️", true => "⏸️"}} {Time(TimeSpan.FromMilliseconds(time))} - {length switch {0 => "∞", _ => Time(TimeSpan.FromMilliseconds(length))}} )" +
-                $"{Player.Sink switch {null => "", _ => Player.Sink.VolumeModifier switch {0 => " (🔇", >0 and <.33 => " (🔈", >=.33 and <=.66 => " (🔉", >.66 => " (🔊", _ => " (🔊"} + $" {(int) (Player.Sink.VolumeModifier * 100)}%)"}}" +
-                $"{Player.LoopStatus switch {Loop.One => " ( 🔂 )", Loop.WholeQueue => " ( 🔁 )", _ => ""}}" +
-                $"{req switch {null => "", _ => $"\n{Language.RequestedBy()}: {req.Username} #{req.Discriminator}"}}" +
-                $"{next switch {null => "", _ => $"\n\n{Language.NextUp()}: ({Player.Queue.Current + 2}) {next.GetName(Player.Settings.ShowOriginalInfo)}"}}" +
-                $"{message}```";
+            return text;
+
         }
 
         private async Task UpdateMessage()
@@ -211,8 +218,9 @@ namespace DiscordBot.Messages
 
         private async Task UpdateWaiting()
         {
-            await Message.ModifyAsync(
-                $"```Waiting:\nFor 15 minutes and then leaving.\n{GenerateProgressbar(Player.WaitingStopwatch.ElapsedMilliseconds, 900000)} ( {Player.WaitingStopwatch.Elapsed:mm\\:ss} - 15:00 )\n\n{Language.DefaultStatusbarMessage()}```");
+            await (Message?.ModifyAsync(
+                       $"```Waiting:\nFor 15 minutes and then leaving.\n{GenerateProgressbar(Player.WaitingStopwatch.ElapsedMilliseconds, 900000)} ( {Player.WaitingStopwatch.Elapsed:mm\\:ss} - 15:00 )\n\n{Language.DefaultStatusbarMessage()}```") ??
+                   Task.CompletedTask);
         }
 
         public async Task UpdateMessageAndStop(string message, bool formatted = true)
@@ -220,13 +228,17 @@ namespace DiscordBot.Messages
             try
             {
                 Stop();
+                if (Message == null)
+                {
+                    return;
+                }
                 await Task.Delay(Bot.UpdateDelay);
                 var builder = new DiscordMessageBuilder().WithContent(formatted ? $"```{message}```" : message);
                 builder.ClearComponents();
                 if (Player.Settings.SaveQueueOnLeave && Player.SavedQueue)
                     builder.AddComponents(new List<DiscordComponent>
                     {
-                        new DiscordButtonComponent(ButtonStyle.Success, $"resume:{Player.QueueToken}",
+                        new DiscordButtonComponent(ButtonStyle.Success, $"resume_v2:{Player.QueueToken.ToString()}",
                             "Play Saved Queue"),
                         new DiscordButtonComponent(ButtonStyle.Danger, "vote:",
                             "Vote")

@@ -552,7 +552,8 @@ namespace DiscordBot
                 }
 
                 var user = await User.FromId(eventArgs.User.Id);
-                if (pl == null && !eventArgs.Id.StartsWith("resume:") && !eventArgs.Id.StartsWith("vote:"))
+                if (pl == null && !eventArgs.Id.StartsWith("resume:") && 
+                    !eventArgs.Id.StartsWith("resume_v2:") && !eventArgs.Id.StartsWith("vote:"))
                 {
                     await eventArgs.Interaction.CreateFollowupMessageAsync(
                         new DiscordFollowupMessageBuilder {IsEphemeral = true}.WithContent(
@@ -630,40 +631,11 @@ namespace DiscordBot
                         await eventArgs.Guild.Members[eventArgs.User.Id].SendMessageAsync(message);
                         break;
                     case "resume":
-                        var userVoiceS = eventArgs.Guild.Members[eventArgs.User.Id]?.VoiceState?.Channel;
-                        if (userVoiceS == null)
-                        {
-                            await eventArgs.Interaction.CreateFollowupMessageAsync(
-                                new DiscordFollowupMessageBuilder {IsEphemeral = true}.WithContent(user.Language
-                                    .EnterChannelBeforeCommand("Play Saved Queue").CodeBlocked()));
-                            break;
-                        }
-
-                        var player = Manager.GetPlayer(userVoiceS, client, generateNew: true);
-                        if (player == null)
-                        {
-                            await eventArgs.Interaction.CreateFollowupMessageAsync(
-                                new DiscordFollowupMessageBuilder {IsEphemeral = true}.WithContent(user.Language
-                                    .NoFreeBotAccounts().CodeBlocked()));
-                            return;
-                        }
-
-                        player.Settings = await GuildSettings.FromId(eventArgs.Guild.Id);
-
-                        var task = new Task(async () =>
-                        {
-                            try
-                            {
-                                await Manager.Play($"pl:{string.Join(':', split[1..])}", false, player, userVoiceS,
-                                    eventArgs.Guild.Members[eventArgs.User.Id], new List<DiscordAttachment>(),
-                                    eventArgs.Channel);
-                            }
-                            catch (Exception e)
-                            {
-                                await Debug.WriteAsync($"Player from interaction message failed: \"{e}\"");
-                            }
-                        });
-                        task.Start();
+                        await OriginalPlaylistHandler(client, eventArgs, user, split);
+                        break;
+                    case "resume_v2":
+                        // TODO: Test this.
+                        await NewPlaylistHandler(client, eventArgs, user, split);
                         break;
                 }
             }
@@ -671,6 +643,84 @@ namespace DiscordBot
             {
                 await Debug.WriteAsync($"Message interaction failed: \"{e}\"", false, Debug.DebugColor.Error);
             }
+        }
+
+        private static async Task NewPlaylistHandler(DiscordClient client, ComponentInteractionCreateEventArgs eventArgs, User user, string[] split)
+        {
+            var userVoiceS = eventArgs.Guild.Members[eventArgs.User.Id]?.VoiceState?.Channel;
+            if (userVoiceS == null)
+            {
+                await eventArgs.Interaction.CreateFollowupMessageAsync(
+                    new DiscordFollowupMessageBuilder {IsEphemeral = true}.WithContent(user.Language
+                        .EnterChannelBeforeCommand("Play Saved Queue").CodeBlocked()));
+                return;
+            }
+
+            var player = Manager.GetPlayer(userVoiceS, client, generateNew: true);
+            if (player == null)
+            {
+                await eventArgs.Interaction.CreateFollowupMessageAsync(
+                    new DiscordFollowupMessageBuilder {IsEphemeral = true}.WithContent(user.Language
+                        .NoFreeBotAccounts().CodeBlocked()));
+                return;
+            }
+
+            player.Settings = await GuildSettings.FromId(eventArgs.Guild.Id);
+            
+            var task = new Task(async () =>
+            {
+                try
+                {
+                    await Manager.Play($"https://playlists.{MainDomain}/{string.Join(':', split[1..])}", false, player, userVoiceS,
+                        eventArgs.Guild.Members[eventArgs.User.Id], new List<DiscordAttachment>(),
+                        eventArgs.Channel);
+                }
+                catch (Exception e)
+                {
+                    await Debug.WriteAsync($"Player from interaction message failed: \"{e}\"");
+                }
+            });
+            task.Start();
+        }
+
+        private static async Task OriginalPlaylistHandler(DiscordClient client,
+            ComponentInteractionCreateEventArgs eventArgs,
+            User user, string[] split)
+        {
+            var userVoiceS = eventArgs.Guild.Members[eventArgs.User.Id]?.VoiceState?.Channel;
+            if (userVoiceS == null)
+            {
+                await eventArgs.Interaction.CreateFollowupMessageAsync(
+                    new DiscordFollowupMessageBuilder {IsEphemeral = true}.WithContent(user.Language
+                        .EnterChannelBeforeCommand("Play Saved Queue").CodeBlocked()));
+                return;
+            }
+
+            var player = Manager.GetPlayer(userVoiceS, client, generateNew: true);
+            if (player == null)
+            {
+                await eventArgs.Interaction.CreateFollowupMessageAsync(
+                    new DiscordFollowupMessageBuilder {IsEphemeral = true}.WithContent(user.Language
+                        .NoFreeBotAccounts().CodeBlocked()));
+                return;
+            }
+
+            player.Settings = await GuildSettings.FromId(eventArgs.Guild.Id);
+
+            var task = new Task(async () =>
+            {
+                try
+                {
+                    await Manager.Play($"pl:{string.Join(':', split[1..])}", false, player, userVoiceS,
+                        eventArgs.Guild.Members[eventArgs.User.Id], new List<DiscordAttachment>(),
+                        eventArgs.Channel);
+                }
+                catch (Exception e)
+                {
+                    await Debug.WriteAsync($"Player from interaction message failed: \"{e}\"");
+                }
+            });
+            task.Start();
         }
 
         private static async Task OnModalResponse(DiscordClient sender, ModalSubmitEventArgs e)
