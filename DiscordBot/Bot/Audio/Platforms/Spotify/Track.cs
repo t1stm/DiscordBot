@@ -1,4 +1,8 @@
+#nullable enable
+using System;
 using System.Threading.Tasks;
+using DiscordBot.Abstract;
+using DiscordBot.Abstract.Errors;
 using DiscordBot.Audio.Objects;
 using SpotifyAPI.Web;
 
@@ -13,19 +17,26 @@ namespace DiscordBot.Audio.Platforms.Spotify
 
         private static readonly SpotifyClient Spotify = new(SpotifyConfig);
 
-        public static async Task<SpotifyTrack> Get(string url, bool isId = false)
+        public static async Task<Result<PlayableItem, Error>> Get(string url, bool isId = false)
         {
-            var id = isId ? url : url.Split("track/")[1].Split("?si")[0];
-            var track = await Spotify.Tracks.Get(id);
-            return new SpotifyTrack
+            try
             {
-                Title = track.Name,
-                Author = Methods.ArtistsNameCombine(track.Artists),
-                Length = (ulong) track.DurationMs,
-                TrackId = track.Id,
-                Album = track.Album.Name,
-                Explicit = track.Explicit
-            };
+                var id = isId ? url : url.Split("track/")[1].Split("?si")[0];
+                var track = await Spotify.Tracks.Get(id);
+                return Result<PlayableItem, Error>.Success(new SpotifyTrack
+                {
+                    Title = track.Name,
+                    Author = Methods.ArtistsNameCombine(track.Artists),
+                    Length = (ulong) track.DurationMs,
+                    TrackId = track.Id,
+                    Album = track.Album.Name,
+                    Explicit = track.Explicit
+                });
+            }
+            catch (Exception)
+            {
+                return Result<PlayableItem, Error>.Error(new SpotifyTrackError());
+            }
         }
     }
 }

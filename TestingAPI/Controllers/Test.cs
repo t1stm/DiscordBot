@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Text.Json;
 using System.Threading.Tasks;
+using DiscordBot.Abstract;
 using DiscordBot.Audio.Objects;
 using DiscordBot.Audio.Platforms.Youtube;
 using DiscordBot.Methods;
@@ -25,9 +26,9 @@ namespace TestingAPI.Controllers
         public async Task<IActionResult> Search(string term)
         {
             var items = await DiscordBot.Audio.Platforms.Search.Get(term, returnAllResults: true);
-            if (items == null) return Ok("[]"); // Empty Array
+            if (items != Status.OK) return Ok("[]"); // Empty Array
             var list = new List<SearchResult>();
-            foreach (var item in items)
+            foreach (var item in items.GetOK())
             {
                 if (item is not SpotifyTrack track)
                 {
@@ -36,8 +37,8 @@ namespace TestingAPI.Controllers
                 }
 
                 var spotify = await Video.Search(track);
-                var res = spotify?.ToSearchResult();
-                if (res == null) continue;
+                if (spotify != Status.OK) continue;
+                var res = spotify.GetOK().ToSearchResult();
                 res.IsSpotify = false;
                 list.Add(res);
             }

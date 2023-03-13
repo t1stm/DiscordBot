@@ -139,18 +139,19 @@ namespace DiscordBot.Audio
             {
                 term ??= string.Empty;
                 var lang = player.Language;
-                List<PlayableItem>? items;
+                List<PlayableItem> items;
                 player.Channel = player.CurrentClient!.Guilds[userVoiceS.Guild.Id].Channels[messageChannel.Id];
                 if (select && !term.StartsWith("http"))
                 {
                     var results = await Search.Get(term, returnAllResults: true);
-                    if (results == null || results.Count < 1)
+                    List<PlayableItem> ok;
+                    if (results != Status.OK || (ok = results.GetOK()).Count < 1)
                     {
                         await messageChannel.SendMessageAsync(lang.NoResultsFound(term).CodeBlocked());
                         return;
                     }
 
-                    var options = results.Select(item =>
+                    var options = ok.Select(item =>
                             new DiscordSelectComponentOption(item.GetName(), item.GetAddUrl(), item.Author))
                         .ToList();
                     var dropdown = new DiscordSelectComponent("dropdown", null, options);
@@ -168,8 +169,14 @@ namespace DiscordBot.Audio
                     if (interaction == null || interaction.Length < 1) return;
 
                     items = new List<PlayableItem>();
-                    var result = (await Search.Get(interaction.First()) ?? Enumerable.Empty<PlayableItem>())
-                        .FirstOrDefault();
+                    var search = await Search.Get(interaction.First());
+                    if (search != Status.OK)
+                    {
+                        await message.ModifyAsync($"Searching failed with error: \"{search.GetError().Stringify(lang)}\"".CodeBlocked());
+                        return;
+                    }
+                    
+                    var result = search.GetOK().FirstOrDefault();
                     if (result == null)
                     {
                         await message.ModifyAsync("Unable to find result.".CodeBlocked());
@@ -178,37 +185,41 @@ namespace DiscordBot.Audio
 
                     player.Statusbar.Message = await message.ModifyAsync(
                         new DiscordMessageBuilder().WithContent(lang.ThisMessageWillUpdateShortly().CodeBlocked()));
+                    items.Add(result);
                 }
                 else
                 {
-                    await Debug.WriteAsync($"Play message contains attachments: {attachments?.Count}");
-                    items = await Search.Get(term, attachments, user?.Guild.Id);
+                    var search = await Search.Get(term, attachments, user?.Guild.Id);
+                    if (search != Status.OK)
+                    {
+                        await messageChannel.SendMessageAsync($"Searching failed with error: \'{search.GetError().Stringify(lang)}\'");
+                        return;
+                    }
+
+                    items = search.GetOK();
                 }
 
-                if (items == null || items.Count < 1)
+                if (items.Count < 1)
                 {
                     await messageChannel.SendMessageAsync(lang.NoResultsFound(term).CodeBlocked());
                 }
 
-                items?.ForEach(it => it.SetRequester(user));
-                if (items != null) player.Queue.AddToQueue(items);
-                
-                switch (player.Started)
+                items.ForEach(it => it.SetRequester(user));
+                player.Queue.AddToQueue(items);
+
+                if (player.Started)
                 {
-                    case true when items != null:
+                    if (items.Count > 1)
                     {
-                        if (items.Count > 1)
-                            await player.CurrentClient!.SendMessageAsync(messageChannel,
-                                lang.AddedItem(term).CodeBlocked());
-                        else
-                            await player.CurrentClient!.SendMessageAsync(messageChannel,
-                                lang.AddedItem(
-                                        $"({player.Queue.Items.IndexOf(items.First()) + 1}) - {items.First().GetName(player.Settings.ShowOriginalInfo)}")
-                                    .CodeBlocked());
+                        await player.CurrentClient!.SendMessageAsync(messageChannel,
+                            lang.AddedItem(term).CodeBlocked());
                         return;
                     }
-                    case true:
-                        return;
+                    await player.CurrentClient!.SendMessageAsync(messageChannel,
+                            lang.AddedItem(
+                                    $"({player.Queue.Items.IndexOf(items.First()) + 1}) - {items.First().GetName(player.Settings.ShowOriginalInfo)}")
+                                .CodeBlocked());
+                    return;
                 }
 
                 player.Started = true;
@@ -424,22 +435,25 @@ namespace DiscordBot.Audio
 
             term = attachmentsList.Count switch
             {
-                1 => ctx.Message.Attachments.ToList()[0].FileName, _ => "Discord Attachments"
+                1 => ctx.Message.Attachments.ToList()[0].FileName, 
+                _ => "Discord Attachments"
             };
-
-            if (items == null || items.Count < 1)
+            
+            if (items != Status.Error)
             {
                 await Bot.Reply(ctx, player.Language.NoResultsFound(term));
                 return;
             }
 
-            items.ForEach(it => it.SetRequester(ctx.Member));
-            player.Queue.AddToQueueNext(items);
+            var things = items.GetOK();
+
+            things.ForEach(it => it.SetRequester(ctx.Member));
+            player.Queue.AddToQueueNext(things);
             await Bot.Reply(player.CurrentClient, ctx.Channel,
-                items.Count > 1
+                things.Count > 1
                     ? player.Language.PlayingItemAfterThis(term)
-                    : player.Language.PlayingItemAfterThis(player.Queue.Items.IndexOf(items[0]) + 1,
-                        items[0].GetName(player.Settings.ShowOriginalInfo)));
+                    : player.Language.PlayingItemAfterThis(player.Queue.Items.IndexOf(things[0]) + 1,
+                        things[0].GetName(player.Settings.ShowOriginalInfo)));
         }
 
         public static async Task Remove(CommandContext ctx, string? text)

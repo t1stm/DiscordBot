@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
+using DiscordBot.Abstract;
 using DiscordBot.Audio.Objects;
 using DiscordBot.Audio.Platforms.Youtube;
 using DiscordBot.Methods;
@@ -78,14 +79,22 @@ namespace DiscordBot.Standalone
 
                 if (Bot.DebugMode) await Debug.WriteAsync("Using Audio Controller");
                 var res = await DiscordBot.Audio.Platforms.Search.Get(id);
-                var first = res?.First();
-                if (first == null)
+                
+                if (res != Status.OK)
+                {
+                    return BadRequest();
+                }
+
+                var ok = res.GetOK();
+
+                if (ok.Count < 1)
                 {
                     await Debug.WriteAsync("No found result in DownloadTrack API.");
-                    /*Response.StatusCode = StatusCodes.Status404NotFound;
-                    await Response.CompleteAsync();*/
                     return NotFound();
                 }
+                
+                var first = ok.First();
+                
                 FfMpeg2 ff = new();
                 var stream = codec switch
                 {
@@ -132,9 +141,9 @@ namespace DiscordBot.Standalone
         public async Task<IActionResult> Search(string term)
         {
             var items = await DiscordBot.Audio.Platforms.Search.Get(term, returnAllResults: true);
-            if (items == null) return Ok("[]"); // Empty Array
+            if (items != Status.OK) return Ok("[]"); // Empty Array
             var list = new List<SearchResult>();
-            foreach (var item in items)
+            foreach (var item in items.GetOK())
             {
                 if (item is not SpotifyTrack track)
                 {
@@ -143,8 +152,8 @@ namespace DiscordBot.Standalone
                 }
 
                 var spotify = await Video.Search(track);
-                var res = spotify?.ToSearchResult();
-                if (res == null) continue;
+                if (spotify != Status.OK) continue;
+                var res = spotify.GetOK().ToSearchResult();
                 res.IsSpotify = false;
                 list.Add(res);
             }

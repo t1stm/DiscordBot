@@ -1,3 +1,4 @@
+#nullable enable
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -5,6 +6,8 @@ using System.Security.Authentication;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
+using DiscordBot.Abstract;
+using DiscordBot.Abstract.Errors;
 using DiscordBot.Methods;
 using DiscordBot.Readers;
 
@@ -24,7 +27,7 @@ namespace DiscordBot.Audio.Platforms.Vbox7
         // D.. ZA DJ MECHO TESKIQ,
         // HA HA HA Ha ha ha
         // https://www.vbox7.com/play:a3769b5b6b - Suraikata 2014 mix
-        public static async IAsyncEnumerable<Vbox7Object> GetResultsFromSearch(string term)
+        public static async IAsyncEnumerable<Result<Vbox7Object, Error>> GetResultsFromSearch(string term)
         {
             var call = await HttpClient.DownloadStream($"https://www.vbox7.com/search?vbox_q={term}");
             var yes = Encoding.UTF8.GetString(call.GetBuffer());
@@ -36,7 +39,7 @@ namespace DiscordBot.Audio.Platforms.Vbox7
             }
         }
 
-        public static async Task<Vbox7Object> SearchUrl(string url)
+        public static async Task<Result<Vbox7Object, Error>> SearchUrl(string url)
         {
             if (url.Length < 7) throw new InvalidCredentialException(nameof(url));
             await Debug.WriteAsync($"Vbox SearchUrl: {url}");
@@ -51,7 +54,7 @@ namespace DiscordBot.Audio.Platforms.Vbox7
                     if (!url.StartsWith("www.vbox7.com/emb/external.php?vid="))
                     {
                         if (!url.StartsWith("i49.vbox7.com/player/ext.swf?"))
-                            throw new InvalidCredentialException(nameof(url));
+                            return Result<Vbox7Object, Error>.Error(new Vbox7Error());
                         id = url[34..].Split('&').First();
                         return await SearchById(id);
                     }
@@ -68,7 +71,7 @@ namespace DiscordBot.Audio.Platforms.Vbox7
             return await SearchById(id);
         }
 
-        private static async Task<Vbox7Object> SearchById(string id)
+        private static async Task<Result<Vbox7Object, Error>> SearchById(string id)
         {
             try
             {
@@ -76,13 +79,13 @@ namespace DiscordBot.Audio.Platforms.Vbox7
                 await Debug.WriteAsync($"Vbox Url is: https://www.vbox7.com/ajax/video/nextvideo.php?vid={id}");
                 var call = await HttpClient.DownloadStream($"https://www.vbox7.com/ajax/video/nextvideo.php?vid={id}");
                 var text = Encoding.UTF8.GetString(call.GetBuffer());
-                return JsonSerializer.Deserialize<Vbox7Object>(text,
-                    new JsonSerializerOptions {PropertyNameCaseInsensitive = true});
+                return Result<Vbox7Object, Error>.Success(JsonSerializer.Deserialize<Vbox7Object>(text,
+                    new JsonSerializerOptions {PropertyNameCaseInsensitive = true}));
             }
             catch (Exception e)
             {
                 await Debug.WriteAsync($"Exception in SearchById Vbox7: {e}");
-                return null;
+                return Result<Vbox7Object, Error>.Error(new Vbox7Error());
             }
         }
     }

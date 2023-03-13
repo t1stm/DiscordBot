@@ -132,8 +132,9 @@ namespace DiscordBot.Audio
                         switch (CurrentItem)
                         {
                             case SpotifyTrack tr:
-                                var track = await Search.GetSingle(tr);
-                                if (track == null) break;
+                                var request = await Search.GetSingle(tr);
+                                if (request != Status.OK) break;
+                                var track = request.GetOK();
                                 lock (Queue.Items)
                                 {
                                     Queue.Items[Queue.Current] = track;
@@ -260,9 +261,8 @@ namespace DiscordBot.Audio
                         break;
                     case SpotifyTrack track:
                         var playable = await Search.GetSingle(track);
-                        if (playable == null)
-                            return;
-                        await PlayTrack(playable, startingTime);
+                        if (playable != Status.OK) return;
+                        await PlayTrack(playable.GetOK(), startingTime);
                         return;
                     default:
                         await FfMpeg.ItemToPcm(item, Sink, startingTime, Normalize);

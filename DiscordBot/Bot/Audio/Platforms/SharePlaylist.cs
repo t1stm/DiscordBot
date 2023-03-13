@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using DiscordBot.Abstract;
+using DiscordBot.Abstract.Errors;
 using DiscordBot.Audio.Objects;
 using DiscordBot.Methods;
 using DiscordBot.Readers;
@@ -14,9 +15,9 @@ namespace DiscordBot.Audio.Platforms
 {
     public static class SharePlaylist
     {
-        public static async Task<List<PlayableItem>?> Get(DiscordAttachment? att)
+        public static async Task<Result<List<PlayableItem>, Error>> Get(DiscordAttachment? att)
         {
-            if (att == null) return null;
+            if (att == null) return Result<List<PlayableItem>, Error>.Error(new NullError(NullType.Attachment));
             var location = $"{Bot.WorkingDirectory}/Playlists/{att.FileName}";
             if (File.Exists(location)) File.Delete(location);
             await HttpClient.DownloadFile(att.Url, location);
@@ -57,7 +58,7 @@ namespace DiscordBot.Audio.Platforms
             return fs;
         }
 
-        public static async Task<List<PlayableItem>?> Get(string token)
+        public static async Task<Result<List<PlayableItem>, Error>> Get(string token)
         {
             try
             {
@@ -74,16 +75,16 @@ namespace DiscordBot.Audio.Platforms
                     }
 
                     var add = await Search.Get(NewFormatSearch(info));
-                    if (add == null) continue;
-                    list.AddRange(add);
+                    if (add != Status.OK) continue;
+                    list.AddRange(add.GetOK());
                 }
 
-                return list;
+                return Result<List<PlayableItem>, Error>.Success(list);
             }
             catch (Exception e)
             {
                 await Debug.WriteAsync($"Loading old playlist failed: {e}");
-                return null;
+                return Result<List<PlayableItem>, Error>.Error(new PlaylistManagerError(PlaylistManagerErrorType.NotFound));
             }
         }
 

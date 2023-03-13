@@ -1,10 +1,10 @@
 #nullable enable
-using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using System.Threading.Tasks;
 using DiscordBot.Abstract;
+using DiscordBot.Abstract.Errors;
 using DiscordBot.Audio.Objects;
 using DiscordBot.Readers;
 using DSharpPlus.Entities;
@@ -15,7 +15,7 @@ namespace DiscordBot.Audio.Platforms.Discord
     {
         private static readonly string DownloadDirectory = $"{Bot.WorkingDirectory}/dll/Discord Attachments/";
 
-        public static async Task<List<PlayableItem>?> GetAttachments(IEnumerable<DiscordAttachment> attachments,
+        public static async Task<Result<List<PlayableItem>, Error>> GetAttachments(IEnumerable<DiscordAttachment> attachments,
             ulong guild = 0)
         {
             var list = new List<PlayableItem>();
@@ -24,7 +24,12 @@ namespace DiscordBot.Audio.Platforms.Discord
                 var lower = at.FileName.ToLower();
                 if (lower.EndsWith(".batp"))
                 {
-                    list.AddRange(await SharePlaylist.Get(at) ?? throw new InvalidOperationException());
+                    var search = await SharePlaylist.Get(at);
+                    if (search != Status.OK)
+                    {
+                        return Result<List<PlayableItem>, Error>.Error(new NoResultsError());
+                    }
+                    list.AddRange(search.GetOK());
                 }
                 else if (lower.EndsWith(".txt"))
                 {
@@ -37,7 +42,7 @@ namespace DiscordBot.Audio.Platforms.Discord
                     list.Add(await GetAttachment(at, guild));
                 }
             }
-            return list;
+            return Result<List<PlayableItem>, Error>.Success(list);
         }
 
         private static async Task<PlayableItem> GetAttachment(DiscordAttachment attachment, ulong guild = 0)

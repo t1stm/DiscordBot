@@ -56,8 +56,9 @@ namespace TestingApp
             // /nvme0/DiscordBot/Playlists
             var split = file.Split('-');
             var items = await SharePlaylist.Get($"{split[^3]}-{split[^2]}-{split[^1][..^5]}");
-            if (items == null) return;
-            await WriteToNewFile(split[^3], split[^2], split[^1][..^5], items);
+            if (items != Status.OK) return;
+            
+            await WriteToNewFile(split[^3], split[^2], split[^1][..^5], items.GetOK());
         }
 
         private async Task WriteToNewFile(string guild, string channel, string token, IEnumerable<PlayableItem> items)

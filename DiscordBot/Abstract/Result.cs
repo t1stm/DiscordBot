@@ -5,67 +5,69 @@ using System.Collections.Generic;
 
 namespace DiscordBot.Abstract
 {
-    public enum Status
+    public class Result <T_OK, T_Error>
     {
-        Ok,
-        Fail
-    }
-
-    public enum Empty
-    {
-        Placeholder
-    }
-    
-    public class Result <T, U>
-    {
-        protected readonly T Ok;
-        protected readonly U Fail;
+        protected readonly T_OK? OkValue;
+        protected readonly T_Error? ErrorValue;
         protected readonly Status Status;
 
-        public Result(T ok, U fail, Status status)
+        public Result(T_OK? okValue, T_Error? errorValue, Status status)
         {
-            Ok = ok;
-            Fail = fail;
+            OkValue = okValue;
+            ErrorValue = errorValue;
             Status = status;
         }
 
-        public static Result<T, Empty> Passed(T a)
+        public T_OK GetOK()
         {
-            return new(a, Empty.Placeholder, Status.Ok);
+            return this == Status.OK ? OkValue ?? throw new NullReferenceException("OK value is null.") : 
+                throw new InvalidResultAccessException("Tried to get OK result when status is \'Error\'.");
         }
 
-        public static Result<Empty, U> Failed(U b)
+        public T_Error GetError()
         {
-            return new(Empty.Placeholder, b, Status.Fail);
+            return this == Status.Error ? ErrorValue ?? throw new NullReferenceException("Error value is null."): 
+                throw new InvalidResultAccessException("Tried to get Error result when status is \'OK\'.");
         }
 
-        public static bool operator ==(Result<T,U> yes, Status s)
+        public static Result<T_OK, T_Error> Success(T_OK ok)
         {
-            return yes.Status == s;
-        }
-
-        public static bool operator !=(Result<T, U> yes, Status s)
-        {
-            return !(yes == s);
+            return new(ok, default, Status.OK);
         }
         
-        protected bool Equals(Result<T, U> other)
+        public static Result<T_OK, T_Error> Error(T_Error error)
         {
-            return EqualityComparer<T>.Default.Equals(Ok, other.Ok) && 
-                   EqualityComparer<U>.Default.Equals(Fail, other.Fail) && 
-                   Status == other.Status;
+            return new(default, error, Status.Error);
+        }
+
+        public static bool operator ==(Result<T_OK, T_Error> source, Status status)
+        {
+            return source.Status == status;
+        }
+
+        public static bool operator !=(Result<T_OK, T_Error> source, Status status)
+        {
+            return !(source == status);
+        }
+        
+        protected bool Equals(Result<T_OK, T_Error> other)
+        {
+            return EqualityComparer<T_OK>.Default.Equals(OkValue, other.OkValue) && 
+                   EqualityComparer<T_Error>.Default.Equals(ErrorValue, other.ErrorValue) && 
+                   Status.Equals(other.Status);
         }
 
         public override bool Equals(object? obj)
         {
             if (ReferenceEquals(null, obj)) return false;
             if (ReferenceEquals(this, obj)) return true;
-            return obj.GetType() == GetType() && Equals((Result<T, U>) obj);
+            return obj.GetType() == GetType() && 
+                   Equals((Result<T_OK, T_Error>) obj);
         }
 
         public override int GetHashCode()
         {
-            return HashCode.Combine(Ok, Fail, (int) Status);
+            return HashCode.Combine(OkValue, ErrorValue, Status);
         }
     }
 }

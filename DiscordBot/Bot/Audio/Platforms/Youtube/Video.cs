@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using DiscordBot.Abstract;
+using DiscordBot.Abstract.Errors;
 using DiscordBot.Audio.Objects;
 using DiscordBot.Data;
 using DiscordBot.Data.Models;
@@ -19,16 +20,15 @@ namespace DiscordBot.Audio.Platforms.Youtube
 {
     public static class Video
     {
-        public static async Task<PlayableItem?> Search(string term, bool urgent = false,
+        public static async Task<Result<PlayableItem, Error>> Search(string term, bool urgent = false,
             ulong length = 0, SpotifyTrack? track = null)
         {
-            PlayableItem? info;
             var cachedSearchResult = GetIdFromCachedTerms(term);
             if (cachedSearchResult != null && !string.IsNullOrEmpty(cachedSearchResult.SearchTerm) &&
                 !string.IsNullOrEmpty(cachedSearchResult.VideoId))
             {
-                info = GetCachedVideoFromId(cachedSearchResult.VideoId);
-                if (info is not null) return info;
+                var cachedVideo = GetCachedVideoFromId(cachedSearchResult.VideoId);
+                if (cachedVideo == Status.OK) return cachedVideo;
                 return await SearchById(cachedSearchResult.VideoId);
             }
 
@@ -103,14 +103,14 @@ namespace DiscordBot.Audio.Platforms.Youtube
             }
 
             var result = res.First();
-            if (result == null) return null;
+            if (result == null) return Result<PlayableItem, Error>.Error(new NoResultsError());
             await Debug.WriteAsync(
                 $"Result Milliseconds are: {StringToTimeSpan.Generate(result.Duration).TotalMilliseconds}");
 
             var alt = YoutubeOverride.FromId(result.Id);
-            if (alt is not null) return alt;
+            if (alt is not null) return Result<PlayableItem, Error>.Success(alt);
 
-            info = new YoutubeVideoInformation
+            PlayableItem info = new YoutubeVideoInformation
             {
                 Title = result.Title,
                 Author = result.Author,
@@ -138,7 +138,7 @@ namespace DiscordBot.Audio.Platforms.Youtube
             });
             task.Start();
             if (urgent) await info.GetAudioData();
-            return info;
+            return Result<PlayableItem, Error>.Success(info);
         }
 
         private static void RemoveTheFucking18dAudio(ref List<YoutubeVideo> list, string searchTerm)
@@ -185,35 +185,42 @@ namespace DiscordBot.Audio.Platforms.Youtube
             list = li;
         }
 
-        public static async Task<List<YoutubeVideoInformation>> SearchAllResults(string term, ulong length = 0)
+        public static async Task<Result<List<PlayableItem>, Error>> SearchAllResults(string term, ulong length = 0)
         {
-            var client = new YoutubeSearchClient(HttpClient.WithCookies());
-            var response = await client.SearchAsync(term);
-            var res = response.Results.ToList();
-            if (length != 0)
-                res = res.OrderBy(r =>
-                        Math.Abs(StringToTimeSpan.Generate(r.Duration).TotalMilliseconds - length))
-                    .ToList();
-            return (from YoutubeVideo video in res
-                select new YoutubeVideoInformation
-                {
-                    Title = video.Title, Author = video.Author,
-                    Length = (ulong) StringToTimeSpan.Generate(video.Duration).TotalMilliseconds, YoutubeId = video.Id,
-                    ThumbnailUrl = video.ThumbnailUrl
-                }).ToList();
+            try
+            {
+                var client = new YoutubeSearchClient(HttpClient.WithCookies());
+                var response = await client.SearchAsync(term);
+                var res = response.Results.ToList();
+                if (length != 0)
+                    res = res.OrderBy(r =>
+                            Math.Abs(StringToTimeSpan.Generate(r.Duration).TotalMilliseconds - length))
+                        .ToList();
+                return Result<List<PlayableItem>, Error>.Success((from YoutubeVideo video in res
+                    select new YoutubeVideoInformation
+                    {
+                        Title = video.Title, Author = video.Author,
+                        Length = (ulong) StringToTimeSpan.Generate(video.Duration).TotalMilliseconds, YoutubeId = video.Id,
+                        ThumbnailUrl = video.ThumbnailUrl
+                    }).Cast<PlayableItem>().ToList());
+            }
+            catch (Exception)
+            {
+                return Result<List<PlayableItem>, Error>.Error(new UnknownError());
+            }
         }
 
-        public static async Task<PlayableItem?> SearchById(string id, bool urgent = false)
+        public static async Task<Result<PlayableItem, Error>> SearchById(string id, bool urgent = false)
         {
             try
             {
                 var alt = YoutubeOverride.FromId(id);
-                if (alt is not null) return alt;
+                if (alt is not null) return Result<PlayableItem, Error>.Success(alt);
                 var info = GetCachedVideoFromId(id);
-                if (info is not null && !urgent) return info;
+                if (!urgent) return info;
                 var client = new YoutubeClient(HttpClient.WithCookies());
                 var video = await client.Videos.GetAsync(id);
-                if (video is not {Duration: { }}) return null;
+                if (video is not {Duration: { }}) return Result<PlayableItem, Error>.Error(new NoResultsError());
                 var vid = new YoutubeVideoInformation
                 {
                     Title = video.Title,
@@ -247,12 +254,12 @@ namespace DiscordBot.Audio.Platforms.Youtube
                     }
                 });
                 task.Start();
-                return vid;
+                return Result<PlayableItem, Error>.Success(vid);
             }
             catch (Exception e)
             {
                 await Debug.WriteAsync($"SearchById threw exception: \"{e}\"");
-                return null;
+                return Result<PlayableItem, Error>.Error(new UnknownError());
             }
         }
 
@@ -266,27 +273,35 @@ namespace DiscordBot.Audio.Platforms.Youtube
             return Databases.FuckYoutubeDatabase.Read(vid);
         }
 
-        private static PlayableItem? GetCachedVideoFromId(string id)
+        private static Result<PlayableItem, Error> GetCachedVideoFromId(string id)
         {
             var alt = YoutubeOverride.FromId(id);
-            if (alt is not null) return alt;
+            if (alt is not null) return Result<PlayableItem, Error>.Success(alt);
             var search = new VideoInformationModel
             {
                 VideoId = id
             };
-            return Databases.VideoDatabase.Read(search)?.Convert();
+            var result = Databases.VideoDatabase.Read(search)?.Convert();
+            return result != null
+                ? Result<PlayableItem, Error>.Success(result)
+                : Result<PlayableItem, Error>.Error(new CacheNotFoundError());
         }
 
-        public static async Task<PlayableItem?> Search(SpotifyTrack track, bool urgent = false)
+        public static async Task<Result<PlayableItem, Error>> Search(SpotifyTrack track, bool urgent = false)
         {
             await Debug.WriteAsync($"Spotify Track: {track.GetName()}, Length: {track.GetLength()}");
             var result =
                 await Search(
                     $"{track.Title} - {track.Author} {track.Explicit switch {true => "Explicit Version ", false => ""}}- Topic",
                     urgent, track.Length, track);
-            if (result == null) return result;
-            result.Requester = track.GetRequester();
-            if (urgent) await result.GetAudioData();
+            if (result != Status.OK)
+            {
+                return result;
+            }
+            
+            var response = result.GetOK();
+            response.Requester = track.GetRequester();
+            if (urgent) await response.GetAudioData();
             return result;
         }
     }

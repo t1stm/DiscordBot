@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using DiscordBot.Abstract;
+using DiscordBot.Abstract.Errors;
 using DiscordBot.Audio;
 using DiscordBot.Audio.Objects;
 using DiscordBot.Audio.Platforms.Spotify;
@@ -58,7 +59,8 @@ namespace DiscordBot.Controllers
             try
             {
                 var res = await Audio.Platforms.Search.Get(searchTerm, returnAllResults: true);
-                var items = res?.Select(r => r.ToSearchResult()).ToList();
+                if (res != Status.OK) return NotFound();
+                var items = res.GetOK().Select(r => r.ToSearchResult()).ToList();
                 return Json(items);
             }
             catch (Exception e)
@@ -185,15 +187,15 @@ namespace DiscordBot.Controllers
                 if (user == null) return Ok("403");
 
                 var player = Manager.Main.First(ch => ch.VoiceChannel?.Id == channelId);
-                PlayableItem? search;
+                var search = await Audio.Platforms.Search.Get(spotify ? $"spt://{id}" : id);
 
-                if (!spotify) search = await Video.SearchById(id);
-                else search = await Track.Get(id, true);
-                if (search == null) return Ok("410");
+                if (search != Status.OK) return Ok("410");
+                var result = search.GetOK();
+                
                 var req = player.CurrentGuild?.Members[user.Id];
-                search.SetRequester(req);
-                if (!next) player.Queue.AddToQueue(search);
-                else player.Queue.AddToQueueNext(search);
+                result.ForEach(r => r.SetRequester(req));
+                if (!next) player.Queue.AddToQueue(result);
+                else player.Queue.AddToQueueNext(result);
                 return Ok("200");
             }
             catch (Exception)

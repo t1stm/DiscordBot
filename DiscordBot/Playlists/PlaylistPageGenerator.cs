@@ -1,6 +1,7 @@
 using System.Linq;
 using System.Threading.Tasks;
 using CustomPlaylistFormat.Objects;
+using DiscordBot.Abstract;
 using DiscordBot.Audio.Platforms;
 
 namespace DiscordBot.Playlists
@@ -289,7 +290,8 @@ namespace DiscordBot.Playlists
                 {
                     var video = $"{PlaylistManager.ItemTypeToString(entry.Type)}://{entry.Data}";
                     var search = await Search.Get(video);
-                    var result = search?.First();
+                    if (search != Status.OK) continue;
+                    var result = search.GetOK().First();
                     value += $@"<li class=""playlistItem"">
             <img src=""{(string.IsNullOrEmpty(result?.GetThumbnailUrl()) ? $"https://{Bot.MainDomain}/WebUi/NoVideoImage.png" : result.GetThumbnailUrl())}"" alt=""Item Image"">
             <div class=""info"">

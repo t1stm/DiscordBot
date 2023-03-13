@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
+using DiscordBot.Abstract;
 using DiscordBot.Audio.Objects;
 using DiscordBot.Audio.Platforms;
 using DiscordBot.Data;
@@ -47,7 +48,8 @@ namespace DiscordBot.Audio
                     return;
                 case "search":
                     var results = await Search.Get(string.Join(':', command[1..]), returnAllResults: true);
-                    await Send(ws, $"Search:{JsonSerializer.Serialize(results?.Select(r => r.ToSearchResult()))}");
+                    if (results != Status.OK) return; 
+                    await Send(ws, $"Search:{JsonSerializer.Serialize(results.GetOK().Select(r => r.ToSearchResult()))}");
                     return;
                 case "set":
                     SettingsParser(WebSockets[ws], string.Join(":", command[1..]));
@@ -86,8 +88,10 @@ namespace DiscordBot.Audio
                         return;
                     }
 
-                    var search = await Search.Get(searchTerm);
-                    if (search == null) return;
+                    var result = await Search.Get(searchTerm);
+                    if (result != Status.OK) return;
+                    
+                    var search = result.GetOK();
                     var requesterToken = WebSockets[ws];
                     var searchData = new UsersModel
                     {
@@ -115,7 +119,9 @@ namespace DiscordBot.Audio
                     }
 
                     var resulted = await Search.Get(searchTerm2);
-                    if (resulted == null) return;
+                    if (resulted != Status.OK) return;
+
+                    var searched = resulted.GetOK();
                     var requesterToken2 = WebSockets[ws];
                     var searchData2 = new UsersModel
                     {
@@ -124,15 +130,15 @@ namespace DiscordBot.Audio
                     var user2 = Databases.UserDatabase.Read(searchData2);
                     if (user2 == null)
                     {
-                        Queue.AddToQueueNext(resulted);
+                        Queue.AddToQueueNext(searched);
                         return;
                     }
 
                     var discordUser2 = Player.VoiceUsers.FirstOrDefault(r => r.Id == user2.Id);
                     if (discordUser2 != null)
-                        foreach (var item in resulted)
+                        foreach (var item in searched)
                             item.SetRequester(discordUser2);
-                    Queue.AddToQueueNext(resulted);
+                    Queue.AddToQueueNext(searched);
                     return;
                 case "goto":
                     if (int.TryParse(command[1], out var place))

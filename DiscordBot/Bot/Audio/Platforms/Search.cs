@@ -1,9 +1,9 @@
 #nullable enable
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using DiscordBot.Abstract;
+using DiscordBot.Abstract.Errors;
 using DiscordBot.Audio.Objects;
 using DiscordBot.Audio.Platforms.Discord;
 using DiscordBot.Audio.Platforms.Local;
@@ -20,29 +20,29 @@ namespace DiscordBot.Audio.Platforms
 {
     public static class Search
     {
-        public static async Task<List<PlayableItem>?> Get(string? searchTerm, ulong length = 0,
-            bool returnAllResults = false, Action<string>? onError = null)
+        public static async Task<Result<List<PlayableItem>, Error>> Get(string? searchTerm, ulong length = 0,
+            bool returnAllResults = false)
         {
             await Debug.WriteAsync($"Search term is: \"{searchTerm}\"");
             if (string.IsNullOrEmpty(searchTerm))
             {
                 await Debug.WriteAsync("Search term is null.");
-                onError?.Invoke("The search term is null.");
-                return null;
+                return Result<List<PlayableItem>, Error>.Error(new NullError(NullType.SearchTerm));
             }
             
             if (searchTerm.Contains("open.spotify.com/"))
             {
                 if (searchTerm.Contains("/playlist/"))
-                    return new List<PlayableItem>(
-                        await Playlist.Get(searchTerm.Split("playlist/").Last().Split("?")[0]));
+                {
+                    var req = await Playlist.Get(searchTerm.Split("playlist/").Last().Split("?")[0]);
+                    return req;
+                }
 
                 if (searchTerm.Contains("/track"))
-                    return new List<PlayableItem> {await Track.Get(searchTerm)};
+                    return ToList(await Track.Get(searchTerm));
 
                 if (searchTerm.Contains("/album"))
-                    return new List<PlayableItem>(
-                        await Playlist.GetAlbum(searchTerm.Split("album/").Last().Split("?")[0]));
+                    return await Playlist.GetAlbum(searchTerm.Split("album/").Last().Split("?")[0]);
             }
 
             if (searchTerm.Contains("youtube.com/"))
@@ -50,7 +50,7 @@ namespace DiscordBot.Audio.Platforms
                 if (searchTerm.Contains("playlist?list="))
                 {
                     var pl = await Youtube.Playlist.Get(searchTerm);
-                    return new List<PlayableItem>(pl);
+                    return pl;
                 }
 
                 if (searchTerm.Contains("watch?v="))
@@ -64,42 +64,34 @@ namespace DiscordBot.Audio.Platforms
             if (searchTerm.Contains("http") && searchTerm.Contains("vbox7.com"))
             {
                 var ser = await Vbox7SearchClient.SearchUrl(searchTerm);
-                var obj = ser.ToVbox7Video();
-                return new List<PlayableItem>
-                {
-                    obj
-                };
+                if (ser != Status.OK) return Result<List<PlayableItem>, Error>.Error(new Vbox7Error());
+                var obj = ser.GetOK().ToVbox7Video();
+                return ToList(Result<PlayableItem, Error>.Success(obj));
             }
 
             if (searchTerm.Contains("twitch.tv/"))
-                return new List<PlayableItem>
+                return ToList(Result<PlayableItem, Error>.Success(new TwitchLiveStream
                 {
-                    new TwitchLiveStream
-                    {
-                        Url = searchTerm
-                    }
-                };
+                    Url = searchTerm
+                }));
 
             if (searchTerm.Contains($"playlists.{Bot.MainDomain}/"))
-                return await PlaylistManager.FromLink(searchTerm, onError);
+                return await PlaylistManager.FromLink(searchTerm);
 
             if (searchTerm.StartsWith("http") || searchTerm.StartsWith("https"))
-                return new List<PlayableItem>
+                return ToList(Result<PlayableItem, Error>.Success(new OnlineFile
                 {
-                    new OnlineFile
-                    {
-                        Location = searchTerm
-                    }
-                };
+                    Location = searchTerm
+                }));
 
             var res = await SearchBotProtocols(searchTerm);
-            if (res != null)
+            if (res != null && !returnAllResults)
                 switch (res)
                 {
-                    case List<PlayableItem> list:
+                    case Result<List<PlayableItem>, Error> list:
                         return list;
-                    case PlayableItem item:
-                        return new List<PlayableItem> {item};
+                    case Result<PlayableItem, Error> item:
+                        return ToList(item);
                 }
 
             if (searchTerm.StartsWith("pl:"))
@@ -110,43 +102,45 @@ namespace DiscordBot.Audio.Platforms
             return returnAllResults switch
             {
                 true when databaseItem is not null => 
-                    AddDatabaseItemToYoutubeResults(databaseItem.ToMusicObject(), await Video.SearchAllResults(searchTerm, length)),
-                true => new List<PlayableItem>(await Video.SearchAllResults(searchTerm, length)),
-                false when databaseItem is not null => new List<PlayableItem>
-                {
-                    databaseItem.ToMusicObject()
-                },
+                    AddDatabaseItemToResults(databaseItem.ToMusicObject(), await Video.SearchAllResults(searchTerm, length)),
+                true => await Video.SearchAllResults(searchTerm, length),
+                false when databaseItem is not null => 
+                    ToList(Result<PlayableItem, Error>.Success(databaseItem.ToMusicObject())),
                 false => ToList(await Video.Search(searchTerm, length: length))
             };
         }
 
-        private static List<PlayableItem> AddDatabaseItemToYoutubeResults(PlayableItem item, IEnumerable<YoutubeVideoInformation> list)
+        private static Result<List<PlayableItem>, Error> AddDatabaseItemToResults(PlayableItem item, Result<List<PlayableItem>, Error> list)
         {
-            var l = new List<PlayableItem> {item};
-            l.AddRange(list);
-            return l;
+            if (list != Status.OK) return list;
+            var ok = list.GetOK();
+            ok.Insert(0, item);
+            return list;
         }
 
-        private static List<PlayableItem>? ToList(PlayableItem? item)
+        private static Result<List<PlayableItem>, Error> ToList(Result<PlayableItem, Error> item)
         {
-            return item == null
-                ? null
-                : new List<PlayableItem>
+            return item != Status.OK
+                ? Result<List<PlayableItem>, Error>.Error(item.GetError())
+                : Result<List<PlayableItem>, Error>.Success(new List<PlayableItem>
                 {
-                    item
-                };
+                    item.GetOK()
+                });
         }
 
         public static async Task<object?> SearchBotProtocols(string search)
         {
             var split = search.Split("://");
-            if (split.Length < 2) return null;
+            if (split.Length < 2) return Result<object, Error>.Error(new UnknownError());
             switch (split[0])
             {
                 case "yt":
                     return await Video.SearchById(split[1]);
                 case "yt-ov":
-                    return YoutubeOverride.FromId(split[1]);
+                    var ov = YoutubeOverride.FromId(split[1]);
+                    return ov == null ? 
+                        Result<PlayableItem, Error>.Error(new NullError(NullType.Override)) : 
+                        Result<PlayableItem, Error>.Success(ov);
                 case "spt":
                     return await Track.Get(split[1], true);
                 case "file":
@@ -155,63 +149,58 @@ namespace DiscordBot.Audio.Platforms
                     var splitted = split[1].Split("-");
                     return File.GetInfo(string.Join('-', splitted[1..]), ulong.Parse(splitted[0]));
                 case "vb7":
-                    var result = await Vbox7SearchClient.SearchUrl($"https://vbox7.com/play:{split[1]}");
-                    return result.ToVbox7Video();
+                    var ser = await Vbox7SearchClient.SearchUrl($"https://vbox7.com/play:{split[1]}");
+                    if (ser != Status.OK) return Result<List<PlayableItem>, Error>.Error(new Vbox7Error());
+                    return ser;
                 case "audio":
                     List<PlayableItem> audioItems;
                     if (split[1] != "*")
                     {
                         var foundById = MusicManager.SearchById(split[1])?.ToMusicObject();
-                        if (foundById != null) return foundById;
+                        if (foundById != null) return Result<PlayableItem, Error>.Success(foundById);
                         var patternSearch = MusicManager.SearchByPattern(split[1]).ToList();
                         audioItems = new List<PlayableItem>();
                         audioItems.AddRange(patternSearch.Select(r => r.ToMusicObject()));
-                        return audioItems;
+                        return audioItems.Count > 1 ? 
+                            Result<List<PlayableItem>, Error>.Success(audioItems) : 
+                            Result<List<PlayableItem>, Error>.Error(new NoResultsError());
                     }
 
                     var audios = MusicManager.GetAll();
                     audioItems = new List<PlayableItem>();
                     audioItems.AddRange(audios.Select(r => r.ToMusicObject()));
-                    return audioItems;
+                    return audioItems.Count > 1 ? 
+                        Result<List<PlayableItem>, Error>.Success(audioItems) : 
+                        Result<List<PlayableItem>, Error>.Error(new NoResultsError());
                 case "onl":
-                    return new OnlineFile
+                    return Result<PlayableItem, Error>.Success(new OnlineFile
                     {
                         Location = split[1]
-                    };
+                    });
                 case "tts":
-                    return new TtsText(string.Join("://", split[1..]));
+                    return Result<PlayableItem, Error>.Success(new TtsText(string.Join("://", split[1..])));
                 case "twitch":
-                    return new TwitchLiveStream
+                    return Result<PlayableItem, Error>.Success(new TwitchLiveStream
                     {
                         Url = $"https://twitch.tv/{split[1..]}"
-                    };
+                    });
             }
 
             return null;
         }
 
-        public static async Task<List<PlayableItem>?> Get(string searchTerm, List<DiscordAttachment>? attachments,
+        public static async Task<Result<List<PlayableItem>, Error>> Get(string searchTerm, List<DiscordAttachment>? attachments,
             ulong? guild)
         {
             if (attachments == null || attachments.Count < 1) return await Get(searchTerm);
-            var list = new List<PlayableItem>();
-            list.AddRange(await Attachments.GetAttachments(attachments, guild ?? 0) ??
-                          Enumerable.Empty<PlayableItem>());
-            return list;
+            return await Attachments.GetAttachments(attachments, guild ?? 0);
         }
 
-        public static async Task<List<PlayableItem?>> GetList(SpotifyTrack track, bool urgent = false)
-        {
-            return new()
-            {
-                await Video.Search(track, urgent)
-            };
-        }
-        
-        public static async Task<PlayableItem?> GetSingle(SpotifyTrack track)
+        public static async Task<Result<PlayableItem, Error>> GetSingle(SpotifyTrack track)
         {
             var result = MusicManager.SearchFromSpotify(track);
-            return result?.ToMusicObject() ?? await Video.Search(track);
+            if (result == null) return await Video.Search(track);
+            return Result<PlayableItem, Error>.Success(result.ToMusicObject());
         }
     }
 }

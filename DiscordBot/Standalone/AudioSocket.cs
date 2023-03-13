@@ -9,6 +9,7 @@ using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Timers;
+using DiscordBot.Abstract;
 using DiscordBot.Audio.Objects;
 using DiscordBot.Audio.Platforms;
 using DiscordBot.Objects;
@@ -110,12 +111,21 @@ namespace DiscordBot.Standalone
                     case "get":
                         await Debug.WriteAsync($"Audio WebSocket Get: \'{joined}\'");
                         var search = await Search.Get(joined);
-                        var first = search?.First();
-                        if (first == null)
+                        if (search != Status.OK)
                         {
                             await Respond(client.Socket, "Get:Not Found");
                             return;
                         }
+
+                        var ok = search.GetOK();
+
+                        if (ok.Count < 1)
+                        {
+                            await Respond(client.Socket, "Get:Not Found");
+                            return;
+                        }
+                
+                        var first = ok.First();
 
                         var addUrl = first.GetAddUrl();
                         EncodedAudio? existing;

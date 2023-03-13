@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using CustomPlaylistFormat;
 using CustomPlaylistFormat.Objects;
 using DiscordBot.Abstract;
+using DiscordBot.Abstract.Errors;
 using DiscordBot.Audio.Objects;
 using DiscordBot.Audio.Platforms;
 using DiscordBot.Methods;
@@ -63,26 +64,23 @@ namespace DiscordBot.Playlists
             }
         }
 
-        public static async Task<List<PlayableItem>?> FromLink(string link, Action<string>? onError = null)
+        public static async Task<Result<List<PlayableItem>, Error>> FromLink(string link, Action<string>? onError = null)
         {
             var split = link.Split('/');
             if (split.Length < 2)
             {
-                onError?.Invoke("Not a valid URL.");
-                return null;
+                return Result<List<PlayableItem>, Error>.Error(new PlaylistManagerError(PlaylistManagerErrorType.InvalidUrl));
             }
 
             if (!Guid.TryParse(split[^1], out var guid))
             {
-                onError?.Invoke("Not a valid request.");
-                return null;
+                return Result<List<PlayableItem>, Error>.Error(new PlaylistManagerError(PlaylistManagerErrorType.InvalidRequest));
             }
 
             var data = GetIfExists(guid);
-            if (data is not null) return await ParsePlaylist(data.Value);
-
-            onError?.Invoke("Playlist doesn't exist.");
-            return null;
+            return data is not null ? 
+                Result<List<PlayableItem>, Error>.Success(await ParsePlaylist(data.Value)) : 
+                Result<List<PlayableItem>, Error>.Error(new PlaylistManagerError(PlaylistManagerErrorType.NotFound));
         }
 
         public static async Task<List<PlayableItem>> ParsePlaylist(Playlist playlist)
