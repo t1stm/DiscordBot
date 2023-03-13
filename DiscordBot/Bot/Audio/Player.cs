@@ -210,10 +210,10 @@ namespace DiscordBot.Audio
                 var guid = QueueToken.ThrowIfNull();
                 var info = new PlaylistInfo
                 {
-                    Name = $"Discord bot session: {guid.ToString()}",
-                    Maker = null,
+                    Name = "Discord Bot Session",
+                    Maker = Bot.Name,
                     Count = (uint) items.Length,
-                    Description = $"A saved session of the channel \'{VoiceChannel?.Name ?? "Unavailable"}\' in server \'{CurrentGuild?.Name ?? "Unavailable"}\'.",
+                    Description = $"Saved session: \'{guid.ToString()}\' of the channel: \'{VoiceChannel?.Name ?? "Unavailable"}\': in server \'{CurrentGuild?.Name ?? "Unavailable"}\'.",
                     IsPublic = true,
                     LastModified = DateTime.UtcNow.Ticks
                 };

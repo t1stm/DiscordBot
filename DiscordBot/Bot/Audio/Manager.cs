@@ -209,17 +209,21 @@ namespace DiscordBot.Audio
 
                 if (player.Started)
                 {
-                    if (items.Count > 1)
+                    switch (items.Count)
                     {
-                        await player.CurrentClient!.SendMessageAsync(messageChannel,
-                            lang.AddedItem(term).CodeBlocked());
-                        return;
+                        case < 1:
+                            return;
+                        case > 1:
+                            await player.CurrentClient!.SendMessageAsync(messageChannel,
+                                lang.AddedItem(term).CodeBlocked());
+                            return;
+                        default:
+                            await player.CurrentClient!.SendMessageAsync(messageChannel,
+                                lang.AddedItem(
+                                        $"({player.Queue.Items.IndexOf(items.First()) + 1}) - {items.First().GetName(player.Settings.ShowOriginalInfo)}")
+                                    .CodeBlocked());
+                            return;
                     }
-                    await player.CurrentClient!.SendMessageAsync(messageChannel,
-                            lang.AddedItem(
-                                    $"({player.Queue.Items.IndexOf(items.First()) + 1}) - {items.First().GetName(player.Settings.ShowOriginalInfo)}")
-                                .CodeBlocked());
-                    return;
                 }
 
                 player.Started = true;
@@ -247,7 +251,7 @@ namespace DiscordBot.Audio
                 {
                     if (!player.Started)
                     {
-                        player.Disconnect();
+                        await player.DisconnectAsync();
                         player.Statusbar.Stop();
                     }
 

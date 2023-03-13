@@ -64,7 +64,7 @@ namespace DiscordBot.Playlists
             }
         }
 
-        public static async Task<Result<List<PlayableItem>, Error>> FromLink(string link, Action<string>? onError = null)
+        public static async Task<Result<List<PlayableItem>, Error>> FromLink(string link)
         {
             var split = link.Split('/');
             if (split.Length < 2)
@@ -76,7 +76,7 @@ namespace DiscordBot.Playlists
             {
                 return Result<List<PlayableItem>, Error>.Error(new PlaylistManagerError(PlaylistManagerErrorType.InvalidRequest));
             }
-
+            
             var data = GetIfExists(guid);
             return data is not null ? 
                 Result<List<PlayableItem>, Error>.Success(await ParsePlaylist(data.Value)) : 
@@ -91,16 +91,11 @@ namespace DiscordBot.Playlists
             {
                 var video = $"{ItemTypeToString(entry.Type)}://{entry.Data}";
                 var search = await Search.SearchBotProtocols(video);
-                if (search != null)
-                    switch (search)
-                    {
-                        case List<PlayableItem> list:
-                            items.AddRange(list);
-                            break;
-                        case PlayableItem item:
-                            items.Add(item);
-                            break;
-                    }
+                if (search == null) continue;
+                var parsed = Search.ParseObject(search);
+                
+                if (parsed != Status.OK) continue;
+                items.AddRange(parsed.GetOK());
             }
 
             return items;
@@ -206,6 +201,7 @@ namespace DiscordBot.Playlists
                 TtsText => 07,
                 TwitchLiveStream => 08,
                 YoutubeOverride => 09,
+                MusicObject => 10,
                 _ => 255
             };
         }
@@ -223,6 +219,7 @@ namespace DiscordBot.Playlists
                 07 => "tts",
                 08 => "ttv",
                 09 => "yt-ov",
+                10 => "audio",
                 _ => ""
             };
         }

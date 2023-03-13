@@ -236,6 +236,7 @@ namespace DiscordBot.Messages
                 var builder = new DiscordMessageBuilder().WithContent(formatted ? $"```{message}```" : message);
                 builder.ClearComponents();
                 if (Player.Settings.SaveQueueOnLeave && Player.SavedQueue)
+                {
                     builder.AddComponents(new List<DiscordComponent>
                     {
                         new DiscordButtonComponent(ButtonStyle.Success, $"resume_v2:{Player.QueueToken.ToString()}",
@@ -243,6 +244,8 @@ namespace DiscordBot.Messages
                         new DiscordButtonComponent(ButtonStyle.Danger, "vote:",
                             "Vote")
                     });
+                    //builder.AddEmbed(new DiscordEmbedBuilder().WithUrl(""));
+                }
                 await Message.ModifyAsync(builder);
             }
             catch (Exception e)

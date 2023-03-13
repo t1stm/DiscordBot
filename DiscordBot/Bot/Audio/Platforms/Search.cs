@@ -76,7 +76,10 @@ namespace DiscordBot.Audio.Platforms
                 }));
 
             if (searchTerm.Contains($"playlists.{Bot.MainDomain}/"))
+            {
+                await Debug.WriteAsync("Playlist URL.");
                 return await PlaylistManager.FromLink(searchTerm);
+            }
 
             if (searchTerm.StartsWith("http") || searchTerm.StartsWith("https"))
                 return ToList(Result<PlayableItem, Error>.Success(new OnlineFile
@@ -86,13 +89,7 @@ namespace DiscordBot.Audio.Platforms
 
             var res = await SearchBotProtocols(searchTerm);
             if (res != null)
-                switch (res)
-                {
-                    case Result<List<PlayableItem>, Error> list:
-                        return list;
-                    case Result<PlayableItem, Error> item:
-                        return ToList(item);
-                }
+                return ParseObject(res);
 
             if (searchTerm.StartsWith("pl:"))
                 return await SharePlaylist.Get(searchTerm[3..]);
@@ -107,6 +104,16 @@ namespace DiscordBot.Audio.Platforms
                 false when databaseItem is not null => 
                     ToList(Result<PlayableItem, Error>.Success(databaseItem.ToMusicObject())),
                 false => ToList(await Video.Search(searchTerm, length: length))
+            };
+        }
+
+        public static Result<List<PlayableItem>, Error> ParseObject(object? res)
+        {
+            return res switch
+            {
+                Result<List<PlayableItem>, Error> list => list,
+                Result<PlayableItem, Error> item => ToList(item),
+                _ => throw new InvalidResultAccessException("Passed type isn't available.")
             };
         }
 
