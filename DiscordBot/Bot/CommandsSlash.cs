@@ -111,7 +111,7 @@ namespace DiscordBot
 
             await ctx.CreateResponseAsync(Parser.FromNumber(guild.Language).SlashLeaving().CodeBlocked());
 
-            player.Disconnect();
+            await player.DisconnectAsync();
             player.Statusbar.Stop();
 
             Manager.Main.Remove(player);

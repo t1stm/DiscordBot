@@ -72,8 +72,14 @@ namespace DiscordBot.Playlists
                 return Result<List<PlayableItem>, Error>.Error(new PlaylistManagerError(PlaylistManagerErrorType.InvalidUrl));
             }
 
-            if (!Guid.TryParse(split[^1], out var guid))
+            return await FromString(split[^1]);
+        }
+        
+        public static async Task<Result<List<PlayableItem>, Error>> FromString(string guidText)
+        {
+            if (!Guid.TryParse(guidText, out var guid))
             {
+                await Debug.WriteAsync($"Playlist with id \'{guidText}\' not found.");
                 return Result<List<PlayableItem>, Error>.Error(new PlaylistManagerError(PlaylistManagerErrorType.InvalidRequest));
             }
             

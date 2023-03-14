@@ -40,9 +40,10 @@ namespace DiscordBot.Objects
             };
         }
 
-        public string SavedQueueAfterLeavingMessage(string cmd)
+        public string SavedQueueAfterLeavingMessage()
         {
             return
+                "Queue was saved successfully. If you want to play it again, use the button below this message.\n\n" +
                 "IMPORTANT NOTE: \nThe voting for the new name of the bot has started. If you'd want to vote, use the button below this message.";
         }
 

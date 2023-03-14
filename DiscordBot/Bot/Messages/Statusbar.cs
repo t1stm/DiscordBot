@@ -161,7 +161,7 @@ namespace DiscordBot.Messages
             }
             
             var text = $"```{Language.Playing()}: \"{Player.CurrentItem?.GetTypeOf(Language)}\"\n" +
-                          $"({Player.Queue.Current + 1} - {Player.Queue.Count}) {Player?.CurrentItem?.GetName(Player.Settings.ShowOriginalInfo) ?? "Something's broken."}\n" +
+                          $"({Player.Queue.Current + 1} - {Player.Queue.Count}) {Player.CurrentItem?.GetName(Player.Settings.ShowOriginalInfo) ?? "Something's broken."}\n" +
                           $"{progress} ( {Player.Paused switch {false => "▶️", true => "⏸️"}} {Time(TimeSpan.FromMilliseconds(time))} - {length switch {0 => "∞", _ => Time(TimeSpan.FromMilliseconds(length))}} )" +
                           $"{Player.Sink switch {null => "", _ => Player.Sink.VolumeModifier switch {0 => " (🔇", >0 and <.33 => " (🔈", >=.33 and <=.66 => " (🔉", >.66 => " (🔊", _ => " (🔊"} + $" {(int) (Player.Sink.VolumeModifier * 100)}%)"}}" +
                           $"{Player.LoopStatus switch {Loop.One => " ( 🔂 )", Loop.WholeQueue => " ( 🔁 )", _ => ""}}" +
@@ -219,7 +219,9 @@ namespace DiscordBot.Messages
         private async Task UpdateWaiting()
         {
             await (Message?.ModifyAsync(
-                       $"```Waiting:\nFor 15 minutes and then leaving.\n{GenerateProgressbar(Player.WaitingStopwatch.ElapsedMilliseconds, 900000)} ( {Player.WaitingStopwatch.Elapsed:mm\\:ss} - 15:00 )\n\n{Language.DefaultStatusbarMessage()}```") ??
+                       "```Waiting:\nFor 15 minutes and then leaving.\n" +
+                       $"{GenerateProgressbar(Player.WaitingStopwatch.ElapsedMilliseconds, 900000)} ( {Player.WaitingStopwatch.Elapsed:mm\\:ss} - 15:00 )\n\n" +
+                       $"{Language.DefaultStatusbarMessage()}```") ??
                    Task.CompletedTask);
         }
 
@@ -227,13 +229,14 @@ namespace DiscordBot.Messages
         {
             try
             {
+                await Debug.WriteAsync("Updating message and stopping statusbar.");
                 Stop();
                 if (Message == null)
                 {
                     return;
                 }
                 await Task.Delay(Bot.UpdateDelay);
-                var builder = new DiscordMessageBuilder().WithContent(formatted ? $"```{message}```" : message);
+                var builder = new DiscordMessageBuilder().WithContent(formatted ? $"```{message}```\nhttps://playlists.danke.gq/{Player.QueueToken}" : message);
                 builder.ClearComponents();
                 if (Player.Settings.SaveQueueOnLeave && Player.SavedQueue)
                 {

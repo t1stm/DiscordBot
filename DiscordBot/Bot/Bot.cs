@@ -237,15 +237,17 @@ namespace DiscordBot
                             Environment.Exit(0);
                             break;
                         case "forceoff":
+                            Player[] players;
                             lock (Manager.Main)
                             {
-                                for (var index = 0; index < Manager.Main.Count; index++)
-                                {
-                                    var pl = Manager.Main[index];
-                                    pl.Disconnect(
-                                        "Disconnecting due to an update in the bot's code. Sorry for the inconvenience.");
-                                    Debug.Write($"Disconnecting: {index}");
-                                }
+                                players = Manager.Main.ToArray();
+                            }
+                            for (var index = 0; index < players.Length; index++)
+                            {
+                                var pl = players[index];
+                                await pl.DisconnectAsync(
+                                    "Disconnecting due to an update in the bot's code. Sorry for the inconvenience.");
+                                await Debug.WriteAsync($"Disconnecting: {index}");
                             }
 
                             Environment.Exit(0);
@@ -635,7 +637,6 @@ namespace DiscordBot
                         await OriginalPlaylistHandler(client, eventArgs, user, split);
                         break;
                     case "resume_v2":
-                        // TODO: Test this.
                         await NewPlaylistHandler(client, eventArgs, user, split);
                         break;
                 }

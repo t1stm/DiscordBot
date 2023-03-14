@@ -89,7 +89,11 @@ namespace DiscordBot.Audio.Platforms
 
             var res = await SearchBotProtocols(searchTerm);
             if (res != null)
-                return ParseObject(res);
+            {
+                var parsed = ParseObject(res);
+                if (parsed == Status.OK) 
+                return parsed;
+            }
 
             if (searchTerm.StartsWith("pl:"))
                 return await SharePlaylist.Get(searchTerm[3..]);
@@ -113,7 +117,7 @@ namespace DiscordBot.Audio.Platforms
             {
                 Result<List<PlayableItem>, Error> list => list,
                 Result<PlayableItem, Error> item => ToList(item),
-                _ => throw new InvalidResultAccessException("Passed type isn't available.")
+                _ => Result<List<PlayableItem>, Error>.Error(new NoResultsError())
             };
         }
 
@@ -138,7 +142,8 @@ namespace DiscordBot.Audio.Platforms
         public static async Task<object?> SearchBotProtocols(string search)
         {
             var split = search.Split("://");
-            if (split.Length < 2) return Result<object, Error>.Error(new UnknownError());
+            if (split.Length < 2) return null;
+            var remainder = string.Join("://", split[1..]);
             switch (split[0])
             {
                 case "yt":
@@ -185,12 +190,14 @@ namespace DiscordBot.Audio.Platforms
                         Location = split[1]
                     });
                 case "tts":
-                    return Result<PlayableItem, Error>.Success(new TtsText(string.Join("://", split[1..])));
+                    return Result<PlayableItem, Error>.Success(new TtsText(remainder));
                 case "twitch":
                     return Result<PlayableItem, Error>.Success(new TwitchLiveStream
                     {
-                        Url = $"https://twitch.tv/{split[1..]}"
+                        Url = $"https://twitch.tv/{remainder}"
                     });
+                case "playlist":
+                    return PlaylistManager.FromString(remainder);
             }
 
             return null;

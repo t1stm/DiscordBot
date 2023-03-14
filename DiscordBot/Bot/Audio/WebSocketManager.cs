@@ -162,7 +162,7 @@ namespace DiscordBot.Audio
                     await Send(ws, "Fail:Invalid volume string");
                     return;
                 case "leave":
-                    Player.Disconnect();
+                    await Player.DisconnectAsync();
                     return;
             }
 

@@ -139,7 +139,7 @@ namespace DiscordBot.Audio
             {
                 term ??= string.Empty;
                 var lang = player.Language;
-                List<PlayableItem> items;
+                List<PlayableItem> items = new();
                 player.Channel = player.CurrentClient!.Guilds[userVoiceS.Guild.Id].Channels[messageChannel.Id];
                 if (select && !term.StartsWith("http"))
                 {
@@ -167,41 +167,37 @@ namespace DiscordBot.Audio
 
                     var interaction = response.Result.Values;
                     if (interaction == null || interaction.Length < 1) return;
-
-                    items = new List<PlayableItem>();
+                    
                     var search = await Search.Get(interaction.First());
                     if (search != Status.OK)
                     {
-                        await message.ModifyAsync($"Searching failed with error: \"{search.GetError().Stringify(lang)}\"".CodeBlocked());
-                        return;
+                        await message.ModifyAsync(search.GetError().Stringify(lang).CodeBlocked());
                     }
-                    
-                    var result = search.GetOK().FirstOrDefault();
-                    if (result == null)
+                    else
                     {
-                        await message.ModifyAsync("Unable to find result.".CodeBlocked());
-                        return;
-                    }
+                        var result = search.GetOK().FirstOrDefault();
+                        if (result == null)
+                        {
+                            await message.ModifyAsync("Unable to find result.".CodeBlocked());
+                            return;
+                        }
 
-                    player.Statusbar.Message = await message.ModifyAsync(
-                        new DiscordMessageBuilder().WithContent(lang.ThisMessageWillUpdateShortly().CodeBlocked()));
-                    items.Add(result);
+                        player.Statusbar.Message = await message.ModifyAsync(
+                            new DiscordMessageBuilder().WithContent(lang.ThisMessageWillUpdateShortly().CodeBlocked()));
+                        items.Add(result);
+                    }
                 }
                 else
                 {
                     var search = await Search.Get(term, attachments, user?.Guild.Id);
                     if (search != Status.OK)
                     {
-                        await messageChannel.SendMessageAsync($"Searching failed with error: \'{search.GetError().Stringify(lang)}\'".CodeBlocked());
-                        return;
+                        await messageChannel.SendMessageAsync(search.GetError().Stringify(lang).CodeBlocked());
                     }
-
-                    items = search.GetOK();
-                }
-
-                if (items.Count < 1)
-                {
-                    await messageChannel.SendMessageAsync(lang.NoResultsFound(term).CodeBlocked());
+                    else
+                    {
+                        items = search.GetOK();
+                    }
                 }
 
                 items.ForEach(it => it.SetRequester(user));
@@ -304,7 +300,7 @@ namespace DiscordBot.Audio
             try
             {
                 player.Statusbar.Stop();
-                player.Disconnect();
+                await player.DisconnectAsync();
                 lock (Main)
                 {
                     if (Main.Contains(player)) Main.Remove(player);
@@ -445,7 +441,7 @@ namespace DiscordBot.Audio
             
             if (items != Status.Error)
             {
-                await Bot.Reply(ctx, player.Language.NoResultsFound(term));
+                await Bot.Reply(ctx, items.GetError().Stringify(player.Language));
                 return;
             }
 

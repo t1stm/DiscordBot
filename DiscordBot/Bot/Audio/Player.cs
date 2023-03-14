@@ -213,7 +213,7 @@ namespace DiscordBot.Audio
                     Name = "Discord Bot Session",
                     Maker = Bot.Name,
                     Count = (uint) items.Length,
-                    Description = $"Saved session: \'{guid.ToString()}\' of the channel: \'{VoiceChannel?.Name ?? "Unavailable"}\': in server \'{CurrentGuild?.Name ?? "Unavailable"}\'.",
+                    Description = $"Session at \'{DateTime.Now.ToUniversalTime():MMMM dd yyyy hh:mm tt} UTC\' of the channel: \'{VoiceChannel?.Name ?? "Unavailable"}\': in server \'{CurrentGuild?.Name ?? "Unavailable"}\'.",
                     IsPublic = true,
                     LastModified = DateTime.UtcNow.Ticks
                 };
@@ -452,7 +452,7 @@ namespace DiscordBot.Audio
             {
                 await WebSocketManager.SendDying();
                 await Statusbar.UpdateMessageAndStop(message + (Settings.SaveQueueOnLeave
-                    ? $"\n\n{Language.SavedQueueAfterLeavingMessage($"-p pl:{QueueToken}")}"
+                    ? $"\n\n{Language.SavedQueueAfterLeavingMessage()}"
                     : ""));
             });
             task.Start();
@@ -475,7 +475,9 @@ namespace DiscordBot.Audio
                 if (Settings.SaveQueueOnLeave) SaveCurrentQueue();
                 _timer.Stop();
                 await WebSocketManager.SendDying();
-                await Statusbar.UpdateMessageAndStop(message);
+                await Statusbar.UpdateMessageAndStop(message + (Settings.SaveQueueOnLeave
+                    ? $"\n\n{Language.SavedQueueAfterLeavingMessage()}"
+                    : ""));
                 Die = true;
                 FfMpeg.KillSync();
                 CancelSource.Cancel();

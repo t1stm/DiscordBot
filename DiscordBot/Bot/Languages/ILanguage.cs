@@ -7,7 +7,7 @@ namespace DiscordBot.Objects
     {
         public string GayRatePercentMessage(int percent);
         public string GetTypeOfTrack(PlayableItem it);
-        public string SavedQueueAfterLeavingMessage(string cmd);
+        public string SavedQueueAfterLeavingMessage();
 
         #region Mixed Commands
 
