@@ -119,7 +119,7 @@ This is a self explanatory command, so I don't see any need in writing an explan
 This command is also pretty self explanatory, I hope.";
 
         private const string LoopCommand = @"`-loop` Aliases: `-лооп`
-This command loops the queue. Let's dig in how the player works. 
+This command loops the queue. Let's dig into how the player works. 
 The player has three states when it comes to looping.
 1. None
 2. Looping whole queue
@@ -136,14 +136,14 @@ This command removes items from the queue. It can remove multiple items listed w
 
         private const string MoveCommand =
             @"`-move n m` `-move Song1 - Author1 !to Song2 - Author2` Aliases: `-m` `-mv` `-м` `-мж` `-може`
-This command moves an item from it's place to the specified place. If the other move format is used this command will swap the places of the two items which are specified, however this isn't very accurate, and won't work if there are multiple items which are the with the same title.";
+This command moves an item from its place to the specified place. If the other move format is used this command will swap the places of the two items which are specified, however this isn't very accurate, and won't work if there are multiple items which are the with the same title.";
 
         private const string ListCommand = @"`-queue` Aliases: `-list` `-яуеуе` `-лист`
 This command sends the current queue as a .txt file in order to avoid Discord's 2000 character limit. This shouldn't pose a problem, as the desktop version of Discord supports previewing .txt files. 
 To all mobile users, I am sorry, because it seems like Discord won't implement this feature soon,";
 
         private const string ClearCommand = @"`-clear`
-This command clears the queue leaving only the currently playing song, or if waiting to disconnect - last song.";
+This command clears the queue leaving only the currently playing song, or if waiting to disconnect: last song.";
 
         private const string GetWebUiCommand =
             @"`-getwebui` Aliases: `-webui` `-wu` `and their Bulgarian phonetic keyboard counterparts`

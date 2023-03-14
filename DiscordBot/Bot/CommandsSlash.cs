@@ -667,7 +667,7 @@ namespace DiscordBot
             [SlashCommand("album", "Adds a known album to the queue.")]
             public async Task AddAlbumCommand(InteractionContext ctx, 
                 [Autocomplete(typeof(AlbumChoiceProvider))]
-                [Option("album", "The album name to be added.", true)] string choice)
+                [Option("album_code", "The album name to be added.", true)] string choice)
             {
                 await ctx.DeferAsync();
                 var guild = await GuildSettings.FromId(ctx.Guild.Id);
@@ -701,13 +701,13 @@ namespace DiscordBot
                     player.Queue.AddToQueue(item);
                 }
 
-                await ctx.EditResponseAsync(new DiscordWebhookBuilder().WithContent($"Added album \'{album.AlbumName}\' to the queue.".CodeBlocked()));
+                await ctx.EditResponseAsync(new DiscordWebhookBuilder().WithContent($"Added album \'{album.AlbumName} - {album.Artist}\' to the queue.".CodeBlocked()));
             }
             
             [SlashCommand("song", "Adds a known song to the queue.")]
             public async Task AddSongCommand(InteractionContext ctx, 
                 [Autocomplete(typeof(SongChoiceProvider))]
-                [Option("song", "The song to be added.", true)] string choice)
+                [Option("song_code", "The song to be added.", true)] string choice)
             {
                 await ctx.DeferAsync();
                 var guild = await GuildSettings.FromId(ctx.Guild.Id);
@@ -729,7 +729,7 @@ namespace DiscordBot
                 var info = MusicManager.SearchById(choice);
                 if (info == null)
                 {
-                    await ctx.EditResponseAsync(new DiscordWebhookBuilder().WithContent("Error: Unable to find album.".CodeBlocked()));
+                    await ctx.EditResponseAsync(new DiscordWebhookBuilder().WithContent("Error: Unable to find song.".CodeBlocked()));
                     return;
                 }
 
