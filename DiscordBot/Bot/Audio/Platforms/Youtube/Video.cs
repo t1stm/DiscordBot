@@ -24,7 +24,7 @@ namespace DiscordBot.Audio.Platforms.Youtube
             ulong length = 0, SpotifyTrack? track = null)
         {
             var cachedSearchResult = GetIdFromCachedTerms(term);
-            if (cachedSearchResult != null && !string.IsNullOrEmpty(cachedSearchResult.SearchTerm) &&
+            if (!string.IsNullOrEmpty(cachedSearchResult?.SearchTerm) &&
                 !string.IsNullOrEmpty(cachedSearchResult.VideoId))
             {
                 var cachedVideo = GetCachedVideoFromId(cachedSearchResult.VideoId);
