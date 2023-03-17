@@ -29,7 +29,8 @@ namespace DiscordBot.Audio.Platforms.Youtube
             {
                 var cachedVideo = GetCachedVideoFromId(cachedSearchResult.VideoId);
                 if (cachedVideo == Status.OK) return cachedVideo;
-                return await SearchById(cachedSearchResult.VideoId);
+                var id = await SearchById(cachedSearchResult.VideoId);
+                if (id == Status.OK) return id;
             }
 
             var client = new YoutubeSearchClient(HttpClient.WithCookies());
