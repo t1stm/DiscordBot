@@ -38,13 +38,11 @@ namespace DiscordBot.Playlists.Music_Storage
                 foreach (var directory in startingDirectories) // This is bad, but I can't think of a better solution.
                 {
                     var artists = Directory.GetDirectories(directory);
-                    foreach (var artist in artists) Items.AddRange(GetSongs(directory, artist.Split('/').Last(), isVerbose));
+                    foreach (var artist in artists)
+                        Items.AddRange(GetSongs(directory, artist.Split('/').Last(), isVerbose));
                 }
 
-                foreach (var info in Items)
-                {
-                    info.CoverUrl = info.CoverUrl?.Replace("$[DOMAIN]", AlbumCoverAddress);
-                }
+                foreach (var info in Items) info.CoverUrl = info.CoverUrl?.Replace("$[DOMAIN]", AlbumCoverAddress);
             }
         }
 
@@ -65,13 +63,12 @@ namespace DiscordBot.Playlists.Music_Storage
         private static IEnumerable<Album> ReadAlbums(string dir)
         {
             var songs = Directory.GetFiles(dir);
-            if (!songs.Any(IsM3UPlaylist)) 
+            if (!songs.Any(IsM3UPlaylist))
                 return Enumerable.Empty<Album>();
-            
+
             var list = new List<Album>();
 
             foreach (var playlist in songs.Where(IsM3UPlaylist))
-            {
                 try
                 {
                     var album = Album.FromM3U(playlist);
@@ -83,8 +80,7 @@ namespace DiscordBot.Playlists.Music_Storage
                 {
                     Debug.Write($"Adding album to list failed with error: \"{e}\"");
                 }
-            }
-            
+
             return list;
         }
 
@@ -177,7 +173,6 @@ namespace DiscordBot.Playlists.Music_Storage
                    LevenshteinDistance.ComputeLean($"{r.RomanizedTitle} {r.RomanizedAuthor}", term) < 2 ||
                    LevenshteinDistance.ComputeLean($"{r.RomanizedAuthor} {r.RomanizedTitle}", term) < 2 ||
                    LevenshteinDistance.ComputeLean($"{r.RomanizedAuthor} - {r.RomanizedTitle}", term) < 2 ||
-
                    LevenshteinDistance.ComputeLean(r.OriginalTitle, term) < 2 ||
                    LevenshteinDistance.ComputeLean($"{r.OriginalTitle} - {r.OriginalAuthor}", term) < 2 ||
                    LevenshteinDistance.ComputeLean($"{r.OriginalTitle} {r.OriginalAuthor}", term) < 2 ||
@@ -254,7 +249,7 @@ namespace DiscordBot.Playlists.Music_Storage
         {
             return Albums.ToArray();
         }
-        
+
         public static IEnumerable<Album> SearchAlbums(string term)
         {
             if (string.IsNullOrEmpty(term)) return GetAllAlbums();
@@ -266,7 +261,7 @@ namespace DiscordBot.Playlists.Music_Storage
 
             return ordered;
         }
-        
+
         public static Album? SearchAlbumById(string id)
         {
             return Albums.AsParallel().FirstOrDefault(r => r.AccessString == id);

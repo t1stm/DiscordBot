@@ -1,4 +1,3 @@
-using System;
 using DiscordBot.Objects;
 
 namespace DiscordBot.Abstract.Errors
@@ -10,7 +9,7 @@ namespace DiscordBot.Abstract.Errors
             return language switch
             {
                 Bulgarian => "Не бе открит от кеша.",
-                _ => "Unable to find from cache.",
+                _ => "Unable to find from cache."
             };
         }
     }

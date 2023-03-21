@@ -11,12 +11,10 @@ namespace DiscordBot.Playlists.Music_Storage
         public static FlacImage GetImageFromFile(string location)
         {
             if (!File.Exists(location) || !location.Contains(".flac"))
-            {
                 return new FlacImage
                 {
                     HasData = false
                 };
-            }
 
             var process = Process.Start(new ProcessStartInfo
             {
@@ -26,12 +24,10 @@ namespace DiscordBot.Playlists.Music_Storage
                 FileName = "metaflac"
             });
             if (process == null)
-            {
                 return new FlacImage
                 {
                     HasData = false
                 };
-            }
             process.Start();
 
             var memoryStream = new MemoryStream();
@@ -41,12 +37,10 @@ namespace DiscordBot.Playlists.Music_Storage
             var array = memoryStream.ToArray();
 
             if (array.Length < 1)
-            {
                 return new FlacImage
                 {
                     HasData = false
                 };
-            }
 
             return new FlacImage
             {
@@ -58,7 +52,7 @@ namespace DiscordBot.Playlists.Music_Storage
 
         public static string GetImageFiletype(byte[] data)
         {
-            byte[] PngHeader = {137,80,78,71,13,10,26,10};
+            byte[] PngHeader = {137, 80, 78, 71, 13, 10, 26, 10};
             byte[] JpegHeader = {255, 216, 255};
             return data.Length switch
             {
@@ -72,7 +66,7 @@ namespace DiscordBot.Playlists.Music_Storage
         {
             return !header.Where((t, i) => source[i] != t).Any();
         }
-        
+
         public struct FlacImage
         {
             public bool HasData;

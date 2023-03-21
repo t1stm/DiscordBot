@@ -206,14 +206,15 @@ namespace DiscordBot.Audio
                 {
                     items = Queue.Items.ToArray();
                 }
-                
+
                 var guid = QueueToken.ThrowIfNull();
                 var info = new PlaylistInfo
                 {
                     Name = "Discord Bot Session",
                     Maker = Bot.Name,
                     Count = (uint) items.Length,
-                    Description = $"Session at \'{DateTime.Now.ToUniversalTime():MMMM dd yyyy hh:mm tt} UTC\' of the channel: \'{VoiceChannel?.Name ?? "Unavailable"}\': in server \'{CurrentGuild?.Name ?? "Unavailable"}\'.",
+                    Description =
+                        $"Session at \'{DateTime.Now.ToUniversalTime():MMMM dd yyyy hh:mm tt} UTC\' of the channel: \'{VoiceChannel?.Name ?? "Unavailable"}\': in server \'{CurrentGuild?.Name ?? "Unavailable"}\'.",
                     IsPublic = true,
                     LastModified = DateTime.UtcNow.Ticks
                 };
@@ -561,6 +562,7 @@ namespace DiscordBot.Audio
                     //Disconnect();
                     if (Manager.Main.Contains(this)) Manager.Main.Remove(this);
                 }
+
                 // I recently encountered an error where the statusbar didn't stop.
                 Statusbar.Stop();
             }

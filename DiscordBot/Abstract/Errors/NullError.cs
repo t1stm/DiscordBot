@@ -1,4 +1,3 @@
-using System;
 using DiscordBot.Objects;
 
 namespace DiscordBot.Abstract.Errors
@@ -18,12 +17,12 @@ namespace DiscordBot.Abstract.Errors
         {
             _nullType = nullType;
         }
-        
+
         public override string Stringify(ILanguage language)
         {
             return language switch
             {
-                Bulgarian => $"Нещо не е било въведено. Код за грешка: \'{_nullType}\'", 
+                Bulgarian => $"Нещо не е било въведено. Код за грешка: \'{_nullType}\'",
                 _ => $"Something wasn't specified. Error code: \'{_nullType}\'"
             };
         }

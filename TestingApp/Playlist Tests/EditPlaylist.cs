@@ -39,10 +39,8 @@ namespace TestingApp
                 await Debug.WriteAsync($"({item.Type}) - \"{item.Data}\"");
                 var search = await Search.Get(
                     $"{PlaylistManager.ItemTypeToString(item.Type)}://{item.Data}");
-                var videos = search == Status.OK ? 
-                    search.GetOK() :
-                    Enumerable.Empty<PlayableItem>().ToList();
-                
+                var videos = search == Status.OK ? search.GetOK() : Enumerable.Empty<PlayableItem>().ToList();
+
                 var first = videos.FirstOrDefault();
                 if (first is null) throw new NullReferenceException();
                 await Debug.WriteAsync($"Name: \"{first.GetName()}\"");
@@ -53,7 +51,7 @@ namespace TestingApp
 
             var dirFiles = Files.Get("/nvme0/DiscordBot/dll/Overrides/");
             if (dirFiles != Status.OK) return;
-            
+
             entries.AddRange(dirFiles.GetOK().Select(file =>
                 new Entry
                 {

@@ -57,7 +57,7 @@ namespace TestingApp
             var split = file.Split('-');
             var items = await SharePlaylist.Get($"{split[^3]}-{split[^2]}-{split[^1][..^5]}");
             if (items != Status.OK) return;
-            
+
             await WriteToNewFile(split[^3], split[^2], split[^1][..^5], items.GetOK());
         }
 

@@ -20,7 +20,7 @@ namespace DiscordBot.Playlists.Music_Storage
                 if (line == null || line.StartsWith('#')) continue;
                 list.Add(line);
             }
-            
+
             return list;
         }
     }

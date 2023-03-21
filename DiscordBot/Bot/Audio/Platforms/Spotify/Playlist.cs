@@ -48,6 +48,7 @@ namespace DiscordBot.Audio.Platforms.Spotify
                             });
                             break;
                     }
+
                 return Result<List<PlayableItem>, Error>.Success(list);
             }
             catch (Exception)

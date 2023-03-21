@@ -48,8 +48,9 @@ namespace DiscordBot.Audio
                     return;
                 case "search":
                     var results = await Search.Get(string.Join(':', command[1..]), returnAllResults: true);
-                    if (results != Status.OK) return; 
-                    await Send(ws, $"Search:{JsonSerializer.Serialize(results.GetOK().Select(r => r.ToSearchResult()))}");
+                    if (results != Status.OK) return;
+                    await Send(ws,
+                        $"Search:{JsonSerializer.Serialize(results.GetOK().Select(r => r.ToSearchResult()))}");
                     return;
                 case "set":
                     SettingsParser(WebSockets[ws], string.Join(":", command[1..]));
@@ -90,7 +91,7 @@ namespace DiscordBot.Audio
 
                     var result = await Search.Get(searchTerm);
                     if (result != Status.OK) return;
-                    
+
                     var search = result.GetOK();
                     var requesterToken = WebSockets[ws];
                     var searchData = new UsersModel

@@ -21,8 +21,9 @@ namespace TestingAPI.Controllers
         {
             return Ok("Hello World!");
         }
-        
-        [HttpGet, Route("/Audio/Search")]
+
+        [HttpGet]
+        [Route("/Audio/Search")]
         public async Task<IActionResult> Search(string term)
         {
             var items = await DiscordBot.Audio.Platforms.Search.Get(term, returnAllResults: true);

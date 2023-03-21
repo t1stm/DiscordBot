@@ -60,7 +60,8 @@ namespace DiscordBot.Standalone
             }
         }
 
-        [HttpGet, Route("/Audio/Download/{codec}/{bitrate:int}")]
+        [HttpGet]
+        [Route("/Audio/Download/{codec}/{bitrate:int}")]
         public async Task<ActionResult> DownloadTrack(string codec, int bitrate, string id)
         {
             try
@@ -79,11 +80,8 @@ namespace DiscordBot.Standalone
 
                 if (Bot.DebugMode) await Debug.WriteAsync("Using Audio Controller");
                 var res = await DiscordBot.Audio.Platforms.Search.Get(id);
-                
-                if (res != Status.OK)
-                {
-                    return BadRequest();
-                }
+
+                if (res != Status.OK) return BadRequest();
 
                 var ok = res.GetOK();
 
@@ -92,16 +90,18 @@ namespace DiscordBot.Standalone
                     await Debug.WriteAsync("No found result in DownloadTrack API.");
                     return NotFound();
                 }
-                
+
                 var first = ok.First();
-                
+
                 FfMpeg2 ff = new();
                 var stream = codec switch
                 {
                     "Opus" => ff.Convert(first, codec: "-c:a libopus", addParameters: $"-b:a {bitrate}k -d copy"),
                     "Vorbis" => ff.Convert(first, codec: "-c:a libvorbis", addParameters: $"-b:a {bitrate}k -d copy"),
-                    "AAC" => ff.Convert(first, codec: "-c:a aac", addParameters: $"-b:a {bitrate}k -d copy", format: "-f adts"),
-                    _ => ff.Convert(first, codec: "-c:a libmp3lame", addParameters: $"-b:a {bitrate}k -d copy", format: "-f mp3")
+                    "AAC" => ff.Convert(first, codec: "-c:a aac", addParameters: $"-b:a {bitrate}k -d copy",
+                        format: "-f adts"),
+                    _ => ff.Convert(first, codec: "-c:a libmp3lame", addParameters: $"-b:a {bitrate}k -d copy",
+                        format: "-f mp3")
                 };
 
                 return File(stream, type, filename, true);
@@ -136,8 +136,9 @@ namespace DiscordBot.Standalone
 
             return Ok(stream);
         }
-        
-        [HttpGet, Route("/Audio/Search")]
+
+        [HttpGet]
+        [Route("/Audio/Search")]
         public async Task<IActionResult> Search(string term)
         {
             var items = await DiscordBot.Audio.Platforms.Search.Get(term, returnAllResults: true);
@@ -161,7 +162,8 @@ namespace DiscordBot.Standalone
             return Json(list, new JsonSerializerOptions {PropertyNameCaseInsensitive = false});
         }
 
-        [HttpGet, Route("/Audio/GetRandomDownload")]
+        [HttpGet]
+        [Route("/Audio/GetRandomDownload")]
         public FileStreamResult GetRandomDownload()
         {
             var files = Directory.EnumerateFiles($"{Bot.WorkingDirectory}/dll/audio").ToList();

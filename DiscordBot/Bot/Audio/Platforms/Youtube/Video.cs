@@ -201,7 +201,8 @@ namespace DiscordBot.Audio.Platforms.Youtube
                     select new YoutubeVideoInformation
                     {
                         Title = video.Title, Author = video.Author,
-                        Length = (ulong) StringToTimeSpan.Generate(video.Duration).TotalMilliseconds, YoutubeId = video.Id,
+                        Length = (ulong) StringToTimeSpan.Generate(video.Duration).TotalMilliseconds,
+                        YoutubeId = video.Id,
                         ThumbnailUrl = video.ThumbnailUrl
                     }).Cast<PlayableItem>().ToList());
             }
@@ -295,11 +296,8 @@ namespace DiscordBot.Audio.Platforms.Youtube
                 await Search(
                     $"{track.Title} - {track.Author} {track.Explicit switch {true => "Explicit Version ", false => ""}}- Topic",
                     urgent, track.Length, track);
-            if (result != Status.OK)
-            {
-                return result;
-            }
-            
+            if (result != Status.OK) return result;
+
             var response = result.GetOK();
             response.Requester = track.GetRequester();
             if (urgent) await response.GetAudioData();

@@ -84,7 +84,8 @@ namespace DiscordBot.Audio.Platforms
             catch (Exception e)
             {
                 await Debug.WriteAsync($"Loading old playlist failed: {e}");
-                return Result<List<PlayableItem>, Error>.Error(new PlaylistManagerError(PlaylistManagerErrorType.NotFound));
+                return Result<List<PlayableItem>, Error>.Error(
+                    new PlaylistManagerError(PlaylistManagerErrorType.NotFound));
             }
         }
 

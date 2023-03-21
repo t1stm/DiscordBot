@@ -5,7 +5,6 @@ using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
 using System.Timers;
-using DiscordBot.Abstract;
 using DiscordBot.Audio;
 using DiscordBot.Audio.Objects;
 using DiscordBot.Data;
@@ -55,7 +54,7 @@ namespace DiscordBot
         public static readonly Random Rng = new();
         private static Timer UpdateLoop { get; } = new(UpdateDelay);
         public static List<DiscordClient> Clients { get; } = new();
-        public static bool DebugMode { get; private set; } // Default: false
+        public static bool DebugMode { get; private set; } = true; // Default: false
         private static List<DiscordMessage> BotMessages { get; } = new();
 
         public static async Task Initialize(RunType token)
@@ -129,16 +128,17 @@ namespace DiscordBot
 
                             continue;
                         }
-                        
+
                         case "rl":
                             await Debug.WriteAsync("Reloading music database.");
                             MusicManager.Load();
                             break;
                         case "leave":
                             var sessions = Manager.Main.ToArray();
-                            var playerArray = sessions.Select((player, i) => new Tuple<int, Player>(i, player)).ToArray();
+                            var playerArray = sessions.Select((player, i) => new Tuple<int, Player>(i, player))
+                                .ToArray();
                             var kickMessage = "Kick mode activated: \n" +
-                                              string.Join('\n', playerArray.Select(r => 
+                                              string.Join('\n', playerArray.Select(r =>
                                                   $"[{r.Item1}] - ({r.Item2.VoiceChannel?.Id}) \"{r.Item2.VoiceChannel?.Name}\" | \'{r.Item2.VoiceUsers.Count}\' in channel.")) +
                                               "\nEnter an ID of the guild you want to kick and seperate it with a message. (1:afk)";
                             await Debug.WriteAsync(kickMessage);
@@ -148,20 +148,24 @@ namespace DiscordBot
                                 await Debug.WriteAsync("Cancelling kick mode.");
                                 break;
                             }
+
                             var kickSplit = input.Split(':');
                             if (!int.TryParse(kickSplit[0], out var idResult))
                             {
                                 await Debug.WriteAsync("Invalid kick id format.");
                                 break;
                             }
+
                             if (kickSplit.Length == 1)
                             {
-                                await playerArray[idResult].Item2.DisconnectAsync("Manually kicked from channel without specified reason.");
+                                await playerArray[idResult].Item2
+                                    .DisconnectAsync("Manually kicked from channel without specified reason.");
                                 break;
                             }
-                            
+
                             var joined = string.Join(':', input[1..]);
-                            await playerArray[idResult].Item2.DisconnectAsync($"Manually kicked from channel with reason \"{joined}\"");
+                            await playerArray[idResult].Item2
+                                .DisconnectAsync($"Manually kicked from channel with reason \"{joined}\"");
                             break;
                         case "as":
                             WebSocketServer.PrintAudioSockets();
@@ -219,10 +223,9 @@ namespace DiscordBot
                                 cancel = false;
                                 break;
                             }
-                            
+
                             var main = Manager.Main.ToArray();
                             foreach (var instance in main)
-                            {
                                 try
                                 {
                                     await instance.DisconnectAsync("Qutting the channel due to a restart of the bot.");
@@ -231,7 +234,7 @@ namespace DiscordBot
                                 {
                                     await Debug.WriteAsync($"Exception in disconnecting client: {e}");
                                 }
-                            }
+
                             SaveDatabases();
 
                             Environment.Exit(0);
@@ -242,6 +245,7 @@ namespace DiscordBot
                             {
                                 players = Manager.Main.ToArray();
                             }
+
                             for (var index = 0; index < players.Length; index++)
                             {
                                 var pl = players[index];
@@ -398,7 +402,7 @@ namespace DiscordBot
                 Intents = DiscordIntents.All,
                 Token = token,
                 TokenType = TokenType.Bot,
-                MinimumLogLevel = LogLevel.Information,
+                MinimumLogLevel = LogLevel.Debug,
                 LoggerFactory = new LoggerFactory(),
                 LogTimestampFormat = Debug.DebugTimeDateFormat
             });
@@ -474,7 +478,6 @@ namespace DiscordBot
         {
             try
             {
-                eventArgs.Handled = true;
                 if (eventArgs.Id.StartsWith("vote"))
                 {
                     var responseBuilder = new DiscordInteractionResponseBuilder()
@@ -555,7 +558,7 @@ namespace DiscordBot
                 }
 
                 var user = await User.FromId(eventArgs.User.Id);
-                if (pl == null && !eventArgs.Id.StartsWith("resume:") && 
+                if (pl == null && !eventArgs.Id.StartsWith("resume:") &&
                     !eventArgs.Id.StartsWith("resume_v2:") && !eventArgs.Id.StartsWith("vote:"))
                 {
                     await eventArgs.Interaction.CreateFollowupMessageAsync(
@@ -647,7 +650,8 @@ namespace DiscordBot
             }
         }
 
-        private static async Task NewPlaylistHandler(DiscordClient client, ComponentInteractionCreateEventArgs eventArgs, User user, string[] split)
+        private static async Task NewPlaylistHandler(DiscordClient client,
+            ComponentInteractionCreateEventArgs eventArgs, User user, string[] split)
         {
             var userVoiceS = eventArgs.Guild.Members[eventArgs.User.Id]?.VoiceState?.Channel;
             if (userVoiceS == null)
@@ -668,12 +672,13 @@ namespace DiscordBot
             }
 
             player.Settings = await GuildSettings.FromId(eventArgs.Guild.Id);
-            
+
             var task = new Task(async () =>
             {
                 try
                 {
-                    await Manager.Play($"https://playlists.{MainDomain}/{string.Join(':', split[1..])}", false, player, userVoiceS,
+                    await Manager.Play($"https://playlists.{MainDomain}/{string.Join(':', split[1..])}", false, player,
+                        userVoiceS,
                         eventArgs.Guild.Members[eventArgs.User.Id], new List<DiscordAttachment>(),
                         eventArgs.Channel);
                 }
@@ -729,7 +734,6 @@ namespace DiscordBot
         {
             try
             {
-                e.Handled = true;
                 var interaction = e.Interaction;
                 var user = interaction.User;
 

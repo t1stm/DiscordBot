@@ -26,9 +26,10 @@ namespace DiscordBot.Audio.Platforms.Local
                     if (recursiveCall != Status.OK) continue;
                     list.AddRange(recursiveCall.GetOK());
                 }
+
                 return Result<List<PlayableItem>, Error>.Success(list);
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 return Result<List<PlayableItem>, Error>.Error(new UnknownError());
             }

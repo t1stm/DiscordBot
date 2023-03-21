@@ -11,12 +11,10 @@ namespace DiscordBot.Playlists.Music_Storage
             var file = File.Create(location);
             var tag = file.GetTag(TagTypes.Id3v2);
             if (tag == null)
-            {
                 return new Id3Image
                 {
                     HasData = false
                 };
-            }
             var pictures = tag.Pictures;
 
             if (pictures.Length < 1)

@@ -1,4 +1,3 @@
-using System;
 using DiscordBot.Objects;
 
 namespace DiscordBot.Abstract.Errors

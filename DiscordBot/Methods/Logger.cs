@@ -51,7 +51,8 @@ namespace DiscordBot.Methods
             if (!Bot.DebugMode && !Enabled) return;
             if (!IsEnabled(logLevel)) return;
             if (formatter(state, exception).ToLower().Contains("event handler")) return;
-            var task = new Task(async () => await Debug.WriteAsync($"[Logger | {logLevel}] - {formatter(state, exception)}"));
+            var task = new Task(async () =>
+                await Debug.WriteAsync($"[Logger | {logLevel}] - {formatter(state, exception)}"));
             task.Start();
         }
     }

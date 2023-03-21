@@ -26,7 +26,7 @@ namespace DiscordBot.Playlists
         {
             return View();
         }
-        
+
         [HttpGet]
         [Route("/PlaylistAPI/PublicPlaylists")]
         public ActionResult Public()

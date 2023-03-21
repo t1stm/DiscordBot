@@ -25,7 +25,7 @@ namespace DiscordBot.Messages
         public bool HasButtons => NewStatusbar;
         private bool Stopped { get; set; }
         public Player Player { get; set; } = null!;
-        private ILanguage Language => Player?.Language ?? Parser.FromNumber(0); // If null, gets the English Language.
+        private ILanguage Language => Player.Language;
         public DiscordGuild Guild { get; set; } = null!;
         public DiscordChannel Channel { get; set; } = null!;
         public DiscordClient Client { get; set; } = null!;
@@ -155,22 +155,18 @@ namespace DiscordBot.Messages
             if (Bot.DebugMode)
                 Debug.Write(
                     $"Updated Statusbar in guild \"{Player.CurrentGuild?.Name}\": Track: \"{Player.CurrentItem?.GetName()}\", Time: {Time(Player.Stopwatch.Elapsed)} - {Time(TimeSpan.FromMilliseconds(length))}");
-            if (Player == null)
-            {
-                throw new NullReferenceException("Player is null");
-            }
-            
+            if (Player == null) throw new NullReferenceException("Player is null");
+
             var text = $"```{Language.Playing()}: \"{Player.CurrentItem?.GetTypeOf(Language)}\"\n" +
-                          $"({Player.Queue.Current + 1} - {Player.Queue.Count}) {Player.CurrentItem?.GetName(Player.Settings.ShowOriginalInfo) ?? "Something's broken."}\n" +
-                          $"{progress} ( {Player.Paused switch {false => "▶️", true => "⏸️"}} {Time(TimeSpan.FromMilliseconds(time))} - {length switch {0 => "∞", _ => Time(TimeSpan.FromMilliseconds(length))}} )" +
-                          $"{Player.Sink switch {null => "", _ => Player.Sink.VolumeModifier switch {0 => " (🔇", >0 and <.33 => " (🔈", >=.33 and <=.66 => " (🔉", >.66 => " (🔊", _ => " (🔊"} + $" {(int) (Player.Sink.VolumeModifier * 100)}%)"}}" +
-                          $"{Player.LoopStatus switch {Loop.One => " ( 🔂 )", Loop.WholeQueue => " ( 🔁 )", _ => ""}}" +
-                          $"{req switch {null => "", _ => $"\n{Language.RequestedBy()}: {req.Username} #{req.Discriminator}"}}" +
-                          $"{next switch {null => "", _ => $"\n\n{Language.NextUp()}: ({Player.Queue.Current + 2}) {next.GetName(Player.Settings.ShowOriginalInfo)}"}}" +
-                          $"{message}```";
+                       $"({Player.Queue.Current + 1} - {Player.Queue.Count}) {Player.CurrentItem?.GetName(Player.Settings.ShowOriginalInfo) ?? "Something's broken."}\n" +
+                       $"{progress} ( {Player.Paused switch {false => "▶️", true => "⏸️"}} {Time(TimeSpan.FromMilliseconds(time))} - {length switch {0 => "∞", _ => Time(TimeSpan.FromMilliseconds(length))}} )" +
+                       $"{Player.Sink switch {null => "", _ => Player.Sink.VolumeModifier switch {0 => " (🔇", >0 and <.33 => " (🔈", >=.33 and <=.66 => " (🔉", >.66 => " (🔊", _ => " (🔊"} + $" {(int) (Player.Sink.VolumeModifier * 100)}%)"}}" +
+                       $"{Player.LoopStatus switch {Loop.One => " ( 🔂 )", Loop.WholeQueue => " ( 🔁 )", _ => ""}}" +
+                       $"{req switch {null => "", _ => $"\n{Language.RequestedBy()}: {req.Username} #{req.Discriminator}"}}" +
+                       $"{next switch {null => "", _ => $"\n\n{Language.NextUp()}: ({Player.Queue.Current + 2}) {next.GetName(Player.Settings.ShowOriginalInfo)}"}}" +
+                       $"{message}```";
 
             return text;
-
         }
 
         private async Task UpdateMessage()
@@ -231,15 +227,13 @@ namespace DiscordBot.Messages
             {
                 await Debug.WriteAsync("Updating message and stopping statusbar.");
                 Stop();
-                if (Message == null)
-                {
-                    return;
-                }
+                if (Message == null) return;
                 await Task.Delay(Bot.UpdateDelay);
-                var builder = new DiscordMessageBuilder().WithContent(formatted ? $"```{message}```\nhttps://playlists.danke.gq/{Player.QueueToken}" : message);
+                var builder = new DiscordMessageBuilder().WithContent(formatted
+                    ? $"```{message}```\nhttps://playlists.danke.gq/{Player.QueueToken}"
+                    : message);
                 builder.ClearComponents();
                 if (Player.Settings.SaveQueueOnLeave && Player.SavedQueue)
-                {
                     builder.AddComponents(new List<DiscordComponent>
                     {
                         new DiscordButtonComponent(ButtonStyle.Success, $"resume_v2:{Player.QueueToken.ToString()}",
@@ -247,8 +241,7 @@ namespace DiscordBot.Messages
                         new DiscordButtonComponent(ButtonStyle.Danger, "vote:",
                             "Vote")
                     });
-                    //builder.AddEmbed(new DiscordEmbedBuilder().WithUrl(""));
-                }
+                //builder.AddEmbed(new DiscordEmbedBuilder().WithUrl(""));
                 await Message.ModifyAsync(builder);
             }
             catch (Exception e)

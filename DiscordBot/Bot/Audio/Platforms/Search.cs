@@ -29,7 +29,7 @@ namespace DiscordBot.Audio.Platforms
                 await Debug.WriteAsync("Search term is null.");
                 return Result<List<PlayableItem>, Error>.Error(new NullError(NullType.SearchTerm));
             }
-            
+
             if (searchTerm.Contains("open.spotify.com/"))
             {
                 if (searchTerm.Contains("/playlist/"))
@@ -91,21 +91,22 @@ namespace DiscordBot.Audio.Platforms
             if (res != null)
             {
                 var parsed = ParseObject(res);
-                if (parsed == Status.OK) 
-                return parsed;
+                if (parsed == Status.OK)
+                    return parsed;
             }
 
             if (searchTerm.StartsWith("pl:"))
                 return await SharePlaylist.Get(searchTerm[3..]);
 
             var databaseItem = MusicManager.SearchOneByTerm(searchTerm);
-            
+
             return returnAllResults switch
             {
-                true when databaseItem is not null => 
-                    AddDatabaseItemToResults(databaseItem.ToMusicObject(), await Video.SearchAllResults(searchTerm, length)),
+                true when databaseItem is not null =>
+                    AddDatabaseItemToResults(databaseItem.ToMusicObject(),
+                        await Video.SearchAllResults(searchTerm, length)),
                 true => await Video.SearchAllResults(searchTerm, length),
-                false when databaseItem is not null => 
+                false when databaseItem is not null =>
                     ToList(Result<PlayableItem, Error>.Success(databaseItem.ToMusicObject())),
                 false => ToList(await Video.Search(searchTerm, length: length))
             };
@@ -121,7 +122,8 @@ namespace DiscordBot.Audio.Platforms
             };
         }
 
-        private static Result<List<PlayableItem>, Error> AddDatabaseItemToResults(PlayableItem item, Result<List<PlayableItem>, Error> list)
+        private static Result<List<PlayableItem>, Error> AddDatabaseItemToResults(PlayableItem item,
+            Result<List<PlayableItem>, Error> list)
         {
             if (list != Status.OK) return list;
             var ok = list.GetOK();
@@ -150,9 +152,9 @@ namespace DiscordBot.Audio.Platforms
                     return await Video.SearchById(split[1]);
                 case "yt-ov":
                     var ov = YoutubeOverride.FromId(split[1]);
-                    return ov == null ? 
-                        Result<PlayableItem, Error>.Error(new NullError(NullType.Override)) : 
-                        Result<PlayableItem, Error>.Success(ov);
+                    return ov == null
+                        ? Result<PlayableItem, Error>.Error(new NullError(NullType.Override))
+                        : Result<PlayableItem, Error>.Success(ov);
                 case "spt":
                     return await Track.Get(split[1], true);
                 case "file":
@@ -173,17 +175,17 @@ namespace DiscordBot.Audio.Platforms
                         var patternSearch = MusicManager.SearchByPattern(split[1]).ToList();
                         audioItems = new List<PlayableItem>();
                         audioItems.AddRange(patternSearch.Select(r => r.ToMusicObject()));
-                        return audioItems.Count > 1 ? 
-                            Result<List<PlayableItem>, Error>.Success(audioItems) : 
-                            Result<List<PlayableItem>, Error>.Error(new NoResultsError());
+                        return audioItems.Count > 1
+                            ? Result<List<PlayableItem>, Error>.Success(audioItems)
+                            : Result<List<PlayableItem>, Error>.Error(new NoResultsError());
                     }
 
                     var audios = MusicManager.GetAll();
                     audioItems = new List<PlayableItem>();
                     audioItems.AddRange(audios.Select(r => r.ToMusicObject()));
-                    return audioItems.Count > 1 ? 
-                        Result<List<PlayableItem>, Error>.Success(audioItems) : 
-                        Result<List<PlayableItem>, Error>.Error(new NoResultsError());
+                    return audioItems.Count > 1
+                        ? Result<List<PlayableItem>, Error>.Success(audioItems)
+                        : Result<List<PlayableItem>, Error>.Error(new NoResultsError());
                 case "onl":
                     return Result<PlayableItem, Error>.Success(new OnlineFile
                     {
@@ -203,7 +205,8 @@ namespace DiscordBot.Audio.Platforms
             return null;
         }
 
-        public static async Task<Result<List<PlayableItem>, Error>> Get(string searchTerm, List<DiscordAttachment>? attachments,
+        public static async Task<Result<List<PlayableItem>, Error>> Get(string searchTerm,
+            List<DiscordAttachment>? attachments,
             ulong? guild)
         {
             if (attachments == null || attachments.Count < 1) return await Get(searchTerm);

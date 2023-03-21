@@ -4,11 +4,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using DiscordBot.Abstract;
-using DiscordBot.Abstract.Errors;
 using DiscordBot.Audio;
 using DiscordBot.Audio.Objects;
-using DiscordBot.Audio.Platforms.Spotify;
-using DiscordBot.Audio.Platforms.Youtube;
 using DiscordBot.Data;
 using DiscordBot.Enums;
 using DiscordBot.Methods;
@@ -191,7 +188,7 @@ namespace DiscordBot.Controllers
 
                 if (search != Status.OK) return Ok("410");
                 var result = search.GetOK();
-                
+
                 var req = player.CurrentGuild?.Members[user.Id];
                 result.ForEach(r => r.SetRequester(req));
                 if (!next) player.Queue.AddToQueue(result);

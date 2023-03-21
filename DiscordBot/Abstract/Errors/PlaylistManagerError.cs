@@ -1,4 +1,3 @@
-using System;
 using DiscordBot.Objects;
 
 namespace DiscordBot.Abstract.Errors
@@ -9,15 +8,16 @@ namespace DiscordBot.Abstract.Errors
         InvalidRequest,
         NotFound
     }
-    
+
     public class PlaylistManagerError : Error
     {
+        private readonly PlaylistManagerErrorType _errorType;
+
         public PlaylistManagerError(PlaylistManagerErrorType errorType)
         {
             _errorType = errorType;
         }
 
-        private readonly PlaylistManagerErrorType _errorType;
         public override string Stringify(ILanguage language)
         {
             return language switch

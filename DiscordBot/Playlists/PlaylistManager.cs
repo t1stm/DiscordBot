@@ -47,7 +47,7 @@ namespace DiscordBot.Playlists
         public static IEnumerable<PlaylistInfo> GetAll()
         {
             List<PlaylistInfo> infos;
-            
+
             lock (Infos)
             {
                 infos = Infos.ToList();
@@ -68,25 +68,25 @@ namespace DiscordBot.Playlists
         {
             var split = link.Split('/');
             if (split.Length < 2)
-            {
-                return Result<List<PlayableItem>, Error>.Error(new PlaylistManagerError(PlaylistManagerErrorType.InvalidUrl));
-            }
+                return Result<List<PlayableItem>, Error>.Error(
+                    new PlaylistManagerError(PlaylistManagerErrorType.InvalidUrl));
 
             return await FromString(split[^1]);
         }
-        
+
         public static async Task<Result<List<PlayableItem>, Error>> FromString(string guidText)
         {
             if (!Guid.TryParse(guidText, out var guid))
             {
                 await Debug.WriteAsync($"Playlist with id \'{guidText}\' not found.");
-                return Result<List<PlayableItem>, Error>.Error(new PlaylistManagerError(PlaylistManagerErrorType.InvalidRequest));
+                return Result<List<PlayableItem>, Error>.Error(
+                    new PlaylistManagerError(PlaylistManagerErrorType.InvalidRequest));
             }
-            
+
             var data = GetIfExists(guid);
-            return data is not null ? 
-                Result<List<PlayableItem>, Error>.Success(await ParsePlaylist(data.Value)) : 
-                Result<List<PlayableItem>, Error>.Error(new PlaylistManagerError(PlaylistManagerErrorType.NotFound));
+            return data is not null
+                ? Result<List<PlayableItem>, Error>.Success(await ParsePlaylist(data.Value))
+                : Result<List<PlayableItem>, Error>.Error(new PlaylistManagerError(PlaylistManagerErrorType.NotFound));
         }
 
         public static async Task<List<PlayableItem>> ParsePlaylist(Playlist playlist)
@@ -99,7 +99,7 @@ namespace DiscordBot.Playlists
                 var search = await Search.SearchBotProtocols(video);
                 if (search == null) continue;
                 var parsed = Search.ParseObject(search);
-                
+
                 if (parsed != Status.OK) continue;
                 items.AddRange(parsed.GetOK());
             }

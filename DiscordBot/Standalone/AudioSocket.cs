@@ -25,9 +25,11 @@ namespace DiscordBot.Standalone
         private readonly List<EncodedAudio> Audios = new();
         private readonly Timer ReadyTimer = new();
         private readonly Timer Timer = new();
+        private ulong _clientIndex;
+
+        private readonly List<ChatMessage> Messages = new();
         private Settings Options;
         private List<SearchResult> Queue = Enumerable.Empty<SearchResult>().ToList();
-        private ulong _clientIndex;
 
         public AudioSocket()
         {
@@ -51,8 +53,6 @@ namespace DiscordBot.Standalone
         public Guid SessionId { get; init; }
         private int Current { get; set; }
         private bool Paused { get; set; }
-
-        private List<ChatMessage> Messages = new();
 
         private void TimerOnElapsed(object? sender, ElapsedEventArgs e)
         {
@@ -124,7 +124,7 @@ namespace DiscordBot.Standalone
                             await Respond(client.Socket, "Get:Not Found");
                             return;
                         }
-                
+
                         var first = ok.First();
 
                         var addUrl = first.GetAddUrl();
@@ -236,7 +236,7 @@ namespace DiscordBot.Standalone
                         if (!all || Current + 1 == Queue.Count) return;
                         await Broadcast("Skip:");
                         return;
-                    
+
                     case "chat":
                         var chatMessage = new ChatMessage
                         {
@@ -244,20 +244,23 @@ namespace DiscordBot.Standalone
                             Message = joined,
                             SendTime = DateTime.UtcNow
                         };
-                        lock (Messages) {
+                        lock (Messages)
+                        {
                             Messages.Add(chatMessage);
                         }
+
                         await Broadcast($"Chat:{JsonSerializer.Serialize(chatMessage)}", client).ConfigureAwait(false);
                         return;
-                    
+
                     case "seek":
                         if (!int.TryParse(joined, out var position))
                         {
                             await Respond(client.Socket, "Fail:Unable to parse position.");
                             return;
                         }
+
                         await Broadcast($"Seek:{position}").ConfigureAwait(false);
-                        
+
                         return;
 
                     case "back":
@@ -354,10 +357,7 @@ namespace DiscordBot.Standalone
                         $"Sending broadcast message to client: \"{(client.IsAnon ? "Anonymous" : client.Token)}\" failed. \"{e}\"");
                 }
             })).ToList();
-            Parallel.ForEach(tasks, task =>
-            {
-                task.Start();
-            });
+            Parallel.ForEach(tasks, task => { task.Start(); });
             await Task.WhenAll(tasks).ConfigureAwait(false);
         }
 
@@ -418,7 +418,6 @@ namespace DiscordBot.Standalone
                     Index = _clientIndex++
                 };
                 if (client.Token != null)
-                {
                     try
                     {
                         var user = await User.FromToken(client.Token);
@@ -432,7 +431,7 @@ namespace DiscordBot.Standalone
                     {
                         await Debug.WriteAsync($"Unable to get username when token isn't null: \"{e}\"");
                     }
-                }
+
                 lock (Clients)
                 {
                     Clients.Add(client);
@@ -444,7 +443,7 @@ namespace DiscordBot.Standalone
                 {
                     messages = Messages.ToList();
                 }
-                
+
                 await Respond(ws, $"Queue:{JsonSerializer.Serialize(Queue)}").ConfigureAwait(false);
                 await Respond(ws, $"OldMessages:{JsonSerializer.Serialize(messages)}").ConfigureAwait(false);
                 await Broadcast($"UserJoin:{client.Name}", client).ConfigureAwait(false);
@@ -506,12 +505,12 @@ namespace DiscordBot.Standalone
 
         public class Client
         {
+            public ulong Index;
+            public string Username = "";
             public WebSocket Socket { get; init; } = null!;
             public string? Token { get; init; }
             public bool IsAnon => string.IsNullOrEmpty(Token) || Token is "null" or "undefined";
-            public string Username = "";
             public string Name => IsAnon || string.IsNullOrEmpty(Username) ? $"Anonymous #{Index}" : Username;
-            public ulong Index;
             public bool Ready { get; set; }
             public bool Ended { get; set; }
         }

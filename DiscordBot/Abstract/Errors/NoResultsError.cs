@@ -1,4 +1,3 @@
-using System;
 using DiscordBot.Objects;
 
 namespace DiscordBot.Abstract.Errors
@@ -10,7 +9,7 @@ namespace DiscordBot.Abstract.Errors
             return language switch
             {
                 Bulgarian => "Не бяха намерени резултати.",
-                _ => "No results were found.",
+                _ => "No results were found."
             };
         }
     }

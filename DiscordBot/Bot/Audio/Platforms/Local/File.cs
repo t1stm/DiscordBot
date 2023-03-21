@@ -40,7 +40,7 @@ namespace DiscordBot.Audio.Platforms.Local
                 };
                 return Result<SystemFile, Error>.Success(file);
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 return Result<SystemFile, Error>.Error(new UnknownError());
             }

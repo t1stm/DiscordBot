@@ -96,7 +96,7 @@ namespace DiscordBot.Audio
         {
             var user = await User.FromId(ctx.User.Id);
             var languageUser = user.Language;
-            var userVoiceS = ctx.Member?.VoiceState?.Channel;
+            var userVoiceS = ctx.Member!.VoiceState?.Channel;
             if (userVoiceS == null)
             {
                 await Bot.SendDirectMessage(ctx, languageUser.EnterChannelBeforeCommand("play"));
@@ -123,11 +123,6 @@ namespace DiscordBot.Audio
             catch (Exception e)
             {
                 await Debug.WriteAsync($"Exception in Play: {e}");
-                lock (Main)
-                {
-                    if (Main.Contains(player)) Main.Remove(player);
-                }
-
                 throw;
             }
         }
@@ -140,71 +135,29 @@ namespace DiscordBot.Audio
                 term ??= string.Empty;
                 var lang = player.Language;
                 List<PlayableItem> items = new();
-                player.Channel = player.CurrentClient!.Guilds[userVoiceS.Guild.Id].Channels[messageChannel.Id];
+                var currentGuild = player.CurrentClient?.Guilds[userVoiceS.Guild.Id];
+                player.Channel = currentGuild?.Channels[messageChannel.Id];
                 if (select && !term.StartsWith("http"))
                 {
-                    var results = await Search.Get(term, returnAllResults: true);
-                    List<PlayableItem> ok;
-                    if (results != Status.OK || (ok = results.GetOK()).Count < 1)
+                    if (!await HandleSelect(term, player, user, messageChannel, lang, items))
                     {
-                        await messageChannel.SendMessageAsync(lang.NoResultsFound(term).CodeBlocked());
+                        await Debug.WriteAsync("Bad select command");
                         return;
-                    }
-
-                    var options = ok.Select(item =>
-                            new DiscordSelectComponentOption(item.GetName(), item.GetAddUrl(), item.Author))
-                        .ToList();
-                    var dropdown = new DiscordSelectComponent("dropdown", null, options);
-                    var builder = new DiscordMessageBuilder().WithContent(lang.SelectVideo())
-                        .AddComponents(dropdown);
-                    var message = await builder.SendAsync(player.Channel);
-                    var response = await message.WaitForSelectAsync(user, "dropdown", TimeSpan.FromSeconds(60));
-                    if (response.TimedOut)
-                    {
-                        await message.ModifyAsync(lang.SelectVideoTimeout().CodeBlocked());
-                        return;
-                    }
-
-                    var interaction = response.Result.Values;
-                    if (interaction == null || interaction.Length < 1) return;
-                    
-                    var search = await Search.Get(interaction.First());
-                    if (search != Status.OK)
-                    {
-                        await message.ModifyAsync(search.GetError().Stringify(lang).CodeBlocked());
-                    }
-                    else
-                    {
-                        var result = search.GetOK().FirstOrDefault();
-                        if (result == null)
-                        {
-                            await message.ModifyAsync("Unable to find result.".CodeBlocked());
-                            return;
-                        }
-
-                        player.Statusbar.Message = await message.ModifyAsync(
-                            new DiscordMessageBuilder().WithContent(lang.ThisMessageWillUpdateShortly().CodeBlocked()));
-                        items.Add(result);
                     }
                 }
                 else
                 {
                     var search = await Search.Get(term, attachments, user?.Guild.Id);
                     if (search != Status.OK)
-                    {
                         await messageChannel.SendMessageAsync(search.GetError().Stringify(lang).CodeBlocked());
-                    }
                     else
-                    {
                         items = search.GetOK();
-                    }
                 }
 
                 items.ForEach(it => it.SetRequester(user));
                 player.Queue.AddToQueue(items);
 
                 if (player.Started)
-                {
                     switch (items.Count)
                     {
                         case < 1:
@@ -220,14 +173,15 @@ namespace DiscordBot.Audio
                                     .CodeBlocked());
                             return;
                     }
-                }
 
                 player.Started = true;
-                player.Connection = await player.CurrentClient.GetVoiceNext()
-                    .ConnectAsync(player.CurrentClient.Guilds[userVoiceS.Guild.Id].Channels[userVoiceS.Id]);
+                var voiceNext = player.CurrentClient.GetVoiceNext();
+                player.Connection = await voiceNext
+                    .ConnectAsync(currentGuild?.Channels[userVoiceS.Id]);
                 player.VoiceChannel = userVoiceS;
                 player.Sink = player.Connection?.GetTransmitSink();
                 player.CurrentGuild = user?.Guild;
+
                 var playerTask = new Task(async () =>
                 {
                     try
@@ -260,6 +214,57 @@ namespace DiscordBot.Audio
 
                 throw;
             }
+        }
+
+        private static async Task<bool> HandleSelect(string? term, Player player, DiscordUser? user,
+            DiscordChannel messageChannel,
+            ILanguage lang, ICollection<PlayableItem> items)
+        {
+            var results = await Search.Get(term, returnAllResults: true);
+            List<PlayableItem> ok;
+            if (results != Status.OK || (ok = results.GetOK()).Count < 1)
+            {
+                await messageChannel.SendMessageAsync(lang.NoResultsFound(term).CodeBlocked());
+                return false;
+            }
+
+            var options = ok.Select(item =>
+                    new DiscordSelectComponentOption(item.GetName(), item.GetAddUrl(), item.Author))
+                .ToList();
+            var dropdown = new DiscordSelectComponent("dropdown", null, options);
+            var builder = new DiscordMessageBuilder().WithContent(lang.SelectVideo())
+                .AddComponents(dropdown);
+            var message = await builder.SendAsync(player.Channel);
+            var response = await message.WaitForSelectAsync(user, "dropdown", TimeSpan.FromSeconds(60));
+            if (response.TimedOut)
+            {
+                await message.ModifyAsync(lang.SelectVideoTimeout().CodeBlocked());
+                return false;
+            }
+
+            var interaction = response.Result.Values;
+            if (interaction == null || interaction.Length < 1) return false;
+
+            var search = await Search.Get(interaction.First());
+            if (search != Status.OK)
+            {
+                await message.ModifyAsync(search.GetError().Stringify(lang).CodeBlocked());
+            }
+            else
+            {
+                var result = search.GetOK().FirstOrDefault();
+                if (result == null)
+                {
+                    await message.ModifyAsync("Unable to find result.".CodeBlocked());
+                    return false;
+                }
+
+                player.Statusbar.Message = await message.ModifyAsync(
+                    new DiscordMessageBuilder().WithContent(lang.ThisMessageWillUpdateShortly().CodeBlocked()));
+                items.Add(result);
+            }
+
+            return true;
         }
 
         public static async Task Skip(CommandContext ctx, int times = 1)
@@ -423,9 +428,9 @@ namespace DiscordBot.Audio
                             thing.GetName()));
                     return;
                 } while (
-            #pragma warning disable 162
+#pragma warning disable 162
                     false); // This error is tilting me but I can't do anything about it, because it's technically true. Rider cannot contain my intelligence.
-            #pragma warning restore 162
+#pragma warning restore 162
 
             term += ""; // Clear any possible null warnings.
 
@@ -435,10 +440,10 @@ namespace DiscordBot.Audio
 
             term = attachmentsList.Count switch
             {
-                1 => ctx.Message.Attachments.ToList()[0].FileName, 
+                1 => ctx.Message.Attachments.ToList()[0].FileName,
                 _ => "Discord Attachments"
             };
-            
+
             if (items != Status.Error)
             {
                 await Bot.Reply(ctx, items.GetError().Stringify(player.Language));
@@ -501,7 +506,7 @@ namespace DiscordBot.Audio
         {
             return new DiscordMessageBuilder()
                 .WithContent($"```{text}: {key}```")
-                .WithFile("qr_code.jpg", GetQrCodeForWebUi(key))
+                .AddFile("qr_code.jpg", GetQrCodeForWebUi(key))
                 .WithEmbed(new DiscordEmbedBuilder
                 {
                     Title = $"{Bot.Name} Web Interface",
@@ -634,7 +639,7 @@ namespace DiscordBot.Audio
             }
 
             await Bot.Reply(ctx,
-                new DiscordMessageBuilder().WithContent(player.Language.CurrentQueue().CodeBlocked()).WithFile(
+                new DiscordMessageBuilder().WithContent(player.Language.CurrentQueue().CodeBlocked()).AddFile(
                     "queue.txt",
                     new MemoryStream(Encoding.UTF8.GetBytes(player.Queue + player.Language.TechTip()))));
         }
@@ -754,7 +759,7 @@ namespace DiscordBot.Audio
             await ctx.RespondAsync(
                 new DiscordMessageBuilder()
                     .WithContent(player.Language.QueueSavedSuccessfully(token).CodeBlocked())
-                    .WithFile($"{token}.batp", fs));
+                    .AddFile($"{token}.batp", fs));
         }
 
         public static async Task PlsFix(CommandContext ctx)
@@ -826,7 +831,7 @@ namespace DiscordBot.Audio
                 await Bot.Reply(ctx, new DiscordMessageBuilder()
                     .WithContent(
                         Parser.FromNumber(guild.Language).LyricsLong().CodeBlocked())
-                    .WithFile("lyrics.txt", new MemoryStream(Encoding.UTF8.GetBytes(lyrics)))
+                    .AddFile("lyrics.txt", new MemoryStream(Encoding.UTF8.GetBytes(lyrics)))
                 );
                 return;
             }

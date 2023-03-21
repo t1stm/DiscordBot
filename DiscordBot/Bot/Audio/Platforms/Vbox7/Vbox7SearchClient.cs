@@ -75,12 +75,14 @@ namespace DiscordBot.Audio.Platforms.Vbox7
         {
             try
             {
-                if (string.IsNullOrEmpty(id)) return null;
+                if (string.IsNullOrEmpty(id)) return Result<Vbox7Object, Error>.Error(new NoResultsError());
                 await Debug.WriteAsync($"Vbox Url is: https://www.vbox7.com/ajax/video/nextvideo.php?vid={id}");
                 var call = await HttpClient.DownloadStream($"https://www.vbox7.com/ajax/video/nextvideo.php?vid={id}");
                 var text = Encoding.UTF8.GetString(call.GetBuffer());
-                return Result<Vbox7Object, Error>.Success(JsonSerializer.Deserialize<Vbox7Object>(text,
-                    new JsonSerializerOptions {PropertyNameCaseInsensitive = true}));
+                var response = JsonSerializer.Deserialize<Vbox7Object>(text,
+                    new JsonSerializerOptions {PropertyNameCaseInsensitive = true});
+                return response == null ? Result<Vbox7Object, Error>.Error(new UnknownError()) : 
+                    Result<Vbox7Object, Error>.Success(response);
             }
             catch (Exception e)
             {
