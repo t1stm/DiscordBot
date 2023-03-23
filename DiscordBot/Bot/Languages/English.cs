@@ -44,7 +44,7 @@ namespace DiscordBot.Objects
         {
             return
                 "Queue was saved successfully. If you want to play it again, use the button below this message.\n\n" +
-                "IMPORTANT NOTE: \nThe voting for the new name of the bot has started. If you'd want to vote, use the button below this message.";
+                "IMPORTANT UPDATE: \nThe voting period has ended. The new name of the bot will be \"Bai Tosho\". The name will be changed on the 26th March 2023.";
         }
 
         #region Mixed Commands
@@ -294,7 +294,7 @@ namespace DiscordBot.Objects
         {
             return
                 "The bot is currently being reworked majorly, so please note that there may be many bugs. Sorry for any bugs in advance.\n\n" +
-                "IMPORTANT MESSAGE: \nThe voting for the new bot name has started. Please vote using the button below this message.";
+                "IMPORTANT UPDATE: \nThe voting period has ended. The new name of the bot will be \"Bai Tosho\". The name will be changed on the 26th March 2023.";
         }
 
         public string DiscordDidTheFunny()

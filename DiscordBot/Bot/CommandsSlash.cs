@@ -664,11 +664,11 @@ namespace DiscordBot
         }
 
         [SlashCommandGroup("add", "Various commands to add stuff to the queue.")]
-        public class AddCommand : ApplicationCommandModule
+        public class AddCommands : ApplicationCommandModule
         {
             [SlashCommand("album", "Adds a known album to the queue.")]
             public async Task AddAlbumCommand(InteractionContext ctx,
-                [Autocomplete(typeof(AlbumChoiceProvider))] [Option("album_code", "The album name to be added.", true)]
+                [Autocomplete(typeof(AlbumChoiceProvider))] [Option("albumcode", "The album name to be added.", true)]
                 string choice)
             {
                 await ctx.DeferAsync();
@@ -712,7 +712,7 @@ namespace DiscordBot
 
             [SlashCommand("song", "Adds a known song to the queue.")]
             public async Task AddSongCommand(InteractionContext ctx,
-                [Autocomplete(typeof(SongChoiceProvider))] [Option("song_code", "The song to be added.", true)]
+                [Autocomplete(typeof(SongChoiceProvider))] [Option("songcode", "The song to be added.", true)]
                 string choice)
             {
                 await ctx.DeferAsync();

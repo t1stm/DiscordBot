@@ -204,8 +204,7 @@ namespace DiscordBot.Messages
                     }),
                     new(new[]
                     {
-                        new DiscordButtonComponent(ButtonStyle.Secondary, "webui", "Web UI"),
-                        new DiscordButtonComponent(ButtonStyle.Danger, "vote", "Vote")
+                        new DiscordButtonComponent(ButtonStyle.Secondary, "webui", "Web UI")
                     })
                 }
             );
@@ -237,9 +236,7 @@ namespace DiscordBot.Messages
                     builder.AddComponents(new List<DiscordComponent>
                     {
                         new DiscordButtonComponent(ButtonStyle.Success, $"resume_v2:{Player.QueueToken.ToString()}",
-                            "Play Saved Queue"),
-                        new DiscordButtonComponent(ButtonStyle.Danger, "vote:",
-                            "Vote")
+                            "Play Saved Queue")
                     });
                 //builder.AddEmbed(new DiscordEmbedBuilder().WithUrl(""));
                 await Message.ModifyAsync(builder);

@@ -54,7 +54,7 @@ namespace DiscordBot
         public static readonly Random Rng = new();
         private static Timer UpdateLoop { get; } = new(UpdateDelay);
         public static List<DiscordClient> Clients { get; } = new();
-        public static bool DebugMode { get; private set; } = true; // Default: false
+        public static bool DebugMode { get; private set; } // Default: false
         private static List<DiscordMessage> BotMessages { get; } = new();
 
         public static async Task Initialize(RunType token)
@@ -100,7 +100,7 @@ namespace DiscordBot
                     throw new ArgumentOutOfRangeException(nameof(token), token, null);
             }
 
-            Clients.Add(SpecificContentBot()); // Time to retire this bot.
+            //Clients.Add(SpecificContentBot()); // Time to retire this bot.
             foreach (var client in Clients) await client.ConnectAsync().ConfigureAwait(false);
             string text;
             await ReadStatus(Clients[0]);
@@ -402,7 +402,7 @@ namespace DiscordBot
                 Intents = DiscordIntents.All,
                 Token = token,
                 TokenType = TokenType.Bot,
-                MinimumLogLevel = LogLevel.Debug,
+                MinimumLogLevel = LogLevel.Information,
                 LoggerFactory = new LoggerFactory(),
                 LogTimestampFormat = Debug.DebugTimeDateFormat
             });
@@ -478,76 +478,6 @@ namespace DiscordBot
         {
             try
             {
-                if (eventArgs.Id.StartsWith("vote"))
-                {
-                    var responseBuilder = new DiscordInteractionResponseBuilder()
-                        .WithTitle("Vote for the next name of the bot")
-                        .WithCustomId("voteModal:funnyId");
-
-                    /*var selectComponent = new DiscordSelectComponent("selectBot", "Select a name", 
-                        new DiscordSelectComponentOption[]
-                        {
-                            new("Bai Tosho", "tosho", "This is the original name of the bot", true, new DiscordComponentEmoji("🔴")),
-                            new("Slavi Trifonov", "slavi", "This is the current name of the bot", false, new DiscordComponentEmoji("🔵")),
-                            new ("Custom choice", "custom", "Choose a name yourself", false, new DiscordComponentEmoji("🟣"))
-                        }, minOptions:1, maxOptions: 1);*/
-                    // Funny new API change broke this amazing feature before it even was used.
-
-                    var textComponent = new TextInputComponent(
-                        "Choose a name",
-                        "customTextInput",
-                        "\"Bai Tosho\", \"Slavi Trifonov\" or a custom name.", "", min_length: 5, max_length: 20,
-                        style: TextInputStyle.Short, required: true);
-                    const string qnaString =
-
-                        #region Q&A String
-
-                        "Before I start to answer questions I've thought over in my brain I want to tell you something.\n\n" +
-                        "The bot has a feature to change the languages if you'd like. You can change the guild's language or " +
-                        "your own language if you wanted to. I'm writing this in here because I don't think that many people " +
-                        "know about it. You can change your language using the /settings command.\n\n" +
-                        "Now starting with the imaginary Q&A.\n" +
-                        "Why are you making this change?\n" +
-                        "Because I think it's best for the bot to change every year and because some people missed the old name. " +
-                        "For those people, now's the chance for them to vote and choose the bot's name.\n\n" +
-                        "Why is this important?\n" +
-                        "Well you can choose how the bot can continue looking in the future. This won't change how it works.\n\n" +
-                        "Why didn't you make it a drop-down menu, instead of having us select the box.\n" +
-                        "OK, that's a good question. Because a recent Discord API change removed the ability for bots to add " +
-                        "select components to the modal you're currently entering. The funny thing is that the code for this " +
-                        "feature to work on this bot is already there, but Discord doesn't allow me to use it.\n\n" +
-                        "Do you honestly think that someone will read this Q&A?\n" +
-                        "Well I know that at least one or two people will read it (I think)...\n\n" +
-                        "Will you ever end the support of this bot?\n" +
-                        "I think I will continue developing this bot until I get a well paying job, " +
-                        "or if someone from the copyright department came knocking on my apartment's door with a leg. " +
-                        "Until then you can stay still and know that I'll keep an eye on it.\n\n" +
-                        "Will you read this box if I changed it?\n" +
-                        "No. I will only look at the results of the vote alone.\n\n" +
-                        "Is this anonymous?\n" +
-                        "As much as I've wanted to make this anonymous, I can't, because I can't know whether one person " +
-                        "has submitted 20 different answers swaying the scale, so I tied the votes to your Discord profile ID. " +
-                        "(it's just a nubmer. I can't know who you are, unless I want to bother myself with useless stuff.)";
-
-                    #endregion
-
-                    var qna = new TextInputComponent(
-                        "Q&A",
-                        "qna",
-                        "Why did you even bother deleting this...", qnaString, style: TextInputStyle.Paragraph,
-                        required: false);
-
-                    responseBuilder.AddComponents(new List<DiscordActionRowComponent>
-                    {
-                        new(new[] {textComponent}),
-                        new(new[] {qna})
-                        //new(new[] {selectComponent})
-                    });
-
-                    await eventArgs.Interaction.CreateResponseAsync(InteractionResponseType.Modal, responseBuilder);
-                    return;
-                }
-
                 await eventArgs.Interaction.CreateResponseAsync(InteractionResponseType.DeferredMessageUpdate);
 
                 Player pl;

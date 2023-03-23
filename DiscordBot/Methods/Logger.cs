@@ -48,7 +48,7 @@ namespace DiscordBot.Methods
         public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception? exception,
             Func<TState, Exception?, string> formatter)
         {
-            if (!Bot.DebugMode && !Enabled) return;
+            if (!Enabled) return;
             if (!IsEnabled(logLevel)) return;
             if (formatter(state, exception).ToLower().Contains("event handler")) return;
             var task = new Task(async () =>
