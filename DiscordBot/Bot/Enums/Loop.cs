@@ -1,9 +1,8 @@
-namespace DiscordBot.Enums
+namespace DiscordBot.Enums;
+
+public enum Loop
 {
-    public enum Loop
-    {
-        None,
-        WholeQueue,
-        One
-    }
+    None,
+    WholeQueue,
+    One
 }

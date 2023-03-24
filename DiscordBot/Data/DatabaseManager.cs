@@ -8,130 +8,129 @@ using System.Timers;
 using DiscordBot.Data.Models;
 using DiscordBot.Methods;
 
-namespace DiscordBot.Data
+namespace DiscordBot.Data;
+
+public class DatabaseManager<T> where T : Model<T>
 {
-    public class DatabaseManager<T> where T : Model<T>
+    private readonly string FileLocation;
+    private readonly object LockObject = new();
+    private readonly string ObjectName;
+    private readonly Timer SaveTimer = new();
+    private bool Modified;
+
+    public DatabaseManager()
     {
-        private readonly string FileLocation;
-        private readonly object LockObject = new();
-        private readonly string ObjectName;
-        private readonly Timer SaveTimer = new();
-        private bool Modified;
+        SaveTimer.Elapsed += ElapsedEvent;
+        SaveTimer.Interval = 300000; // ms | 5 Minutes
+        SaveTimer.Start();
+        var type = typeof(T);
+        var name = type.Name;
+        ObjectName = name.Length > 5 && name[^5..] is "Model" or "model" ? name[..^5] : name;
+        FileLocation = $"{Bot.WorkingDirectory}/Databases/{ObjectName}.json";
+    }
 
-        public DatabaseManager()
+    private List<T> Data { get; set; } = new();
+    private FileStream? FileStream { get; set; }
+
+    private void ElapsedEvent(object? sender, ElapsedEventArgs e)
+    {
+        if (!Modified) return;
+        if (Bot.DebugMode) Debug.Write($"Saving \"{ObjectName}\" database.");
+        SaveToFile();
+    }
+
+    public void ReadDatabase()
+    {
+        if (!File.Exists(FileLocation))
+            SaveToFile(Enumerable.Empty<T>().ToList());
+        ReadFile();
+        CallLoadedMethod();
+    }
+
+    private void CallLoadedMethod()
+    {
+        var copy = Data.ToList();
+
+        foreach (var item in copy) item.OnLoaded();
+    }
+
+    protected void ModifiedAction()
+    {
+        Modified = true;
+    }
+
+    public T? Read(T searchData)
+    {
+        T? data;
+        lock (Data)
         {
-            SaveTimer.Elapsed += ElapsedEvent;
-            SaveTimer.Interval = 300000; // ms | 5 Minutes
-            SaveTimer.Start();
-            var type = typeof(T);
-            var name = type.Name;
-            ObjectName = name.Length > 5 && name[^5..] is "Model" or "model" ? name[..^5] : name;
-            FileLocation = $"{Bot.WorkingDirectory}/Databases/{ObjectName}.json";
+            data = searchData.SearchFrom(Data); // This makes me go over the rainbow.
         }
 
-        private List<T> Data { get; set; } = new();
-        private FileStream? FileStream { get; set; }
+        if (data != null) data.SetModified = ModifiedAction;
+        return data;
+    }
 
-        private void ElapsedEvent(object? sender, ElapsedEventArgs e)
+    public List<T> ReadCopy()
+    {
+        lock (Data)
         {
-            if (!Modified) return;
-            if (Bot.DebugMode) Debug.Write($"Saving \"{ObjectName}\" database.");
-            SaveToFile();
+            return Data.ToList();
         }
+    }
 
-        public void ReadDatabase()
+    public T Add(T addModel)
+    {
+        lock (Data)
         {
-            if (!File.Exists(FileLocation))
-                SaveToFile(Enumerable.Empty<T>().ToList());
-            ReadFile();
-            CallLoadedMethod();
-        }
-
-        private void CallLoadedMethod()
-        {
-            var copy = Data.ToList();
-
-            foreach (var item in copy) item.OnLoaded();
-        }
-
-        protected void ModifiedAction()
-        {
+            if (Data.Count == 0) ReadDatabase();
+            Data.Add(addModel);
             Modified = true;
         }
 
-        public T? Read(T searchData)
+        addModel.SetModified = ModifiedAction;
+        return addModel;
+    }
+
+    private void ReadFile()
+    {
+        lock (LockObject)
         {
-            T? data;
-            lock (Data)
+            try
             {
-                data = searchData.SearchFrom(Data); // This makes me go over the rainbow.
+                FileStream = File.Open(FileLocation, FileMode.Open);
+                Data = JsonSerializer.Deserialize<List<T>>(FileStream) ?? Enumerable.Empty<T>().ToList();
+                FileStream.Close();
             }
-
-            if (data != null) data.SetModified = ModifiedAction;
-            return data;
-        }
-
-        public List<T> ReadCopy()
-        {
-            lock (Data)
+            catch (Exception e)
             {
-                return Data.ToList();
-            }
-        }
-
-        public T Add(T addModel)
-        {
-            lock (Data)
-            {
-                if (Data.Count == 0) ReadDatabase();
-                Data.Add(addModel);
-                Modified = true;
-            }
-
-            addModel.SetModified = ModifiedAction;
-            return addModel;
-        }
-
-        private void ReadFile()
-        {
-            lock (LockObject)
-            {
-                try
-                {
-                    FileStream = File.Open(FileLocation, FileMode.Open);
-                    Data = JsonSerializer.Deserialize<List<T>>(FileStream) ?? Enumerable.Empty<T>().ToList();
-                    FileStream.Close();
-                }
-                catch (Exception e)
-                {
-                    Debug.Write($"Failed to update database file \"{ObjectName}.json\": \"{e}\"");
-                }
+                Debug.Write($"Failed to update database file \"{ObjectName}.json\": \"{e}\"");
             }
         }
+    }
 
-        public void SaveToFile()
+    public void SaveToFile()
+    {
+        lock (Data)
         {
-            lock (Data)
-            {
-                var copy = Data.ToList();
-                SaveToFile(copy);
-            }
+            var copy = Data.ToList();
+            SaveToFile(copy);
         }
+    }
 
-        private void SaveToFile(List<T> data)
+    private void SaveToFile(List<T> data)
+    {
+        lock (FileStream ?? new object())
         {
-            lock (FileStream ?? new object())
+            try
             {
-                try
-                {
-                    FileStream = File.Open(FileLocation, FileMode.Create);
-                    JsonSerializer.Serialize(FileStream, data);
-                    FileStream.Close();
-                }
-                catch (Exception e)
-                {
-                    Debug.Write($"Failed to update database file \"{ObjectName}\": \"{e}\"");
-                }
+                FileStream = File.Open(FileLocation, FileMode.Create);
+                JsonSerializer.Serialize(FileStream, data);
+                FileStream.Close();
+            }
+            catch (Exception e)
+            {
+                Debug.Write($"Failed to update database file \"{ObjectName}\": \"{e}\"");
             }
         }
     }

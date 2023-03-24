@@ -1,30 +1,29 @@
 using DiscordBot.Objects;
 
-namespace DiscordBot.Abstract.Errors
+namespace DiscordBot.Abstract.Errors;
+
+public enum PlaylistManagerErrorType
 {
-    public enum PlaylistManagerErrorType
+    InvalidUrl,
+    InvalidRequest,
+    NotFound
+}
+
+public class PlaylistManagerError : Error
+{
+    private readonly PlaylistManagerErrorType _errorType;
+
+    public PlaylistManagerError(PlaylistManagerErrorType errorType)
     {
-        InvalidUrl,
-        InvalidRequest,
-        NotFound
+        _errorType = errorType;
     }
 
-    public class PlaylistManagerError : Error
+    public override string Stringify(ILanguage language)
     {
-        private readonly PlaylistManagerErrorType _errorType;
-
-        public PlaylistManagerError(PlaylistManagerErrorType errorType)
+        return language switch
         {
-            _errorType = errorType;
-        }
-
-        public override string Stringify(ILanguage language)
-        {
-            return language switch
-            {
-                Bulgarian => $"Зареждане на списък завърши с грешка: \'{_errorType}\'",
-                _ => $"Loading playlist failed with code: \'{_errorType}\'"
-            };
-        }
+            Bulgarian => $"Зареждане на списък завърши с грешка: \'{_errorType}\'",
+            _ => $"Loading playlist failed with code: \'{_errorType}\'"
+        };
     }
 }

@@ -1,11 +1,10 @@
 using System;
 
-namespace DiscordBot.Abstract
+namespace DiscordBot.Abstract;
+
+public class InvalidResultAccessException : Exception
 {
-    public class InvalidResultAccessException : Exception
+    public InvalidResultAccessException(string message) : base(message)
     {
-        public InvalidResultAccessException(string message) : base(message)
-        {
-        }
     }
 }

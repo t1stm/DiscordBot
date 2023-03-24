@@ -1,8 +1,7 @@
-namespace DiscordBot.Enums
+namespace DiscordBot.Enums;
+
+public enum ImageTypes
 {
-    public enum ImageTypes
-    {
-        Dick,
-        Monke
-    }
+    Dick,
+    Monke
 }

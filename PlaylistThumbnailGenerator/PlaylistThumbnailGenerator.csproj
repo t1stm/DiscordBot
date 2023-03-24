@@ -8,26 +8,26 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <PackageReference Include="Magick.NET-Q8-AnyCPU" Version="12.3.0" />
+        <PackageReference Include="Magick.NET-Q8-AnyCPU" Version="12.3.0"/>
     </ItemGroup>
 
     <ItemGroup>
-      <None Remove="RobotoSlab.ttf" />
-      <Content Include="RobotoSlab.ttf">
-        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-      </Content>
-      <None Remove="NoGuildImage.png" />
-      <Content Include="NoGuildImage.png">
-        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-      </Content>
-      <None Remove="PlaylistImageGradient.png" />
-      <Content Include="PlaylistImageGradient.png">
-        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-      </Content>
+        <None Remove="RobotoSlab.ttf"/>
+        <Content Include="RobotoSlab.ttf">
+            <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+        </Content>
+        <None Remove="NoGuildImage.png"/>
+        <Content Include="NoGuildImage.png">
+            <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+        </Content>
+        <None Remove="PlaylistImageGradient.png"/>
+        <Content Include="PlaylistImageGradient.png">
+            <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+        </Content>
     </ItemGroup>
-    
+
     <ItemGroup>
-        <ProjectReference Include="../CustomPlaylistFormat/CustomPlaylistFormat.csproj" />
+        <ProjectReference Include="../CustomPlaylistFormat/CustomPlaylistFormat.csproj"/>
     </ItemGroup>
 
 </Project>

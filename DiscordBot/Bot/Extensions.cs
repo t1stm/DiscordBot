@@ -1,13 +1,12 @@
+#nullable enable
 using System;
 
-#nullable enable
-namespace DiscordBot
+namespace DiscordBot;
+
+public static class Extensions
 {
-    public static class Extensions
+    public static T ThrowIfNull<T>(this T? obj)
     {
-        public static T ThrowIfNull<T>(this T? obj)
-        {
-            return obj ?? throw new Exception("The variable is null.");
-        }
+        return obj ?? throw new Exception("The variable is null.");
     }
 }

@@ -5,99 +5,98 @@ using System.Threading.Tasks;
 using DiscordBot.Abstract;
 using Debug = DiscordBot.Methods.Debug;
 
-namespace DiscordBot.Audio.Objects
+namespace DiscordBot.Audio.Objects;
+
+public class TwitchLiveStream : PlayableItem
 {
-    public class TwitchLiveStream : PlayableItem
+    private new string Title { get; set; } = "";
+
+    private new string Location { get; set; }
+
+    private bool Running { get; set; }
+
+    public string Url { get; init; }
+
+    public override string GetName(bool settingsShowOriginalInfo = false)
     {
-        private new string Title { get; set; } = "";
+        return Title == "" ? Url : Title;
+    }
 
-        private new string Location { get; set; }
+    public override ulong GetLength()
+    {
+        return 0;
+    }
 
-        private bool Running { get; set; }
+    public override string GetLocation()
+    {
+        if (!string.IsNullOrEmpty(Location)) return Location;
+        var task = new Task(async () => await GetAudioData());
+        task.Start();
+        task.Wait();
+        return Location;
+    }
 
-        public string Url { get; init; }
-
-        public override string GetName(bool settingsShowOriginalInfo = false)
+    public override async Task ProcessInfo()
+    {
+        try
         {
-            return Title == "" ? Url : Title;
-        }
-
-        public override ulong GetLength()
-        {
-            return 0;
-        }
-
-        public override string GetLocation()
-        {
-            if (!string.IsNullOrEmpty(Location)) return Location;
-            var task = new Task(async () => await GetAudioData());
-            task.Start();
-            task.Wait();
-            return Location;
-        }
-
-        public override async Task ProcessInfo()
-        {
-            try
+            if (Running)
             {
-                if (Running)
-                {
-                    while (Running) await Task.Delay(166);
-                    return;
-                }
-
-                Running = true;
-                var dlp = new ProcessStartInfo
-                {
-                    RedirectStandardOutput = true,
-                    RedirectStandardError = true,
-                    Arguments =
-                        $"-e --get-description -g -f bestaudio {Url}",
-                    FileName = "yt-dlp"
-                };
-                var pr = Process.Start(dlp);
-                if (pr == null)
-                {
-                    Errored = true;
-                    return;
-                }
-
-                await pr.WaitForExitAsync();
-                await Debug.WriteAsync($"Url: \"{Url}\"");
-                var text = await pr.StandardOutput.ReadToEndAsync();
-                var spl = text.Split("\n");
-                Location = spl[1];
-                Title = spl[2];
-
-                Running = false;
-                Processed = true;
+                while (Running) await Task.Delay(166);
+                return;
             }
-            catch (Exception e)
+
+            Running = true;
+            var dlp = new ProcessStartInfo
             {
-                await Debug.WriteAsync($"Twitch Content finding URL failed: \"{e.Message}\"");
+                RedirectStandardOutput = true,
+                RedirectStandardError = true,
+                Arguments =
+                    $"-e --get-description -g -f bestaudio {Url}",
+                FileName = "yt-dlp"
+            };
+            var pr = Process.Start(dlp);
+            if (pr == null)
+            {
                 Errored = true;
+                return;
             }
-        }
 
-        public override async Task<bool> GetAudioData(params Stream[] outputs)
-        {
-            if (Location == null) await ProcessInfo();
-            return true;
-        }
+            await pr.WaitForExitAsync();
+            await Debug.WriteAsync($"Url: \"{Url}\"");
+            var text = await pr.StandardOutput.ReadToEndAsync();
+            var spl = text.Split("\n");
+            Location = spl[1];
+            Title = spl[2];
 
-        public override string GetId()
-        {
-            return "";
+            Running = false;
+            Processed = true;
         }
+        catch (Exception e)
+        {
+            await Debug.WriteAsync($"Twitch Content finding URL failed: \"{e.Message}\"");
+            Errored = true;
+        }
+    }
 
-        public override string GetThumbnailUrl()
-        {
-            return null;
-        }
+    public override async Task<bool> GetAudioData(params Stream[] outputs)
+    {
+        if (Location == null) await ProcessInfo();
+        return true;
+    }
 
-        public override string GetAddUrl()
-        {
-            return $"twitch://{Url}";
-        }
+    public override string GetId()
+    {
+        return "";
+    }
+
+    public override string GetThumbnailUrl()
+    {
+        return null;
+    }
+
+    public override string GetAddUrl()
+    {
+        return $"twitch://{Url}";
     }
 }

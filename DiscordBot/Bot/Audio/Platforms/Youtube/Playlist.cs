@@ -9,39 +9,38 @@ using DiscordBot.Audio.Objects;
 using YoutubeExplode;
 using YoutubeExplode.Common;
 
-namespace DiscordBot.Audio.Platforms.Youtube
+namespace DiscordBot.Audio.Platforms.Youtube;
+
+public static class Playlist
 {
-    public static class Playlist
+    public static async Task<Result<List<PlayableItem>, Error>> Get(string url)
     {
-        public static async Task<Result<List<PlayableItem>, Error>> Get(string url)
+        try
         {
-            try
-            {
-                var playlist = await new YoutubeClient().Playlists.GetVideosAsync(FixPlaylistUrl(url));
+            var playlist = await new YoutubeClient().Playlists.GetVideosAsync(FixPlaylistUrl(url));
 
-                var list = (from video in playlist
-                        where video.Duration?.TotalMilliseconds != null
-                        select new YoutubeVideoInformation
-                        {
-                            Title = video.Title,
-                            Author = video.Author.ChannelTitle,
-                            Length = (ulong) (video.Duration?.TotalMilliseconds ?? 0),
-                            ThumbnailUrl = video.Thumbnails[0].Url,
-                            YoutubeId = video.Id
-                        }).Cast<PlayableItem>()
-                    .ToList();
+            var list = (from video in playlist
+                    where video.Duration?.TotalMilliseconds != null
+                    select new YoutubeVideoInformation
+                    {
+                        Title = video.Title,
+                        Author = video.Author.ChannelTitle,
+                        Length = (ulong)(video.Duration?.TotalMilliseconds ?? 0),
+                        ThumbnailUrl = video.Thumbnails[0].Url,
+                        YoutubeId = video.Id
+                    }).Cast<PlayableItem>()
+                .ToList();
 
-                return Result<List<PlayableItem>, Error>.Success(list);
-            }
-            catch (Exception)
-            {
-                return Result<List<PlayableItem>, Error>.Error(new UnknownError());
-            }
+            return Result<List<PlayableItem>, Error>.Success(list);
         }
-
-        private static string FixPlaylistUrl(string url)
+        catch (Exception)
         {
-            return url.Split("playlist?list=").Last().Split("&")[0];
+            return Result<List<PlayableItem>, Error>.Error(new UnknownError());
         }
+    }
+
+    private static string FixPlaylistUrl(string url)
+    {
+        return url.Split("playlist?list=").Last().Split("&")[0];
     }
 }

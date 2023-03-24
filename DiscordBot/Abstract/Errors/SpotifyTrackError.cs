@@ -1,16 +1,15 @@
 using DiscordBot.Objects;
 
-namespace DiscordBot.Abstract.Errors
+namespace DiscordBot.Abstract.Errors;
+
+public class SpotifyTrackError : Error
 {
-    public class SpotifyTrackError : Error
+    public override string Stringify(ILanguage language)
     {
-        public override string Stringify(ILanguage language)
+        return language switch
         {
-            return language switch
-            {
-                Bulgarian => "Неуспешно зареждане на Spotify песен.",
-                _ => "Unable to load Spotify song."
-            };
-        }
+            Bulgarian => "Неуспешно зареждане на Spotify песен.",
+            _ => "Unable to load Spotify song."
+        };
     }
 }

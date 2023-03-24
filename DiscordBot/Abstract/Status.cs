@@ -1,8 +1,7 @@
-namespace DiscordBot.Abstract
+namespace DiscordBot.Abstract;
+
+public enum Status
 {
-    public enum Status
-    {
-        OK,
-        Error
-    }
+    OK,
+    Error
 }

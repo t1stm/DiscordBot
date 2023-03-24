@@ -1,7 +1,6 @@
-namespace DiscordBot.Abstract
+namespace DiscordBot.Abstract;
+
+public struct Empty
 {
-    public struct Empty
-    {
-        // This is here to imitate () in Rust.
-    }
+    // This is here to imitate () in Rust.
 }

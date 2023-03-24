@@ -1,16 +1,15 @@
 using DiscordBot.Objects;
 
-namespace DiscordBot.Abstract.Errors
+namespace DiscordBot.Abstract.Errors;
+
+public class NoResultsError : Error
 {
-    public class NoResultsError : Error
+    public override string Stringify(ILanguage language)
     {
-        public override string Stringify(ILanguage language)
+        return language switch
         {
-            return language switch
-            {
-                Bulgarian => "Не бяха намерени резултати.",
-                _ => "No results were found."
-            };
-        }
+            Bulgarian => "Не бяха намерени резултати.",
+            _ => "No results were found."
+        };
     }
 }

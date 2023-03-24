@@ -1,9 +1,8 @@
 using DiscordBot.Objects;
 
-namespace DiscordBot.Abstract.Errors
+namespace DiscordBot.Abstract.Errors;
+
+public abstract class Error
 {
-    public abstract class Error
-    {
-        public abstract string Stringify(ILanguage language);
-    }
+    public abstract string Stringify(ILanguage language);
 }

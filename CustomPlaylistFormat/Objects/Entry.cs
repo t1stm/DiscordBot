@@ -1,9 +1,8 @@
-namespace CustomPlaylistFormat.Objects
+namespace CustomPlaylistFormat.Objects;
+
+public struct Entry
 {
-    public struct Entry
-    {
-        public byte Type { get; set; }
-        public string Data { get; set; }
-        public string Name { get; set; }
-    }
+    public byte Type { get; set; }
+    public string Data { get; set; }
+    public string Name { get; set; }
 }

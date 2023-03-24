@@ -1,10 +1,9 @@
-namespace DiscordBot.Enums
+namespace DiscordBot.Enums;
+
+public enum StatusbarMode
 {
-    public enum StatusbarMode
-    {
-        Stopped,
-        Playing,
-        Waiting,
-        Message
-    }
+    Stopped,
+    Playing,
+    Waiting,
+    Message
 }

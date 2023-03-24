@@ -6,79 +6,78 @@ using DiscordBot.Methods;
 using TagLib;
 using File = TagLib.File;
 
-namespace DiscordBot.Audio.Objects
+namespace DiscordBot.Audio.Objects;
+
+public class SystemFile : PlayableItem
 {
-    public class SystemFile : PlayableItem
+    public bool IsDiscordAttachment { get; init; }
+    public ulong Guild { get; init; }
+
+    public override string GetThumbnailUrl()
     {
-        public bool IsDiscordAttachment { get; init; }
-        public ulong Guild { get; init; }
+        return "";
+    }
 
-        public override string GetThumbnailUrl()
+    public override string GetLocation()
+    {
+        return IsDiscordAttachment
+            ? $"{Bot.WorkingDirectory}/dll/Discord Attachments/{Guild}/{Location}"
+            : base.GetLocation();
+    }
+
+    public override string GetAddUrl()
+    {
+        return IsDiscordAttachment switch
         {
-            return "";
+            true => $"dis-att://{Guild}-{Location}",
+            false => $"file://{Location}"
+        };
+    }
+
+    public override ulong GetLength()
+    {
+        return Length == default ? 0 : Length;
+    }
+
+    public override Task ProcessInfo()
+    {
+        if (Processed) return Task.CompletedTask;
+        Processed = true;
+        try
+        {
+            var info = File.Create(GetLocation());
+            Length = (ulong)info.Properties.Duration.TotalMilliseconds + 0;
+            var tag = info.GetTag(TagTypes.AllTags);
+            if (tag == null) return Task.CompletedTask;
+            Title = string.IsNullOrEmpty(tag.Title) ? Title : tag.Title;
+            Author = string.IsNullOrEmpty(tag.JoinedPerformers) ? Author : tag.JoinedPerformers;
+        }
+        catch
+        {
+            // Ignored
         }
 
-        public override string GetLocation()
-        {
-            return IsDiscordAttachment
-                ? $"{Bot.WorkingDirectory}/dll/Discord Attachments/{Guild}/{Location}"
-                : base.GetLocation();
-        }
+        return Task.CompletedTask;
+    }
 
-        public override string GetAddUrl()
+    public override async Task<bool> GetAudioData(params Stream[] outputs)
+    {
+        try
         {
-            return IsDiscordAttachment switch
-            {
-                true => $"dis-att://{Guild}-{Location}",
-                false => $"file://{Location}"
-            };
+            if (!System.IO.File.Exists(GetLocation())) return false;
+            var file = System.IO.File.OpenRead(GetLocation());
+            foreach (var stream in outputs) await file.CopyToAsync(stream);
+            return true;
         }
-
-        public override ulong GetLength()
+        catch (Exception e)
         {
-            return Length == default ? 0 : Length;
+            await Debug.WriteAsync($"OnlineFile GetAudioData method failed: \"{e}\"");
+            return false;
         }
+    }
 
-        public override Task ProcessInfo()
-        {
-            if (Processed) return Task.CompletedTask;
-            Processed = true;
-            try
-            {
-                var info = File.Create(GetLocation());
-                Length = (ulong) info.Properties.Duration.TotalMilliseconds + 0;
-                var tag = info.GetTag(TagTypes.AllTags);
-                if (tag == null) return Task.CompletedTask;
-                Title = string.IsNullOrEmpty(tag.Title) ? Title : tag.Title;
-                Author = string.IsNullOrEmpty(tag.JoinedPerformers) ? Author : tag.JoinedPerformers;
-            }
-            catch
-            {
-                // Ignored
-            }
-
-            return Task.CompletedTask;
-        }
-
-        public override async Task<bool> GetAudioData(params Stream[] outputs)
-        {
-            try
-            {
-                if (!System.IO.File.Exists(GetLocation())) return false;
-                var file = System.IO.File.OpenRead(GetLocation());
-                foreach (var stream in outputs) await file.CopyToAsync(stream);
-                return true;
-            }
-            catch (Exception e)
-            {
-                await Debug.WriteAsync($"OnlineFile GetAudioData method failed: \"{e}\"");
-                return false;
-            }
-        }
-
-        public override string GetId()
-        {
-            return "";
-        }
+    public override string GetId()
+    {
+        return "";
     }
 }

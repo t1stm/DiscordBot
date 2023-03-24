@@ -4,23 +4,23 @@ using CustomPlaylistFormat.Objects;
 using DiscordBot.Abstract;
 using DiscordBot.Audio.Platforms;
 
-namespace DiscordBot.Playlists
+namespace DiscordBot.Playlists;
+
+public static class PlaylistPageGenerator
 {
-    public static class PlaylistPageGenerator
+    public static async Task<string> GenerateNormalPage(Playlist playlist)
     {
-        public static async Task<string> GenerateNormalPage(Playlist playlist)
-        {
-            var name = playlist.Info?.Name;
-            var description = playlist.Info?.Description;
-            var guid = playlist.Info?.Guid.ToString();
-            var maker = playlist.Info?.Maker;
-            var pageTitle = $"\'{name}\' \nMade by: \'{maker}'";
-            var image = $"https://playlists.{Bot.MainDomain}/Image/{guid}";
-            var value =
+        var name = playlist.Info?.Name;
+        var description = playlist.Info?.Description;
+        var guid = playlist.Info?.Guid.ToString();
+        var maker = playlist.Info?.Maker;
+        var pageTitle = $"\'{name}\' \nMade by: \'{maker}'";
+        var image = $"https://playlists.{Bot.MainDomain}/Image/{guid}";
+        var value =
 
-                #region HTML Boilerplate
+            #region HTML Boilerplate
 
-                $@"<!DOCTYPE html>
+            $@"<!DOCTYPE html>
 <html lang=""en"">
 <head>
 <meta charset=""UTF-8"">
@@ -283,32 +283,32 @@ namespace DiscordBot.Playlists
     <ul id=""playlist"">
 ";
 
-            #endregion
+        #endregion
 
-            if (playlist.PlaylistItems != null)
-                foreach (var entry in playlist.PlaylistItems)
-                {
-                    var video = $"{PlaylistManager.ItemTypeToString(entry.Type)}://{entry.Data}";
-                    var search = await Search.Get(video);
-                    if (search != Status.OK) continue;
-                    var result = search.GetOK().First();
-                    value += $@"<li class=""playlistItem"">
+        if (playlist.PlaylistItems != null)
+            foreach (var entry in playlist.PlaylistItems)
+            {
+                var video = $"{PlaylistManager.ItemTypeToString(entry.Type)}://{entry.Data}";
+                var search = await Search.Get(video);
+                if (search != Status.OK) continue;
+                var result = search.GetOK().First();
+                value += $@"<li class=""playlistItem"">
             <img src=""{(string.IsNullOrEmpty(result?.GetThumbnailUrl()) ? $"https://{Bot.MainDomain}/WebUi/NoVideoImage.png" : result.GetThumbnailUrl())}"" alt=""Item Image"">
             <div class=""info"">
                 <p class=""playlistItemTitle"">{result?.GetTitle()}</p>
                 <p class=""playlistItemAuthor"">{result?.GetAuthor()}</p>
             </div>
         </li>";
-                }
+            }
 
-            value += "</ul>\n</div>\n<div id=\"bkg\"></div>\n</body>\n</html>";
+        value += "</ul>\n</div>\n<div id=\"bkg\"></div>\n</body>\n</html>";
 
-            return value;
-        }
+        return value;
+    }
 
-        public static string GenerateNotFoundPage()
-        {
-            var value = $@"<!DOCTYPE html>
+    public static string GenerateNotFoundPage()
+    {
+        var value = $@"<!DOCTYPE html>
 <html lang=""en"">
 <head>
     <meta charset=""UTF-8"">
@@ -390,7 +390,6 @@ namespace DiscordBot.Playlists
 </body>
 </html>";
 
-            return value;
-        }
+        return value;
     }
 }

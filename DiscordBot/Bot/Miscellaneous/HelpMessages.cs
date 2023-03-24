@@ -1,11 +1,11 @@
-namespace DiscordBot.Miscellaneous
-{
-    public static class HelpMessages
-    {
-        #region Home Command
+namespace DiscordBot.Miscellaneous;
 
-        private const string HomeHelp =
-            @"These are all the commands this bot has to offer. In some commands n and m are places of an item.
+public static class HelpMessages
+{
+    #region Home Command
+
+    private const string HomeHelp =
+        @"These are all the commands this bot has to offer. In some commands n and m are places of an item.
 `-help play`
 If you want to see more information regarding a command you can specify the command which you want to know about, like for example it's prefixes or some complex behavior.
 You can replace the - with = or /
@@ -47,78 +47,78 @@ This command sends a meme from the collection at my website.
 This command saves a playlist which you can use to resume your session.
 ";
 
-        #endregion
+    #endregion
 
-        public static string GetMessage(string category)
+    public static string GetMessage(string category)
+    {
+        return category switch
         {
-            return category switch
-            {
-                "home" => HomeHelp,
-                "play" or "p" => PlayCommand,
-                "playnext" or "pn" => PlayNextCommand,
-                "playselect" or "ps" => PlaySelectCommand,
-                "skip" => SkipCommand,
-                "leave" or "l" => LeaveCommand,
-                "back" => BackCommand,
-                "shuffle" => ShuffleCommand,
-                "loop" => LoopCommand,
-                "pause" => PauseCommand,
-                "remove" or "rm" or "r" => RemoveCommand,
-                "move" or "mv" => MoveCommand,
-                "list" or "queue" => ListCommand,
-                "clear" => ClearCommand,
-                "webui" or "getwebui" or "wu" => GetWebUiCommand,
-                "goto" or "go" => GoToCommand,
-                "saveplaylist" or "savequeue" or "sq" or "sp" => SavePlaylistCommand,
-                "lyrics" => LyricsCommand,
-                "getavatar" => GetAvatarCommand,
-                "meme" => MemeCommand,
-                "plsfix" => PlsFixCommand,
-                _ => null
-            };
-        }
+            "home" => HomeHelp,
+            "play" or "p" => PlayCommand,
+            "playnext" or "pn" => PlayNextCommand,
+            "playselect" or "ps" => PlaySelectCommand,
+            "skip" => SkipCommand,
+            "leave" or "l" => LeaveCommand,
+            "back" => BackCommand,
+            "shuffle" => ShuffleCommand,
+            "loop" => LoopCommand,
+            "pause" => PauseCommand,
+            "remove" or "rm" or "r" => RemoveCommand,
+            "move" or "mv" => MoveCommand,
+            "list" or "queue" => ListCommand,
+            "clear" => ClearCommand,
+            "webui" or "getwebui" or "wu" => GetWebUiCommand,
+            "goto" or "go" => GoToCommand,
+            "saveplaylist" or "savequeue" or "sq" or "sp" => SavePlaylistCommand,
+            "lyrics" => LyricsCommand,
+            "getavatar" => GetAvatarCommand,
+            "meme" => MemeCommand,
+            "plsfix" => PlsFixCommand,
+            _ => null
+        };
+    }
 
-        #region Other Commands
+    #region Other Commands
 
-        private const string GetAvatarCommand = @"`-getavatar @SomeUser`
+    private const string GetAvatarCommand = @"`-getavatar @SomeUser`
 This command sends the specified user's avatar.";
 
-        private const string MemeCommand = @"`-meme`
+    private const string MemeCommand = @"`-meme`
 This command sends a meme from the site's meme page.";
 
-        #endregion
+    #endregion
 
-        #region Play Commands
+    #region Play Commands
 
-        private const string PlayCommand = @"`-play search term or link here` Aliases: `-p` `-п` `-плаъ`
+    private const string PlayCommand = @"`-play search term or link here` Aliases: `-p` `-п` `-плаъ`
 This is the play command. There is not much to explain for this command. You enter what you want to play, and if it exists on YouTube or is a Discord attachment or a link, the bot will play it.";
 
-        private const string PlayNextCommand =
-            @"`-playnext search term or link here` `-playnext n` Aliases: `-pn` `-плаън` `пн`
+    private const string PlayNextCommand =
+        @"`-playnext search term or link here` `-playnext n` Aliases: `-pn` `-плаън` `пн`
 Really there is not much to explain for this command. It behaves like the play command but instead of putting the video/song/playlist/album at the end of the queue, it puts it after the current track";
 
-        private const string PlaySelectCommand = @"`-playselect search term here` Aliases: `-ps`
+    private const string PlaySelectCommand = @"`-playselect search term here` Aliases: `-ps`
 This command lists all the results of the given search term and allows the sender to choose an item.";
 
-        #endregion
+    #endregion
 
-        #region Player Interactions
+    #region Player Interactions
 
-        private const string SkipCommand = @"`-skip` `-skip n` Aliases: `-next` `-скип` `-неьт` 
+    private const string SkipCommand = @"`-skip` `-skip n` Aliases: `-next` `-скип` `-неьт` 
 Pretty much everything was already explained. This command skips one time if a number isn't specified and skips n times if it is. You can also enter negative numbers, but there's no need because of the -back command";
 
-        private const string BackCommand =
-            @"`-back` `-back n` Aliases: `-previous` `-prev` `-бацк` `-прев` `-прежиоус` 
+    private const string BackCommand =
+        @"`-back` `-back n` Aliases: `-previous` `-prev` `-бацк` `-прев` `-прежиоус` 
 Pretty much everything was already explained. This command skips one time if a number isn't specified and skips n times if it is. You can also enter negative numbers, but there's no need because of the -back command";
 
-        private const string LeaveCommand =
-            @"`-leave` Aliases: `-l` `-stop` `-леаже` `-л` `-стоп` `-с` `-s` `-die` `-дие`
+    private const string LeaveCommand =
+        @"`-leave` Aliases: `-l` `-stop` `-леаже` `-л` `-стоп` `-с` `-s` `-die` `-дие`
 This is a self explanatory command, so I don't see any need in writing an explanation for it.";
 
-        private const string ShuffleCommand = @"`-shuffle` Aliases: `-rand` `-схуффле` `-ранд`
+    private const string ShuffleCommand = @"`-shuffle` Aliases: `-rand` `-схуффле` `-ранд`
 This command is also pretty self explanatory, I hope.";
 
-        private const string LoopCommand = @"`-loop` Aliases: `-лооп`
+    private const string LoopCommand = @"`-loop` Aliases: `-лооп`
 This command loops the queue. Let's dig into how the player works. 
 The player has three states when it comes to looping.
 1. None
@@ -127,34 +127,34 @@ The player has three states when it comes to looping.
 
 This command switches between them.";
 
-        private const string PauseCommand = @"`-pause` Aliases: `-паусе`
+    private const string PauseCommand = @"`-pause` Aliases: `-паусе`
 This command pauses the current track.";
 
-        private const string RemoveCommand =
-            @"`-remove n m x y z` `-remove Song - Author` Aliases: `-r` `-rm` `-реможе` `-рм` `-р`
+    private const string RemoveCommand =
+        @"`-remove n m x y z` `-remove Song - Author` Aliases: `-r` `-rm` `-реможе` `-рм` `-р`
 This command removes items from the queue. It can remove multiple items listed with spaces or commas or remove an item using it's name and author.";
 
-        private const string MoveCommand =
-            @"`-move n m` `-move Song1 - Author1 !to Song2 - Author2` Aliases: `-m` `-mv` `-м` `-мж` `-може`
+    private const string MoveCommand =
+        @"`-move n m` `-move Song1 - Author1 !to Song2 - Author2` Aliases: `-m` `-mv` `-м` `-мж` `-може`
 This command moves an item from its place to the specified place. If the other move format is used this command will swap the places of the two items which are specified, however this isn't very accurate, and won't work if there are multiple items which are the with the same title.";
 
-        private const string ListCommand = @"`-queue` Aliases: `-list` `-яуеуе` `-лист`
+    private const string ListCommand = @"`-queue` Aliases: `-list` `-яуеуе` `-лист`
 This command sends the current queue as a .txt file in order to avoid Discord's 2000 character limit. This shouldn't pose a problem, as the desktop version of Discord supports previewing .txt files. 
 To all mobile users, I am sorry, because it seems like Discord won't implement this feature soon,";
 
-        private const string ClearCommand = @"`-clear`
+    private const string ClearCommand = @"`-clear`
 This command clears the queue leaving only the currently playing song, or if waiting to disconnect: last song.";
 
-        private const string GetWebUiCommand =
-            @"`-getwebui` Aliases: `-webui` `-wu` `and their Bulgarian phonetic keyboard counterparts`
+    private const string GetWebUiCommand =
+        @"`-getwebui` Aliases: `-webui` `-wu` `and their Bulgarian phonetic keyboard counterparts`
 This command DM's you the token for the bot interface along with a qr code you can scan on your phone. The token is needed in order to not let trolls troll others.";
 
-        private const string GoToCommand =
-            @"`-goto n` Aliases: `go` `skipto` `гото` `го` `скипто`
+    private const string GoToCommand =
+        @"`-goto n` Aliases: `go` `skipto` `гото` `го` `скипто`
 This command is pretty self explanatory. It goes to the element which place on the queue is n.";
 
-        private const string SavePlaylistCommand =
-            @"`-saveplaylist` Aliases: `-savequeue` `-sq` `-sp` `-сажеяуеуе` `-сажеплаълист`
+    private const string SavePlaylistCommand =
+        @"`-saveplaylist` Aliases: `-savequeue` `-sq` `-sp` `-сажеяуеуе` `-сажеплаълист`
 This command saves the current queue using a file format which I created. When saving, the command will give you the instructions of how to use the playlist again. 
 For the fellow developers these next few lines will explain how the data is stored, if they want to use it for some reason, which I doubt but here I am writing about this.
 
@@ -165,12 +165,11 @@ After that until the next padding bytes (00,02) , it's pure data.
 For more information you can DM the developer on Discord. You can find him in the bot's support Discord Guild.
 ";
 
-        private const string LyricsCommand = @"`-lyrics` `-lyrics Song - Author`
+    private const string LyricsCommand = @"`-lyrics` `-lyrics Song - Author`
 This command is pretty well explained in the home page of the help command. It uses an API to search the lyrics, so it may not be as accurate as you're going to be when you search for them yourself.";
 
-        private const string PlsFixCommand = @"`-plsfix`
+    private const string PlsFixCommand = @"`-plsfix`
 This command makes you pray to the RNG gods, and if you recieve a blessing, the bot will restart the current item.";
 
-        #endregion
-    }
+    #endregion
 }

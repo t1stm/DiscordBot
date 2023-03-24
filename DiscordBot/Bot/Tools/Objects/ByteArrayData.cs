@@ -4,47 +4,46 @@ using System.Threading;
 using System.Threading.Tasks;
 using DiscordBot.Methods;
 
-namespace DiscordBot.Tools.Objects
+namespace DiscordBot.Tools.Objects;
+
+public class ByteArrayData : IWriteAction
 {
-    public class ByteArrayData : IWriteAction
+    private readonly int Count;
+    private readonly byte[] Data;
+    private readonly int Offset;
+
+    public ByteArrayData(byte[] data, int offset, int count)
     {
-        private readonly int Count;
-        private readonly byte[] Data;
-        private readonly int Offset;
+        Data = data;
+        Offset = offset;
+        Count = count;
+    }
 
-        public ByteArrayData(byte[] data, int offset, int count)
+    public void WriteToStream(Stream destination, CancellationToken? cancellationToken = null)
+    {
+        try
         {
-            Data = data;
-            Offset = offset;
-            Count = count;
+            if (destination.CanWrite && !(cancellationToken?.IsCancellationRequested ?? false))
+                destination.Write(Data, Offset, Count);
         }
-
-        public void WriteToStream(Stream destination, CancellationToken? cancellationToken = null)
+        catch (Exception e)
         {
-            try
-            {
-                if (destination.CanWrite && !(cancellationToken?.IsCancellationRequested ?? false))
-                    destination.Write(Data, Offset, Count);
-            }
-            catch (Exception e)
-            {
-                if (!(cancellationToken?.IsCancellationRequested ?? false))
-                    Debug.Write($"ByteArrayData WriteToStreamAsync failed: \"{e}\"");
-            }
+            if (!(cancellationToken?.IsCancellationRequested ?? false))
+                Debug.Write($"ByteArrayData WriteToStreamAsync failed: \"{e}\"");
         }
+    }
 
-        public async Task WriteToStreamAsync(Stream destination, CancellationToken? cancellationToken = null)
+    public async Task WriteToStreamAsync(Stream destination, CancellationToken? cancellationToken = null)
+    {
+        try
         {
-            try
-            {
-                if (destination.CanWrite && !(cancellationToken?.IsCancellationRequested ?? false))
-                    await destination.WriteAsync(Data, Offset, Count, cancellationToken ?? CancellationToken.None);
-            }
-            catch (Exception e)
-            {
-                if (!(cancellationToken?.IsCancellationRequested ?? false))
-                    await Debug.WriteAsync($"ByteArrayData WriteToStreamAsync failed: \"{e}\"");
-            }
+            if (destination.CanWrite && !(cancellationToken?.IsCancellationRequested ?? false))
+                await destination.WriteAsync(Data, Offset, Count, cancellationToken ?? CancellationToken.None);
+        }
+        catch (Exception e)
+        {
+            if (!(cancellationToken?.IsCancellationRequested ?? false))
+                await Debug.WriteAsync($"ByteArrayData WriteToStreamAsync failed: \"{e}\"");
         }
     }
 }

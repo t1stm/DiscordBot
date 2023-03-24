@@ -1,10 +1,9 @@
 #nullable enable
-namespace CustomPlaylistFormat.Objects
+namespace CustomPlaylistFormat.Objects;
+
+public struct Playlist
 {
-    public struct Playlist
-    {
-        public PlaylistInfo? Info;
-        public bool FailedToParse;
-        public Entry[]? PlaylistItems;
-    }
+    public PlaylistInfo? Info;
+    public bool FailedToParse;
+    public Entry[]? PlaylistItems;
 }

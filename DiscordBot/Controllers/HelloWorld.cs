@@ -1,14 +1,13 @@
 using System.Text.Encodings.Web;
 using Microsoft.AspNetCore.Mvc;
 
-namespace DiscordBot.Controllers
+namespace DiscordBot.Controllers;
+
+public class HelloWorld : Controller
 {
-    public class HelloWorld : Controller
+    // GET
+    public IActionResult Index()
     {
-        // GET
-        public IActionResult Index()
-        {
-            return Ok(HtmlEncoder.Default.Encode("Yes, yes, hello human."));
-        }
+        return Ok(HtmlEncoder.Default.Encode("Yes, yes, hello human."));
     }
 }

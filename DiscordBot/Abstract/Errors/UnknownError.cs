@@ -1,16 +1,15 @@
 using DiscordBot.Objects;
 
-namespace DiscordBot.Abstract.Errors
+namespace DiscordBot.Abstract.Errors;
+
+public class UnknownError : Error
 {
-    public class UnknownError : Error
+    public override string Stringify(ILanguage language)
     {
-        public override string Stringify(ILanguage language)
+        return language switch
         {
-            return language switch
-            {
-                Bulgarian => "Непозната грешка.",
-                _ => "Unknown error."
-            };
-        }
+            Bulgarian => "Непозната грешка.",
+            _ => "Unknown error."
+        };
     }
 }

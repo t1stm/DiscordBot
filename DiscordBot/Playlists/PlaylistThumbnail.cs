@@ -6,73 +6,72 @@ using CustomPlaylistFormat.Objects;
 using DiscordBot.Tools;
 using PlaylistThumbnailGenerator;
 
-namespace DiscordBot.Playlists
+namespace DiscordBot.Playlists;
+
+public static class PlaylistThumbnail
 {
-    public static class PlaylistThumbnail
+    public const string NotFoundImageFilename = "not-found";
+    public static readonly string WorkingDirectory = $"{PlaylistManager.PlaylistDirectory}/Thumbnails";
+
+    public static Stream NotFoundPlaylistImage =>
+        File.Open("./NoGuildImage.png", FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
+
+    private static PlaylistInfo NotFoundInfo => new()
     {
-        public const string NotFoundImageFilename = "not-found";
-        public static readonly string WorkingDirectory = $"{PlaylistManager.PlaylistDirectory}/Thumbnails";
+        Name = "Not found.",
+        Maker = "You?",
+        Description =
+            "The requested playlist wasn't found in the database. Please check the request or I'll kindly come knock on your house with an axe.",
+        Count = 0,
+        IsPublic = true
+    };
 
-        public static Stream NotFoundPlaylistImage =>
-            File.Open("./NoGuildImage.png", FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
+    public static Task<StreamSpreader?> GetNotFoundInfo(Stream destination)
+    {
+        return GetImage(NotFoundImageFilename, NotFoundInfo, false, destination);
+    }
 
-        private static PlaylistInfo NotFoundInfo => new()
+    public static async Task<StreamSpreader?> GetImage(string? id, PlaylistInfo info, bool overwrite,
+        Stream destination)
+    {
+        var filename = $"{WorkingDirectory}/{id ?? info.Guid.ToString()}.png";
+        if (File.Exists(filename) && !overwrite)
         {
-            Name = "Not found.",
-            Maker = "You?",
-            Description =
-                "The requested playlist wasn't found in the database. Please check the request or I'll kindly come knock on your house with an axe.",
-            Count = 0,
-            IsPublic = true
-        };
-
-        public static Task<StreamSpreader?> GetNotFoundInfo(Stream destination)
-        {
-            return GetImage(NotFoundImageFilename, NotFoundInfo, false, destination);
+            await using var file = File.Open(filename, FileMode.Open, FileAccess.ReadWrite, FileShare.ReadWrite);
+            await file.CopyToAsync(destination);
+            return null;
         }
 
-        public static async Task<StreamSpreader?> GetImage(string? id, PlaylistInfo info, bool overwrite,
-            Stream destination)
-        {
-            var filename = $"{WorkingDirectory}/{id ?? info.Guid.ToString()}.png";
-            if (File.Exists(filename) && !overwrite)
-            {
-                await using var file = File.Open(filename, FileMode.Open, FileAccess.ReadWrite, FileShare.ReadWrite);
-                await file.CopyToAsync(destination);
-                return null;
-            }
+        var newFile = File.Open(filename, FileMode.Create, FileAccess.ReadWrite, FileShare.ReadWrite);
+        var streamSpreader = new StreamSpreader(CancellationToken.None, newFile, destination);
+        var thumbnailGenerator = new Generator(streamSpreader, GetPlaylistImage(info));
+        await thumbnailGenerator.Generate(info);
+        return streamSpreader;
+    }
 
-            var newFile = File.Open(filename, FileMode.Create, FileAccess.ReadWrite, FileShare.ReadWrite);
-            var streamSpreader = new StreamSpreader(CancellationToken.None, newFile, destination);
-            var thumbnailGenerator = new Generator(streamSpreader, GetPlaylistImage(info));
-            await thumbnailGenerator.Generate(info);
-            return streamSpreader;
-        }
+    private static Stream GetPlaylistImage(PlaylistInfo info)
+    {
+        var path = $"{WorkingDirectory}/Thumbnail Images/{info.Guid}.png";
+        var exists = info.HasThumbnail && File.Exists(path);
+        // File.ReadAllBytesAsync("./NoGuildImage.png");
+        return exists
+            ? File.Open(path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite)
+            : NotFoundPlaylistImage;
+    }
 
-        private static Stream GetPlaylistImage(PlaylistInfo info)
-        {
-            string path = $"{WorkingDirectory}/Thumbnail Images/{info.Guid}.png";
-            var exists = info.HasThumbnail && File.Exists(path);
-            // File.ReadAllBytesAsync("./NoGuildImage.png");
-            return exists
-                ? File.Open(path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite)
-                : NotFoundPlaylistImage;
-        }
+    public static async Task<StreamSpreader> PlaylistImageSpreader(PlaylistInfo info, Stream destination)
+    {
+        await using var img = GetPlaylistImage(info);
+        var streamSpreader = new StreamSpreader(CancellationToken.None, destination);
+        await img.CopyToAsync(streamSpreader);
+        return streamSpreader;
+    }
 
-        public static async Task<StreamSpreader> PlaylistImageSpreader(PlaylistInfo info, Stream destination)
-        {
-            await using var img = GetPlaylistImage(info);
-            var streamSpreader = new StreamSpreader(CancellationToken.None, destination);
-            await img.CopyToAsync(streamSpreader);
-            return streamSpreader;
-        }
-
-        public static async Task<StreamSpreader> WriteNotFoundPlaylistImage(Stream destination)
-        {
-            await using var img = NotFoundPlaylistImage;
-            var streamSpreader = new StreamSpreader(CancellationToken.None, destination);
-            await img.CopyToAsync(streamSpreader);
-            return streamSpreader;
-        }
+    public static async Task<StreamSpreader> WriteNotFoundPlaylistImage(Stream destination)
+    {
+        await using var img = NotFoundPlaylistImage;
+        var streamSpreader = new StreamSpreader(CancellationToken.None, destination);
+        await img.CopyToAsync(streamSpreader);
+        return streamSpreader;
     }
 }

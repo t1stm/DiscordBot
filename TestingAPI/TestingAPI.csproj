@@ -7,13 +7,13 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="Swashbuckle.AspNetCore" Version="6.4.0" />
+        <PackageReference Include="Swashbuckle.AspNetCore" Version="6.4.0"/>
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="../CustomPlaylistFormat/CustomPlaylistFormat.csproj" />
-        <ProjectReference Include="../DiscordBot/DiscordBot.csproj" />
-        <ProjectReference Include="../PlaylistThumbnailGenerator/PlaylistThumbnailGenerator.csproj" />
+        <ProjectReference Include="../CustomPlaylistFormat/CustomPlaylistFormat.csproj"/>
+        <ProjectReference Include="../DiscordBot/DiscordBot.csproj"/>
+        <ProjectReference Include="../PlaylistThumbnailGenerator/PlaylistThumbnailGenerator.csproj"/>
     </ItemGroup>
 
 </Project>

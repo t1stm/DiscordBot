@@ -1,28 +1,27 @@
-namespace DiscordBot.Objects
+namespace DiscordBot.Objects;
+
+public static class Parser
 {
-    public static class Parser
+    private static readonly English English = new();
+    private static readonly Bulgarian Bulgarian = new();
+
+    public static ILanguage FromNumber(ushort language)
     {
-        private static readonly English English = new();
-        private static readonly Bulgarian Bulgarian = new();
-
-        public static ILanguage FromNumber(ushort language)
+        return language switch
         {
-            return language switch
-            {
-                0 => English,
-                1 => Bulgarian,
-                _ => English
-            };
-        }
+            0 => English,
+            1 => Bulgarian,
+            _ => English
+        };
+    }
 
-        public static ushort GetIndex(ILanguage language)
+    public static ushort GetIndex(ILanguage language)
+    {
+        return language switch
         {
-            return language switch
-            {
-                English _ => 0,
-                Bulgarian _ => 1,
-                _ => 0
-            };
-        }
+            English _ => 0,
+            Bulgarian _ => 1,
+            _ => 0
+        };
     }
 }

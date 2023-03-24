@@ -1,30 +1,29 @@
 using DiscordBot.Objects;
 
-namespace DiscordBot.Abstract.Errors
+namespace DiscordBot.Abstract.Errors;
+
+public enum NullType
 {
-    public enum NullType
+    SearchTerm,
+    Attachment,
+    Override
+}
+
+public class NullError : Error
+{
+    private readonly NullType _nullType;
+
+    public NullError(NullType nullType)
     {
-        SearchTerm,
-        Attachment,
-        Override
+        _nullType = nullType;
     }
 
-    public class NullError : Error
+    public override string Stringify(ILanguage language)
     {
-        private readonly NullType _nullType;
-
-        public NullError(NullType nullType)
+        return language switch
         {
-            _nullType = nullType;
-        }
-
-        public override string Stringify(ILanguage language)
-        {
-            return language switch
-            {
-                Bulgarian => $"Нещо не е било въведено. Код за грешка: \'{_nullType}\'",
-                _ => $"Something wasn't specified. Error code: \'{_nullType}\'"
-            };
-        }
+            Bulgarian => $"Нещо не е било въведено. Код за грешка: \'{_nullType}\'",
+            _ => $"Something wasn't specified. Error code: \'{_nullType}\'"
+        };
     }
 }
