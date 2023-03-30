@@ -8,6 +8,7 @@ using DiscordBot.Abstract.Errors;
 using DiscordBot.Audio.Objects;
 using YoutubeExplode;
 using YoutubeExplode.Common;
+using Result;
 
 namespace DiscordBot.Audio.Platforms.Youtube;
 

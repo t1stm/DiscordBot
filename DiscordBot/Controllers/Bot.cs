@@ -3,7 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using DiscordBot.Abstract;
+using Result.Objects;
 using DiscordBot.Audio;
 using DiscordBot.Audio.Objects;
 using DiscordBot.Data;

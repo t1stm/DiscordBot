@@ -22,6 +22,8 @@ using DSharpPlus.Entities;
 using DSharpPlus.Interactivity.Extensions;
 using DSharpPlus.VoiceNext;
 using QRCoder;
+using Result.Objects;
+using Result;
 using HttpClient = DiscordBot.Readers.HttpClient;
 
 namespace DiscordBot.Audio;

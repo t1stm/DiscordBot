@@ -18,6 +18,7 @@ using DiscordBot.Playlists;
 using DSharpPlus;
 using DSharpPlus.Entities;
 using DSharpPlus.VoiceNext;
+using Result.Objects;
 using Debug = DiscordBot.Methods.Debug;
 using Timer = System.Timers.Timer;
 

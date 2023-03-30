@@ -9,7 +9,6 @@ using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Timers;
-using DiscordBot.Abstract;
 using DiscordBot.Audio.Objects;
 using DiscordBot.Audio.Platforms;
 using DiscordBot.Objects;
@@ -17,6 +16,7 @@ using DiscordBot.Tools;
 using vtortola.WebSockets;
 using Debug = DiscordBot.Methods.Debug;
 using Timer = System.Timers.Timer;
+using Result.Objects;
 
 namespace DiscordBot.Standalone;
 

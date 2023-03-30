@@ -7,6 +7,7 @@ using DiscordBot.Audio.Platforms.Local;
 using DiscordBot.Methods;
 using DiscordBot.Playlists;
 using File = System.IO.File;
+using Result.Objects;
 
 namespace TestingApp;
 

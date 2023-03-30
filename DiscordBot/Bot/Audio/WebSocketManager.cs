@@ -10,6 +10,7 @@ using DiscordBot.Data;
 using DiscordBot.Data.Models;
 using DiscordBot.Methods;
 using DiscordBot.Objects;
+using Result.Objects;
 using vtortola.WebSockets;
 
 namespace DiscordBot.Audio;

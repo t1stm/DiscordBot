@@ -11,6 +11,8 @@ using DiscordBot.Abstract.Errors;
 using DiscordBot.Audio.Objects;
 using DiscordBot.Audio.Platforms;
 using DiscordBot.Methods;
+using Result;
+using Result.Objects;
 
 namespace DiscordBot.Playlists;
 

@@ -5,6 +5,7 @@ using DiscordBot.Abstract;
 using DiscordBot.Abstract.Errors;
 using DiscordBot.Audio.Objects;
 using SpotifyAPI.Web;
+using Result;
 
 namespace DiscordBot.Audio.Platforms.Spotify;
 

@@ -9,6 +9,7 @@ using DiscordBot.Audio.Platforms.Youtube;
 using DiscordBot.Methods;
 using DiscordBot.Objects;
 using DiscordBot.Tools;
+using Result.Objects;
 
 namespace DiscordBot.Audio;
 

@@ -14,6 +14,8 @@ using DiscordBot.Methods;
 using DiscordBot.Playlists;
 using DiscordBot.Playlists.Music_Storage;
 using DSharpPlus.Entities;
+using Result;
+using Result.Objects;
 using Playlist = DiscordBot.Audio.Platforms.Spotify.Playlist;
 
 namespace DiscordBot.Audio.Platforms;

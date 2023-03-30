@@ -4,6 +4,7 @@ using DiscordBot.Abstract;
 using DiscordBot.Audio.Platforms;
 using DiscordBot.Methods;
 using DiscordBot.Playlists;
+using Result.Objects;
 
 namespace TestingApp;
 

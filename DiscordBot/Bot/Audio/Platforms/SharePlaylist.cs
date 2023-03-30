@@ -10,6 +10,8 @@ using DiscordBot.Audio.Objects;
 using DiscordBot.Methods;
 using DiscordBot.Readers;
 using DSharpPlus.Entities;
+using Result;
+using Result.Objects;
 
 namespace DiscordBot.Audio.Platforms;
 

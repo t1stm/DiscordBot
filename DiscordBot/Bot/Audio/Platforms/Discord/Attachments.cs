@@ -8,6 +8,8 @@ using DiscordBot.Abstract.Errors;
 using DiscordBot.Audio.Objects;
 using DiscordBot.Readers;
 using DSharpPlus.Entities;
+using Result;
+using Result.Objects;
 
 namespace DiscordBot.Audio.Platforms.Discord;
 

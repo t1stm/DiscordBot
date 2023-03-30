@@ -15,6 +15,8 @@ using DiscordBot.Tools;
 using YoutubeExplode;
 using YoutubeSearchApi.Net.Models.Youtube;
 using YoutubeSearchApi.Net.Services;
+using Result;
+using Result.Objects;
 
 namespace DiscordBot.Audio.Platforms.Youtube;
 

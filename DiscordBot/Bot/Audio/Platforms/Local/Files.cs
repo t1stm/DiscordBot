@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.IO;
 using DiscordBot.Abstract;
 using DiscordBot.Abstract.Errors;
+using Result;
+using Result.Objects;
 
 namespace DiscordBot.Audio.Platforms.Local;
 
