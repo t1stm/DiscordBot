@@ -122,23 +122,21 @@ public static class Video
             SearchTerm = term,
             ThumbnailUrl = result.ThumbnailUrl
         };
-        var task = new Task(async () =>
+
+        async void AddToDatabase()
         {
             try
             {
-                var vid = new FuckYoutubeModel
-                {
-                    SearchTerm = term,
-                    VideoId = result.Id
-                };
+                var vid = new FuckYoutubeModel { SearchTerm = term, VideoId = result.Id };
                 Databases.FuckYoutubeDatabase.Add(vid);
             }
             catch (Exception e)
             {
-                await Debug.WriteAsync(
-                    $"Adding Information to Local Library in Youtube/Video.cs/Search failed: {e}");
+                await Debug.WriteAsync($"Adding Information to Local Library in Youtube/Video.cs/Search failed: {e}");
             }
-        });
+        }
+
+        var task = new Task(AddToDatabase);
         task.Start();
         if (urgent) await info.GetAudioData();
         return Result<PlayableItem, Error>.Success(info);
@@ -221,7 +219,7 @@ public static class Video
             var alt = YoutubeOverride.FromId(id);
             if (alt is not null) return Result<PlayableItem, Error>.Success(alt);
             var info = GetCachedVideoFromId(id);
-            if (!urgent) return info;
+            if (!urgent && info == Status.OK) return info;
             var client = new YoutubeClient(HttpClient.WithCookies());
             var video = await client.Videos.GetAsync(id);
             if (video is not { Duration: { } }) return Result<PlayableItem, Error>.Error(new NoResultsError());

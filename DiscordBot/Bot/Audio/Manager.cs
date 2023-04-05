@@ -23,7 +23,6 @@ using DSharpPlus.Interactivity.Extensions;
 using DSharpPlus.VoiceNext;
 using QRCoder;
 using Result.Objects;
-using Result;
 using HttpClient = DiscordBot.Readers.HttpClient;
 
 namespace DiscordBot.Audio;
@@ -446,7 +445,7 @@ public static class Manager
             _ => "Discord Attachments"
         };
 
-        if (items != Status.Error)
+        if (items == Status.Error)
         {
             await Bot.Reply(ctx, items.GetError().Stringify(player.Language));
             return;
