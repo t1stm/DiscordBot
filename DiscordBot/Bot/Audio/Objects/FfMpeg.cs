@@ -98,7 +98,7 @@ public class FfMpeg
             }
 
             Spreader.AddDestination(FfMpegProcess.StandardInput
-                .BaseStream); // HOW DOES THIS WORK AND ADDING IT IN THE StreamSpreader INITIALIZER NOT WORK?
+                .BaseStream);
             var yes = new Task(async () =>
             {
                 while (!FfMpegProcess.StandardInput.BaseStream.CanWrite) await Task.Delay(16);
@@ -109,8 +109,20 @@ public class FfMpeg
                     await Kill();
                 }
 
-                await Spreader.FlushAsync();
-                Spreader.Close();
+                try
+                {
+                    await Spreader.FlushAsync();
+                    Spreader.Close();
+                }
+                catch (TaskCanceledException)
+                {
+                    // Ignored
+                }
+                catch (Exception e)
+                {
+                    await Debug.WriteAsync($"Exception when flushing StreamSpreader: \'{e}\'");
+                }
+                
                 RemoveSpreader(item.GetAddUrl());
                 await Debug.WriteAsync("Copying audio data to stream finished.");
             });
@@ -134,10 +146,10 @@ public class FfMpeg
     {
         try
         {
-            Spreader?.Close();
             Source.Cancel();
             FfMpegProcess?.StandardOutput.DiscardBufferedData();
             FfMpegProcess?.StandardOutput.BaseStream.Flush();
+            Spreader?.Close();
         }
         catch (Exception)
         {

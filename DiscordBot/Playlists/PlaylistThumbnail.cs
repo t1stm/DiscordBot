@@ -3,7 +3,6 @@ using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using CustomPlaylistFormat.Objects;
-using DiscordBot.Tools;
 using PlaylistThumbnailGenerator;
 using Streams;
 
@@ -44,7 +43,10 @@ public static class PlaylistThumbnail
         }
 
         var newFile = File.Open(filename, FileMode.Create, FileAccess.ReadWrite, FileShare.ReadWrite);
-        var streamSpreader = new StreamSpreader(CancellationToken.None, newFile, destination);
+        var streamSpreader = new StreamSpreader(CancellationToken.None, newFile, destination)
+        {
+            IsAsynchronous = true
+        };
         var thumbnailGenerator = new Generator(streamSpreader, GetPlaylistImage(info));
         await thumbnailGenerator.Generate(info);
         return streamSpreader;
@@ -63,7 +65,10 @@ public static class PlaylistThumbnail
     public static async Task<StreamSpreader> PlaylistImageSpreader(PlaylistInfo info, Stream destination)
     {
         await using var img = GetPlaylistImage(info);
-        var streamSpreader = new StreamSpreader(CancellationToken.None, destination);
+        var streamSpreader = new StreamSpreader(CancellationToken.None, destination)
+        {
+            IsAsynchronous = true
+        };
         await img.CopyToAsync(streamSpreader);
         return streamSpreader;
     }
@@ -71,7 +76,10 @@ public static class PlaylistThumbnail
     public static async Task<StreamSpreader> WriteNotFoundPlaylistImage(Stream destination)
     {
         await using var img = NotFoundPlaylistImage;
-        var streamSpreader = new StreamSpreader(CancellationToken.None, destination);
+        var streamSpreader = new StreamSpreader(CancellationToken.None, destination)
+        {
+            IsAsynchronous = true
+        };
         await img.CopyToAsync(streamSpreader);
         return streamSpreader;
     }

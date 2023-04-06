@@ -28,7 +28,7 @@ public class Generator
         GeneratePlaylistImage(overlayImage);
         magickImage.Composite(overlayImage, 71, 59, CompositeOperator.Over);
         GenerateText(magickImage, playlistInfo);
-        await magickImage.WriteAsync(_backingStream);
+        await _backingStream.WriteAsync(magickImage.ToByteArray());
     }
 
     private static void GenerateText(IMagickImage image, PlaylistInfo info)

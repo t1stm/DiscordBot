@@ -20,7 +20,7 @@ public class Test : Controller
     }
 
     [HttpGet]
-    [Route("/Audio/Search")]
+    [Route("/Test/Audio/Search")]
     public async Task<IActionResult> Search(string term)
     {
         var items = await DiscordBot.Audio.Platforms.Search.Get(term, returnAllResults: true);
@@ -45,7 +45,7 @@ public class Test : Controller
     }
 
     [HttpGet]
-    [Route("/Playlist/{**id}")]
+    [Route("/Test/Playlist/{**id}")]
     public async Task<ContentResult> Playlist(string? id)
     {
         await Debug.WriteAsync($"Playlist ID is: \"{id}\"");
@@ -61,7 +61,7 @@ public class Test : Controller
     }
 
     [HttpGet]
-    [Route("/Playlist/Thumbnails/{**id}")]
+    [Route("/Test/Playlist/Thumbnails/{**id}")]
     public async Task Thumbnail(string? id)
     {
         try
