@@ -30,7 +30,10 @@ public class TwitchLiveStream : PlayableItem
     public override string GetLocation()
     {
         if (!string.IsNullOrEmpty(Location)) return Location;
-        var task = new Task(async () => await GetAudioData());
+
+        async void AudioData() => await GetAudioData();
+
+        var task = new Task(AudioData);
         task.Start();
         task.Wait();
         return Location;

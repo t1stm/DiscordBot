@@ -17,6 +17,7 @@ using vtortola.WebSockets;
 using Debug = DiscordBot.Methods.Debug;
 using Timer = System.Timers.Timer;
 using Result.Objects;
+using Streams;
 
 namespace DiscordBot.Standalone;
 
@@ -151,10 +152,11 @@ public class AudioSocket
                             });
                         }
 
-                        var task = new Task(async () =>
+                        var task = new Task(() =>
                         {
                             var ffmpeg = new FfMpeg2();
-                            await streamSpreader.ReadStream(ffmpeg.Convert(first, codec: "-c:a libopus",
+                            // TODO: Change this to the async method when it is implemented.
+                            streamSpreader.ReadStreamToEnd(ffmpeg.Convert(first, codec: "-c:a libopus",
                                 addParameters: $"-b:a {96}k"));
                         });
                         task.Start();

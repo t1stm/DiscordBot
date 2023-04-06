@@ -5,6 +5,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using DiscordBot.Abstract;
 using DiscordBot.Tools;
+using Streams;
 using Debug = DiscordBot.Methods.Debug;
 
 namespace DiscordBot.Audio.Objects;
@@ -62,7 +63,8 @@ public class TtsText : PlayableItem
         process.StandardInput.Close();
         var baseStream = process.StandardOutput.BaseStream;
         var streamSpreader = new StreamSpreader(CancellationToken.None, outputs);
-        var task = new Task(async () =>
+
+        async void CopyTask()
         {
             try
             {
@@ -73,7 +75,9 @@ public class TtsText : PlayableItem
             {
                 await Debug.WriteAsync($"TTS Reader copy task failed: \"{e}\"");
             }
-        });
+        }
+
+        var task = new Task(CopyTask);
         task.Start();
         return true;
     }

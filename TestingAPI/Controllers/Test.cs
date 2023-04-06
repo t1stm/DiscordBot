@@ -3,10 +3,10 @@ using DiscordBot.Audio.Objects;
 using DiscordBot.Audio.Platforms.Youtube;
 using DiscordBot.Methods;
 using DiscordBot.Playlists;
-using DiscordBot.Tools;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Net.Http.Headers;
 using Result.Objects;
+using Streams;
 
 namespace TestingAPI.Controllers;
 
@@ -74,7 +74,7 @@ public class Test : Controller
             {
                 Response.Headers.Add(HeaderNames.ContentDisposition, "filename=not-found.png");
                 spreader = await PlaylistThumbnail.GetNotFoundInfo(output);
-                await (spreader?.Finish() ?? Task.CompletedTask);
+                await (spreader?.FlushAsync() ?? Task.CompletedTask);
                 await Response.CompleteAsync();
                 return;
             }
@@ -84,7 +84,7 @@ public class Test : Controller
             {
                 Response.Headers.Add(HeaderNames.ContentDisposition, "filename=not-found.png");
                 spreader = await PlaylistThumbnail.GetNotFoundInfo(output);
-                await (spreader?.Finish() ?? Task.CompletedTask);
+                await (spreader?.FlushAsync() ?? Task.CompletedTask);
                 await Response.CompleteAsync();
                 return;
             }
@@ -92,7 +92,7 @@ public class Test : Controller
             Response.Headers.Add(HeaderNames.ContentDisposition, $"filename={id}.png");
 
             spreader = await PlaylistThumbnail.GetImage(guid.ToString(), playlist.Value.Info, false, output);
-            await (spreader?.Finish() ?? Task.CompletedTask);
+            await (spreader?.FlushAsync() ?? Task.CompletedTask);
 
             await Response.CompleteAsync();
         }

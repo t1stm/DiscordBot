@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using DiscordBot.Abstract;
 using DiscordBot.Readers;
 using DiscordBot.Tools;
+using Streams;
 using YouTubeApiSharp;
 using YoutubeExplode;
 using YoutubeExplode.Videos.Streams;

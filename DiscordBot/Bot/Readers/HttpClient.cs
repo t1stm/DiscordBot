@@ -4,10 +4,9 @@ using System.IO;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
-using System.Threading;
 using System.Threading.Tasks;
 using DiscordBot.Methods;
-using DiscordBot.Tools;
+using Streams;
 
 namespace DiscordBot.Readers;
 
@@ -117,7 +116,7 @@ public static class HttpClient
         params Stream[] streams)
     {
         await Debug.WriteAsync($"Chunked Downloader has {streams.Length} destinations.");
-        var streamSpreader = new StreamSpreader(CancellationToken.None, streams);
+        var streamSpreader = new StreamSpreader(streams);
         var fileSize = await GetContentLengthAsync(httpClient, uri.AbsoluteUri) ?? 0;
         const long chunkSize = 10485760;
         if (fileSize == 0) throw new Exception("File has no content");

@@ -8,25 +8,25 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <ProjectReference Include="../CustomPlaylistFormat/CustomPlaylistFormat.csproj"/>
-        <ProjectReference Include="../DiscordBot/DiscordBot.csproj"/>
-        <ProjectReference Include="../PlaylistThumbnailGenerator/PlaylistThumbnailGenerator.csproj"/>
+        <ProjectReference Include="../CustomPlaylistFormat/CustomPlaylistFormat.csproj" />
+        <ProjectReference Include="../DiscordBot/DiscordBot.csproj" />
+        <ProjectReference Include="../PlaylistThumbnailGenerator/PlaylistThumbnailGenerator.csproj" />
     </ItemGroup>
 
     <ItemGroup>
-        <Compile Remove="Music Database\**"/>
+        <Compile Remove="Music Database\**" />
     </ItemGroup>
 
     <ItemGroup>
-        <EmbeddedResource Remove="Music Database\**"/>
+        <EmbeddedResource Remove="Music Database\**" />
     </ItemGroup>
 
     <ItemGroup>
-        <None Remove="Music Database\**"/>
+        <None Remove="Music Database\**" />
     </ItemGroup>
 
     <ItemGroup>
-        <Folder Include="Music Database Tests"/>
+        <Folder Include="Music Database Tests" />
     </ItemGroup>
 
 </Project>

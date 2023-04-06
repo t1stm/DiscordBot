@@ -6,8 +6,8 @@ using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using DiscordBot.Abstract;
-using DiscordBot.Tools;
 using DSharpPlus.VoiceNext;
+using Streams;
 using Debug = DiscordBot.Methods.Debug;
 
 namespace DiscordBot.Audio.Objects;
@@ -97,7 +97,7 @@ public class FfMpeg
                 AddSpreader(item.GetAddUrl(), Spreader);
             }
 
-            await Spreader.AddDestinationAsync(FfMpegProcess.StandardInput
+            Spreader.AddDestination(FfMpegProcess.StandardInput
                 .BaseStream); // HOW DOES THIS WORK AND ADDING IT IN THE StreamSpreader INITIALIZER NOT WORK?
             var yes = new Task(async () =>
             {
@@ -109,7 +109,8 @@ public class FfMpeg
                     await Kill();
                 }
 
-                await Spreader.CloseWhenCopied();
+                await Spreader.FlushAsync();
+                Spreader.Close();
                 RemoveSpreader(item.GetAddUrl());
                 await Debug.WriteAsync("Copying audio data to stream finished.");
             });

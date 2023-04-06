@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using CustomPlaylistFormat.Objects;
 using DiscordBot.Tools;
 using PlaylistThumbnailGenerator;
+using Streams;
 
 namespace DiscordBot.Playlists;
 
