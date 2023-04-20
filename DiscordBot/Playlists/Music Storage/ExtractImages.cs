@@ -29,7 +29,11 @@ public static class ExtractImages
             var location = info.ToMusicObject().GetLocation();
             var image = Flac.GetImageFromFile(location);
 
-            if (!image.HasData) continue;
+            if (!image.HasData)
+            {
+                image = Id3v2.GetImageFromTag(location);
+                if (!image.HasData) continue;
+            }
 
             var hashString = Sha1Generator.Get(image.Data!);
             var extension = Flac.GetImageFiletype(image.Data!);

@@ -42,46 +42,15 @@ public class FfMpeg2
             UseShellExecute = false
         };
         FfMpegProcess = Process.Start(ffmpegStartInfo);
-        var ms = new MemoryStream();
-        var ended = false;
-        var yes = new Task(async () =>
+
+        async void WriteAction()
         {
-            await item.GetAudioData(ms);
-            ended = true;
-        });
+            await item.GetAudioData(FfMpegProcess?.StandardInput.BaseStream);
+            FfMpegProcess?.StandardInput.BaseStream.Close();
+        }
+
+        var yes = new Task(WriteAction);
         yes.Start();
-
-        var task = new Task(async () =>
-        {
-            try
-            {
-                while (ms.Length < 10) await Task.Delay(4);
-                for (var i = 0; i < ms.Length; i++)
-                {
-                    while (i == ms.Length - 2 && !ended)
-                        await Task.Delay(3); // These are the spaghetti code fixes I adore.
-                    var by = ms.GetBuffer()[i]; // I am starting to think that this method is quite slow.
-                    try
-                    {
-                        FfMpegProcess?.StandardInput.BaseStream.WriteByte(by);
-                    }
-                    catch (Exception e)
-                    {
-                        if (e.Message.ToLower().Contains("broken pipe")) break;
-                        await Debug.WriteAsync($"Writing byte falure: {e}");
-                        break;
-                    }
-                }
-
-                FfMpegProcess?.StandardInput.Close();
-            }
-            catch (Exception e)
-            {
-                if (e.Message.ToLower().Contains("broken") && e.Message.ToLower().Contains("pipe")) return;
-                await Debug.WriteAsync($"Writing byte falure: {e}");
-            }
-        });
-        task.Start();
         return FfMpegProcess?.StandardOutput.BaseStream ?? Stream.Null;
     }
 }

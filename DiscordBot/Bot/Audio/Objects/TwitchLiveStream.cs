@@ -31,7 +31,10 @@ public class TwitchLiveStream : PlayableItem
     {
         if (!string.IsNullOrEmpty(Location)) return Location;
 
-        async void AudioData() => await GetAudioData();
+        async void AudioData()
+        {
+            await GetAudioData();
+        }
 
         var task = new Task(AudioData);
         task.Start();

@@ -4,8 +4,8 @@ using System.Threading.Tasks;
 using DiscordBot.Abstract;
 using DiscordBot.Abstract.Errors;
 using DiscordBot.Audio.Objects;
-using SpotifyAPI.Web;
 using Result;
+using SpotifyAPI.Web;
 
 namespace DiscordBot.Audio.Platforms.Spotify;
 

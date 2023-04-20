@@ -4,7 +4,6 @@ using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using DiscordBot.Abstract;
-using DiscordBot.Tools;
 using Streams;
 using Debug = DiscordBot.Methods.Debug;
 

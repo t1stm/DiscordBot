@@ -46,10 +46,10 @@ public static class Bot
     public const string WorkingDirectory = "/nvme0/DiscordBot";
     public const string MainDomain = "danke.gq";
     public const string WebUiPage = "WebUi";
-    public const string Name = "Slavi Trifonov";
+    public const string Name = "Bai Tosho";
 
     public const int UpdateDelay = 3200; //Milliseconds
-    public static readonly string SiteDomain = $"https://{MainDomain}";
+    public const string SiteDomain = $"https://{MainDomain}";
 
     public static readonly Random Rng = new();
     private static Timer UpdateLoop { get; } = new(UpdateDelay);
@@ -132,6 +132,9 @@ public static class Bot
                     case "rl":
                         await Debug.WriteAsync("Reloading music database.");
                         MusicManager.Load();
+                        break;
+                    case "rlp":
+                        PlaylistManager.LoadPlaylistInfos();
                         break;
                     case "leave":
                         var sessions = Manager.Main.ToArray();

@@ -17,7 +17,7 @@ public class FfMpeg
     private static readonly Dictionary<string, StreamSpreader> ActiveWriteSessions = new();
     private Process? FfMpegProcess { get; set; }
     private StreamSpreader? Spreader { get; set; } = new(CancellationToken.None);
-    private CancellationTokenSource Source { get; } = new();
+    private CancellationTokenSource CancellationSource { get; } = new();
 
     public Stream PathToPcm(string videoPath, string startingTime = "00:00:00.000", bool normalize = false)
     {
@@ -90,7 +90,7 @@ public class FfMpeg
             Spreader = FindExisting(item.GetAddUrl());
             if (Spreader == null)
             {
-                Spreader = new StreamSpreader(Source.Token)
+                Spreader = new StreamSpreader(CancellationSource.Token)
                 {
                     KeepCached = true
                 };
@@ -99,9 +99,10 @@ public class FfMpeg
 
             Spreader.AddDestination(FfMpegProcess.StandardInput
                 .BaseStream);
-            var yes = new Task(async () =>
+
+            async void Write()
             {
-                while (!FfMpegProcess.StandardInput.BaseStream.CanWrite) await Task.Delay(16);
+                while (!FfMpegProcess.StandardInput.BaseStream.CanWrite && !CancellationSource.Token.IsCancellationRequested) await Task.Delay(16);
                 var success = await item.GetAudioData(Spreader);
                 if (success == false)
                 {
@@ -122,11 +123,13 @@ public class FfMpeg
                 {
                     await Debug.WriteAsync($"Exception when flushing StreamSpreader: \'{e}\'");
                 }
-                
+
                 RemoveSpreader(item.GetAddUrl());
                 await Debug.WriteAsync("Copying audio data to stream finished.");
-            });
-            yes.Start();
+            }
+
+            var write_task = new Task(Write);
+            write_task.Start();
             await FfMpegProcess.StandardOutput.BaseStream.CopyToAsync(destination);
         }
         catch (Exception e)
@@ -146,7 +149,7 @@ public class FfMpeg
     {
         try
         {
-            Source.Cancel();
+            CancellationSource.Cancel();
             FfMpegProcess?.StandardOutput.DiscardBufferedData();
             FfMpegProcess?.StandardOutput.BaseStream.Flush();
             Spreader?.Close();

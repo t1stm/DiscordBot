@@ -3,15 +3,16 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using DiscordBot.Playlists.Music_Storage.Objects;
 
 namespace DiscordBot.Playlists.Music_Storage;
 
 public static class Flac
 {
-    public static FlacImage GetImageFromFile(string location)
+    public static EmbeddedImage GetImageFromFile(string location)
     {
         if (!File.Exists(location) || !location.Contains(".flac"))
-            return new FlacImage
+            return new EmbeddedImage
             {
                 HasData = false
             };
@@ -24,7 +25,7 @@ public static class Flac
             FileName = "metaflac"
         });
         if (process == null)
-            return new FlacImage
+            return new EmbeddedImage
             {
                 HasData = false
             };
@@ -37,12 +38,12 @@ public static class Flac
         var array = memoryStream.ToArray();
 
         if (array.Length < 1)
-            return new FlacImage
+            return new EmbeddedImage
             {
                 HasData = false
             };
 
-        return new FlacImage
+        return new EmbeddedImage
         {
             HasData = true,
             Data = array,
@@ -65,12 +66,5 @@ public static class Flac
     private static bool HasHeader(IEnumerable<byte> header, IReadOnlyList<byte> source)
     {
         return !header.Where((t, i) => source[i] != t).Any();
-    }
-
-    public struct FlacImage
-    {
-        public bool HasData;
-        public byte[]? Data;
-        public string? MimeType;
     }
 }

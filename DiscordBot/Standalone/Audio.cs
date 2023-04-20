@@ -4,14 +4,16 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text.Json;
+using System.Threading;
 using System.Threading.Tasks;
 using DiscordBot.Audio.Objects;
 using DiscordBot.Audio.Platforms.Youtube;
 using DiscordBot.Methods;
+using ImageMagick;
 using Microsoft.AspNetCore.Mvc;
-using YtPlaylist = DiscordBot.Audio.Platforms.Youtube.Playlist;
 using Result.Objects;
 using Streams;
+using YtPlaylist = DiscordBot.Audio.Platforms.Youtube.Playlist;
 
 namespace DiscordBot.Standalone;
 
@@ -66,7 +68,7 @@ public class Audio : Controller
     {
         try
         {
-            Response.StatusCode = 200;
+            //Response.StatusCode = 200;
             var type = codec switch
             {
                 "Opus" or "Vorbis" => "audio/ogg",
@@ -76,8 +78,14 @@ public class Audio : Controller
             Response.ContentType = type;
             var filename = type.Replace('/', '.'); /* type[..5] + '.' + type[7..]; */
             Response.Headers.ContentDisposition = $"attachment; filename={filename}; filename*=UTF-8''{filename}";
-            Response.Headers.AcceptRanges = "none";
 
+            EncodedAudio? encodedAudio;
+
+            lock (EncodedAudio)
+            {
+                encodedAudio = EncodedAudio.FirstOrDefault(r => r.SearchTerm == id);
+            }
+            
             if (Bot.DebugMode) await Debug.WriteAsync("Using Audio Controller");
             var res = await DiscordBot.Audio.Platforms.Search.Get(id);
 

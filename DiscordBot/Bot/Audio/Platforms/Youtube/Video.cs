@@ -12,11 +12,11 @@ using DiscordBot.Data.Models;
 using DiscordBot.Methods;
 using DiscordBot.Readers;
 using DiscordBot.Tools;
+using Result;
+using Result.Objects;
 using YoutubeExplode;
 using YoutubeSearchApi.Net.Models.Youtube;
 using YoutubeSearchApi.Net.Services;
-using Result;
-using Result.Objects;
 
 namespace DiscordBot.Audio.Platforms.Youtube;
 

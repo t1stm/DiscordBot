@@ -120,7 +120,8 @@ public class CommandsSlash : ApplicationCommandModule
     [SlashCommand("help",
         "This command lists all the commands, a brief explaination of what they do and how to use them.")]
     public async Task SendHelpMessage(InteractionContext ctx,
-        [Option("command", "Command to recieve help")] HelpCommandCategories cat = HelpCommandCategories.Home)
+        [Option("command", "Command to recieve help")]
+        HelpCommandCategories cat = HelpCommandCategories.Home)
     {
         try
         {
@@ -169,7 +170,8 @@ public class CommandsSlash : ApplicationCommandModule
 
     [SlashCommand("loop", "Choose loop type.")]
     public async Task LoopCommand(InteractionContext ctx,
-        [Option("looptype", "The type of looping you want")] LoopStatus status)
+        [Option("looptype", "The type of looping you want")]
+        LoopStatus status)
     {
         var guild = await GuildSettings.FromId(ctx.Guild.Id);
         var userVoiceS = ctx.Member?.VoiceState?.Channel;
@@ -200,7 +202,8 @@ public class CommandsSlash : ApplicationCommandModule
     }
 
     public async Task MoveCommand(InteractionContext ctx, [Option("item", "The item which you want to move")] long x,
-        [Option("place", "The place you want to place the item")] long y)
+        [Option("place", "The place you want to place the item")]
+        long y)
     {
         var guild = await GuildSettings.FromId(ctx.Guild.Id);
         var userVoiceS = ctx.Member?.VoiceState?.Channel;
@@ -641,11 +644,19 @@ public class CommandsSlash : ApplicationCommandModule
     {
         public Task<IEnumerable<DiscordAutoCompleteChoice>> Provider(AutocompleteContext ctx)
         {
-            var stringifyed = (string)ctx.OptionValue;
-            if (Bot.DebugMode) Debug.Write($"Album auto complete request: \"{stringifyed}\"");
-            var albums = MusicManager.SearchAlbums(stringifyed).Take(..20);
-            return Task.FromResult(albums.Select(album =>
-                new DiscordAutoCompleteChoice($"{album.AlbumName} - {album.Artist}", album.AccessString)));
+            try
+            {
+                var stringifyed = (string)ctx.OptionValue;
+                if (Bot.DebugMode) Debug.Write($"Album auto complete request: \"{stringifyed}\"");
+                var albums = MusicManager.SearchAlbums(stringifyed).Take(..20);
+                return Task.FromResult(albums.Select(album =>
+                    new DiscordAutoCompleteChoice($"{album.AlbumName} - {album.Artist}", album.AccessString)));
+            }
+            catch (Exception e)
+            {
+                Debug.Write($"Exception in album choice provider. \'{e}\'");
+                throw;
+            }
         }
     }
 
@@ -653,11 +664,19 @@ public class CommandsSlash : ApplicationCommandModule
     {
         public Task<IEnumerable<DiscordAutoCompleteChoice>> Provider(AutocompleteContext ctx)
         {
-            var stringifyed = (string)ctx.OptionValue;
-            if (Bot.DebugMode) Debug.Write($"Song auto complete request: \"{stringifyed}\"");
-            var albums = MusicManager.OrderByTerm(stringifyed).Take(..20);
-            return Task.FromResult(albums.Select(info =>
-                new DiscordAutoCompleteChoice($"{info.OriginalTitle} - {info.OriginalAuthor}", info.Id)));
+            try
+            {
+                var stringifyed = (string)ctx.OptionValue;
+                if (Bot.DebugMode) Debug.Write($"Song auto complete request: \"{stringifyed}\"");
+                var albums = MusicManager.OrderByTerm(stringifyed).Take(..20);
+                return Task.FromResult(albums.Select(info =>
+                    new DiscordAutoCompleteChoice($"{info.OriginalTitle} - {info.OriginalAuthor}", info.Id)));
+            }
+            catch (Exception e)
+            {
+                Debug.Write($"Exception in song choice provider. \'{e}\'");
+                throw;
+            }
         }
     }
 
@@ -666,7 +685,7 @@ public class CommandsSlash : ApplicationCommandModule
     {
         [SlashCommand("album", "Adds a known album to the queue.")]
         public async Task AddAlbumCommand(InteractionContext ctx,
-            [Autocomplete(typeof(AlbumChoiceProvider))] [Option("albumcode", "The album name to be added.", true)]
+            [Autocomplete(typeof(AlbumChoiceProvider))] [Option("album_id", "The album name to be added.", true)]
             string choice)
         {
             await ctx.DeferAsync();
@@ -710,7 +729,7 @@ public class CommandsSlash : ApplicationCommandModule
 
         [SlashCommand("song", "Adds a known song to the queue.")]
         public async Task AddSongCommand(InteractionContext ctx,
-            [Autocomplete(typeof(SongChoiceProvider))] [Option("songcode", "The song to be added.", true)]
+            [Autocomplete(typeof(SongChoiceProvider))] [Option("song_id", "The song to be added.", true)]
             string choice)
         {
             await ctx.DeferAsync();
@@ -786,7 +805,8 @@ public class CommandsSlash : ApplicationCommandModule
         {
             [SlashCommand("language", "Change the bot's response language.")]
             public async Task UpdateLanguage(InteractionContext ctx,
-                [Option("language", "Choose a language.")] Language lang)
+                [Option("language", "Choose a language.")]
+                Language lang)
             {
                 try
                 {
@@ -859,7 +879,8 @@ public class CommandsSlash : ApplicationCommandModule
             [SlashRequirePermissions(Permissions.Administrator)]
             [SlashRequireGuild]
             public async Task UpdateLanguage(InteractionContext ctx,
-                [Option("language", "Choose a language.")] Language lang)
+                [Option("language", "Choose a language.")]
+                Language lang)
             {
                 try
                 {

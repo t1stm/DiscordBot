@@ -20,12 +20,13 @@ public static class PlaylistManager
 {
     public static readonly string PlaylistDirectory = $"{Bot.WorkingDirectory}/NewPlaylists";
 
-    public static List<PlaylistInfo> Infos { get; } = new();
+    public static List<PlaylistInfo> Infos { get; set; } = new();
 
     public static void LoadPlaylistInfos()
     {
         try
         {
+            Infos = new List<PlaylistInfo>();
             var items = Directory.GetFiles(PlaylistDirectory);
             foreach (var item in items)
             {
@@ -164,7 +165,7 @@ public static class PlaylistManager
 
     public static Playlist? SavePlaylist(IEnumerable<PlayableItem> list, PlaylistInfo info, Guid guid)
     {
-        var fileStream = File.Open($"{PlaylistDirectory}/{guid.ToString()}.play", FileMode.Create);
+        var fileStream = File.Open($"{PlaylistDirectory}/{guid.ToString()}.play", FileMode.Create, FileAccess.ReadWrite, FileShare.ReadWrite);
         try
         {
             var playlistEncoder = new Encoder(fileStream, info);
