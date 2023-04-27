@@ -1,11 +1,12 @@
 using System;
 using System.Diagnostics;
 using System.IO;
-using System.Threading;
 using System.Threading.Tasks;
 using DiscordBot.Abstract;
+using DiscordBot.Abstract.Errors;
 using Streams;
 using Debug = DiscordBot.Methods.Debug;
+using Result;
 
 namespace DiscordBot.Audio.Objects;
 
@@ -43,7 +44,7 @@ public class TtsText : PlayableItem
         Title = Title.Replace('\n', ' ');
     }
 
-    public override async Task<bool> GetAudioData(params Stream[] outputs)
+    public override async Task<Result<StreamSpreader, Error>> GetAudioData(params Stream[] outputs)
     {
         var process = new Process
         {
@@ -61,14 +62,18 @@ public class TtsText : PlayableItem
         await process.StandardInput.WriteLineAsync(_textToSay);
         process.StandardInput.Close();
         var baseStream = process.StandardOutput.BaseStream;
-        var streamSpreader = new StreamSpreader(CancellationToken.None, outputs);
+        var stream_spreader = new StreamSpreader(outputs)
+        {
+            IsAsynchronous = true,
+            KeepCached = true
+        };
 
         async void CopyTask()
         {
             try
             {
-                await baseStream.CopyToAsync(streamSpreader);
-                Length = (ulong)(streamSpreader.Length / 4);
+                await baseStream.CopyToAsync(stream_spreader);
+                Length = (ulong)(stream_spreader.Length / 4);
             }
             catch (Exception e)
             {
@@ -78,7 +83,7 @@ public class TtsText : PlayableItem
 
         var task = new Task(CopyTask);
         task.Start();
-        return true;
+        return Result<StreamSpreader, Error>.Success(stream_spreader);
     }
 
     private static string LanguageToString(Language chars)

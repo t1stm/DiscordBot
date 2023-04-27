@@ -3,7 +3,10 @@ using System.Diagnostics;
 using System.IO;
 using System.Threading.Tasks;
 using DiscordBot.Abstract;
+using DiscordBot.Abstract.Errors;
 using Debug = DiscordBot.Methods.Debug;
+using Result;
+using Streams;
 
 namespace DiscordBot.Audio.Objects;
 
@@ -85,10 +88,10 @@ public class TwitchLiveStream : PlayableItem
         }
     }
 
-    public override async Task<bool> GetAudioData(params Stream[] outputs)
+    public override async Task<Result<StreamSpreader, Error>> GetAudioData(params Stream[] outputs)
     {
         if (Location == null) await ProcessInfo();
-        return true;
+        return Result<StreamSpreader, Error>.Error(new NoResultsError());
     }
 
     public override string GetId()

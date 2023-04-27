@@ -3,8 +3,11 @@ using System;
 using System.IO;
 using System.Threading.Tasks;
 using DiscordBot.Abstract;
+using DiscordBot.Abstract.Errors;
 using DiscordBot.Methods;
 using DiscordBot.Playlists.Music_Storage;
+using Result;
+using Streams;
 
 namespace DiscordBot.Audio.Objects;
 
@@ -28,19 +31,21 @@ public class MusicObject : PlayableItem
         return $"{MusicManager.WorkingDirectory}/{RelativeLocation}";
     }
 
-    public override async Task<bool> GetAudioData(params Stream[] outputs)
+    public override async Task<Result<StreamSpreader, Error>> GetAudioData(params Stream[] outputs)
     {
         try
         {
             var fileLocation = GetLocation();
-            var file = File.Open(fileLocation, FileMode.Open, FileAccess.ReadWrite, FileShare.ReadWrite);
-            foreach (var stream in outputs) await file.CopyToAsync(stream);
-            return true;
+            var stream_spreader = new StreamSpreader(outputs);
+            await using var file = File.Open(fileLocation, FileMode.Open, FileAccess.ReadWrite, FileShare.ReadWrite);
+
+            await stream_spreader.ReadStreamToEndAsync(file);
+            return Result<StreamSpreader, Error>.Success(stream_spreader);
         }
         catch (Exception e)
         {
             await Debug.WriteAsync($"MusicObject GetAudioData method failed: \"{e}\"");
-            return false;
+            return Result<StreamSpreader, Error>.Error(new UnknownError());
         }
     }
 

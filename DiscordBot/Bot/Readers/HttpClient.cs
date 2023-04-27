@@ -5,7 +5,10 @@ using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Threading.Tasks;
+using DiscordBot.Abstract.Errors;
 using DiscordBot.Methods;
+using Result;
+using Result.Objects;
 using Streams;
 
 namespace DiscordBot.Readers;
@@ -42,7 +45,13 @@ public static class HttpClient
                 await resp.CopyToAsync(response);
                 break;
             case true:
-                await ChunkedDownloaderToStream(client, new Uri(url), false, response);
+                var stream_spreader = await ChunkedDownloaderToStream(client, new Uri(url));
+                if (stream_spreader == Status.Error) return "";
+                var result = stream_spreader.GetOK();
+                
+                result.AddDestination(response);
+                
+                // TODO: Finish this.
                 break;
         }
 
@@ -111,15 +120,22 @@ public static class HttpClient
         return response.Content.Headers.ContentLength;
     }
 
-    public static async Task ChunkedDownloaderToStream(System.Net.Http.HttpClient httpClient, Uri uri,
-        bool autoClose = false,
-        params Stream[] streams)
+    public static async Task<Result<StreamSpreader, Error>> ChunkedDownloaderToStream(System.Net.Http.HttpClient httpClient, Uri uri)
     {
-        await Debug.WriteAsync($"Chunked Downloader has {streams.Length} destinations.");
-        var streamSpreader = new StreamSpreader(streams);
+        var stream_spreader = new StreamSpreader
+        {
+            IsAsynchronous = true,
+            KeepCached = true
+        };
+        
         var fileSize = await GetContentLengthAsync(httpClient, uri.AbsoluteUri) ?? 0;
         const long chunkSize = 10485760;
-        if (fileSize == 0) throw new Exception("File has no content");
+        
+        if (fileSize == 0)
+        {
+            return Result<StreamSpreader, Error>.Error(new UnknownError());
+        }
+        
         var segmentCount = (int)Math.Ceiling(1.0 * fileSize / chunkSize);
         for (var i = 0; i < segmentCount; i++)
         {
@@ -138,12 +154,10 @@ public static class HttpClient
             do
             {
                 bytesCopied = await stream.ReadAsync(buffer.AsMemory(0, buffer.Length));
-                await streamSpreader.WriteAsync(buffer.AsMemory(0, bytesCopied));
+                await stream_spreader.WriteAsync(buffer.AsMemory(0, bytesCopied));
             } while (bytesCopied > 0);
         }
 
-        if (autoClose) streamSpreader.Close();
-
-        await Debug.WriteAsync("Chunked Downloader finished.");
+        return Result<StreamSpreader, Error>.Success(stream_spreader);
     }
 }

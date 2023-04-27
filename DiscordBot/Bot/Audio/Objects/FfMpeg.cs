@@ -7,6 +7,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using DiscordBot.Abstract;
 using DSharpPlus.VoiceNext;
+using Result.Objects;
 using Streams;
 using Debug = DiscordBot.Methods.Debug;
 
@@ -85,35 +86,34 @@ public class FfMpeg
         };
         FfMpegProcess = Process.Start(ffmpegStartInfo);
         if (FfMpegProcess == null) return;
+        
         try
         {
             Spreader = FindExisting(item.GetAddUrl());
-            if (Spreader == null)
-            {
-                Spreader = new StreamSpreader(CancellationSource.Token)
-                {
-                    KeepCached = true
-                };
-                AddSpreader(item.GetAddUrl(), Spreader);
-            }
-
-            Spreader.AddDestination(FfMpegProcess.StandardInput
-                .BaseStream);
 
             async void Write()
             {
                 while (!FfMpegProcess.StandardInput.BaseStream.CanWrite && !CancellationSource.Token.IsCancellationRequested) await Task.Delay(16);
-                var success = await item.GetAudioData(Spreader);
-                if (success == false)
+
+                var stream_spreader = Spreader;
+                if (stream_spreader == null)
                 {
-                    await Debug.WriteAsync("Reading Audio Data wasn't successful.");
-                    await Kill();
+                    var result = await item.GetAudioData(FfMpegProcess.StandardInput
+                        .BaseStream);
+                    if (result == Status.Error)
+                    {
+                        await Debug.WriteAsync("Reading Audio Data wasn't successful.");
+                        await Kill();
+                    }
+                    
+                    stream_spreader = Spreader = result.GetOK();
+                    AddSpreader(item.GetAddUrl(), stream_spreader);
                 }
 
                 try
                 {
-                    await Spreader.FlushAsync();
-                    Spreader.Close();
+                    await stream_spreader.FlushAsync();
+                    await stream_spreader.CloseAsync();
                 }
                 catch (TaskCanceledException)
                 {

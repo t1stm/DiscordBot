@@ -1,6 +1,9 @@
 using System.IO;
 using System.Threading.Tasks;
 using DiscordBot.Abstract;
+using DiscordBot.Abstract.Errors;
+using Result;
+using Streams;
 
 namespace DiscordBot.Audio.Objects;
 
@@ -11,9 +14,9 @@ public class SpotifyTrack : PlayableItem
 
     public bool Explicit { get; init; }
 
-    public override Task<bool> GetAudioData(params Stream[] outputs)
+    public override Task<Result<StreamSpreader, Error>> GetAudioData(params Stream[] outputs)
     {
-        return new Task<bool>(() => false);
+        return Task.FromResult(Result<StreamSpreader, Error>.Error(new NoResultsError()));
     }
 
     public override string GetId()

@@ -342,10 +342,10 @@ public class Queue
                     LevenshteinDistance.ComputeStrict(vi.GetName(), thing2.Trim()) < vi.GetName().Length * 0.2);
                 if (one == null || two == null)
                 {
-                    one = Items.OrderBy(vi =>
-                        LevenshteinDistance.ComputeStrict(vi.GetTitle(), result.Trim())).FirstOrDefault();
-                    two = Items.OrderBy(vi =>
-                        LevenshteinDistance.ComputeStrict(vi.GetTitle(), thing2.Trim())).FirstOrDefault();
+                    one = Items.MinBy(vi =>
+                        LevenshteinDistance.ComputeStrict(vi.GetTitle(), result.Trim()));
+                    two = Items.MinBy(vi =>
+                        LevenshteinDistance.ComputeStrict(vi.GetTitle(), thing2.Trim()));
                     if (one == null || two == null) return false;
                 }
 

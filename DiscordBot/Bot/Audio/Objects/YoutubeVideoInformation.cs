@@ -3,15 +3,16 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 using DiscordBot.Abstract;
+using DiscordBot.Abstract.Errors;
 using DiscordBot.Readers;
 using Streams;
 using YouTubeApiSharp;
 using YoutubeExplode;
 using YoutubeExplode.Videos.Streams;
-using Debug = DiscordBot.Methods.Debug;
+using Result;
+using Result.Objects;
 
 namespace DiscordBot.Audio.Objects;
 
@@ -42,74 +43,79 @@ public class YoutubeVideoInformation : PlayableItem
     public override string GetLocation()
     {
         if (!IsLiveStream) return Location;
-        var updateTask = Task.Run(async () => { await DownloadYtDlp(YoutubeId, true); });
+        var updateTask = Task.Run(() =>
+        {
+            DownloadYtDlp(YoutubeId, true);
+            return Task.CompletedTask;
+        });
         updateTask.Wait();
         return Location;
     }
 
     //This is a bad way to implement this feature, but I cannot currently implement it in a better way... Well, too bad!
-    public override async Task<bool> GetAudioData(params Stream[] outputs)
+    public override async Task<Result<StreamSpreader, Error>> GetAudioData(params Stream[] outputs)
     {
+        var outs = new List<Stream>(outputs);
         TriesToDownload++;
         Errored = TriesToDownload > 3;
-        try
+
+        if (Length < 1800000 && YoutubeId != "ETQmQ1Ixv5Y")
         {
-            Location = ReturnIfExists(YoutubeId);
-            if (!string.IsNullOrEmpty(Location))
-            {
-                var fs = File.Open(Location, FileMode.Open, FileAccess.Read, FileShare.Read);
-                foreach (var stream in outputs)
-                {
-                    fs.Position = 0;
-                    try
-                    {
-                        await fs.CopyToAsync(stream);
-                    }
-                    catch
-                    {
-                        // Ignored because Streams are handled worse than my code.
-                    }
-                }
-
-                fs.Close();
-                return true;
-            }
-
-            try
-            {
-                await DownloadYtDlp(YoutubeId, false, outputs);
-            }
-            catch (Exception e)
-            {
-                await Debug.WriteAsync($"Download yt-dlp failed: \"{e}\"");
-                try
-                {
-                    await DownloadExplode(YoutubeId, outputs);
-                }
-                catch (Exception exc)
-                {
-                    await Debug.WriteAsync($"Download Youtube Explode failed: \"{exc}\"");
-                    try
-                    {
-                        await DownloadOtherApi(YoutubeId, outputs);
-                    }
-                    catch (Exception except)
-                    {
-                        await Debug.WriteAsync(
-                            $"Download Other Api failed for: \'{YoutubeId}\', with error \"{except}\"",
-                            true);
-                        return false;
-                    }
-                }
-            }
+            outs.Add(File.Open($"{DownloadDirectory}/{YoutubeId}.webm", FileMode.Create));
         }
-        catch (Exception exception)
+        
+        Location = ReturnIfExists(YoutubeId);
+        if (!string.IsNullOrEmpty(Location))
         {
-            await Debug.WriteAsync($"Failed to download. {YoutubeId}, Exception: \"{exception}\"");
-            return false;
+            var stream_spreader = new StreamSpreader(outs.ToArray())
+            {
+                IsAsynchronous = true,
+                KeepCached = true
+            };
+            await using var fs = File.Open(Location, FileMode.Open, FileAccess.Read, FileShare.Read);
+            await stream_spreader.ReadStreamToEndAsync(fs);
+            
+            return Result<StreamSpreader, Error>.Success(stream_spreader);
         }
 
-        return true;
+        var yt_dlp = DownloadYtDlp(YoutubeId);
+        if (yt_dlp == Status.OK)
+        {
+            var (stream, task) = yt_dlp.GetOK();
+
+            var stream_spreader = new StreamSpreader(outs.ToArray())
+            {
+                IsAsynchronous = true,
+                KeepCached = true
+            };
+            
+            await stream_spreader.ReadStreamToEndAsync(stream);
+            await task;
+            
+            return Result<StreamSpreader, Error>.Success(stream_spreader);
+        }
+        
+        var yt_other = await DownloadOtherApi(YoutubeId);
+        if (yt_other == Status.OK)
+        {
+            var stream_spreader = yt_other.GetOK();
+            stream_spreader.AddDestinations(outs.ToArray());
+
+            return Result<StreamSpreader, Error>.Success(stream_spreader);
+        }
+
+        var yt_explode = await DownloadExplode(YoutubeId);
+        if (yt_explode != Status.OK)
+        {
+            return Result<StreamSpreader, Error>.Error(new UnknownError());
+        }
+
+        {
+            var stream_spreader = yt_explode.GetOK();
+            stream_spreader.AddDestinations(outs.ToArray());
+            
+            return Result<StreamSpreader, Error>.Success(stream_spreader);
+        }
     }
 
     public override string GetId()
@@ -131,9 +137,8 @@ public class YoutubeVideoInformation : PlayableItem
             : null;
     }
 
-    private async Task DownloadYtDlp(string id, bool live = false, params Stream[] outputs)
+    private Result<(Stream, Task), Error> DownloadYtDlp(string id, bool live = false)
     {
-        var outs = new List<Stream>(outputs);
         var sett = new ProcessStartInfo
         {
             RedirectStandardOutput = true,
@@ -144,50 +149,47 @@ public class YoutubeVideoInformation : PlayableItem
             FileName = "yt-dlp"
         };
         var pr = Process.Start(sett);
-        if (pr == null) throw new NullReferenceException();
-
-        if (live)
+        if (pr == null)
         {
-            IsLiveStream = true;
-            return;
+            return Result<(Stream, Task), Error>.Error(new NoResultsError());
         }
 
-        if (Length < 1800000) outs.Add(File.Open($"{DownloadDirectory}/{id}.webm", FileMode.Create));
-        await Debug.WriteAsync("Starting download task.");
-        var streamSpreader = new StreamSpreader(CancellationToken.None, outs.ToArray());
-        await pr.StandardOutput.BaseStream.CopyToAsync(streamSpreader);
-        await Debug.WriteAsync("Download task finished.");
+        if (!live)
+        {
+            return Result<(Stream, Task), Error>.Success((pr.StandardOutput.BaseStream, pr.WaitForExitAsync()));
+        }
+        
+        IsLiveStream = true;
+        return Result<(Stream, Task), Error>.Error(new NoResultsError());
     }
 
-    private async Task DownloadOtherApi(string id, params Stream[] outputs)
+    private async Task<Result<StreamSpreader, Error>> DownloadOtherApi(string id)
     {
-        var outs = new List<Stream>(outputs);
         var videoInfos =
             DownloadUrlResolver.GetDownloadUrls($"https://youtube.com/watch?v={id}");
-        if (videoInfos == null) throw new Exception("Empty Results");
+        if (videoInfos == null)
+        {
+            return Result<StreamSpreader, Error>.Error(new NoResultsError());
+        }
+        
         var results = videoInfos.ToList();
         var audioInfo = results.Where(vi => vi.Resolution == 0 && vi.AudioType == AudioType.Opus)
             .OrderBy(vi => vi.AudioBitrate).Last();
         if (audioInfo.RequiresDecryption)
             DownloadUrlResolver.DecryptDownloadUrl(audioInfo);
         Location = audioInfo.DownloadUrl;
-        if (Length < 1800000) outs.Add(File.Open($"{DownloadDirectory}/{id}.webm", FileMode.Create));
-        await Debug.WriteAsync("Starting download task.");
-        await HttpClient.ChunkedDownloaderToStream(HttpClient.WithCookies(), new Uri(audioInfo.DownloadUrl), false,
-            outs.ToArray());
+        
+        return await HttpClient.ChunkedDownloaderToStream(HttpClient.WithCookies(), new Uri(audioInfo.DownloadUrl));
     }
 
-    private async Task DownloadExplode(string id, params Stream[] outputs)
+    private async Task<Result<StreamSpreader, Error>> DownloadExplode(string id)
     {
-        var outs = new List<Stream>(outputs);
         var client = new YoutubeClient(HttpClient.WithCookies());
         var streamManifest = await client.Videos.Streams.GetManifestAsync(id);
         var streamInfo = streamManifest.GetAudioOnlyStreams().GetWithHighestBitrate();
         var filepath = $"{DownloadDirectory}/{id}.{streamInfo.Container}";
         Location = streamInfo.Url;
-        if (Length < 1800000) outs.Add(File.Open($"{DownloadDirectory}/{id}.webm", FileMode.Create));
-        await Debug.WriteAsync("Starting download task.");
-        await HttpClient.ChunkedDownloaderToStream(HttpClient.WithCookies(), new Uri(filepath), false,
-            outs.ToArray());
+        
+       return await HttpClient.ChunkedDownloaderToStream(HttpClient.WithCookies(), new Uri(filepath));
     }
 }

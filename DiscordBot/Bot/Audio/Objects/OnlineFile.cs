@@ -2,8 +2,12 @@ using System;
 using System.IO;
 using System.Threading.Tasks;
 using DiscordBot.Abstract;
+using DiscordBot.Abstract.Errors;
 using DiscordBot.Methods;
 using DiscordBot.Readers;
+using Streams;
+using Result;
+using Result.Objects;
 
 namespace DiscordBot.Audio.Objects;
 
@@ -15,17 +19,21 @@ public class OnlineFile : PlayableItem
         return loc.Length > 40 ? $"{loc[..40]}..." : loc;
     }
 
-    public override async Task<bool> GetAudioData(params Stream[] outputs)
+    public override async Task<Result<StreamSpreader, Error>> GetAudioData(params Stream[] outputs)
     {
         try
         {
-            await HttpClient.ChunkedDownloaderToStream(HttpClient.WithCookies(), new Uri(Location), false, outputs);
-            return true;
+            var stream_spreader =
+                await HttpClient.ChunkedDownloaderToStream(HttpClient.WithCookies(), new Uri(Location));
+            if (stream_spreader == Status.Error) return stream_spreader;
+            
+            stream_spreader.GetOK().AddDestinations(outputs);
+            return stream_spreader;
         }
         catch (Exception e)
         {
             await Debug.WriteAsync($"OnlineFile GetAudioData method failed: \"{e}\"");
-            return false;
+            return Result<StreamSpreader, Error>.Error(new UnknownError());
         }
     }
 

@@ -7,13 +7,16 @@ using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
 using DiscordBot.Abstract;
+using DiscordBot.Abstract.Errors;
 using DiscordBot.Methods;
+using Result;
+using Streams;
 
 namespace DiscordBot.Audio.Objects;
 
 public class YoutubeOverride : PlayableItem
 {
-    private static readonly string FileLocation = $"{Bot.WorkingDirectory}/dll/YoutubeOverrides.json";
+    private const string FileLocation = $"{Bot.WorkingDirectory}/dll/YoutubeOverrides.json";
     public static List<YoutubeOverride> Overrides { get; set; } = new();
     public string[]? YoutubeIds { get; init; }
     public string[] Titles { get; init; } = Array.Empty<string>();
@@ -90,18 +93,21 @@ public class YoutubeOverride : PlayableItem
         return Authors[0];
     }
 
-    public override async Task<bool> GetAudioData(params Stream[] outputs)
+    public override async Task<Result<StreamSpreader, Error>> GetAudioData(params Stream[] outputs)
     {
         try
         {
-            var file = File.OpenRead(Location);
-            foreach (var stream in outputs) await file.CopyToAsync(stream);
-            return true;
+            var fileLocation = GetLocation();
+            var stream_spreader = new StreamSpreader(outputs);
+            await using var file = File.Open(fileLocation, FileMode.Open, FileAccess.ReadWrite, FileShare.ReadWrite);
+
+            await stream_spreader.ReadStreamToEndAsync(file);
+            return Result<StreamSpreader, Error>.Success(stream_spreader);
         }
         catch (Exception e)
         {
-            await Debug.WriteAsync($"OnlineFile GetAudioData method failed: \"{e}\"");
-            return false;
+            await Debug.WriteAsync($"YoutubeOverride GetAudioData method failed: \"{e}\"");
+            return Result<StreamSpreader, Error>.Error(new UnknownError());
         }
     }
 

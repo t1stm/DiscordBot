@@ -2,9 +2,13 @@ using System;
 using System.IO;
 using System.Threading.Tasks;
 using DiscordBot.Abstract;
+using DiscordBot.Abstract.Errors;
 using DiscordBot.Methods;
 using TagLib;
-using File = TagLib.File;
+using TagFile = TagLib.File;
+using Result;
+using Streams;
+using File = System.IO.File;
 
 namespace DiscordBot.Audio.Objects;
 
@@ -45,7 +49,7 @@ public class SystemFile : PlayableItem
         Processed = true;
         try
         {
-            var info = File.Create(GetLocation());
+            var info = TagFile.Create(GetLocation());
             Length = (ulong)info.Properties.Duration.TotalMilliseconds + 0;
             var tag = info.GetTag(TagTypes.AllTags);
             if (tag == null) return Task.CompletedTask;
@@ -60,19 +64,21 @@ public class SystemFile : PlayableItem
         return Task.CompletedTask;
     }
 
-    public override async Task<bool> GetAudioData(params Stream[] outputs)
+    public override async Task<Result<StreamSpreader, Error>> GetAudioData(params Stream[] outputs)
     {
         try
         {
-            if (!System.IO.File.Exists(GetLocation())) return false;
-            var file = System.IO.File.OpenRead(GetLocation());
-            foreach (var stream in outputs) await file.CopyToAsync(stream);
-            return true;
+            var fileLocation = GetLocation();
+            var stream_spreader = new StreamSpreader(outputs);
+            await using var file = File.Open(fileLocation, FileMode.Open, FileAccess.ReadWrite, FileShare.ReadWrite);
+
+            await stream_spreader.ReadStreamToEndAsync(file);
+            return Result<StreamSpreader, Error>.Success(stream_spreader);
         }
         catch (Exception e)
         {
-            await Debug.WriteAsync($"OnlineFile GetAudioData method failed: \"{e}\"");
-            return false;
+            await Debug.WriteAsync($"MusicObject GetAudioData method failed: \"{e}\"");
+            return Result<StreamSpreader, Error>.Error(new UnknownError());
         }
     }
 

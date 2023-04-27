@@ -1,8 +1,11 @@
 using System.IO;
 using System.Threading.Tasks;
+using DiscordBot.Abstract.Errors;
 using DiscordBot.Audio.Objects;
 using DiscordBot.Objects;
 using DSharpPlus.Entities;
+using Result;
+using Streams;
 
 namespace DiscordBot.Abstract;
 
@@ -14,7 +17,7 @@ public abstract class PlayableItem
     public string Location { get; set; }
     public DiscordMember Requester { get; set; }
     protected bool Errored { get; set; }
-    public bool Processed { get; set; }
+    protected internal bool Processed { get; set; }
 
     public virtual string GetName(bool settingsShowOriginalInfo = false)
     {
@@ -31,7 +34,7 @@ public abstract class PlayableItem
         return Location;
     }
 
-    public abstract Task<bool> GetAudioData(params Stream[] outputs);
+    public abstract Task<Result<StreamSpreader, Error>> GetAudioData(params Stream[] outputs);
 
     public virtual Task ProcessInfo()
     {

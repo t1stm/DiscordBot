@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Threading.Tasks;
 using DiscordBot.Abstract;
+using Result.Objects;
 using Debug = DiscordBot.Methods.Debug;
 
 namespace DiscordBot.Standalone;
@@ -42,11 +43,25 @@ public class FfMpeg2
             UseShellExecute = false
         };
         FfMpegProcess = Process.Start(ffmpegStartInfo);
+        if (FfMpegProcess == null) throw new NullReferenceException("Opened FFmpeg instance is null.");
 
         async void WriteAction()
         {
-            await item.GetAudioData(FfMpegProcess?.StandardInput.BaseStream);
-            FfMpegProcess?.StandardInput.BaseStream.Close();
+            try
+            {
+                var result = await item.GetAudioData(FfMpegProcess.StandardInput.BaseStream);
+                if (result == Status.Error)
+                {
+                    return;
+                }
+
+                var stream_spreader = result.GetOK();
+                await stream_spreader.FlushAsync();
+            }
+            finally
+            {
+                FfMpegProcess?.StandardInput.BaseStream.Close();
+            }
         }
 
         var yes = new Task(WriteAction);
