@@ -275,7 +275,7 @@ public static class Video
         return Databases.FuckYoutubeDatabase.Read(vid);
     }
 
-    private static Result<PlayableItem, Error> GetCachedVideoFromId(string id)
+    public static Result<PlayableItem, Error> GetCachedVideoFromId(string id)
     {
         var alt = YoutubeOverride.FromId(id);
         if (alt is not null) return Result<PlayableItem, Error>.Success(alt);
