@@ -45,7 +45,7 @@ public static class HttpClient
                 await resp.CopyToAsync(response);
                 break;
             case true:
-                var stream_spreader = await ChunkedDownloaderToStream(client, new Uri(url));
+                var stream_spreader = await ChunkedDownloader(client, new Uri(url));
                 if (stream_spreader == Status.Error) return "";
                 var result = stream_spreader.GetOK();
                 
@@ -120,7 +120,7 @@ public static class HttpClient
         return response.Content.Headers.ContentLength;
     }
 
-    public static async Task<Result<StreamSpreader, Error>> ChunkedDownloaderToStream(
+    public static async Task<Result<StreamSpreader, Error>> ChunkedDownloader(
         System.Net.Http.HttpClient httpClient, Uri uri, bool autoFinish = false)
 
     {
@@ -138,30 +138,41 @@ public static class HttpClient
             return Result<StreamSpreader, Error>.Error(new UnknownError());
         }
 
-        var segmentCount = (int)Math.Ceiling(1.0 * fileSize / chunkSize);
-        for (var i = 0; i < segmentCount; i++)
+        async void DownloadAction()
         {
-            var from = i * chunkSize;
-            var to = (i + 1) * chunkSize - 1;
-            var request = new HttpRequestMessage(HttpMethod.Get, uri);
-            request.Headers.Range = new RangeHeaderValue(from, to);
-
-            // Download Stream
-            var response = await httpClient.SendAsync(request, HttpCompletionOption.ResponseHeadersRead);
-            if (response.IsSuccessStatusCode)
-                response.EnsureSuccessStatusCode();
-            var stream = await response.Content.ReadAsStreamAsync();
-            var buffer = new byte[81920];
-            int bytesCopied;
-            do
+            try
             {
-                bytesCopied = await stream.ReadAsync(buffer.AsMemory(0, buffer.Length));
-                await stream_spreader.WriteAsync(buffer.AsMemory(0, bytesCopied));
-            } while (bytesCopied > 0);
+                var segment_count = (int) Math.Ceiling(1.0 * fileSize / chunkSize);
+                for (var i = 0; i < segment_count; i++)
+                {
+                    var from = i * chunkSize;
+                    var to = (i + 1) * chunkSize - 1;
+                    var request = new HttpRequestMessage(HttpMethod.Get, uri);
+                    request.Headers.Range = new RangeHeaderValue(from, to);
+                
+                    var response = await httpClient.SendAsync(request, HttpCompletionOption.ResponseHeadersRead);
+                    if (response.IsSuccessStatusCode) response.EnsureSuccessStatusCode();
+                    var stream = await response.Content.ReadAsStreamAsync();
+                    var buffer = new byte[1 << 16];
+                
+                    int bytes_copied;
+                    do
+                    {
+                        bytes_copied = await stream.ReadAsync(buffer);
+                        stream_spreader.Write(buffer, 0, bytes_copied);
+                    } while (bytes_copied > 0);
+                }
+
+                if (autoFinish) stream_spreader.FinishWriting();
+            }
+            catch (Exception e)
+            {
+                await Debug.WriteAsync($"Download Action in Chunked Downloader failed: \'{e}\'");
+            }
         }
 
-        if (autoFinish) 
-            stream_spreader.FinishWriting();
+        var download_action = new Task(DownloadAction);
+        download_action.Start();
         
         return Result<StreamSpreader, Error>.Success(stream_spreader);
     }

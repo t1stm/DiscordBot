@@ -17,7 +17,7 @@ public class Vbox7Video : PlayableItem
     public override async Task<Result<StreamSpreader, Error>> GetAudioData(params Stream[] outputs)
     {
         var stream_spreader =
-            await HttpClient.ChunkedDownloaderToStream(HttpClient.WithCookies(), new Uri(Location), true);
+            await HttpClient.ChunkedDownloader(HttpClient.WithCookies(), new Uri(Location), true);
         if (stream_spreader == Status.Error) return stream_spreader;
             
         stream_spreader.GetOK().AddDestinations(outputs);

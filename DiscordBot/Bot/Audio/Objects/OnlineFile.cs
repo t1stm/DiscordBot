@@ -24,7 +24,7 @@ public class OnlineFile : PlayableItem
         try
         {
             var stream_spreader =
-                await HttpClient.ChunkedDownloaderToStream(HttpClient.WithCookies(), new Uri(Location));
+                await HttpClient.ChunkedDownloader(HttpClient.WithCookies(), new Uri(Location));
             if (stream_spreader == Status.Error) return stream_spreader;
             
             stream_spreader.GetOK().AddDestinations(outputs);

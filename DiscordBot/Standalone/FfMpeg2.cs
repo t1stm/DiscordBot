@@ -2,7 +2,6 @@
 using System;
 using System.Diagnostics;
 using System.IO;
-using System.Threading;
 using System.Threading.Tasks;
 using DiscordBot.Abstract;
 using Result.Objects;
@@ -37,7 +36,7 @@ public class FfMpeg2
         var ffmpegStartInfo = new ProcessStartInfo
         {
             FileName = "ffmpeg",
-            Arguments = @"-v quiet -nostats " + $@"-i - {codec} -r 48000 -vn {addParameters} {format} pipe:1",
+            Arguments = @"-v warning -nostats " + $@"-i - {codec} -r 48000 -vn {addParameters} {format} pipe:1",
             RedirectStandardOutput = true,
             RedirectStandardInput = true,
             RedirectStandardError = false,

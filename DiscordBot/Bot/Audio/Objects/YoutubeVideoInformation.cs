@@ -186,7 +186,7 @@ public class YoutubeVideoInformation : PlayableItem
             DownloadUrlResolver.DecryptDownloadUrl(audioInfo);
         Location = audioInfo.DownloadUrl;
         
-        return await HttpClient.ChunkedDownloaderToStream(HttpClient.WithCookies(), new Uri(audioInfo.DownloadUrl), true).ConfigureAwait(false);
+        return await HttpClient.ChunkedDownloader(HttpClient.WithCookies(), new Uri(audioInfo.DownloadUrl), true).ConfigureAwait(false);
     }
 
     private async Task<Result<StreamSpreader, Error>> DownloadExplode(string id)
@@ -197,6 +197,6 @@ public class YoutubeVideoInformation : PlayableItem
         var filepath = $"{DownloadDirectory}/{id}.{streamInfo.Container}";
         Location = streamInfo.Url;
         
-       return await HttpClient.ChunkedDownloaderToStream(HttpClient.WithCookies(), new Uri(filepath), true).ConfigureAwait(false);
+       return await HttpClient.ChunkedDownloader(HttpClient.WithCookies(), new Uri(filepath), true).ConfigureAwait(false);
     }
 }

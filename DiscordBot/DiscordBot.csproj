@@ -250,10 +250,10 @@
         <PackageReference Include="System.Xml.XDocument" Version="4.3.0" />
         <PackageReference Include="t1stm.DatabaseManager" Version="1.0.3" />
         <PackageReference Include="t1stm.Result" Version="1.0.1" />
-        <PackageReference Include="t1stm.Streams" Version="1.0.19" />
+        <PackageReference Include="t1stm.Streams" Version="1.0.20" />
         <PackageReference Include="Unosquare.Swan.Lite" Version="3.1.0" />
         <PackageReference Include="YouTubeApiSharp" Version="0.0.5" />
-        <PackageReference Include="YoutubeExplode" Version="6.2.10" />
+        <PackageReference Include="YoutubeExplode" Version="6.2.13" />
         <PackageReference Include="YoutubeSearchApi.Net" Version="1.1.1" />
         <PackageReference Include="ZXing.Net" Version="0.16.8" />
         <PackageReference Include="ZXing.Net.Bindings.CoreCompat.System.Drawing" Version="0.16.7-beta" />
