@@ -88,7 +88,7 @@ public class PlaylistAPI : Controller
                 Response.Headers.Add(HeaderNames.ContentDisposition, "filename=not-found.png");
                 spreader = await PlaylistThumbnail.GetNotFoundInfo(output);
                 await (spreader?.FlushAsync()).ExecuteIfNotNull();
-                await (spreader?.CloseAsync()).ExecuteIfNotNull();
+                spreader?.Close();
                 await Response.CompleteAsync();
                 return;
             }
@@ -99,7 +99,7 @@ public class PlaylistAPI : Controller
                 Response.Headers.Add(HeaderNames.ContentDisposition, "filename=not-found.png");
                 spreader = await PlaylistThumbnail.GetNotFoundInfo(output);
                 await (spreader?.FlushAsync()).ExecuteIfNotNull();
-                await (spreader?.CloseAsync()).ExecuteIfNotNull();
+                spreader?.Close();
                 await Response.CompleteAsync();
                 return;
             }
@@ -108,7 +108,7 @@ public class PlaylistAPI : Controller
 
             spreader = await PlaylistThumbnail.GetImage(guid.ToString(), playlist.Value.Info, false, output);
             await (spreader?.FlushAsync()).ExecuteIfNotNull();
-            await (spreader?.CloseAsync()).ExecuteIfNotNull();
+            spreader?.Close();
 
             await Response.CompleteAsync();
         }
@@ -154,7 +154,7 @@ public class PlaylistAPI : Controller
 
             spreader = await PlaylistThumbnail.PlaylistImageSpreader(playlist.Value.Info, output);
             await spreader.FlushAsync();
-            await spreader.CloseAsync();
+            spreader.Close();
             await Response.CompleteAsync();
         }
         catch (Exception e)

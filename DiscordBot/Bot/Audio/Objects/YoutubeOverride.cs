@@ -101,7 +101,8 @@ public class YoutubeOverride : PlayableItem
             var stream_spreader = new StreamSpreader(outputs);
             await using var file = File.Open(fileLocation, FileMode.Open, FileAccess.ReadWrite, FileShare.ReadWrite);
 
-            await stream_spreader.ReadStreamToEndAsync(file);
+            await file.CopyToAsync(stream_spreader);
+            stream_spreader.FinishWriting();
             return Result<StreamSpreader, Error>.Success(stream_spreader);
         }
         catch (Exception e)

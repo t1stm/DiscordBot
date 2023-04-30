@@ -39,7 +39,10 @@ public class MusicObject : PlayableItem
             var stream_spreader = new StreamSpreader(outputs);
             await using var file = File.Open(fileLocation, FileMode.Open, FileAccess.ReadWrite, FileShare.ReadWrite);
 
-            await stream_spreader.ReadStreamToEndAsync(file);
+            await file.CopyToAsync(stream_spreader).ContinueWith(_ =>
+            {
+                stream_spreader.FinishWriting();
+            }).ConfigureAwait(false);
             return Result<StreamSpreader, Error>.Success(stream_spreader);
         }
         catch (Exception e)

@@ -72,8 +72,12 @@ public class YoutubeVideoInformation : PlayableItem
                 IsAsynchronous = true,
                 KeepCached = true
             };
+            
             await using var fs = File.Open(Location, FileMode.Open, FileAccess.Read, FileShare.Read);
-            await stream_spreader.ReadStreamToEndAsync(fs);
+            await fs.CopyToAsync(stream_spreader).ContinueWith(_ =>
+            {
+                stream_spreader.FinishWriting();
+            }).ConfigureAwait(false);
             
             return Result<StreamSpreader, Error>.Success(stream_spreader);
         }
@@ -88,8 +92,11 @@ public class YoutubeVideoInformation : PlayableItem
                 IsAsynchronous = true,
                 KeepCached = true
             };
-            
-            await stream_spreader.ReadStreamToEndAsync(stream);
+
+            await stream.CopyToAsync(stream_spreader).ContinueWith(_ =>
+            {
+                stream_spreader.FinishWriting();
+            }).ConfigureAwait(false);
             await task;
             
             return Result<StreamSpreader, Error>.Success(stream_spreader);
@@ -179,7 +186,7 @@ public class YoutubeVideoInformation : PlayableItem
             DownloadUrlResolver.DecryptDownloadUrl(audioInfo);
         Location = audioInfo.DownloadUrl;
         
-        return await HttpClient.ChunkedDownloaderToStream(HttpClient.WithCookies(), new Uri(audioInfo.DownloadUrl));
+        return await HttpClient.ChunkedDownloaderToStream(HttpClient.WithCookies(), new Uri(audioInfo.DownloadUrl), true).ConfigureAwait(false);
     }
 
     private async Task<Result<StreamSpreader, Error>> DownloadExplode(string id)
@@ -190,6 +197,6 @@ public class YoutubeVideoInformation : PlayableItem
         var filepath = $"{DownloadDirectory}/{id}.{streamInfo.Container}";
         Location = streamInfo.Url;
         
-       return await HttpClient.ChunkedDownloaderToStream(HttpClient.WithCookies(), new Uri(filepath));
+       return await HttpClient.ChunkedDownloaderToStream(HttpClient.WithCookies(), new Uri(filepath), true).ConfigureAwait(false);
     }
 }

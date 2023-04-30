@@ -4,12 +4,10 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text.Json;
-using System.Threading;
 using System.Threading.Tasks;
 using DiscordBot.Audio.Objects;
 using DiscordBot.Audio.Platforms.Youtube;
 using DiscordBot.Methods;
-using ImageMagick;
 using Microsoft.AspNetCore.Mvc;
 using Result.Objects;
 using Streams;
@@ -79,13 +77,6 @@ public class Audio : Controller
             var filename = type.Replace('/', '.'); /* type[..5] + '.' + type[7..]; */
             Response.Headers.ContentDisposition = $"attachment; filename={filename}; filename*=UTF-8''{filename}";
 
-            EncodedAudio? encodedAudio;
-
-            lock (EncodedAudio)
-            {
-                encodedAudio = EncodedAudio.FirstOrDefault(r => r.SearchTerm == id);
-            }
-            
             if (Bot.DebugMode) await Debug.WriteAsync("Using Audio Controller");
             var res = await DiscordBot.Audio.Platforms.Search.Get(id);
 

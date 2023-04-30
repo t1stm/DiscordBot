@@ -1,6 +1,5 @@
 #nullable enable
 using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Threading;
@@ -15,7 +14,6 @@ namespace DiscordBot.Audio.Objects;
 
 public class FfMpeg
 {
-    private static readonly Dictionary<string, StreamSpreader> ActiveWriteSessions = new();
     private Process? FfMpegProcess { get; set; }
     private StreamSpreader? Spreader { get; set; } = new(CancellationToken.None);
     private CancellationTokenSource CancellationSource { get; } = new();
@@ -39,30 +37,6 @@ public class FfMpeg
         };
         FfMpegProcess = Process.Start(ffmpegStartInfo);
         return FfMpegProcess == null ? Stream.Null : FfMpegProcess.StandardOutput.BaseStream;
-    }
-
-    private static StreamSpreader? FindExisting(string videoId)
-    {
-        lock (ActiveWriteSessions)
-        {
-            return ActiveWriteSessions.TryGetValue(videoId, out var found) ? found : null;
-        }
-    }
-
-    private static void AddSpreader(string videoId, StreamSpreader spreader)
-    {
-        lock (ActiveWriteSessions)
-        {
-            ActiveWriteSessions.Add(videoId, spreader);
-        }
-    }
-
-    private static void RemoveSpreader(string videoId)
-    {
-        lock (ActiveWriteSessions)
-        {
-            ActiveWriteSessions.Remove(videoId);
-        }
     }
 
     public async Task ItemToPcm(PlayableItem item, VoiceTransmitSink? destination,
@@ -89,31 +63,26 @@ public class FfMpeg
         
         try
         {
-            Spreader = FindExisting(item.GetAddUrl());
 
             async void Write()
             {
                 while (!FfMpegProcess.StandardInput.BaseStream.CanWrite && !CancellationSource.Token.IsCancellationRequested) await Task.Delay(16);
-
-                var stream_spreader = Spreader;
-                if (stream_spreader == null)
+                
+                var result = await item.GetAudioData(FfMpegProcess.StandardInput
+                    .BaseStream);
+                
+                if (result == Status.Error)
                 {
-                    var result = await item.GetAudioData(FfMpegProcess.StandardInput
-                        .BaseStream);
-                    if (result == Status.Error)
-                    {
-                        await Debug.WriteAsync("Reading Audio Data wasn't successful.");
-                        await Kill();
-                    }
-                    
-                    stream_spreader = Spreader = result.GetOK();
-                    AddSpreader(item.GetAddUrl(), stream_spreader);
+                    await Debug.WriteAsync("Reading Audio Data wasn't successful.");
+                    await Kill();
                 }
-
+                    
+                var stream_spreader = result.GetOK();
+                Spreader = stream_spreader;
                 try
                 {
-                    await stream_spreader.FlushAsync();
-                    await stream_spreader.CloseAsync();
+                    await stream_spreader.FlushAsync(CancellationSource.Token);
+                    stream_spreader.Close();
                 }
                 catch (TaskCanceledException)
                 {
@@ -123,14 +92,18 @@ public class FfMpeg
                 {
                     await Debug.WriteAsync($"Exception when flushing StreamSpreader: \'{e}\'");
                 }
-
-                RemoveSpreader(item.GetAddUrl());
+                
                 await Debug.WriteAsync("Copying audio data to stream finished.");
             }
 
             var write_task = new Task(Write);
             write_task.Start();
+            
             await FfMpegProcess.StandardOutput.BaseStream.CopyToAsync(destination);
+        }
+        catch (TaskCanceledException)
+        {
+            // Ignored
         }
         catch (Exception e)
         {
@@ -150,8 +123,6 @@ public class FfMpeg
         try
         {
             CancellationSource.Cancel();
-            FfMpegProcess?.StandardOutput.DiscardBufferedData();
-            FfMpegProcess?.StandardOutput.BaseStream.Flush();
             Spreader?.Close();
         }
         catch (Exception)

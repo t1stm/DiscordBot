@@ -120,22 +120,24 @@ public static class HttpClient
         return response.Content.Headers.ContentLength;
     }
 
-    public static async Task<Result<StreamSpreader, Error>> ChunkedDownloaderToStream(System.Net.Http.HttpClient httpClient, Uri uri)
+    public static async Task<Result<StreamSpreader, Error>> ChunkedDownloaderToStream(
+        System.Net.Http.HttpClient httpClient, Uri uri, bool autoFinish = false)
+
     {
         var stream_spreader = new StreamSpreader
         {
             IsAsynchronous = true,
             KeepCached = true
         };
-        
+
         var fileSize = await GetContentLengthAsync(httpClient, uri.AbsoluteUri) ?? 0;
         const long chunkSize = 10485760;
-        
+
         if (fileSize == 0)
         {
             return Result<StreamSpreader, Error>.Error(new UnknownError());
         }
-        
+
         var segmentCount = (int)Math.Ceiling(1.0 * fileSize / chunkSize);
         for (var i = 0; i < segmentCount; i++)
         {
@@ -158,6 +160,9 @@ public static class HttpClient
             } while (bytesCopied > 0);
         }
 
+        if (autoFinish) 
+            stream_spreader.FinishWriting();
+        
         return Result<StreamSpreader, Error>.Success(stream_spreader);
     }
 }

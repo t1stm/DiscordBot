@@ -1,6 +1,7 @@
 using DiscordBot;
 using DiscordBot.Playlists.Music_Storage;
 using TestingApp;
+using TestingApp.Semaphore_Tests;
 
 Bot.LoadDatabases();
 MusicManager.Load();
@@ -18,7 +19,7 @@ await Task.Delay(-1);*/
 
 //DataAccuracy.Test();
 
-new PlaylistTest().Test();
+await DelayedRelease.Test();
 
 /*var id3v2_tag = Id3v2.GetImageFromTag("/nvme0/DiscordBot/Music Database/Chalga/Desi/Деси - Иди си.mp3");
 

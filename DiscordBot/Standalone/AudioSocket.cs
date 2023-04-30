@@ -151,12 +151,11 @@ public class AudioSocket
                             });
                         }
 
-                        var task = new Task(() =>
+                        var task = new Task(async () =>
                         {
                             var ffmpeg = new FfMpeg2();
-                            // TODO: Change this to the async method when it is implemented.
-                            streamSpreader.ReadStreamToEnd(ffmpeg.Convert(first, codec: "-c:a libopus",
-                                addParameters: $"-b:a {96}k"));
+                            await ffmpeg.Convert(first, codec: "-c:a libopus",
+                                addParameters: $"-b:a {96}k").CopyToAsync(streamSpreader);
                         });
                         task.Start();
                     }
