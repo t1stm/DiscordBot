@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text;
 using Newtonsoft.Json;
 using System.Text.RegularExpressions;
 using DiscordBot.Audio.Objects;
@@ -112,11 +113,11 @@ public static class MusicManager
             Formatting = Formatting.Indented,
             StringEscapeHandling = StringEscapeHandling.EscapeHtml
         };
-        using var file_stream = File.Open(jsonFile, FileMode.Create, FileAccess.ReadWrite, FileShare.ReadWrite);
+        using var file_stream = File.Open(jsonFile, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.ReadWrite);
         
         if (File.Exists(jsonFile))
         {
-            using var reader = new StreamReader(file_stream);
+            using var reader = new StreamReader(file_stream, Encoding.UTF8, true, 1024, true);
             
             var json = reader.ReadToEnd();
             var items = JsonConvert.DeserializeObject<List<MusicInfo>>(json) ?? Enumerable.Empty<MusicInfo>().ToList();
@@ -127,10 +128,9 @@ public static class MusicManager
             // Reset the position after reading to end.
             file_stream.Position = 0;
             
-            using var writer = new StreamWriter(file_stream);
+            using var writer = new StreamWriter(file_stream, Encoding.UTF8);
             serializer.Serialize(writer, data);
-            file_stream.Close();
-            
+
             return data;
         }
 
@@ -281,7 +281,9 @@ public static class MusicManager
 
     public static MusicInfo? SearchById(string id)
     {
-        return Items.AsParallel().FirstOrDefault(r => r.Id == id);
+        return Items.AsParallel().FirstOrDefault(r => r.Id == id) ?? 
+               // Second pass for regenerated infos.
+               Items.AsParallel().FirstOrDefault(r => (r.Id ?? "  ")[..^2] == id[..^2]);
     }
 
     public static IEnumerable<MusicInfo> GetAll()

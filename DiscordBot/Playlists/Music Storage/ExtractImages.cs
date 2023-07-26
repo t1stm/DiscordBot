@@ -1,7 +1,8 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text.Json;
+using System.Text;
+using Newtonsoft.Json;
 using DiscordBot.Methods;
 using DiscordBot.Playlists.Music_Storage.Objects;
 
@@ -21,9 +22,18 @@ public static class ExtractImages
 
     public static void ParseFolder(string folder, bool isVerbose = false)
     {
-        using var stream = File.Open($"{folder}/Info.json", FileMode.OpenOrCreate, FileAccess.ReadWrite,
-            FileShare.ReadWrite);
-        var items = JsonSerializer.Deserialize<List<MusicInfo>>(stream) ?? Enumerable.Empty<MusicInfo>().ToList();
+        var serializer = new JsonSerializer
+        {
+            Formatting = Formatting.Indented,
+            StringEscapeHandling = StringEscapeHandling.EscapeHtml
+        };
+        using var file_stream = File.Open($"{folder}/Info.json", FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.ReadWrite);
+        
+        using var reader = new StreamReader(file_stream, Encoding.UTF8, true, 1024, true);
+            
+        var json = reader.ReadToEnd();
+        var items = JsonConvert.DeserializeObject<List<MusicInfo>>(json) ?? Enumerable.Empty<MusicInfo>().ToList();
+        
         foreach (var info in items)
         {
             var location = info.ToMusicObject().GetLocation();
@@ -45,9 +55,10 @@ public static class ExtractImages
             File.WriteAllBytes(filename, image.Data!);
         }
 
-        stream.Position = 0;
-        JsonSerializer.Serialize(stream, items);
-        stream.Flush();
-        stream.Dispose();
+        file_stream.Position = 0;
+            
+        using var writer = new StreamWriter(file_stream, Encoding.UTF8);
+        serializer.Serialize(writer, items);
+        
     }
 }
