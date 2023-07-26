@@ -7,7 +7,7 @@ public static class M3U8Exporter
 {
     public static async void Export(Playlist playlist)
     {
-        var file_stream = File.Open("/home/kris/Desktop/export.m3u8", FileMode.Create, FileAccess.ReadWrite, FileShare.ReadWrite);
+        var file_stream = File.Open("/home/kris/Documents/Мазен Тираджия.m3u8", FileMode.Create, FileAccess.ReadWrite, FileShare.ReadWrite);
         var playlist_text_builder = new StreamWriter(file_stream);
         
         await playlist_text_builder.WriteLineAsync("#EXTM3U");

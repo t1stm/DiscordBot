@@ -39,7 +39,7 @@ public class FfMpeg
         return FfMpegProcess == null ? Stream.Null : FfMpegProcess.StandardOutput.BaseStream;
     }
 
-    public async Task ItemToPcm(PlayableItem item, VoiceTransmitSink? destination,
+    public async Task ItemToPcm(PlayableItem item, VoiceTransmitSink destination,
         string startingTime = "00:00:00.000", bool normalize = true)
     {
         var ffmpegStartInfo = new ProcessStartInfo

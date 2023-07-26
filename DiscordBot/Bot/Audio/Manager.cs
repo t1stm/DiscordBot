@@ -97,8 +97,8 @@ public static class Manager
     {
         var user = await User.FromId(ctx.User.Id);
         var languageUser = user.Language;
-        var userVoiceS = ctx.Member!.VoiceState?.Channel;
-        if (userVoiceS == null)
+        var userVoiceS = ctx.Member?.VoiceState.Channel;
+        if (userVoiceS! == null!)
         {
             await Bot.SendDirectMessage(ctx, languageUser.EnterChannelBeforeCommand("play"));
             return;
@@ -108,6 +108,12 @@ public static class Manager
         if (player == null)
         {
             await Bot.SendDirectMessage(ctx, languageUser.NoFreeBotAccounts());
+            return;
+        }
+
+        if (ctx.Member! == null!)
+        {
+            await Bot.SendDirectMessage(ctx, "Internal error occured. Error: Unable to find user.");
             return;
         }
 
@@ -129,15 +135,15 @@ public static class Manager
     }
 
     public static async Task Play(string? term, bool select, Player player, DiscordChannel userVoiceS,
-        DiscordMember? user, List<DiscordAttachment>? attachments, DiscordChannel messageChannel)
+        DiscordMember user, List<DiscordAttachment>? attachments, DiscordChannel messageChannel)
     {
         try
         {
             term ??= string.Empty;
             var lang = player.Language;
             List<PlayableItem> items = new();
-            var currentGuild = player.CurrentClient?.Guilds[userVoiceS.Guild.Id];
-            player.Channel = currentGuild?.Channels[messageChannel.Id];
+            var currentGuild = player.CurrentClient.Guilds[userVoiceS.Guild.Id];
+            player.Channel = currentGuild.Channels[messageChannel.Id];
             if (select && !term.StartsWith("http"))
             {
                 if (!await HandleSelect(term, player, user, messageChannel, lang, items))
@@ -148,7 +154,7 @@ public static class Manager
             }
             else
             {
-                var search = await Search.Get(term, attachments, user?.Guild.Id);
+                var search = await Search.Get(term, attachments, user.Guild.Id);
                 if (search != Status.OK)
                     await messageChannel.SendMessageAsync(search.GetError().Stringify(lang).CodeBlocked());
                 else
@@ -164,11 +170,11 @@ public static class Manager
                     case < 1:
                         return;
                     case > 1:
-                        await player.CurrentClient!.SendMessageAsync(messageChannel,
+                        await player.CurrentClient.SendMessageAsync(messageChannel,
                             lang.AddedItem(term).CodeBlocked());
                         return;
                     default:
-                        await player.CurrentClient!.SendMessageAsync(messageChannel,
+                        await player.CurrentClient.SendMessageAsync(messageChannel,
                             lang.AddedItem(
                                     $"({player.Queue.Items.IndexOf(items.First()) + 1}) - {items.First().GetName(player.Settings.ShowOriginalInfo)}")
                                 .CodeBlocked());
@@ -178,12 +184,12 @@ public static class Manager
             player.Started = true;
             var voiceNext = player.CurrentClient.GetVoiceNext();
             player.Connection = await voiceNext
-                .ConnectAsync(currentGuild?.Channels[userVoiceS.Id]);
+                .ConnectAsync(currentGuild.Channels[userVoiceS.Id]);
             player.VoiceChannel = userVoiceS;
-            player.Sink = player.Connection?.GetTransmitSink();
-            player.CurrentGuild = user?.Guild;
+            player.Sink = player.Connection.GetTransmitSink();
+            player.CurrentGuild = user.Guild;
 
-            var playerTask = new Task(async () =>
+            async void PlayerAction()
             {
                 try
                 {
@@ -193,7 +199,9 @@ public static class Manager
                 {
                     await Debug.WriteAsync($"Player Task Failed: {e}");
                 }
-            });
+            }
+
+            var playerTask = new Task(PlayerAction);
             playerTask.Start();
         }
         catch (Exception e)
@@ -217,7 +225,7 @@ public static class Manager
         }
     }
 
-    private static async Task<bool> HandleSelect(string? term, Player player, DiscordUser? user,
+    private static async Task<bool> HandleSelect(string? term, Player player, DiscordUser user,
         DiscordChannel messageChannel,
         ILanguage lang, ICollection<PlayableItem> items)
     {
@@ -232,7 +240,7 @@ public static class Manager
         var options = ok.Select(item =>
                 new DiscordSelectComponentOption(item.GetName(), item.GetAddUrl(), item.Author))
             .ToList();
-        var dropdown = new DiscordSelectComponent("dropdown", null, options);
+        var dropdown = new DiscordSelectComponent("dropdown", string.Empty, options);
         var builder = new DiscordMessageBuilder().WithContent(lang.SelectVideo())
             .AddComponents(dropdown);
         var message = await builder.SendAsync(player.Channel);
@@ -244,7 +252,7 @@ public static class Manager
         }
 
         var interaction = response.Result.Values;
-        if (interaction == null || interaction.Length < 1) return false;
+        if (interaction.Length < 1) return false;
 
         var search = await Search.Get(interaction.First());
         if (search != Status.OK)
@@ -270,10 +278,10 @@ public static class Manager
 
     public static async Task Skip(CommandContext ctx, int times = 1)
     {
-        var userVoiceS = ctx.Member?.VoiceState?.Channel;
+        var userVoiceS = ctx.Member?.VoiceState.Channel;
         var user = await User.FromId(ctx.User.Id);
         var lang = user.Language;
-        if (userVoiceS == null)
+        if (userVoiceS! == null!)
         {
             await Bot.SendDirectMessage(ctx, lang.EnterChannelBeforeCommand("skip"));
             return;
@@ -288,8 +296,8 @@ public static class Manager
     public static async Task Leave(CommandContext ctx)
     {
         var user = await User.FromId(ctx.User.Id);
-        var userVoiceS = ctx.Member?.VoiceState?.Channel;
-        if (userVoiceS == null)
+        var userVoiceS = ctx.Member?.VoiceState.Channel;
+        if (userVoiceS! == null!)
         {
             await Bot.SendDirectMessage(ctx, user.Language.EnterChannelBeforeCommand("leave"));
             return;
@@ -321,8 +329,8 @@ public static class Manager
     public static async Task Shuffle(CommandContext ctx)
     {
         var user = await User.FromId(ctx.User.Id);
-        var userVoiceS = ctx.Member?.VoiceState?.Channel;
-        if (userVoiceS == null)
+        var userVoiceS = ctx.Member?.VoiceState.Channel;
+        if (userVoiceS! == null!)
         {
             await Bot.SendDirectMessage(ctx, user.Language.EnterChannelBeforeCommand("shuffle"));
             return;
@@ -356,8 +364,8 @@ public static class Manager
     public static async Task Loop(CommandContext ctx)
     {
         var user = await User.FromId(ctx.User.Id);
-        var userVoiceS = ctx.Member?.VoiceState?.Channel;
-        if (userVoiceS == null)
+        var userVoiceS = ctx.Member?.VoiceState.Channel;
+        if (userVoiceS! == null!)
         {
             await Bot.SendDirectMessage(ctx, user.Language.EnterChannelBeforeCommand("loop"));
             return;
@@ -377,8 +385,8 @@ public static class Manager
     public static async Task Pause(CommandContext ctx)
     {
         var user = await User.FromId(ctx.User.Id);
-        var userVoiceS = ctx.Member?.VoiceState?.Channel;
-        if (userVoiceS == null)
+        var userVoiceS = ctx.Member?.VoiceState.Channel;
+        if (userVoiceS! == null!)
         {
             await Bot.SendDirectMessage(ctx, user.Language.EnterChannelBeforeCommand("pause"));
             return;
@@ -398,8 +406,8 @@ public static class Manager
     public static async Task PlayNext(CommandContext ctx, string term)
     {
         var user = await User.FromId(ctx.User.Id);
-        var userVoiceS = ctx.Member?.VoiceState?.Channel;
-        if (userVoiceS == null)
+        var userVoiceS = ctx.Member?.VoiceState.Channel;
+        if (userVoiceS! == null!)
         {
             await Bot.SendDirectMessage(ctx, user.Language.EnterChannelBeforeCommand("loop"));
             return;
@@ -466,8 +474,8 @@ public static class Manager
     {
         text ??= "";
         var user = await User.FromId(ctx.User.Id);
-        var userVoiceS = ctx.Member?.VoiceState?.Channel;
-        if (userVoiceS == null)
+        var userVoiceS = ctx.Member?.VoiceState.Channel;
+        if (userVoiceS! == null!)
         {
             await Bot.SendDirectMessage(ctx, user.Language.EnterChannelBeforeCommand("remove"));
             return;
@@ -544,8 +552,8 @@ public static class Manager
     public static async Task Move(CommandContext ctx, string move)
     {
         var user = await User.FromId(ctx.User.Id);
-        var userVoiceS = ctx.Member?.VoiceState?.Channel;
-        if (userVoiceS == null)
+        var userVoiceS = ctx.Member?.VoiceState.Channel;
+        if (userVoiceS! == null!)
         {
             await Bot.SendDirectMessage(ctx, user.Language.EnterChannelBeforeCommand("move"));
             return;
@@ -571,7 +579,7 @@ public static class Manager
         }
 
         if (!move.Contains("!to"))
-            await player.CurrentClient!.SendMessageAsync(ctx.Channel, player.Language.InvalidMoveFormat());
+            await player.CurrentClient.SendMessageAsync(ctx.Channel, player.Language.InvalidMoveFormat());
 
         var tracks = move.Split("!to");
         var success = player.Queue.Move(tracks[0], tracks[1], out var i1, out var i2);
@@ -583,8 +591,8 @@ public static class Manager
 
     public static async Task Shuffle(CommandContext ctx, int seedInt)
     {
-        var userVoiceS = ctx.Member?.VoiceState?.Channel;
-        if (userVoiceS == null)
+        var userVoiceS = ctx.Member?.VoiceState.Channel;
+        if (userVoiceS! == null!)
         {
             await Bot.SendDirectMessage(ctx, "Enter a channel before using the shuffle command.");
             return;
@@ -602,8 +610,8 @@ public static class Manager
 
     public static async Task GetSeed(CommandContext ctx)
     {
-        var userVoiceS = ctx.Member?.VoiceState?.Channel;
-        if (userVoiceS == null)
+        var userVoiceS = ctx.Member?.VoiceState.Channel;
+        if (userVoiceS! == null!)
         {
             await Bot.SendDirectMessage(ctx, "Enter a channel before using the shuffle command.");
             return;
@@ -624,8 +632,8 @@ public static class Manager
     public static async Task Queue(CommandContext ctx)
     {
         var user = await User.FromId(ctx.User.Id);
-        var userVoiceS = ctx.Member?.VoiceState?.Channel;
-        if (userVoiceS == null)
+        var userVoiceS = ctx.Member?.VoiceState.Channel;
+        if (userVoiceS! == null!)
         {
             await Bot.SendDirectMessage(ctx, user.Language.EnterChannelBeforeCommand("move"));
             return;
@@ -648,8 +656,8 @@ public static class Manager
     public static async Task GoTo(CommandContext ctx, int index)
     {
         var user = await User.FromId(ctx.User.Id);
-        var userVoiceS = ctx.Member?.VoiceState?.Channel;
-        if (userVoiceS == null)
+        var userVoiceS = ctx.Member?.VoiceState.Channel;
+        if (userVoiceS! == null!)
         {
             await Bot.SendDirectMessage(ctx, user.Language.EnterChannelBeforeCommand("goto"));
             return;
@@ -670,8 +678,8 @@ public static class Manager
     public static async Task Volume(CommandContext ctx, double volume)
     {
         var user = await User.FromId(ctx.User.Id);
-        var userVoiceS = ctx.Member?.VoiceState?.Channel;
-        if (userVoiceS == null)
+        var userVoiceS = ctx.Member?.VoiceState.Channel;
+        if (userVoiceS! == null!)
         {
             await Bot.SendDirectMessage(ctx, user.Language.EnterChannelBeforeCommand("volume"));
             return;
@@ -700,8 +708,8 @@ public static class Manager
     public static async Task Clear(CommandContext ctx)
     {
         var user = await User.FromId(ctx.User.Id);
-        var userVoiceS = ctx.Member?.VoiceState?.Channel;
-        if (userVoiceS == null)
+        var userVoiceS = ctx.Member?.VoiceState.Channel;
+        if (userVoiceS! == null!)
         {
             await Bot.SendDirectMessage(ctx, user.Language.EnterChannelBeforeCommand("clear"));
             return;
@@ -734,8 +742,8 @@ public static class Manager
     public static async Task SavePlaylist(CommandContext ctx)
     {
         var user = await User.FromId(ctx.User.Id);
-        var userVoiceS = ctx.Member?.VoiceState?.Channel;
-        if (userVoiceS == null)
+        var userVoiceS = ctx.Member?.VoiceState.Channel;
+        if (userVoiceS! == null!)
         {
             await Bot.SendDirectMessage(ctx, user.Language.EnterChannelBeforeCommand("saveplaylist"));
             return;
@@ -766,8 +774,8 @@ public static class Manager
     public static async Task PlsFix(CommandContext ctx)
     {
         var user = await User.FromId(ctx.User.Id);
-        var userVoiceS = ctx.Member?.VoiceState?.Channel;
-        if (userVoiceS == null)
+        var userVoiceS = ctx.Member?.VoiceState.Channel;
+        if (userVoiceS! == null!)
         {
             await Bot.SendDirectMessage(ctx, user.Language.OneCannotRecieveBlessingNotInChannel());
             return;
@@ -792,8 +800,8 @@ public static class Manager
         {
             case true:
                 var user = await User.FromId(ctx.User.Id);
-                var userVoiceS = ctx.Member?.VoiceState?.Channel;
-                if (userVoiceS == null)
+                var userVoiceS = ctx.Member?.VoiceState.Channel;
+                if (userVoiceS! == null!)
                 {
                     await Bot.SendDirectMessage(ctx, user.Language.UserNotInChannelLyrics());
                     return;

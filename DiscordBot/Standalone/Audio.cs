@@ -8,10 +8,7 @@ using System.Threading.Tasks;
 using DiscordBot.Audio.Objects;
 using DiscordBot.Audio.Platforms.Youtube;
 using DiscordBot.Methods;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Net.Http.Headers;
-using Org.BouncyCastle.Ocsp;
 using Result.Objects;
 using Streams;
 using YtPlaylist = DiscordBot.Audio.Platforms.Youtube.Playlist;
@@ -69,7 +66,7 @@ public class Audio : Controller
     {
         try
         {
-            const int chunk_size = 131_072; // bytes | 128 KB
+            //Response.StatusCode = 200;
             var type = codec switch
             {
                 "Opus" or "Vorbis" => "audio/ogg",
@@ -79,22 +76,7 @@ public class Audio : Controller
             Response.ContentType = type;
             var filename = type.Replace('/', '.'); /* type[..5] + '.' + type[7..]; */
             Response.Headers.ContentDisposition = $"attachment; filename={filename}; filename*=UTF-8''{filename}";
-            Response.Headers.AcceptRanges = "bytes";
 
-            EncodedAudio? found_encoded;
-            lock (EncodedAudio)
-            {
-                found_encoded = EncodedAudio.FirstOrDefault(r => r.SearchTerm == id);
-            }
-
-            if (found_encoded != null)
-            {
-                var range = Request.Headers.Range.ToString();
-
-                await Response.CompleteAsync();
-                return new EmptyResult();
-            }
-            
             if (Bot.DebugMode) await Debug.WriteAsync("Using Audio Controller");
             var res = await DiscordBot.Audio.Platforms.Search.Get(id);
 
@@ -121,38 +103,7 @@ public class Audio : Controller
                     format: "-f mp3")
             };
 
-            var memory_stream = new MemoryStream();
-            var stream_spreader = new StreamSpreader(memory_stream);
-
-            async void CopyToSpreaderAction()
-            {
-                await stream.CopyToAsync(stream_spreader);
-            }
-            new Task(CopyToSpreaderAction).Start();
-            
-            var encoded_audio = new EncodedAudio
-            {
-                Spreader = stream_spreader,
-                Expire = DateTime.UtcNow.AddMinutes(15).Ticks,
-                Bitrate = bitrate,
-                SearchTerm = id
-            };
-
-            lock (EncodedAudio)
-            {
-                EncodedAudio.Add(encoded_audio);
-            }
-
-            var buffer = new byte[chunk_size];
-            var read = await memory_stream.ReadAsync(buffer);
-
-            Response.ContentLength = read + 1;
-            Response.Headers.ContentRange = $"bytes 0-{read}/*";
-            Response.StatusCode = StatusCodes.Status206PartialContent;
-
-            await Response.Body.WriteAsync(buffer, 0, read);
-            await Response.CompleteAsync();
-            return new EmptyResult();
+            return File(stream, type, filename, true);
         }
         catch (Exception e)
         {

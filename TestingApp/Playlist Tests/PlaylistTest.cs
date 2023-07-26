@@ -1,4 +1,5 @@
 using CustomPlaylistFormat.Objects;
+using DiscordBot;
 using DiscordBot.Abstract;
 using DiscordBot.Audio.Platforms;
 using DiscordBot.Playlists;
@@ -6,16 +7,16 @@ using Result.Objects;
 
 namespace TestingApp;
 
-public class PlaylistTest
+public static class PlaylistTest
 {
-    public async void Test()
+    public static async Task Test()
     {
         Console.WriteLine("Starting PlaylistTest.");
         var notExistant = PlaylistManager.GetIfExists(new Guid());
         Console.WriteLine($"Non existant playlist is: \"{notExistant}\"");
         var songIds = new[]
         {
-            "audio://vazhega0-Nq",
+            "audio://vazhega0-vn",
             "audio://losandok-sd",
             "audio://tokoy-ba-Hq",
             "audio://togreshn-mC",
@@ -81,7 +82,7 @@ public class PlaylistTest
             "audio://tonay-do-Rl",
             "audio://sli-bez--fH",
             "audio://ivgreshn-M6",
-            "audio://varibna--6g",
+            "audio://varibna--Ub",
             "audio://vaφαινόμ-3k",
             "audio://ivkato-n-w1",
             "audio://shseksi0-qW",
@@ -95,7 +96,19 @@ public class PlaylistTest
             "audio://orrakiya-oT",
             "audio://or6-bez--8l",
             "audio://gaselska-RO",
-            "audio://kaogun-m-T0"
+            "audio://kaogun-m-T0",
+            "audio://slela,-e-mP",
+            "audio://slti-si0-kW",
+            "audio://sloborot-CA",
+            "audio://slnirvan-Q3",
+            "audio://slpo-rub-3d",
+            "audio://sliskam--kW",
+            "audio://sldyavol-2R",
+            "audio://sli-da-p-LZ",
+            "audio://vazhigol-aa",
+            "audio://vaseksin-Gz",
+            "audio://vahali-g-Sx",
+            "audio://vamaneke-6G",
         };
         var demoPlaylist = new List<PlayableItem>();
 

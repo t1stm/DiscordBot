@@ -62,10 +62,10 @@ public class Player
     private CancellationTokenSource CancelSource { get; set; } = new();
     public Queue Queue { get; }
     public Statusbar Statusbar { get; } = new();
-    public DiscordChannel? Channel { get; set; }
-    public DiscordClient? CurrentClient { get; init; }
-    public DiscordGuild? CurrentGuild { get; set; }
-    public VoiceTransmitSink? Sink { get; set; }
+    public DiscordChannel Channel { get; set; } = null!;
+    public DiscordClient CurrentClient { get; init; } = null!;
+    public DiscordGuild CurrentGuild { get; set; } = null!;
+    public VoiceTransmitSink Sink { get; set; } = null!;
     public VoiceNextConnection? Connection { get; set; }
     public bool UpdatedChannel { get; private set; }
     public Loop LoopStatus { get; set; } = Loop.None;
@@ -94,14 +94,13 @@ public class Player
                 Connection.VoiceSocketErrored += async (_, args) =>
                 {
                     await Debug.WriteAsync(
-                        $"VoiceSocket Errored in Guild: \"{CurrentGuild?.Name}\" with arguments \"{args.Exception}\"\n\nAttempting to reconnect.",
+                        $"VoiceSocket Errored in Guild: \"{CurrentGuild.Name}\" with arguments \"{args.Exception}\"\n\nAttempting to reconnect.",
                         true, Debug.DebugColor.Urgent);
-                    UpdateChannel(VoiceChannel);
-                    await (CurrentClient?.SendMessageAsync(Channel,
-                        Language.DiscordDidTheFunny().CodeBlocked()) ?? Task.CompletedTask);
+                    UpdateChannel(VoiceChannel!);
+                    await CurrentClient.SendMessageAsync(Channel, Language.DiscordDidTheFunny().CodeBlocked());
                 };
 
-            var statusbar = new Task(async () => { await Statusbar.Start(); });
+            var statusbar = new Task(StatusbarStartAction);
             statusbar.Start();
             Handler = TimerEvent;
             _timer.Elapsed += Handler;
@@ -192,6 +191,11 @@ public class Player
         }
     }
 
+    private async void StatusbarStartAction()
+    {
+        await Statusbar.Start();
+    }
+
     private async void TimerEvent(object? o, ElapsedEventArgs elapsedEventArgs)
     {
         await Queue.ProcessAll();
@@ -215,7 +219,7 @@ public class Player
                 Maker = Bot.Name,
                 Count = (uint)items.Length,
                 Description =
-                    $"Session at \'{DateTime.Now.ToUniversalTime():MMMM dd yyyy hh:mm tt} UTC\' of the channel: \'{VoiceChannel?.Name ?? "Unavailable"}\': in server \'{CurrentGuild?.Name ?? "Unavailable"}\'.",
+                    $"Session at \'{DateTime.Now.ToUniversalTime():MMMM dd yyyy hh:mm tt} UTC\' of the channel: \'{VoiceChannel?.Name ?? "Unavailable"}\': in server \'{CurrentGuild.Name}\'.",
                 IsPublic = true,
                 LastModified = DateTime.UtcNow.Ticks
             };
@@ -284,36 +288,23 @@ public class Player
     {
         if (percent is > 200 or < 1) return false;
         percent ??= Volume;
-        if (Sink == null) return true;
         Sink.VolumeModifier = (Volume = percent.Value) / 100;
         return true;
     }
 
-    public void UpdateChannel(DiscordChannel? channel)
+    public void UpdateChannel(DiscordChannel channel)
     {
-        var task = new Task(async () =>
+        async void UpdateAction()
         {
             try
             {
-                if (CurrentGuild == null)
-                {
-                    await Debug.WriteAsync("No Guild", true, Debug.DebugColor.Urgent);
-                    return;
-                }
-
-                if (channel == null)
-                {
-                    await Debug.WriteAsync($"{nameof(channel)} is null in {nameof(UpdateChannel)}.");
-                    return;
-                }
-
-                if (VoiceChannel != null && CurrentClient != null)
+                if (!VoiceChannel!.Equals(null!))
                 {
                     await Debug.WriteAsync($"Current Voice Channel: {VoiceChannel?.Id} - New: {channel.Id}");
                     VoiceChannel = channel;
                     var conn = CurrentClient.GetVoiceNext().GetConnection(CurrentGuild);
                     UpdatedChannel = true;
-                    conn?.Disconnect();
+                    conn.Disconnect();
                 }
 
                 var chan = CurrentGuild.Channels[channel.Id];
@@ -321,12 +312,9 @@ public class Player
                 Connection = await CurrentClient.GetVoiceNext().ConnectAsync(chan);
                 Connection.VoiceSocketErrored += async (_, args) =>
                 {
-                    await Debug.WriteAsync(
-                        $"VoiceSocket Errored in Guild: \"{CurrentGuild.Name}\" with arguments \"{args.Exception}\" - Attempting to reconnect.",
-                        true, Debug.DebugColor.Urgent);
-                    UpdateChannel(VoiceChannel);
-                    await (CurrentClient?.SendMessageAsync(Channel,
-                        Language.DiscordDidTheFunny().CodeBlocked()) ?? Task.CompletedTask);
+                    await Debug.WriteAsync($"VoiceSocket Errored in Guild: \"{CurrentGuild.Name}\" with arguments \"{args.Exception}\" - Attempting to reconnect.", true, Debug.DebugColor.Urgent);
+                    UpdateChannel(VoiceChannel!);
+                    await CurrentClient.SendMessageAsync(Channel, Language.DiscordDidTheFunny().CodeBlocked());
                 };
                 Sink = Connection.GetTransmitSink();
                 await Skip(0);
@@ -335,7 +323,9 @@ public class Player
             {
                 await Debug.WriteAsync($"Updating Channel Failed: {e}", true, Debug.DebugColor.Urgent);
             }
-        });
+        }
+
+        var task = new Task(UpdateAction);
         task.Start();
     }
 
@@ -356,7 +346,7 @@ public class Player
         if (Queue.Current + times != Queue.Count + 1)
             Queue.Current += times;
         await FfMpeg.Kill();
-        await (Sink?.FlushAsync() ?? Task.CompletedTask);
+        await Sink.FlushAsync();
         CancelSource.Cancel();
     }
 
@@ -450,24 +440,27 @@ public class Player
     {
         if (Settings.SaveQueueOnLeave) SaveCurrentQueue();
         _timer.Stop();
-        var task = new Task(async () =>
+
+        async void LeavingAction()
         {
             await WebSocketManager.SendDying();
             await Statusbar.UpdateMessageAndStop(message + (Settings.SaveQueueOnLeave
                 ? $"\n\n{Language.SavedQueueAfterLeavingMessage()}"
                 : ""));
-        });
+        }
+
+        var task = new Task(LeavingAction);
         task.Start();
         Die = true;
         FfMpeg.KillSync();
         Connection?.Disconnect();
-        Sink?.Dispose();
+        Sink.Dispose();
         lock (Manager.Main)
         {
             if (Manager.Main.Contains(this)) Manager.Main.Remove(this);
         }
 
-        Debug.Write($"Disconnecting from channel: {VoiceChannel?.Name} in guild: {CurrentGuild?.Name}");
+        Debug.Write($"Disconnecting from channel: {VoiceChannel?.Name} in guild: {CurrentGuild.Name}");
     }
 
     public async Task DisconnectAsync(string message = "Bye! \\(◕ ◡ ◕\\)")
@@ -483,7 +476,7 @@ public class Player
             Die = true;
             FfMpeg.KillSync();
             CancelSource.Cancel();
-            Sink?.Dispose();
+            Sink.Dispose();
             Connection?.Disconnect();
             lock (Manager.Main)
             {
@@ -491,7 +484,7 @@ public class Player
             }
 
             await Debug.WriteAsync(
-                $"Disconnecting from channel: {VoiceChannel?.Name} in guild: {CurrentGuild?.Name}");
+                $"Disconnecting from channel: {VoiceChannel?.Name} in guild: {CurrentGuild.Name}");
         }
         catch (Exception e)
         {

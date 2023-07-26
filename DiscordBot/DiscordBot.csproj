@@ -11,13 +11,12 @@
         <PackageReference Include="BouncyCastle.NetCore" Version="1.9.0" />
         <PackageReference Include="ConcurrentHashSet" Version="1.3.0" />
         <PackageReference Include="deniszykov.WebSocketListener" Version="4.2.15" />
-        <PackageReference Include="DSharpPlus" Version="4.4.0" />
-        <PackageReference Include="DSharpPlus.CommandsNext" Version="4.4.0" />
-        <PackageReference Include="DSharpPlus.Interactivity" Version="4.4.0" />
-        <PackageReference Include="DSharpPlus.Lavalink" Version="4.4.0" />
-        <PackageReference Include="DSharpPlus.Rest" Version="4.4.0" />
-        <PackageReference Include="DSharpPlus.SlashCommands" Version="4.4.0" />
-        <PackageReference Include="DSharpPlus.VoiceNext" Version="4.4.0" />
+        <PackageReference Include="DSharpPlus" Version="5.0.0-nightly-01615" />
+        <PackageReference Include="DSharpPlus.CommandsNext" Version="5.0.0-nightly-01615" />
+        <PackageReference Include="DSharpPlus.Interactivity" Version="5.0.0-nightly-01615" />
+        <PackageReference Include="DSharpPlus.Rest" Version="5.0.0-nightly-01615" />
+        <PackageReference Include="DSharpPlus.SlashCommands" Version="5.0.0-nightly-01615" />
+        <PackageReference Include="DSharpPlus.VoiceNext" Version="5.0.0-nightly-01615" />
         <PackageReference Include="EmbedIO" Version="3.5.2" />
         <PackageReference Include="Emzi0767.Common" Version="2.6.6" />
         <PackageReference Include="Google.Apis.Discovery.v1" Version="1.59.0" />
@@ -125,7 +124,7 @@
         <PackageReference Include="MySql.EntityFrameworkCore" Version="7.0.0" />
         <PackageReference Include="NetCoreServer" Version="7.0.0" />
         <PackageReference Include="NETStandard.Library" Version="2.0.3" />
-        <PackageReference Include="Newtonsoft.Json" Version="13.0.2" />
+        <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
         <PackageReference Include="NuGet.Common" Version="6.4.0" />
         <PackageReference Include="NuGet.Configuration" Version="6.4.0" />
         <PackageReference Include="NuGet.DependencyResolver.Core" Version="6.4.0" />

@@ -3,7 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text.Json;
+using Newtonsoft.Json;
 using System.Text.RegularExpressions;
 using DiscordBot.Audio.Objects;
 using DiscordBot.Language;
@@ -16,7 +16,7 @@ namespace DiscordBot.Playlists.Music_Storage;
 public static class MusicManager
 {
     public const string WorkingDirectory = $"{Bot.WorkingDirectory}/Music Database";
-    public static readonly string AlbumCoverAddress = $"{Bot.SiteDomain}/Album_Covers";
+    public const string AlbumCoverAddress = $"{Bot.SiteDomain}/Album_Covers";
     private static List<MusicInfo> Items = new();
     private static List<Album> Albums = new();
 
@@ -106,22 +106,39 @@ public static class MusicManager
 
         var songs = Directory.GetFiles(dir);
         var ignored = songs.Count(IsIgnored);
+        
+        var serializer = new JsonSerializer
+        {
+            Formatting = Formatting.Indented,
+            StringEscapeHandling = StringEscapeHandling.EscapeHtml
+        };
+        using var file_stream = File.Open(jsonFile, FileMode.Create, FileAccess.ReadWrite, FileShare.ReadWrite);
+        
         if (File.Exists(jsonFile))
         {
-            using var read = File.OpenRead(jsonFile);
-            var items = JsonSerializer.Deserialize<List<MusicInfo>>(read) ?? Enumerable.Empty<MusicInfo>().ToList();
+            using var reader = new StreamReader(file_stream);
+            
+            var json = reader.ReadToEnd();
+            var items = JsonConvert.DeserializeObject<List<MusicInfo>>(json) ?? Enumerable.Empty<MusicInfo>().ToList();
+            
             if (items.Count == songs.Length - ignored) return items;
             var data = UpdateData(items, songs).ToList();
-            using var rfs = File.Open(jsonFile, FileMode.Create, FileAccess.ReadWrite, FileShare.ReadWrite);
-            JsonSerializer.Serialize(rfs, data);
-            rfs.Close();
+
+            // Reset the position after reading to end.
+            file_stream.Position = 0;
+            
+            using var writer = new StreamWriter(file_stream);
+            serializer.Serialize(writer, data);
+            file_stream.Close();
+            
             return data;
         }
 
         var list = songs.Where(r => !IsIgnored(r)).Select(ParseFile).ToList();
-        using var fs = File.Open(jsonFile, FileMode.Create, FileAccess.ReadWrite, FileShare.ReadWrite);
-        JsonSerializer.Serialize(fs, list);
-        fs.Close();
+        
+        using var no_file_writer = new StreamWriter(file_stream);
+        serializer.Serialize(no_file_writer, list);
+        file_stream.Close();
 
         return list;
     }
@@ -169,21 +186,49 @@ public static class MusicManager
     private static bool ScoreSingleTerm(string term, MusicInfo r)
     {
         return LevenshteinDistance.ComputeLean(r.RomanizedTitle, term) < 2 ||
-               LevenshteinDistance.ComputeLean($"{r.RomanizedTitle} - {r.RomanizedAuthor}", term) < 2 ||
-               LevenshteinDistance.ComputeLean($"{r.RomanizedTitle} {r.RomanizedAuthor}", term) < 2 ||
-               LevenshteinDistance.ComputeLean($"{r.RomanizedAuthor} {r.RomanizedTitle}", term) < 2 ||
-               LevenshteinDistance.ComputeLean($"{r.RomanizedAuthor} - {r.RomanizedTitle}", term) < 2 ||
+               
+               LevenshteinDistance.ComputeLean($"{r.RomanizedTitle} - {r.RomanizedAuthor}", term) < 3 ||
+               LevenshteinDistance.ComputeLean($"{r.RomanizedTitle} {r.RomanizedAuthor}", term) < 3 ||
+               LevenshteinDistance.ComputeLean($"{r.RomanizedAuthor} {r.RomanizedTitle}", term) < 3 ||
+               LevenshteinDistance.ComputeLean($"{r.RomanizedAuthor} - {r.RomanizedTitle}", term) < 3 ||
+               
                LevenshteinDistance.ComputeLean(r.OriginalTitle, term) < 2 ||
-               LevenshteinDistance.ComputeLean($"{r.OriginalTitle} - {r.OriginalAuthor}", term) < 2 ||
-               LevenshteinDistance.ComputeLean($"{r.OriginalTitle} {r.OriginalAuthor}", term) < 2 ||
-               LevenshteinDistance.ComputeLean($"{r.OriginalAuthor} {r.OriginalTitle}", term) < 2 ||
-               LevenshteinDistance.ComputeLean($"{r.OriginalAuthor} - {r.OriginalTitle}", term) < 2;
+               LevenshteinDistance.ComputeLean($"{r.OriginalTitle} - {r.OriginalAuthor}", term) < 3 ||
+               LevenshteinDistance.ComputeLean($"{r.OriginalTitle} {r.OriginalAuthor}", term) < 3 ||
+               LevenshteinDistance.ComputeLean($"{r.OriginalAuthor} {r.OriginalTitle}", term) < 3 ||
+               LevenshteinDistance.ComputeLean($"{r.OriginalAuthor} - {r.OriginalTitle}", term) < 3 ||
+               
+               LevenshteinDistance.ComputeLean($"{r.OriginalTitle} - {r.RomanizedAuthor}", term) < 3 ||
+               LevenshteinDistance.ComputeLean($"{r.RomanizedTitle} - {r.OriginalAuthor}", term) < 3;
     }
 
     public static MusicInfo? SearchFromSpotify(SpotifyTrack track)
     {
-        var searchTerm = $"{track.Author} - {track.Title}";
-        return SearchOneByTerm(searchTerm);
+        //var searchTerm = $"{track.Author} - {track.Title}";
+        var author_weight = Math.Ceiling((float) track.Author.Length / 3);
+        var matching_authors = Items.AsParallel().Where(r => 
+            LevenshteinDistance.ComputeLean(r.OriginalAuthor, track.Author) < author_weight ||
+            LevenshteinDistance.ComputeLean(r.RomanizedAuthor, track.Author) < author_weight).ToArray();
+
+        if (matching_authors.Length < 1) return null;
+
+        var title_weight = Math.Ceiling((float) track.Title.Length / 5);
+        
+        var matching_titles = matching_authors.AsParallel().Where(r => 
+            LevenshteinDistance.ComputeLean(r.OriginalTitle, track.Title) < title_weight ||
+            LevenshteinDistance.ComputeLean(r.RomanizedTitle, track.Title) < title_weight).ToArray();
+
+        return matching_titles.Length switch
+        {
+            < 1 => null,
+            1 => matching_titles.First(),
+            > 1 => matching_titles.MinBy(r =>
+            {
+                var romanized_score = LevenshteinDistance.ComputeLean(r.RomanizedTitle, track.Title);
+                var original_score = LevenshteinDistance.ComputeLean(r.OriginalTitle, track.Title);
+                return original_score > romanized_score ? original_score : romanized_score;
+            })
+        };
     }
 
     public static IEnumerable<MusicInfo> OrderByTerm(string term)

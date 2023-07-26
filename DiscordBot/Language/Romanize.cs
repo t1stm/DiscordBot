@@ -50,6 +50,9 @@ public static class Romanize
             'ш' => "sh",
             'щ' => "sht",
             'ю' => "yu",
+            
+            // Russian characters
+            'ы' => 'y',
             _ => bg
         } + "";
     }
