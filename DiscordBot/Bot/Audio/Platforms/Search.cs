@@ -1,4 +1,5 @@
 #nullable enable
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -25,93 +26,101 @@ public static class Search
     public static async Task<Result<List<PlayableItem>, Error>> Get(string? searchTerm, ulong length = 0,
         bool returnAllResults = false)
     {
-        await Debug.WriteAsync($"Search term is: \"{searchTerm}\"");
-        if (string.IsNullOrEmpty(searchTerm))
+        try
         {
-            await Debug.WriteAsync("Search term is null.");
-            return Result<List<PlayableItem>, Error>.Error(new NullError(NullType.SearchTerm));
-        }
-
-        if (searchTerm.Contains("open.spotify.com/"))
-        {
-            if (searchTerm.Contains("/playlist/"))
+            await Debug.WriteAsync($"Search term is: \"{searchTerm}\"");
+            if (string.IsNullOrEmpty(searchTerm))
             {
-                var req = await Playlist.Get(searchTerm.Split("playlist/").Last().Split("?")[0]);
-                return req;
+                await Debug.WriteAsync("Search term is null.");
+                return Result<List<PlayableItem>, Error>.Error(new NullError(NullType.SearchTerm));
             }
 
-            if (searchTerm.Contains("/track"))
-                return ToList(await Track.Get(searchTerm));
-
-            if (searchTerm.Contains("/album"))
-                return await Playlist.GetAlbum(searchTerm.Split("album/").Last().Split("?")[0]);
-        }
-
-        if (searchTerm.Contains("youtube.com/"))
-        {
-            if (searchTerm.Contains("playlist?list="))
+            if (searchTerm.Contains("open.spotify.com/"))
             {
-                var pl = await Youtube.Playlist.Get(searchTerm);
-                return pl;
+                if (searchTerm.Contains("/playlist/"))
+                {
+                    var req = await Playlist.Get(searchTerm.Split("playlist/").Last().Split("?")[0]);
+                    return req;
+                }
+
+                if (searchTerm.Contains("/track"))
+                    return ToList(await Track.Get(searchTerm));
+
+                if (searchTerm.Contains("/album"))
+                    return await Playlist.GetAlbum(searchTerm.Split("album/").Last().Split("?")[0]);
             }
 
-            if (searchTerm.Contains("watch?v="))
-                return ToList(await Video.SearchById(searchTerm.Split("watch?v=").Last().Split("&")[0]));
-            if (searchTerm.Contains("shorts/"))
-                return ToList(await Video.SearchById(searchTerm.Split("shorts/").Last().Split("&")[0]));
-        }
-
-        if (searchTerm.Contains("youtu.be/"))
-            return ToList(await Video.SearchById(searchTerm.Split("youtu.be/").Last().Split("&")[0]));
-        if (searchTerm.Contains("http") && searchTerm.Contains("vbox7.com"))
-        {
-            var ser = await Vbox7SearchClient.SearchUrl(searchTerm);
-            if (ser != Status.OK) return Result<List<PlayableItem>, Error>.Error(new Vbox7Error());
-            var obj = ser.GetOK().ToVbox7Video();
-            return ToList(Result<PlayableItem, Error>.Success(obj));
-        }
-
-        if (searchTerm.Contains("twitch.tv/"))
-            return ToList(Result<PlayableItem, Error>.Success(new TwitchLiveStream
+            if (searchTerm.Contains("youtube.com/"))
             {
-                Url = searchTerm
-            }));
+                if (searchTerm.Contains("playlist?list="))
+                {
+                    var pl = await Youtube.Playlist.Get(searchTerm);
+                    return pl;
+                }
 
-        if (searchTerm.Contains($"playlists.{Bot.MainDomain}/"))
-        {
-            await Debug.WriteAsync("Playlist URL.");
-            return await PlaylistManager.FromLink(searchTerm);
-        }
+                if (searchTerm.Contains("watch?v="))
+                    return ToList(await Video.SearchById(searchTerm.Split("watch?v=").Last().Split("&")[0]));
+                if (searchTerm.Contains("shorts/"))
+                    return ToList(await Video.SearchById(searchTerm.Split("shorts/").Last().Split("&")[0]));
+            }
 
-        if (searchTerm.StartsWith("http") || searchTerm.StartsWith("https"))
-            return ToList(Result<PlayableItem, Error>.Success(new OnlineFile
+            if (searchTerm.Contains("youtu.be/"))
+                return ToList(await Video.SearchById(searchTerm.Split("youtu.be/").Last().Split("&")[0]));
+            if (searchTerm.Contains("http") && searchTerm.Contains("vbox7.com"))
             {
-                Location = searchTerm
-            }));
+                var ser = await Vbox7SearchClient.SearchUrl(searchTerm);
+                if (ser != Status.OK) return Result<List<PlayableItem>, Error>.Error(new Vbox7Error());
+                var obj = ser.GetOK().ToVbox7Video();
+                return ToList(Result<PlayableItem, Error>.Success(obj));
+            }
 
-        var res = await SearchBotProtocols(searchTerm);
-        if (res != null)
-        {
-            var parsed = ParseObject(res);
-            if (parsed == Status.OK)
-                return parsed;
+            if (searchTerm.Contains("twitch.tv/"))
+                return ToList(Result<PlayableItem, Error>.Success(new TwitchLiveStream
+                {
+                    Url = searchTerm
+                }));
+
+            if (searchTerm.Contains($"playlists.{Bot.MainDomain}/"))
+            {
+                await Debug.WriteAsync("Playlist URL.");
+                return await PlaylistManager.FromLink(searchTerm);
+            }
+
+            if (searchTerm.StartsWith("http") || searchTerm.StartsWith("https"))
+                return ToList(Result<PlayableItem, Error>.Success(new OnlineFile
+                {
+                    Location = searchTerm
+                }));
+
+            var res = await SearchBotProtocols(searchTerm);
+            if (res != null)
+            {
+                var parsed = ParseObject(res);
+                if (parsed == Status.OK)
+                    return parsed;
+            }
+
+            if (searchTerm.StartsWith("pl:"))
+                return await SharePlaylist.Get(searchTerm[3..]);
+
+            var databaseItem = MusicManager.SearchOneByTerm(searchTerm);
+
+            return returnAllResults switch
+            {
+                true when databaseItem is not null =>
+                    AddDatabaseItemToResults(databaseItem.ToMusicObject(),
+                        await Video.SearchAllResults(searchTerm, length)),
+                true => await Video.SearchAllResults(searchTerm, length),
+                false when databaseItem is not null =>
+                    ToList(Result<PlayableItem, Error>.Success(databaseItem.ToMusicObject())),
+                false => ToList(await Video.Search(searchTerm, length: length))
+            };
         }
-
-        if (searchTerm.StartsWith("pl:"))
-            return await SharePlaylist.Get(searchTerm[3..]);
-
-        var databaseItem = MusicManager.SearchOneByTerm(searchTerm);
-
-        return returnAllResults switch
+        catch (Exception e)
         {
-            true when databaseItem is not null =>
-                AddDatabaseItemToResults(databaseItem.ToMusicObject(),
-                    await Video.SearchAllResults(searchTerm, length)),
-            true => await Video.SearchAllResults(searchTerm, length),
-            false when databaseItem is not null =>
-                ToList(Result<PlayableItem, Error>.Success(databaseItem.ToMusicObject())),
-            false => ToList(await Video.Search(searchTerm, length: length))
-        };
+            await Debug.WriteAsync($"Exception thrown when using search: \"{e}\"");
+            return Result<List<PlayableItem>, Error>.Error(new UnknownError());
+        }
     }
 
     public static Result<List<PlayableItem>, Error> ParseObject(object? res)
