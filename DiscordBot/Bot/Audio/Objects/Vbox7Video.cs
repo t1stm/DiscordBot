@@ -4,9 +4,9 @@ using System.Threading.Tasks;
 using DiscordBot.Abstract;
 using DiscordBot.Abstract.Errors;
 using DiscordBot.Readers;
-using Streams;
 using Result;
 using Result.Objects;
+using Streams;
 
 namespace DiscordBot.Audio.Objects;
 
@@ -19,7 +19,7 @@ public class Vbox7Video : PlayableItem
         var stream_spreader =
             await HttpClient.ChunkedDownloader(HttpClient.WithCookies(), new Uri(Location), true);
         if (stream_spreader == Status.Error) return stream_spreader;
-            
+
         stream_spreader.GetOK().AddDestinations(outputs);
         return stream_spreader;
     }

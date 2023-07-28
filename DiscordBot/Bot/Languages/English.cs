@@ -5,9 +5,9 @@ using DiscordBot.Enums;
 
 namespace DiscordBot.Objects;
 
-public class English : ILanguage
+public class English : AbstractLanguage
 {
-    public string GayRatePercentMessage(int percent)
+    public override string GayRatePercentMessage(int percent)
     {
         return percent switch
         {
@@ -23,7 +23,7 @@ public class English : ILanguage
         };
     }
 
-    public string GetTypeOfTrack(PlayableItem it)
+    public override string GetTypeOfTrack(PlayableItem it)
     {
         return it switch
         {
@@ -40,61 +40,61 @@ public class English : ILanguage
         };
     }
 
-    public string SavedQueueAfterLeavingMessage()
+    public override string SavedQueueAfterLeavingMessage()
     {
         return
             "Queue was saved successfully. If you want to play it again, use the button below this message.\n\n" +
-            "IMPORTANT UPDATE: \nThe voting period has ended. The new name of the bot will be \"Bai Tosho\". The name will be changed on the 26th March 2023.";
+            $"IMPORTANT MESSAGE: \nI forgor to change this message {MonthsSinceLastMessageUpdate()} months ago. 💀";
     }
 
     #region Mixed Commands
 
-    public string EnterChannelBeforeCommand(string command)
+    public override string EnterChannelBeforeCommand(string command)
     {
         return $"Enter a channel before using the \"{command}\" command.";
     }
 
-    public string NoFreeBotAccounts()
+    public override string NoFreeBotAccounts()
     {
         return "No free bot accounts in this guild. You can add more bot accounts from the bot's support server.";
     }
 
-    public string ThisMessageWillUpdateShortly()
+    public override string ThisMessageWillUpdateShortly()
     {
         return "Hello! This message will update shortly.";
     }
 
-    public string SelectVideo()
+    public override string SelectVideo()
     {
         return "Select a video.";
     }
 
-    public string SelectVideoTimeout()
+    public override string SelectVideoTimeout()
     {
         return "Time to select video ran out.";
     }
 
-    public string NoResultsFound(string term)
+    public override string NoResultsFound(string term)
     {
         return $"No results could be found for the search term: \"{term}\"";
     }
 
-    public string AddedItem(string term)
+    public override string AddedItem(string term)
     {
         return $"Added: {term}";
     }
 
-    public string BotIsNotInTheChannel()
+    public override string BotIsNotInTheChannel()
     {
         return "The bot isn't in the channel.";
     }
 
-    public string CouldNotFindCommand(string command)
+    public override string CouldNotFindCommand(string command)
     {
         return $"Couldn't find command: \"{command}\"";
     }
 
-    public string LoopStatusUpdate(Loop loop)
+    public override string LoopStatusUpdate(Loop loop)
     {
         return "Loop status is now: " + loop switch
         {
@@ -103,79 +103,79 @@ public class English : ILanguage
         };
     }
 
-    public string NumberBiggerThanQueueLength(int number)
+    public override string NumberBiggerThanQueueLength(int number)
     {
         return $"Specified number: {number} is bigger than the Queue's Length. Searching the number instead.";
     }
 
-    public string PlayingItemAfterThis(int index, string name)
+    public override string PlayingItemAfterThis(int index, string name)
     {
         return $"Playing: ({index}) - \"{name}\" after this.";
     }
 
-    public string PlayingItemAfterThis(string term)
+    public override string PlayingItemAfterThis(string term)
     {
         return $"Playing: \"{term}\" after this.";
     }
 
-    public string FailedToRemove(string text)
+    public override string FailedToRemove(string text)
     {
         return $"Failed to remove: \"{text}\"";
     }
 
-    public string RemovingItem(string name)
+    public override string RemovingItem(string name)
     {
         return $"Removing \"{name}\"";
     }
 
-    public string YouHaveAlreadyGeneratedAWebUiCode()
+    public override string YouHaveAlreadyGeneratedAWebUiCode()
     {
         return "You have already generated a Web UI code.";
     }
 
-    public string ControlTheBotUsingAFancyInterface()
+    public override string ControlTheBotUsingAFancyInterface()
     {
         return "Control the bot using a fancy interface.";
     }
 
-    public string SendingADirectMessageContainingTheInformation()
+    public override string SendingADirectMessageContainingTheInformation()
     {
         return "Sending a Direct Message containing the information.";
     }
 
-    public string YourWebUiCodeIs()
+    public override string YourWebUiCodeIs()
     {
         return "Your Web UI Code is";
     }
 
-    public string FailedToMove()
+    public override string FailedToMove()
     {
         return "Failed to move.";
     }
 
-    public string Moved(int itemOne, string name, int item2)
+    public override string Moved(int itemOne, string name, int item2)
     {
         return $"Moved ({itemOne}) \"{name}\" to ({item2})";
     }
 
-    public string InvalidMoveFormat()
+    public override string InvalidMoveFormat()
     {
         return "Invalid move format.\n" +
                "You must use two numbers or use the format specified below:\n\n" +
                "-mv Exact Name !to Exact Name 2 ";
     }
 
-    public string SwitchedThePlacesOf(string itemOne, string itemTwo)
+    public override string SwitchedThePlacesOf(string itemOne, string itemTwo)
     {
         return $"Switched the places of \"{itemOne}\" and \"{itemTwo}\"";
     }
 
-    public string CurrentQueue()
+    public override string CurrentQueue()
     {
         return "Current Queue:";
     }
 
-    public string TechTip()
+    public override string TechTip()
     {
         return "\n\nHere's a tech tip. " +
                "\nYou can use the bot web interface which displays the list automatically. " +
@@ -184,54 +184,54 @@ public class English : ILanguage
                "\nThe bot will DM you a link which you can use to login, and a token for authentication.";
     }
 
-    public string GoingTo(int index, string thing)
+    public override string GoingTo(int index, string thing)
     {
         return $"Going to ({index}) - \"{thing}\"";
     }
 
-    public string SetVolumeTo(double volume)
+    public override string SetVolumeTo(double volume)
     {
         return $"Set the volume to {volume}%";
     }
 
-    public string InvalidVolumeRange()
+    public override string InvalidVolumeRange()
     {
         return "Invalid volume range. Must be between 0 and 200%.";
     }
 
-    public string QueueSavedSuccessfully(string token)
+    public override string QueueSavedSuccessfully(string token)
     {
         return $"Queue saved sucessfully. \n\nYou can play it again with this command: \"-p pl:{token}\", " +
                "or by sending the attached file and using the play command.";
     }
 
-    public string OneCannotRecieveBlessingNotInChannel()
+    public override string OneCannotRecieveBlessingNotInChannel()
     {
         return "One cannot recieve the blessing of playback if they're not in a channel.";
     }
 
-    public string OneCannotRecieveBlessingNothingToPlay()
+    public override string OneCannotRecieveBlessingNothingToPlay()
     {
         return "One cannot recieve the blessing of playback if there's nothing to play.";
     }
 
-    public string UserNotInChannelLyrics()
+    public override string UserNotInChannelLyrics()
     {
         return "Enter a channel before using the lyrics command without a search term.";
     }
 
-    public string BotNotInChannelLyrics()
+    public override string BotNotInChannelLyrics()
     {
         return
             "The bot isn't in the channel. If you want to know the lyrics of a song add it's name after the command.";
     }
 
-    public string NoResultsFoundLyrics(string search)
+    public override string NoResultsFoundLyrics(string search)
     {
         return $"No results found for \"{search}\".";
     }
 
-    public string LyricsLong()
+    public override string LyricsLong()
     {
         return
             "The lyrics are longer than 2000 characters, which is Discord's length limit. Too bad. Sending song as a file.";
@@ -241,47 +241,47 @@ public class English : ILanguage
 
     #region Player Interations
 
-    public string YouAreNotInTheChannel()
+    public override string YouAreNotInTheChannel()
     {
         return "You're not in the bot's current channel.";
     }
 
-    public string ShufflingTheQueue()
+    public override string ShufflingTheQueue()
     {
         return "Shuffling the queue.";
     }
 
-    public string SkippingOneTime()
+    public override string SkippingOneTime()
     {
         return "Skipping one time";
     }
 
-    public string PausingThePlayer()
+    public override string PausingThePlayer()
     {
         return "Pausing the player.";
     }
 
-    public string UnpausingThePlayer()
+    public override string UnpausingThePlayer()
     {
         return "Unpausing the player.";
     }
 
-    public string SkippingOneTimeBack()
+    public override string SkippingOneTimeBack()
     {
         return "Skipping one time back.";
     }
 
-    public string Playing()
+    public override string Playing()
     {
         return "Playing";
     }
 
-    public string RequestedBy()
+    public override string RequestedBy()
     {
         return "Requested by";
     }
 
-    public string NextUp()
+    public override string NextUp()
     {
         return "Next";
     }
@@ -290,14 +290,14 @@ public class English : ILanguage
 
     #region Player Messages
 
-    public string DefaultStatusbarMessage()
+    public override string DefaultStatusbarMessage()
     {
         return
             "The bot is currently being reworked majorly, so please note that there may be many bugs. Sorry for any bugs in advance.\n\n" +
-            "IMPORTANT UPDATE: \nThe voting period has ended. The new name of the bot will be \"Bai Tosho\". The name will be changed on the 26th March 2023.";
+            "IMPORTANT MESSAGE: \n💀";
     }
 
-    public string DiscordDidTheFunny()
+    public override string DiscordDidTheFunny()
     {
         return
             "Discord did the funny, so the bot tried to reconnect. If the playback stopped skip one time back and return to the current item.";
@@ -307,49 +307,49 @@ public class English : ILanguage
 
     #region Slash Commands
 
-    public string SlashHello()
+    public override string SlashHello()
     {
         return "Hello!";
     }
 
-    public string SlashNotInChannel()
+    public override string SlashNotInChannel()
     {
         return "You cannot use this command while not being in a channel.";
     }
 
-    public string SlashPlayCommand(string term)
+    public override string SlashPlayCommand(string term)
     {
         return $"Running play command with search term: \"{term}\"";
     }
 
-    public string SlashBotNotInChannel()
+    public override string SlashBotNotInChannel()
     {
         return "The bot isn't in the current voice channel.";
     }
 
-    public string SlashLeaving()
+    public override string SlashLeaving()
     {
         return "Leaving.";
     }
 
-    public string SlashSkipping(int times, bool back = false)
+    public override string SlashSkipping(int times, bool back = false)
     {
         if (times >= 0) return $"Skipping {(times == 1 ? "one time" : times)}{(back ? " back" : "")}.";
         times = Math.Abs(times);
         return $"Skipping {(times == 1 ? "one time" : times)} back.";
     }
 
-    public string SlashPausing()
+    public override string SlashPausing()
     {
         return "Pausing the current item.";
     }
 
-    public string SlashPrayingToTheRngGods()
+    public override string SlashPrayingToTheRngGods()
     {
         return "Praying to the RNG gods.";
     }
 
-    public string UpdatingToken()
+    public override string UpdatingToken()
     {
         return "Resetting your client token. You will recieve a message containing the information.";
     }

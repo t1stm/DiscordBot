@@ -54,9 +54,9 @@ public abstract class PlayableItem
 
     public abstract string GetId();
 
-    public string GetTypeOf(ILanguage language)
+    public string GetTypeOf(AbstractLanguage abstractLanguage)
     {
-        return language.GetTypeOfTrack(this);
+        return abstractLanguage.GetTypeOfTrack(this);
     }
 
     public virtual bool GetIfErrored()

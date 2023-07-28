@@ -227,7 +227,7 @@ public static class Manager
 
     private static async Task<bool> HandleSelect(string? term, Player player, DiscordUser user,
         DiscordChannel messageChannel,
-        ILanguage lang, ICollection<PlayableItem> items)
+        AbstractLanguage lang, ICollection<PlayableItem> items)
     {
         var results = await Search.Get(term, returnAllResults: true);
         List<PlayableItem> ok;

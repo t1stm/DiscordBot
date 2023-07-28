@@ -60,23 +60,23 @@ public class FfMpeg
         };
         FfMpegProcess = Process.Start(ffmpegStartInfo);
         if (FfMpegProcess == null) return;
-        
+
         try
         {
-
             async void Write()
             {
-                while (!FfMpegProcess.StandardInput.BaseStream.CanWrite && !CancellationSource.Token.IsCancellationRequested) await Task.Delay(16);
-                
+                while (!FfMpegProcess.StandardInput.BaseStream.CanWrite &&
+                       !CancellationSource.Token.IsCancellationRequested) await Task.Delay(16);
+
                 var result = await item.GetAudioData(FfMpegProcess.StandardInput
                     .BaseStream);
-                
+
                 if (result == Status.Error)
                 {
                     await Debug.WriteAsync("Reading Audio Data wasn't successful.");
                     await Kill();
                 }
-                    
+
                 var stream_spreader = result.GetOK();
                 Spreader = stream_spreader;
                 try
@@ -92,13 +92,13 @@ public class FfMpeg
                 {
                     await Debug.WriteAsync($"Exception when flushing StreamSpreader: \'{e}\'");
                 }
-                
+
                 await Debug.WriteAsync("Copying audio data to stream finished.");
             }
 
             var write_task = new Task(Write);
             write_task.Start();
-            
+
             await FfMpegProcess.StandardOutput.BaseStream.CopyToAsync(destination);
         }
         catch (TaskCanceledException)

@@ -1,5 +1,4 @@
 #nullable enable
-using DiscordBot.Methods;
 using DiscordBot.Playlists.Music_Storage.Objects;
 using TagLib;
 
@@ -19,12 +18,10 @@ public class Id3v2
         var pictures = tag.Pictures;
 
         if (pictures.Length < 1)
-        {
             return new EmbeddedImage
             {
                 HasData = false
             };
-        }
 
         var picture = pictures[0];
         var data = picture.Data.Data;

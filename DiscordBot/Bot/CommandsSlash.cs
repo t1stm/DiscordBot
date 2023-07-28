@@ -670,7 +670,7 @@ public class CommandsSlash : ApplicationCommandModule
                 if (Bot.DebugMode) Debug.Write($"Song auto complete request: \"{stringifyed}\"");
                 var albums = MusicManager.OrderByTerm(stringifyed).Take(..20);
                 return Task.FromResult(albums.Select(info =>
-                    new DiscordAutoCompleteChoice($"{info.OriginalTitle} - {info.OriginalAuthor}", info.Id)));
+                    new DiscordAutoCompleteChoice($"{info.OriginalTitle} - {info.OriginalAuthor}", info.Id ?? "")));
             }
             catch (Exception e)
             {

@@ -5,7 +5,7 @@ public static class Parser
     private static readonly English English = new();
     private static readonly Bulgarian Bulgarian = new();
 
-    public static ILanguage FromNumber(ushort language)
+    public static AbstractLanguage FromNumber(ushort language)
     {
         return language switch
         {
@@ -15,9 +15,9 @@ public static class Parser
         };
     }
 
-    public static ushort GetIndex(ILanguage language)
+    public static ushort GetIndex(AbstractLanguage abstractLanguage)
     {
-        return language switch
+        return abstractLanguage switch
         {
             English _ => 0,
             Bulgarian _ => 1,

@@ -165,7 +165,8 @@ public static class PlaylistManager
 
     public static Playlist? SavePlaylist(IEnumerable<PlayableItem> list, PlaylistInfo info, Guid guid)
     {
-        var fileStream = File.Open($"{PlaylistDirectory}/{guid.ToString()}.play", FileMode.Create, FileAccess.ReadWrite, FileShare.ReadWrite);
+        var fileStream = File.Open($"{PlaylistDirectory}/{guid.ToString()}.play", FileMode.Create, FileAccess.ReadWrite,
+            FileShare.ReadWrite);
         try
         {
             var playlistEncoder = new Encoder(fileStream, info);

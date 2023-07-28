@@ -48,7 +48,7 @@ public class Player
     public bool Paused { get; set; }
     public GuildsModel Settings { get; set; } = new();
 
-    public ILanguage Language
+    public AbstractLanguage Language
     {
         get => Parser.FromNumber(Settings.Language);
         set
@@ -312,7 +312,9 @@ public class Player
                 Connection = await CurrentClient.GetVoiceNext().ConnectAsync(chan);
                 Connection.VoiceSocketErrored += async (_, args) =>
                 {
-                    await Debug.WriteAsync($"VoiceSocket Errored in Guild: \"{CurrentGuild.Name}\" with arguments \"{args.Exception}\" - Attempting to reconnect.", true, Debug.DebugColor.Urgent);
+                    await Debug.WriteAsync(
+                        $"VoiceSocket Errored in Guild: \"{CurrentGuild.Name}\" with arguments \"{args.Exception}\" - Attempting to reconnect.",
+                        true, Debug.DebugColor.Urgent);
                     UpdateChannel(VoiceChannel!);
                     await CurrentClient.SendMessageAsync(Channel, Language.DiscordDidTheFunny().CodeBlocked());
                 };

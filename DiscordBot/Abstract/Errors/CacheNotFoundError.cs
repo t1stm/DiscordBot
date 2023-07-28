@@ -4,7 +4,7 @@ namespace DiscordBot.Abstract.Errors;
 
 public class CacheNotFoundError : Error
 {
-    public override string Stringify(ILanguage language)
+    public override string Stringify(AbstractLanguage language)
     {
         return language switch
         {

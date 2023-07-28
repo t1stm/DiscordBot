@@ -2,9 +2,9 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
-using Newtonsoft.Json;
 using DiscordBot.Methods;
 using DiscordBot.Playlists.Music_Storage.Objects;
+using Newtonsoft.Json;
 
 namespace DiscordBot.Playlists.Music_Storage;
 
@@ -27,13 +27,14 @@ public static class ExtractImages
             Formatting = Formatting.Indented,
             StringEscapeHandling = StringEscapeHandling.EscapeHtml
         };
-        using var file_stream = File.Open($"{folder}/Info.json", FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.ReadWrite);
-        
+        using var file_stream = File.Open($"{folder}/Info.json", FileMode.OpenOrCreate, FileAccess.ReadWrite,
+            FileShare.ReadWrite);
+
         using var reader = new StreamReader(file_stream, Encoding.UTF8, true, 1024, true);
-            
+
         var json = reader.ReadToEnd();
         var items = JsonConvert.DeserializeObject<List<MusicInfo>>(json) ?? Enumerable.Empty<MusicInfo>().ToList();
-        
+
         foreach (var info in items)
         {
             var location = info.ToMusicObject().GetLocation();
@@ -56,9 +57,8 @@ public static class ExtractImages
         }
 
         file_stream.Position = 0;
-            
+
         using var writer = new StreamWriter(file_stream, Encoding.UTF8);
         serializer.Serialize(writer, items);
-        
     }
 }

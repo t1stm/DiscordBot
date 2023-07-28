@@ -25,7 +25,7 @@ public class Statusbar : IBaseStatusbar
     public bool HasButtons => NewStatusbar;
     private bool Stopped { get; set; }
     public Player Player { get; set; } = null!;
-    private ILanguage Language => Player.Language;
+    private AbstractLanguage Language => Player.Language;
     public DiscordGuild Guild { get; set; } = null!;
     public DiscordChannel Channel { get; set; } = null!;
     public DiscordClient Client { get; set; } = null!;
@@ -162,7 +162,7 @@ public class Statusbar : IBaseStatusbar
                    $"{progress} ( {Player.Paused switch { false => "▶️", true => "⏸️" }} {Time(TimeSpan.FromMilliseconds(time))} - {length switch { 0 => "∞", _ => Time(TimeSpan.FromMilliseconds(length)) }} )" +
                    $"{Player.Sink switch { null => "", _ => Player.Sink.VolumeModifier switch { 0 => " (🔇", > 0 and < .33 => " (🔈", >= .33 and <= .66 => " (🔉", > .66 => " (🔊", _ => " (🔊" } + $" {(int)(Player.Sink.VolumeModifier * 100)}%)" }}" +
                    $"{Player.LoopStatus switch { Loop.One => " ( 🔂 )", Loop.WholeQueue => " ( 🔁 )", _ => "" }}" +
-                   $"{req switch { null => "", _ => $"\n{Language.RequestedBy()}: {req.Username}{(req.Discriminator != "0" ? $"#{req.Discriminator}": "")}" }}" +
+                   $"{req switch { null => "", _ => $"\n{Language.RequestedBy()}: {req.Username}{(req.Discriminator != "0" ? $"#{req.Discriminator}" : "")}" }}" +
                    $"{next switch { null => "", _ => $"\n\n{Language.NextUp()}: ({Player.Queue.Current + 2}) {next.GetName(Player.Settings.ShowOriginalInfo)}" }}" +
                    $"{message}```";
 

@@ -5,54 +5,54 @@ using DiscordBot.Enums;
 
 namespace DiscordBot.Objects;
 
-public class Bulgarian : ILanguage
+public class Bulgarian : AbstractLanguage
 {
-    public string EnterChannelBeforeCommand(string command)
+    public override string EnterChannelBeforeCommand(string command)
     {
         return $"Влез в гласов канал преди да използваш командата \"{command}\".";
     }
 
-    public string NoFreeBotAccounts()
+    public override string NoFreeBotAccounts()
     {
         return "Бота няма свободни профили. Можеш да добавиш още профили от гилда за поддръжка на бота.";
     }
 
-    public string ThisMessageWillUpdateShortly()
+    public override string ThisMessageWillUpdateShortly()
     {
         return "Здравей! Това съобщение ще се промени след малко.";
     }
 
-    public string SelectVideo()
+    public override string SelectVideo()
     {
         return "Избери видео.";
     }
 
-    public string SelectVideoTimeout()
+    public override string SelectVideoTimeout()
     {
         return "Времето за избиране на видео изтече.";
     }
 
-    public string NoResultsFound(string term)
+    public override string NoResultsFound(string term)
     {
         return $"Не бяха намерени резултати за търсенето: \"{term}\"";
     }
 
-    public string AddedItem(string term)
+    public override string AddedItem(string term)
     {
         return $"Добавяне на: \"{term}\"";
     }
 
-    public string BotIsNotInTheChannel()
+    public override string BotIsNotInTheChannel()
     {
         return "Бота не е в канала.";
     }
 
-    public string CouldNotFindCommand(string command)
+    public override string CouldNotFindCommand(string command)
     {
         return $"Командата: \"{command}\" не съществува.";
     }
 
-    public string LoopStatusUpdate(Loop loop)
+    public override string LoopStatusUpdate(Loop loop)
     {
         return "Loop status is now: " + loop switch
         {
@@ -61,79 +61,79 @@ public class Bulgarian : ILanguage
         };
     }
 
-    public string NumberBiggerThanQueueLength(int number)
+    public override string NumberBiggerThanQueueLength(int number)
     {
         return $"Числото: {number} е по голямо от дължината на списъка. Търсене на числото в YouTube.";
     }
 
-    public string PlayingItemAfterThis(int index, string name)
+    public override string PlayingItemAfterThis(int index, string name)
     {
         return $"Пускане на: ({index}) - \"{name}\" след това.";
     }
 
-    public string PlayingItemAfterThis(string term)
+    public override string PlayingItemAfterThis(string term)
     {
         return $"Пускане на: \"{term}\" след това.";
     }
 
-    public string FailedToRemove(string text)
+    public override string FailedToRemove(string text)
     {
         return $"Неуспешно премахване на: \"{text}\"";
     }
 
-    public string RemovingItem(string name)
+    public override string RemovingItem(string name)
     {
         return $"Премахвам: \"{name}\"";
     }
 
-    public string YouHaveAlreadyGeneratedAWebUiCode()
+    public override string YouHaveAlreadyGeneratedAWebUiCode()
     {
         return "Вече си генерирал код за онлайн интерфейса";
     }
 
-    public string ControlTheBotUsingAFancyInterface()
+    public override string ControlTheBotUsingAFancyInterface()
     {
         return "Контролирай бота през яко изглеждащ сайт.";
     }
 
-    public string SendingADirectMessageContainingTheInformation()
+    public override string SendingADirectMessageContainingTheInformation()
     {
         return "Изпращам лично съобщение, съдържащо информацията.";
     }
 
-    public string YourWebUiCodeIs()
+    public override string YourWebUiCodeIs()
     {
         return "Твоя код за онлайн интерфейса е";
     }
 
-    public string FailedToMove()
+    public override string FailedToMove()
     {
         return "Неуспешно преместване.";
     }
 
-    public string Moved(int itemOne, string name, int item2)
+    public override string Moved(int itemOne, string name, int item2)
     {
         return $"Преместих ({itemOne}) \"{name}\" на мястото ({item2})";
     }
 
-    public string InvalidMoveFormat()
+    public override string InvalidMoveFormat()
     {
         return "Невалиден формат на местене.\n" +
                "Трябва да използваш две числа или да използваш формата написан под това съобщение:\n\n" +
                "-move Exact Name !to Exact Name 2";
     }
 
-    public string SwitchedThePlacesOf(string itemOne, string itemTwo)
+    public override string SwitchedThePlacesOf(string itemOne, string itemTwo)
     {
         return $"Размених местата на \"{itemOne}\" и \"{itemTwo}\"";
     }
 
-    public string CurrentQueue()
+    public override string CurrentQueue()
     {
         return "Сегашния списък:";
     }
 
-    public string TechTip()
+    public override string TechTip()
     {
         return "\n\nВреме за един съвет. " +
                "\nПрепоръчвам ти да използваш онлайн интерфейса на бота, защото той показва списъка автоматично. " +
@@ -142,118 +142,118 @@ public class Bulgarian : ILanguage
                "\nБота ще ти изпрати лично съобщение с нужната информацията.";
     }
 
-    public string GoingTo(int index, string thing)
+    public override string GoingTo(int index, string thing)
     {
         return $"Пускам ({index}) - \"{thing}\"";
     }
 
-    public string SetVolumeTo(double volume)
+    public override string SetVolumeTo(double volume)
     {
         return $"Настройване на звука на: {volume}%";
     }
 
-    public string InvalidVolumeRange()
+    public override string InvalidVolumeRange()
     {
         return "Невалидна настройка на звука. Трябва да е между 0 and 200 процента.";
     }
 
-    public string QueueSavedSuccessfully(string token)
+    public override string QueueSavedSuccessfully(string token)
     {
         return $"Списъка е запазен успешно. \n\nМожеш да го пуснеш отново с командата: \"-p pl:{token}\", " +
                "или ако го прикачиш като използваш \"play\" командата.";
     }
 
-    public string OneCannotRecieveBlessingNotInChannel()
+    public override string OneCannotRecieveBlessingNotInChannel()
     {
         //return "One cannot recieve the blessing of playback if they're not in a channel.";
         return "Един даден човешки индивид не може да получи просветлението на звук ако не е в канал.";
     }
 
-    public string OneCannotRecieveBlessingNothingToPlay()
+    public override string OneCannotRecieveBlessingNothingToPlay()
     {
         return "Един даден човешки индивид не може да получи просветлението на звук ако няма нищо за слушане.";
     }
 
-    public string UserNotInChannelLyrics()
+    public override string UserNotInChannelLyrics()
     {
         return "Влез в канал преди да използваш \"lyrics\" командата без да търсиш песен с нея.";
     }
 
-    public string BotNotInChannelLyrics()
+    public override string BotNotInChannelLyrics()
     {
         return
             "Бота не е в канала. Ако искаш да знаеш текста на някоя песен, напиши ѝ името след тази команда.";
     }
 
-    public string NoResultsFoundLyrics(string search)
+    public override string NoResultsFoundLyrics(string search)
     {
         return $"Не бяха намерени резултати за: \"{search}\".";
     }
 
-    public string LyricsLong()
+    public override string LyricsLong()
     {
         return
             "Текста на песента е над 2000 букви, което е лимита на Discord за текст. Изпращам текста като файл.";
     }
 
-    public string YouAreNotInTheChannel()
+    public override string YouAreNotInTheChannel()
     {
         return "Не си в сегашния канал на бота.";
     }
 
-    public string ShufflingTheQueue()
+    public override string ShufflingTheQueue()
     {
         return "Размешване на списъка.";
     }
 
-    public string SkippingOneTime()
+    public override string SkippingOneTime()
     {
         return "Пропускам един път.";
     }
 
-    public string PausingThePlayer()
+    public override string PausingThePlayer()
     {
         return "Спирам музиката.";
     }
 
-    public string UnpausingThePlayer()
+    public override string UnpausingThePlayer()
     {
         return "Продължавам музиката.";
     }
 
-    public string SkippingOneTimeBack()
+    public override string SkippingOneTimeBack()
     {
         return "Връщам се един път назад.";
     }
 
-    public string Playing()
+    public override string Playing()
     {
         return "Сега се слуша";
     }
 
-    public string RequestedBy()
+    public override string RequestedBy()
     {
         return "Добавено от";
     }
 
-    public string NextUp()
+    public override string NextUp()
     {
         return "Следва";
     }
 
-    public string DefaultStatusbarMessage()
+    public override string DefaultStatusbarMessage()
     {
         return
-            "ВАЖНО СЪОБЩЕНИЕ: \nПериодът за гласуване приключи. Новото име на бота ще бъде \"Bai Tosho\". Името ще бъде променено на 26 март 2023 г.";
+            "ВАЖНО СЪОБЩЕНИЕ: \n💀";
     }
 
-    public string DiscordDidTheFunny()
+    public override string DiscordDidTheFunny()
     {
         return
             "Discord направи смешното на бота, и заради това той се опита да се върже отново в канала. Ако е спрял, пропуснете веднъж назад и се върнете.";
     }
 
-    public string GayRatePercentMessage(int percent)
+    public override string GayRatePercentMessage(int percent)
     {
         return percent switch
         {
@@ -269,7 +269,7 @@ public class Bulgarian : ILanguage
         };
     }
 
-    public string GetTypeOfTrack(PlayableItem it)
+    public override string GetTypeOfTrack(PlayableItem it)
     {
         return it switch
         {
@@ -286,58 +286,58 @@ public class Bulgarian : ILanguage
         };
     }
 
-    public string SavedQueueAfterLeavingMessage()
+    public override string SavedQueueAfterLeavingMessage()
     {
         return "Списъка на бота е запазен успешно. " +
                "Можеш да го пуснеш отново като натиснеш бутона под това съобщение.\n\n" +
-               "ВАЖНО СЪОБЩЕНИЕ: \nПериодът за гласуване приключи. Новото име на бота ще бъде \"Bai Tosho\". Името ще бъде променено на 26 март 2023 г.";
+               $"ВАЖНО СЪОБЩЕНИЕ: \nЗабравих да сменя това съобщение преди {MonthsSinceLastMessageUpdate()} месеца. 💀";
     }
 
     #region Slash Commands
 
-    public string SlashHello()
+    public override string SlashHello()
     {
         return "Здравей!";
     }
 
-    public string SlashNotInChannel()
+    public override string SlashNotInChannel()
     {
         return "Не можеш да използваш тази команда, ако не си в гласов канал.";
     }
 
-    public string SlashPlayCommand(string term)
+    public override string SlashPlayCommand(string term)
     {
         return $"Търсене на: \"{term}\"";
     }
 
-    public string SlashBotNotInChannel()
+    public override string SlashBotNotInChannel()
     {
         return "Бота не е в сегашния гласов канал.";
     }
 
-    public string SlashLeaving()
+    public override string SlashLeaving()
     {
         return "Напускане на канала.";
     }
 
-    public string SlashSkipping(int times, bool back = false)
+    public override string SlashSkipping(int times, bool back = false)
     {
         if (times >= 0) return $"Пропускане {(times == 1 ? "един път" : times)} {(back ? "назад" : "напред")}.";
         times = Math.Abs(times);
         return $"Пропускане {(times == 1 ? "един път" : times)} назад.";
     }
 
-    public string SlashPausing()
+    public override string SlashPausing()
     {
         return "Спиране на пауза.";
     }
 
-    public string SlashPrayingToTheRngGods()
+    public override string SlashPrayingToTheRngGods()
     {
         return "Ти се помоли на RNG боговете.";
     }
 
-    public string UpdatingToken()
+    public override string UpdatingToken()
     {
         return "Старият ти код е изтрит. Ще получиш съобщение съдържащо новия ти код.";
     }

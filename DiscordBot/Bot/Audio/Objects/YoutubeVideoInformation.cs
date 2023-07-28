@@ -7,12 +7,12 @@ using System.Threading.Tasks;
 using DiscordBot.Abstract;
 using DiscordBot.Abstract.Errors;
 using DiscordBot.Readers;
+using Result;
+using Result.Objects;
 using Streams;
 using YouTubeApiSharp;
 using YoutubeExplode;
 using YoutubeExplode.Videos.Streams;
-using Result;
-using Result.Objects;
 
 namespace DiscordBot.Audio.Objects;
 
@@ -60,10 +60,8 @@ public class YoutubeVideoInformation : PlayableItem
         Errored = TriesToDownload > 3;
 
         if (Length < 1800000 && YoutubeId != "ETQmQ1Ixv5Y")
-        {
             outs.Add(File.Open($"{DownloadDirectory}/{YoutubeId}.webm", FileMode.Create));
-        }
-        
+
         Location = ReturnIfExists(YoutubeId);
         if (!string.IsNullOrEmpty(Location))
         {
@@ -72,13 +70,11 @@ public class YoutubeVideoInformation : PlayableItem
                 IsAsynchronous = true,
                 KeepCached = true
             };
-            
+
             await using var fs = File.Open(Location, FileMode.Open, FileAccess.Read, FileShare.Read);
-            await fs.CopyToAsync(stream_spreader).ContinueWith(_ =>
-            {
-                stream_spreader.FinishWriting();
-            }).ConfigureAwait(false);
-            
+            await fs.CopyToAsync(stream_spreader).ContinueWith(_ => { stream_spreader.FinishWriting(); })
+                .ConfigureAwait(false);
+
             return Result<StreamSpreader, Error>.Success(stream_spreader);
         }
 
@@ -93,15 +89,13 @@ public class YoutubeVideoInformation : PlayableItem
                 KeepCached = true
             };
 
-            await stream.CopyToAsync(stream_spreader).ContinueWith(_ =>
-            {
-                stream_spreader.FinishWriting();
-            }).ConfigureAwait(false);
+            await stream.CopyToAsync(stream_spreader).ContinueWith(_ => { stream_spreader.FinishWriting(); })
+                .ConfigureAwait(false);
             await task;
-            
+
             return Result<StreamSpreader, Error>.Success(stream_spreader);
         }
-        
+
         var yt_other = await DownloadOtherApi(YoutubeId);
         if (yt_other == Status.OK)
         {
@@ -112,15 +106,12 @@ public class YoutubeVideoInformation : PlayableItem
         }
 
         var yt_explode = await DownloadExplode(YoutubeId);
-        if (yt_explode != Status.OK)
-        {
-            return Result<StreamSpreader, Error>.Error(new UnknownError());
-        }
+        if (yt_explode != Status.OK) return Result<StreamSpreader, Error>.Error(new UnknownError());
 
         {
             var stream_spreader = yt_explode.GetOK();
             stream_spreader.AddDestinations(outs.ToArray());
-            
+
             return Result<StreamSpreader, Error>.Success(stream_spreader);
         }
     }
@@ -156,16 +147,10 @@ public class YoutubeVideoInformation : PlayableItem
             FileName = "yt-dlp"
         };
         var pr = Process.Start(sett);
-        if (pr == null)
-        {
-            return Result<(Stream, Task), Error>.Error(new NoResultsError());
-        }
+        if (pr == null) return Result<(Stream, Task), Error>.Error(new NoResultsError());
 
-        if (!live)
-        {
-            return Result<(Stream, Task), Error>.Success((pr.StandardOutput.BaseStream, pr.WaitForExitAsync()));
-        }
-        
+        if (!live) return Result<(Stream, Task), Error>.Success((pr.StandardOutput.BaseStream, pr.WaitForExitAsync()));
+
         IsLiveStream = true;
         return Result<(Stream, Task), Error>.Error(new NoResultsError());
     }
@@ -174,19 +159,17 @@ public class YoutubeVideoInformation : PlayableItem
     {
         var videoInfos =
             DownloadUrlResolver.GetDownloadUrls($"https://youtube.com/watch?v={id}");
-        if (videoInfos == null)
-        {
-            return Result<StreamSpreader, Error>.Error(new NoResultsError());
-        }
-        
+        if (videoInfos == null) return Result<StreamSpreader, Error>.Error(new NoResultsError());
+
         var results = videoInfos.ToList();
         var audioInfo = results.Where(vi => vi.Resolution == 0 && vi.AudioType == AudioType.Opus)
             .OrderBy(vi => vi.AudioBitrate).Last();
         if (audioInfo.RequiresDecryption)
             DownloadUrlResolver.DecryptDownloadUrl(audioInfo);
         Location = audioInfo.DownloadUrl;
-        
-        return await HttpClient.ChunkedDownloader(HttpClient.WithCookies(), new Uri(audioInfo.DownloadUrl), true).ConfigureAwait(false);
+
+        return await HttpClient.ChunkedDownloader(HttpClient.WithCookies(), new Uri(audioInfo.DownloadUrl), true)
+            .ConfigureAwait(false);
     }
 
     private async Task<Result<StreamSpreader, Error>> DownloadExplode(string id)
@@ -196,7 +179,8 @@ public class YoutubeVideoInformation : PlayableItem
         var streamInfo = streamManifest.GetAudioOnlyStreams().GetWithHighestBitrate();
         var filepath = $"{DownloadDirectory}/{id}.{streamInfo.Container}";
         Location = streamInfo.Url;
-        
-       return await HttpClient.ChunkedDownloader(HttpClient.WithCookies(), new Uri(filepath), true).ConfigureAwait(false);
+
+        return await HttpClient.ChunkedDownloader(HttpClient.WithCookies(), new Uri(filepath), true)
+            .ConfigureAwait(false);
     }
 }

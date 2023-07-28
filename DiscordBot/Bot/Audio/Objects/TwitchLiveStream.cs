@@ -4,9 +4,9 @@ using System.IO;
 using System.Threading.Tasks;
 using DiscordBot.Abstract;
 using DiscordBot.Abstract.Errors;
-using Debug = DiscordBot.Methods.Debug;
 using Result;
 using Streams;
+using Debug = DiscordBot.Methods.Debug;
 
 namespace DiscordBot.Audio.Objects;
 

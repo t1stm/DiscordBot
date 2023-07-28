@@ -18,7 +18,7 @@ public class NullError : Error
         _nullType = nullType;
     }
 
-    public override string Stringify(ILanguage language)
+    public override string Stringify(AbstractLanguage language)
     {
         return language switch
         {

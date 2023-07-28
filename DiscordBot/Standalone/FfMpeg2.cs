@@ -50,10 +50,7 @@ public class FfMpeg2
             try
             {
                 var result = await item.GetAudioData(FfMpegProcess.StandardInput.BaseStream);
-                if (result == Status.Error)
-                {
-                    return;
-                }
+                if (result == Status.Error) return;
 
                 var stream_spreader = result.GetOK();
                 await stream_spreader.FlushAsync();

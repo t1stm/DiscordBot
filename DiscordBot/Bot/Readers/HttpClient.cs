@@ -48,9 +48,9 @@ public static class HttpClient
                 var stream_spreader = await ChunkedDownloader(client, new Uri(url));
                 if (stream_spreader == Status.Error) return "";
                 var result = stream_spreader.GetOK();
-                
+
                 result.AddDestination(response);
-                
+
                 // TODO: Finish this.
                 break;
         }
@@ -133,28 +133,25 @@ public static class HttpClient
         var fileSize = await GetContentLengthAsync(httpClient, uri.AbsoluteUri) ?? 0;
         const long chunkSize = 10485760;
 
-        if (fileSize == 0)
-        {
-            return Result<StreamSpreader, Error>.Error(new UnknownError());
-        }
+        if (fileSize == 0) return Result<StreamSpreader, Error>.Error(new UnknownError());
 
         async void DownloadAction()
         {
             try
             {
-                var segment_count = (int) Math.Ceiling(1.0 * fileSize / chunkSize);
+                var segment_count = (int)Math.Ceiling(1.0 * fileSize / chunkSize);
                 for (var i = 0; i < segment_count; i++)
                 {
                     var from = i * chunkSize;
                     var to = (i + 1) * chunkSize - 1;
                     var request = new HttpRequestMessage(HttpMethod.Get, uri);
                     request.Headers.Range = new RangeHeaderValue(from, to);
-                
+
                     var response = await httpClient.SendAsync(request, HttpCompletionOption.ResponseHeadersRead);
                     if (response.IsSuccessStatusCode) response.EnsureSuccessStatusCode();
                     var stream = await response.Content.ReadAsStreamAsync();
                     var buffer = new byte[1 << 16];
-                
+
                     int bytes_copied;
                     do
                     {
@@ -173,7 +170,7 @@ public static class HttpClient
 
         var download_action = new Task(DownloadAction);
         download_action.Start();
-        
+
         return Result<StreamSpreader, Error>.Success(stream_spreader);
     }
 }

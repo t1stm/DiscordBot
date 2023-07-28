@@ -45,7 +45,7 @@ public class User
         }
     }
 
-    public ILanguage Language
+    public AbstractLanguage Language
     {
         get => Parser.FromNumber(Model.Language);
 
