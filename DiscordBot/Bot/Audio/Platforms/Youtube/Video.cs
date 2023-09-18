@@ -15,12 +15,14 @@ using DiscordBot.Tools;
 using Result;
 using Result.Objects;
 using YoutubeExplode;
+using YoutubeExplode.Common;
+using YoutubeExplode.Search;
 using YoutubeSearchApi.Net.Models.Youtube;
 using YoutubeSearchApi.Net.Services;
 
 namespace DiscordBot.Audio.Platforms.Youtube;
 
-public static class Video
+public static partial class Video
 {
     public static async Task<Result<PlayableItem, Error>> Search(string term, bool urgent = false,
         ulong length = 0, SpotifyTrack? track = null)
@@ -35,9 +37,10 @@ public static class Video
             if (id == Status.OK) return id;
         }
 
-        var client = new YoutubeSearchClient(HttpClient.WithCookies());
-        var response = await client.SearchAsync(term);
-        var res = response.Results.ToList();
+        var client = new YoutubeClient(HttpClient.WithCookies());
+        var response = await client.Search.GetVideosAsync(term).CollectAsync(20);
+        
+        var res = response.ToList();
         var copy = res.ToList();
         new Task(() =>
         {
@@ -52,9 +55,9 @@ public static class Video
                     var read = Databases.VideoDatabase.Read(data);
                     if (read != null) continue;
                     data.Title = video.Title;
-                    data.Author = video.Author;
-                    data.Length = (ulong)StringToTimeSpan.Generate(video.Duration).TotalMilliseconds;
-                    data.ThumbnailUrl = video.ThumbnailUrl;
+                    data.Author = video.Author.ChannelTitle;
+                    data.Length = (ulong) (video.Duration?.TotalMilliseconds ?? 0);
+                    data.ThumbnailUrl = video.Thumbnails[0].Url;
 
                     Databases.VideoDatabase.Add(data);
                 }
@@ -94,13 +97,13 @@ public static class Video
             if (track is not null)
             {
                 res = Sorter.SortResults(track, res);
-                foreach (var yt in res.Cast<YoutubeVideo>())
+                foreach (var yt in res)
                     await Debug.WriteAsync($"Video Results: \"{yt.Title} - {yt.Author} - {yt.Duration}\"");
             }
             else
             {
                 res = res.OrderBy(r =>
-                        Math.Abs(StringToTimeSpan.Generate(r.Duration).TotalMilliseconds - length))
+                        Math.Abs((r.Duration?.TotalMilliseconds ?? 0) - length))
                     .ToList();
             }
         }
@@ -108,7 +111,7 @@ public static class Video
         var result = res.First();
         if (result == null) return Result<PlayableItem, Error>.Error(new NoResultsError());
         await Debug.WriteAsync(
-            $"Result Milliseconds are: {StringToTimeSpan.Generate(result.Duration).TotalMilliseconds}");
+            $"Result Milliseconds are: {(ulong) (result.Duration?.TotalMilliseconds ?? 0)}");
 
         var alt = YoutubeOverride.FromId(result.Id);
         if (alt is not null) return Result<PlayableItem, Error>.Success(alt);
@@ -116,11 +119,11 @@ public static class Video
         PlayableItem info = new YoutubeVideoInformation
         {
             Title = result.Title,
-            Author = result.Author,
-            Length = (ulong)StringToTimeSpan.Generate(result.Duration).TotalMilliseconds,
+            Author = result.Author.ChannelTitle,
+            Length = (ulong) (result.Duration?.TotalMilliseconds ?? 0),
             YoutubeId = result.Id,
             SearchTerm = term,
-            ThumbnailUrl = result.ThumbnailUrl
+            ThumbnailUrl = result.Thumbnails[0].Url
         };
 
         async void AddToDatabase()
@@ -142,15 +145,15 @@ public static class Video
         return Result<PlayableItem, Error>.Success(info);
     }
 
-    private static void RemoveTheFucking18dAudio(ref List<YoutubeVideo> list, string searchTerm)
+    private static void RemoveTheFucking18dAudio(ref List<VideoSearchResult> list, string searchTerm)
     {
         lock (list)
         {
             var count = list.Count;
             searchTerm = searchTerm.ToLower();
-            if (Regex.IsMatch(searchTerm, @"(?<!\.)\d+d")) return;
+            if (Audio18DRegex().IsMatch(searchTerm)) return;
             var autisticVideo = from i in list where Regex.IsMatch(i.Title, @"(?<!\.)\d+d") select i;
-            var autisticResults = autisticVideo as YoutubeVideo[] ?? autisticVideo.ToArray();
+            var autisticResults = autisticVideo as VideoSearchResult[] ?? autisticVideo.ToArray();
             if (autisticResults.Length == count) return;
             foreach (var autism in autisticResults)
             {
@@ -160,7 +163,7 @@ public static class Video
         }
     }
 
-    private static void RemoveAll(ref List<YoutubeVideo> list, string searchTerm, params string[] terms)
+    private static void RemoveAll(ref List<VideoSearchResult> list, string searchTerm, params string[] terms)
     {
         var li = list;
         lock (list)
@@ -303,4 +306,7 @@ public static class Video
         if (urgent) await response.GetAudioData();
         return result;
     }
+
+    [GeneratedRegex("(?<!\\.)\\d+d")]
+    private static partial Regex Audio18DRegex();
 }

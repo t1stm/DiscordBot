@@ -15,7 +15,7 @@ namespace DiscordBot.Readers;
 
 public static class HttpClient
 {
-    public static readonly string[] CookieDestinations = { $"{Bot.WorkingDirectory}/cookies.txt" };
+    public static readonly string[] CookieDestinations = { $"{Bot.WorkingDirectory}/cookies3.txt" };
 
     public static System.Net.Http.HttpClient WithCookies()
     {
@@ -27,7 +27,7 @@ public static class HttpClient
         var handler = new HttpClientHandler { UseCookies = true, CookieContainer = container };
         var client = new System.Net.Http.HttpClient(handler);
         client.DefaultRequestHeaders.UserAgent.ParseAdd(
-            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/71.0.3554.0 Safari/537.36");
+            "Mozilla/5.0 (X11; Linux x86_64; rv:109.0) Gecko/20100101 Firefox/117.0");
         return client;
     }
 

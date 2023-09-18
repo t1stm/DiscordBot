@@ -14,7 +14,8 @@ public static class PlaylistPageGenerator
         var description = playlist.Info?.Description;
         var guid = playlist.Info?.Guid.ToString();
         var maker = playlist.Info?.Maker;
-        var pageTitle = $"\'{name}\' \nMade by: \'{maker}'";
+        var pageTitle = playlist.Info == null ? "Not Found" : $"\'{name}\' \nMade by: \'{maker}'";
+
         var image = $"https://playlists.{Bot.MainDomain}/Image/{guid}";
         var value =
 
@@ -293,10 +294,10 @@ public static class PlaylistPageGenerator
                 if (search != Status.OK) continue;
                 var result = search.GetOK().First();
                 value += $@"<li class=""playlistItem"">
-            <img src=""{(string.IsNullOrEmpty(result?.GetThumbnailUrl()) ? $"https://{Bot.MainDomain}/WebUi/NoVideoImage.png" : result.GetThumbnailUrl())}"" alt=""Item Image"">
+            <img src=""{(string.IsNullOrEmpty(result.GetThumbnailUrl()) ? $"https://{Bot.MainDomain}/WebUi/NoVideoImage.png" : result.GetThumbnailUrl())}"" alt=""Item Image"">
             <div class=""info"">
-                <p class=""playlistItemTitle"">{result?.GetTitle()}</p>
-                <p class=""playlistItemAuthor"">{result?.GetAuthor()}</p>
+                <p class=""playlistItemTitle"">{result.GetTitle()}</p>
+                <p class=""playlistItemAuthor"">{result.GetAuthor()}</p>
             </div>
         </li>";
             }
@@ -308,7 +309,7 @@ public static class PlaylistPageGenerator
 
     public static string GenerateNotFoundPage()
     {
-        var value = $@"<!DOCTYPE html>
+        const string value = $@"<!DOCTYPE html>
 <html lang=""en"">
 <head>
     <meta charset=""UTF-8"">

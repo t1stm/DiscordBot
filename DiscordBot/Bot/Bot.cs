@@ -101,7 +101,11 @@ public static class Bot
         }
 
         //Clients.Add(SpecificContentBot()); // Time to retire this bot.
-        foreach (var client in Clients) await client.ConnectAsync().ConfigureAwait(false);
+        foreach (var client in Clients)
+        {
+            await client.ConnectAsync().ConfigureAwait(false);
+            await Debug.WriteAsync($"Bot: \'{client.CurrentUser.Username}\' is online.");
+        }
         string text;
         await ReadStatus(Clients[0]);
         YoutubeOverride.UpdateOverrides();

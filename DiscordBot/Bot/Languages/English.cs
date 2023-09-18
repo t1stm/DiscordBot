@@ -294,7 +294,7 @@ public class English : AbstractLanguage
     {
         return
             "The bot is currently being reworked majorly, so please note that there may be many bugs. Sorry for any bugs in advance.\n\n" +
-            "IMPORTANT MESSAGE: \n💀";
+            "IMPORTANT MESSAGE: \n YouTube pissed on my hard work again, so at the moment searching doesn't work. Please use links for the time being.";
     }
 
     public override string DiscordDidTheFunny()

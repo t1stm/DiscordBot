@@ -29,6 +29,18 @@ public class MusicInfo
     [JsonInclude] [JsonPropertyName("titleRomanized")]
     public string? RomanizedTitle;
 
+    [JsonInclude] [JsonPropertyName("romanizedGuestArtists")]
+    public string[]? RomanizedGuestArtists;
+    
+    [JsonInclude] [JsonPropertyName("romanizedGuestArtists")]
+    public string[]? OriginalGuestArtists;
+    
+    [JsonInclude] [JsonPropertyName("romanizedGuestArtists")]
+    public string[]? RomanizedOtherTitles;
+    
+    [JsonInclude] [JsonPropertyName("romanizedGuestArtists")]
+    public string[]? OriginalOtherTitles;
+
     public MusicInfo()
     {
         RomanizedTitle ??= OriginalTitle;

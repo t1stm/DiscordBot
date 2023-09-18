@@ -119,7 +119,7 @@ public static class Search
         catch (Exception e)
         {
             await Debug.WriteAsync($"Exception thrown when using search: \"{e}\"");
-            return Result<List<PlayableItem>, Error>.Error(new UnknownError());
+            return Result<List<PlayableItem>, Error>.Error(new SearchError(e.Message));
         }
     }
 
