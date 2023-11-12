@@ -59,7 +59,7 @@ public class CommandsSlash : ApplicationCommandModule
     {
         var guild = await GuildSettings.FromId(ctx.Guild.Id);
         await ctx.CreateResponseAsync(Parser.FromNumber(guild.Language).SlashHello().CodeBlocked());
-        var userVoiceS = ctx.Member?.VoiceState?.Channel;
+        var userVoiceS = ctx.Member.VoiceState.Channel;
         if (userVoiceS == null)
         {
             await ctx.EditResponseAsync(new DiscordWebhookBuilder

@@ -17,8 +17,6 @@ using Result.Objects;
 using YoutubeExplode;
 using YoutubeExplode.Common;
 using YoutubeExplode.Search;
-using YoutubeSearchApi.Net.Models.Youtube;
-using YoutubeSearchApi.Net.Services;
 
 namespace DiscordBot.Audio.Platforms.Youtube;
 
@@ -109,7 +107,6 @@ public static partial class Video
         }
 
         var result = res.First();
-        if (result == null) return Result<PlayableItem, Error>.Error(new NoResultsError());
         await Debug.WriteAsync(
             $"Result Milliseconds are: {(ulong) (result.Duration?.TotalMilliseconds ?? 0)}");
 
@@ -126,6 +123,11 @@ public static partial class Video
             ThumbnailUrl = result.Thumbnails[0].Url
         };
 
+        var task = new Task(AddToDatabase);
+        task.Start();
+        if (urgent) await info.GetAudioData();
+        return Result<PlayableItem, Error>.Success(info);
+
         async void AddToDatabase()
         {
             try
@@ -138,11 +140,6 @@ public static partial class Video
                 await Debug.WriteAsync($"Adding Information to Local Library in Youtube/Video.cs/Search failed: {e}");
             }
         }
-
-        var task = new Task(AddToDatabase);
-        task.Start();
-        if (urgent) await info.GetAudioData();
-        return Result<PlayableItem, Error>.Success(info);
     }
 
     private static void RemoveTheFucking18dAudio(ref List<VideoSearchResult> list, string searchTerm)
@@ -152,7 +149,7 @@ public static partial class Video
             var count = list.Count;
             searchTerm = searchTerm.ToLower();
             if (Audio18DRegex().IsMatch(searchTerm)) return;
-            var autisticVideo = from i in list where Regex.IsMatch(i.Title, @"(?<!\.)\d+d") select i;
+            var autisticVideo = from i in list where Audio18DRegex().IsMatch(i.Title) select i;
             var autisticResults = autisticVideo as VideoSearchResult[] ?? autisticVideo.ToArray();
             if (autisticResults.Length == count) return;
             foreach (var autism in autisticResults)
@@ -193,20 +190,21 @@ public static partial class Video
     {
         try
         {
-            var client = new YoutubeSearchClient(HttpClient.WithCookies());
-            var response = await client.SearchAsync(term);
-            var res = response.Results.ToList();
+            var client = new YoutubeClient(HttpClient.WithCookies());
+            var response = await client.Search.GetVideosAsync(term).CollectAsync(20);
+        
+            var res = response.ToList();
             if (length != 0)
                 res = res.OrderBy(r =>
-                        Math.Abs(StringToTimeSpan.Generate(r.Duration).TotalMilliseconds - length))
+                        Math.Abs((r.Duration?.TotalMilliseconds ?? 0) - length))
                     .ToList();
-            return Result<List<PlayableItem>, Error>.Success((from YoutubeVideo video in res
+            return Result<List<PlayableItem>, Error>.Success((from VideoSearchResult video in res
                 select new YoutubeVideoInformation
                 {
-                    Title = video.Title, Author = video.Author,
-                    Length = (ulong)StringToTimeSpan.Generate(video.Duration).TotalMilliseconds,
+                    Title = video.Title, Author = video.Author.ChannelTitle,
+                    Length = (ulong) (video.Duration?.TotalMilliseconds ?? 0),
                     YoutubeId = video.Id,
-                    ThumbnailUrl = video.ThumbnailUrl
+                    ThumbnailUrl = video.Thumbnails[0].Url
                 }).Cast<PlayableItem>().ToList());
         }
         catch (Exception)
@@ -223,9 +221,11 @@ public static partial class Video
             if (alt is not null) return Result<PlayableItem, Error>.Success(alt);
             var info = GetCachedVideoFromId(id);
             if (!urgent && info == Status.OK) return info;
+            
             var client = new YoutubeClient(HttpClient.WithCookies());
             var video = await client.Videos.GetAsync(id);
-            if (video is not { Duration: { } }) return Result<PlayableItem, Error>.Error(new NoResultsError());
+            
+            if (video.Duration is not null) return Result<PlayableItem, Error>.Error(new NoResultsError());
             var vid = new YoutubeVideoInformation
             {
                 Title = video.Title,
@@ -307,6 +307,6 @@ public static partial class Video
         return result;
     }
 
-    [GeneratedRegex("(?<!\\.)\\d+d")]
+    [GeneratedRegex(@"(?<!\.)\d+d")]
     private static partial Regex Audio18DRegex();
 }

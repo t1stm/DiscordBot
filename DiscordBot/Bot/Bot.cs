@@ -428,17 +428,16 @@ public static class Bot
                 {
                     if (Clients.All(c => c.CurrentUser.Id != args.User.Id)) return;
                     if (Manager.Main.Count < 1) return;
-                    if (args.Before == null) return;
                     var cl = Manager.Main.FirstOrDefault(c => c.VoiceChannel?.Id == args.Before.Channel.Id);
                     if (cl == null) return;
-                    if (args.After.Channel == null && !cl.UpdatedChannel)
+                    if (args.After.Channel is null && !cl.UpdatedChannel)
                     {
                         await Debug.WriteAsync("After Channel is Null", false, Debug.DebugColor.Warning);
                         await cl.DisconnectAsync();
                         return;
                     }
 
-                    if (args.Before.Channel.Id == args.After.Channel?.Id) return;
+                    if (args.Before.Channel.Id == args.After.Channel.Id) return;
                     cl.UpdateChannel(args.After.Channel);
                 }
                 catch (Exception e)
@@ -591,8 +590,8 @@ public static class Bot
     private static async Task NewPlaylistHandler(DiscordClient client,
         ComponentInteractionCreateEventArgs eventArgs, User user, string[] split)
     {
-        var userVoiceS = eventArgs.Guild.Members[eventArgs.User.Id]?.VoiceState?.Channel;
-        if (userVoiceS == null)
+        var userVoiceS = eventArgs.Guild.Members[eventArgs.User.Id].VoiceState.Channel;
+        if (userVoiceS is null)
         {
             await eventArgs.Interaction.CreateFollowupMessageAsync(
                 new DiscordFollowupMessageBuilder { IsEphemeral = true }.WithContent(user.Language

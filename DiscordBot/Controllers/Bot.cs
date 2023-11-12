@@ -143,9 +143,9 @@ public class Bot : Controller
             {
                 stats.Title = player.CurrentItem?.GetTitle();
                 stats.Author = player.CurrentItem?.GetAuthor();
-                stats.Current = player.Stopwatch.Elapsed.ToString("hh\\:mm\\:ss");
+                stats.Current = player.Stopwatch.Elapsed.ToString(@"hh\:mm\:ss");
                 stats.Total = TimeSpan.FromMilliseconds(player.CurrentItem?.GetLength() ?? 0)
-                    .ToString("hh\\:mm\\:ss");
+                    .ToString(@"hh\:mm\:ss");
                 stats.TotalDuration = player.CurrentItem?.GetLength() ?? 0;
                 stats.CurrentDuration = (ulong)player.Stopwatch.ElapsedMilliseconds;
                 stats.Loop = player.LoopStatus switch
@@ -189,7 +189,7 @@ public class Bot : Controller
             if (search != Status.OK) return Ok("410");
             var result = search.GetOK();
 
-            var req = player.CurrentGuild?.Members[user.Id];
+            var req = player.CurrentGuild.Members[user.Id];
             result.ForEach(r => r.SetRequester(req));
             if (!next) player.Queue.AddToQueue(result);
             else player.Queue.AddToQueueNext(result);
@@ -213,7 +213,7 @@ public class Bot : Controller
             //Index = queue.IndexOf(qu),
             ThumbnailUrl = qu.GetThumbnailUrl() ?? "nothumb.png",
             Length =
-                qu.GetLength() == 0 ? "10" : TimeSpan.FromMilliseconds(qu.GetLength()).ToString("hh\\:mm\\:ss"),
+                qu.GetLength() == 0 ? "10" : TimeSpan.FromMilliseconds(qu.GetLength()).ToString(@"hh\:mm\:ss"),
             Url = qu.GetType() == typeof(YoutubeVideoInformation)
                 ? $"https://youtube.com/watch?v={qu.GetId()}"
                 : "no"

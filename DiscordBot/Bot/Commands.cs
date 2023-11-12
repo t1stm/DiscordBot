@@ -446,9 +446,8 @@ public class Commands : BaseCommandModule
     {
         try
         {
-            DiscordMessage? respond = null;
+            DiscordMessage? respond;
             du ??= ctx.User;
-            if (du.Mention != null)
             {
                 var pic = await Methods.ImageMagick.DiscordUserHandler
                     (ctx.User, du, ImageTypes.Dick);
@@ -459,11 +458,10 @@ public class Commands : BaseCommandModule
                     .AddFile("hahaha_funny_peepee.jpg", pic));
             }
 
-            if (du.IsBot && du.IsCurrent)
+            if (du is { IsBot: true, IsCurrent: true })
             {
                 await ctx.RespondAsync("ohh spicy");
-                if (respond != null)
-                    await respond.CreateReactionAsync(DiscordEmoji.FromName(Bot.Clients[0], ":tired_face:"));
+                await respond.CreateReactionAsync(DiscordEmoji.FromName(Bot.Clients[0], ":tired_face:"));
             }
         }
         catch (Exception e)
@@ -481,13 +479,12 @@ public class Commands : BaseCommandModule
         {
             DiscordMessage? respond = null;
             du ??= ctx.User;
-            if (du.Mention != null)
             {
                 const ulong yesEmoji = 837062162471976982;
                 const ulong noEmoji = 837062173296427028;
                 var message =
                     await ctx.RespondAsync($"{du.Mention} Искаш ли да хванеш {ctx.User.Mention} за кура?");
-                if (du.IsBot && du.IsCurrent)
+                if (du is { IsBot: true, IsCurrent: true })
                 {
                     await Task.Delay(500);
                     await message.CreateReactionAsync(DiscordEmoji.FromGuildEmote(Bot.Clients[0], yesEmoji));
@@ -545,10 +542,10 @@ public class Commands : BaseCommandModule
                 }
             }
 
-            if (du.IsBot && du.IsCurrent)
+            if (du is { IsBot: true, IsCurrent: true })
             {
                 await ctx.RespondAsync("ohh spicy");
-                if (respond != null)
+                if (respond is not null)
                     await respond.CreateReactionAsync(DiscordEmoji.FromName(Bot.Clients[0], ":tired_face:"));
             }
         }
@@ -564,23 +561,20 @@ public class Commands : BaseCommandModule
     {
         try
         {
-            DiscordMessage? respond = null;
             du = du switch
             {
                 null => ctx.User,
                 _ => du
             };
-            if (du.Mention != null)
-                respond = await ctx.RespondAsync(new DiscordMessageBuilder()
-                    .WithContent($"{du.Mention} is now monke.")
-                    .AddFile("haha_funny_monke.jpg", await Methods.ImageMagick.DiscordUserHandler
-                        (du, null, ImageTypes.Monke)));
+            var respond = await ctx.RespondAsync(new DiscordMessageBuilder()
+                .WithContent($"{du.Mention} is now monke.")
+                .AddFile("haha_funny_monke.jpg", await Methods.ImageMagick.DiscordUserHandler
+                    (du, null, ImageTypes.Monke)));
 
-            if (du.IsBot && du.IsCurrent)
+            if (du is { IsBot: true, IsCurrent: true })
             {
                 await ctx.RespondAsync("ohh spicy");
-                if (respond != null)
-                    await respond.CreateReactionAsync(DiscordEmoji.FromName(Bot.Clients[0], ":tired_face:"));
+                await respond.CreateReactionAsync(DiscordEmoji.FromName(Bot.Clients[0], ":tired_face:"));
             }
         }
         catch (Exception e)

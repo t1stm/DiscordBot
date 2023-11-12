@@ -57,7 +57,7 @@ public class Statusbar : IBaseStatusbar
 
     public async Task Start()
     {
-        if (Message == null)
+        if (Message is null)
             try
             {
                 Message = await Client.Guilds[Guild.Id].Channels[Channel.Id]
@@ -113,24 +113,32 @@ public class Statusbar : IBaseStatusbar
 
     public async Task UpdatePlacement()
     {
-        IReadOnlyList<DiscordMessage> messagesAfter = Array.Empty<DiscordMessage>();
-        if (Message == null) return;
+        IAsyncEnumerable<DiscordMessage>? messagesAfter = null;
+        if (Message is null) return;
+        
         try
         {
-            messagesAfter = await Channel.GetMessagesAfterAsync(Message.Id);
+            messagesAfter = Channel.GetMessagesAfterAsync(Message.Id);
         }
         catch (Exception e)
         {
             await Debug.WriteAsync($"Getting Messages After Failed: {e}");
         }
+        
+        if (messagesAfter == null) return;
+        var message_list = new List<DiscordMessage>();
 
-        if (messagesAfter.Count > 2 && messagesAfter.Count > Bot.Clients.Count)
+        await foreach (var message in messagesAfter)
         {
-            var guild = await Client.GetGuildAsync(Guild.Id);
-            var chan = guild.Channels.First(ch => ch.Key == Channel.Id).Value;
-            await chan.DeleteMessageAsync(Message);
-            Message = null;
+            message_list.Add(message);
         }
+
+        if (message_list.Count < 2 || message_list.Count < Bot.Clients.Count) return;
+        
+        var guild = await Client.GetGuildAsync(Guild.Id);
+        var chan = guild.Channels.First(ch => ch.Key == Channel.Id).Value;
+        await chan.DeleteMessageAsync(Message);
+        Message = null;
     }
 
     public string GenerateStatusbar()
@@ -173,7 +181,7 @@ public class Statusbar : IBaseStatusbar
     {
         if (!NewStatusbar)
         {
-            if (Message == null)
+            if (Message is null)
                 Message = await Client.Guilds[Guild.Id].Channels[Channel.Id]
                     .SendMessageAsync(GenerateStatusbar());
             else
@@ -181,7 +189,7 @@ public class Statusbar : IBaseStatusbar
             return;
         }
 
-        if (Message == null)
+        if (Message is null)
             Message = await Client.Guilds[Guild.Id].Channels[Channel.Id]
                 .SendMessageAsync(GenerateNewStatusbar());
         else

@@ -65,7 +65,7 @@ public static class Search
             }
 
             if (searchTerm.Contains("youtu.be/"))
-                return ToList(await Video.SearchById(searchTerm.Split("youtu.be/").Last().Split("&")[0]));
+                return ToList(await Video.SearchById(searchTerm.Split("youtu.be/").Last().Split('&')[0].Split('?')[0]));
             if (searchTerm.Contains("http") && searchTerm.Contains("vbox7.com"))
             {
                 var ser = await Vbox7SearchClient.SearchUrl(searchTerm);
