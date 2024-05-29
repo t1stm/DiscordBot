@@ -10,7 +10,7 @@ namespace DiscordBot.Methods;
 public static class ImageMagick
 {
     private static async Task<Stream> GenerateComposite(string image1, int x1, int y1, int res,
-        string image2 = null, int? x2 = null, int? y2 = null, string baseImage = "cursed_touch2.jpg")
+        string image2 = null, int? x2 = null, int? y2 = null, string baseImage = "cursed_touch.webp")
     {
         var ms = new MemoryStream();
         // await client.DownloadFileTaskAsync(image1, "/srv/http/Bat_Tosho_Content/image1.png");
@@ -40,8 +40,8 @@ public static class ImageMagick
         await Debug.WriteAsync($"Generating image of type: {imageTypes}");
         return imageTypes switch
         {
-            ImageTypes.Dick => await GenerateComposite(du2.AvatarUrl, 220, 53, 200, du1.AvatarUrl, 420,
-                33),
+            ImageTypes.Dick => await GenerateComposite(du2.AvatarUrl, 133, 0, 120, du1.AvatarUrl, 420,
+                25),
             ImageTypes.Monke => await GenerateComposite(du1.AvatarUrl, 435, 60, 512, null, null, null, "monke.jpg"),
             _ => null
         };
