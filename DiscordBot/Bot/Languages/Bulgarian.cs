@@ -244,7 +244,7 @@ public class Bulgarian : AbstractLanguage
     public override string DefaultStatusbarMessage()
     {
         return
-            "ВАЖНО СЪОБЩЕНИЕ: \n YouTube отново се изпика на труда ми, извинете ме. Използвайте линкове за сега.";
+            "ВАЖНО СЪОБЩЕНИЕ: \n Линковете за онлайн интерфейса на бота са сменени. Може да генерирате нови линкове с бутона \"Web UI\" под това съобщение.";
     }
 
     public override string DiscordDidTheFunny()

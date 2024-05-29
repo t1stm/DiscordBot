@@ -160,6 +160,8 @@ public static partial class Video
         }
     }
 
+    private static readonly char[] remove_separator = { '.', '?', '!', ' ', ';', ':', ',', '(', ')' };
+
     private static void RemoveAll(ref List<VideoSearchResult> list, string searchTerm, params string[] terms)
     {
         var li = list;
@@ -167,14 +169,14 @@ public static partial class Video
         {
             foreach (var term in terms)
             {
-                if (searchTerm.ToLower().Contains(term.ToLower())) continue;
-                var source = searchTerm.Split(new[] { '.', '?', '!', ' ', ';', ':', ',', '(', ')' },
+                if (searchTerm.Contains(term, StringComparison.CurrentCultureIgnoreCase)) continue;
+                var source = searchTerm.Split(remove_separator,
                     StringSplitOptions.RemoveEmptyEntries);
                 var times = from word in source
                     where LevenshteinDistance.ComputeLean(word, term) < Math.Ceiling(word.Length * 0.25)
                     select word;
                 if (times.Count() == 1) continue;
-                var things = li.Where(r => r.Title.ToLower().Contains(term.ToLower())).ToList();
+                var things = li.Where(r => r.Title.Contains(term, StringComparison.CurrentCultureIgnoreCase)).ToList();
                 foreach (var thing in things)
                 {
                     li.Remove(thing);
@@ -225,7 +227,7 @@ public static partial class Video
             var client = new YoutubeClient(HttpClient.WithCookies());
             var video = await client.Videos.GetAsync(id);
             
-            if (video.Duration is not null) return Result<PlayableItem, Error>.Error(new NoResultsError());
+            if (video.Duration is null) return Result<PlayableItem, Error>.Error(new NoResultsError());
             var vid = new YoutubeVideoInformation
             {
                 Title = video.Title,

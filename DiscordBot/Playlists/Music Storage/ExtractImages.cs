@@ -10,7 +10,7 @@ namespace DiscordBot.Playlists.Music_Storage;
 
 public static class ExtractImages
 {
-    public const string ExportDirectory = "/srv/http/danke.gq/Album_Covers/";
+    public const string ExportDirectory = $"/srv/http/{Bot.MainDomain}/Album_Covers/";
 
     public static void Run(bool isVerbose = false)
     {

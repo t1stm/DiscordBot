@@ -19,7 +19,7 @@ public static class ImageMagick
         var im1 = await HttpClient.DownloadStream(image1);
         var im2 = image2 switch { null => Stream.Null, _ => await HttpClient.DownloadStream(image2) };
 
-        using var image = new MagickImage($"/srv/http/Bat_Tosho_Content/{baseImage}");
+        using var image = new MagickImage($"/srv/http/{Bot.MainDomain}/Bat_Tosho_Content/{baseImage}");
         using var watermark1 = new MagickImage(im1);
         watermark1.Resize(res, res);
         image.Composite(watermark1, x1, y1, CompositeOperator.Over);

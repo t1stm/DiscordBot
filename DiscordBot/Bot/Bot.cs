@@ -44,7 +44,7 @@ public static class Bot
         SecondaryBot = "OTAzMjg3NzM3Nzc4NTg5NzA2.YXqyQg.F3cDKz-icUbYYMUJXwLxT-BX574";
 
     public const string WorkingDirectory = "/nvme0/DiscordBot";
-    public const string MainDomain = "danke.gq";
+    public const string MainDomain = "gergov.bg";
     public const string WebUiPage = "WebUi";
     public const string Name = "Bai Tosho";
 
@@ -56,6 +56,8 @@ public static class Bot
     public static List<DiscordClient> Clients { get; } = new();
     public static bool DebugMode { get; private set; } // Default: false
     private static List<DiscordMessage> BotMessages { get; } = new();
+
+    private static readonly string[] stringArray = { ";" };
 
     public static async Task Initialize(RunType token)
     {
@@ -86,7 +88,7 @@ public static class Bot
                 await Debug.WriteAsync($"{Name} E Veche Velik! RunType = {token}, Token is: \"{BotRelease}\"");
                 break;
             case RunType.Beta:
-                Clients.Add(MakeClient(BotBeta, new[] { ";" }, useSlashCommands: false));
+                Clients.Add(MakeClient(BotBeta, stringArray, useSlashCommands: false));
                 Clients.Add(MakeClient(SecondaryBot, Array.Empty<string>()));
                 Clients.Add(MakeClient("OTA2MDc2NTM2Nzk5NjI1MjU3.YYTXiA.8GU3WJRqU_kWW7lhQ_upcH_mfGI",
                     Array.Empty<string>()));
@@ -455,7 +457,7 @@ public static class Bot
         if (useVoiceNext)
             client.UseVoiceNext(new VoiceNextConfiguration
             {
-                AudioFormat = new AudioFormat(48000, 2, VoiceApplication.LowLatency),
+                AudioFormat = new AudioFormat(48000),
                 EnableIncoming = false
             });
         client.MessageCreated += async (sender, args) =>
@@ -552,10 +554,6 @@ public static class Bot
                         await pl.DisconnectAsync();
                     break;
                 case "webui":
-                    if (verbose)
-                        await eventArgs.Interaction.CreateFollowupMessageAsync(
-                            new DiscordFollowupMessageBuilder { IsEphemeral = true }.WithContent(
-                                user.Language.SendingADirectMessageContainingTheInformation().CodeBlocked()));
                     DiscordMessageBuilder message;
                     if (Controllers.Bot.WebUiUsers.ContainsKey(eventArgs.User.Id))
                     {
@@ -570,8 +568,13 @@ public static class Bot
                         message = Manager.GetWebUiMessage(randomString, user.Language.YourWebUiCodeIs(),
                             user.Language.ControlTheBotUsingAFancyInterface());
                     }
-
-                    await eventArgs.Guild.Members[eventArgs.User.Id].SendMessageAsync(message);
+                    
+                    var funny_builder = new DiscordFollowupMessageBuilder()
+                        .WithContent(message.Content)
+                        .AddFiles(message.Files)
+                        .AddEmbed(message.Embed)
+                        .AsEphemeral();
+                    await eventArgs.Interaction.CreateFollowupMessageAsync(funny_builder);
                     break;
                 case "resume":
                     await OriginalPlaylistHandler(client, eventArgs, user, split);

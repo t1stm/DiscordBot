@@ -237,7 +237,7 @@ public class Statusbar : IBaseStatusbar
             if (Message == null) return;
             await Task.Delay(Bot.UpdateDelay);
             var builder = new DiscordMessageBuilder().WithContent(formatted
-                ? $"```{message}```\nhttps://playlists.danke.gq/{Player.QueueToken}"
+                ? $"```{message}```\nhttps://playlists.gergov.bg/{Player.QueueToken}"
                 : message);
             builder.ClearComponents();
             if (Player.Settings.SaveQueueOnLeave && Player.SavedQueue)
@@ -296,7 +296,7 @@ public class Statusbar : IBaseStatusbar
 
     public static string Time(TimeSpan timeSpan)
     {
-        return timeSpan.ToString("hh\\:mm\\:ss");
+        return timeSpan.ToString(@"hh\:mm\:ss");
     }
 
     ~Statusbar()
