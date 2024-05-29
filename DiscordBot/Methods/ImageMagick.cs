@@ -40,8 +40,8 @@ public static class ImageMagick
         await Debug.WriteAsync($"Generating image of type: {imageTypes}");
         return imageTypes switch
         {
-            ImageTypes.Dick => await GenerateComposite(du2.AvatarUrl, 133, 0, 120, du1.AvatarUrl, 420,
-                25),
+            ImageTypes.Dick => await GenerateComposite(du1.AvatarUrl, 133, 0, 120, du2.AvatarUrl, 420,
+                33),
             ImageTypes.Monke => await GenerateComposite(du1.AvatarUrl, 435, 60, 512, null, null, null, "monke.jpg"),
             _ => null
         };
